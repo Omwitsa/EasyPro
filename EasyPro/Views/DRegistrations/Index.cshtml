@@ -1,0 +1,107 @@
+﻿@model IEnumerable<EasyPro.Models.DRegistration>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Sno)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Transdate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Bal)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Transdescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Auditid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Auditdate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mno)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Toledgers)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Datepostedtoledger)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Userledger)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LocalId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Run)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sno)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Transdate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Bal)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Transdescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Auditid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Auditdate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Mno)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Toledgers)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Datepostedtoledger)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Userledger)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LocalId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Run)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

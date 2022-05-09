@@ -1,14 +1,26 @@
 ﻿@model IEnumerable<EasyPro.Models.DSupplier>
 
+<<<<<<< HEAD
+=======
+@{
+    ViewData["Title"] = "Index";
+}
+>>>>>>> f990e49b2c03b6d0cb34473b9e929414940259fc
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
-            <div class="basic-tb-hd">
-                <p>
+            <div class="row">
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                    <h3 class="text-danger fa-bold">Farmers</h3>
+                </div>
+                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <a asp-action="Create" class="btn btn-primary">Create New</a>
-                </p>
-                <p>Farmers</p>
+                </div>
             </div>
+<<<<<<< HEAD
             <div class="bsc-tbl-hvr table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -89,6 +101,78 @@
                         }
                     </tbody>
                 </table>
+=======
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Sno)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Regdate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Names)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.IdNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AccNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Location)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Branch)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.PhoneNo)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sno)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Regdate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Names)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.IdNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.AccNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Location)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Branch)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PhoneNo)
+                                    </td>
+                                    <td class="col-4">
+                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                        @*<a class="btn-info btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
+                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+>>>>>>> f990e49b2c03b6d0cb34473b9e929414940259fc
             </div>
         </div>
     </div>

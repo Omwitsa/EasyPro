@@ -116,6 +116,9 @@
                             <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
                         </li>
                         <li>
+                            <a data-toggle="tab" href="#deductions"><i class="notika-icon notika-house"></i>Deduction</a>
+                        </li>
+                        <li>
                             <a data-toggle="tab" href="#Forms"><i class="notika-icon notika-form"></i> Forms</a>
                         </li>
                     </ul>
@@ -123,10 +126,32 @@
                         <div id="registration" class="tab-pane in active notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
-                                    <a asp-controller="DSuppliers" asp-action="Index">Farmers</a>
+                                    <a asp-controller="DSuppliers" asp-action="Index">Farmer</a>
                                 </li>
                                 <li>
-                                    <a href="widgets.html">Widgets</a>
+                                    <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DDcodes" asp-action="Index">Deduction</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DBanks" asp-action="Index">Banks</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DBranches" asp-action="Index">Branch</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="deductions" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="DSupplierDeducs" asp-action="Index">Farmer</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DTransportDeducs" asp-action="Index">Transporter</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DTransports" asp-action="Index">Transporter Assignement</a>
                                 </li>
                             </ul>
                         </div>

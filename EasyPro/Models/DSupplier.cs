@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -57,6 +58,7 @@ namespace EasyPro.Models
         public long? Status4 { get; set; }
         public long? Status5 { get; set; }
         public string Status6 { get; set; }
+       
         public string Types { get; set; }
         public DateTime? Dob { get; set; }
         public string Freezed { get; set; }

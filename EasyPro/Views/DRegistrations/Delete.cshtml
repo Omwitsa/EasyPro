@@ -1,0 +1,99 @@
+﻿@model EasyPro.Models.DRegistration
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>DRegistration</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Sno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Transdate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Transdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Amount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Bal)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bal)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Transdescription)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Transdescription)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Mno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Mno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Toledgers)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Toledgers)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Datepostedtoledger)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Datepostedtoledger)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Userledger)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Userledger)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LocalId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LocalId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Run)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Run)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

@@ -9,22 +9,22 @@ using EasyPro.Models;
 
 namespace EasyPro.Controllers
 {
-    public class DSuppliersController : Controller
+    public class DTransportDeducsController : Controller
     {
         private readonly MORINGAContext _context;
 
-        public DSuppliersController(MORINGAContext context)
+        public DTransportDeducsController(MORINGAContext context)
         {
             _context = context;
         }
 
-        // GET: DSuppliers
+        // GET: DTransportDeducs
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DSuppliers.ToListAsync());
+            return View(await _context.DTransportDeducs.ToListAsync());
         }
 
-        // GET: DSuppliers/Details/5
+        // GET: DTransportDeducs/Details/5
         public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
@@ -32,17 +32,17 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dSupplier = await _context.DSuppliers
+            var dTransportDeduc = await _context.DTransportDeducs
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dSupplier == null)
+            if (dTransportDeduc == null)
             {
                 return NotFound();
             }
 
-            return View(dSupplier);
+            return View(dTransportDeduc);
         }
 
-        // GET: DSuppliers/Create
+        // GET: DTransportDeducs/Create
         public IActionResult Create()
         {
             GetInitialValues();
@@ -50,8 +50,8 @@ namespace EasyPro.Controllers
         }
         private void GetInitialValues()
         {
-            var banksname = _context.DBanks.Select(b => b.BankName).ToList();
-            ViewBag.banksname = new SelectList(banksname);
+            var Descriptionname = _context.DDcodes.Select(b => b.Description).ToList();
+            ViewBag.Description = new SelectList(Descriptionname);
 
             var brances = _context.DBranch.Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
@@ -69,23 +69,23 @@ namespace EasyPro.Controllers
             };
             ViewBag.payment = payment;
         }
-        // POST: DSuppliers/Create
+        // POST: DTransportDeducs/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
+        public async Task<IActionResult> Create([Bind("Id,TransCode,TdateDeduc,Description,Amount,Period,Startdate,Enddate,Auditid,Remarks,Auditdatetime,Yyear,Rate,Ai")] DTransportDeduc dTransportDeduc)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(dSupplier);
+                _context.Add(dTransportDeduc);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(dSupplier);
+            return View(dTransportDeduc);
         }
 
-        // GET: DSuppliers/Edit/5
+        // GET: DTransportDeducs/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
             if (id == null)
@@ -93,22 +93,22 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
             GetInitialValues();
-            var dSupplier = await _context.DSuppliers.FindAsync(id);
-            if (dSupplier == null)
+            var dTransportDeduc = await _context.DTransportDeducs.FindAsync(id);
+            if (dTransportDeduc == null)
             {
                 return NotFound();
             }
-            return View(dSupplier);
+            return View(dTransportDeduc);
         }
 
-        // POST: DSuppliers/Edit/5
+        // POST: DTransportDeducs/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,TdateDeduc,Description,Amount,Period,Startdate,Enddate,Auditid,Remarks,Auditdatetime,Yyear,Rate,Ai")] DTransportDeduc dTransportDeduc)
         {
-            if (id != dSupplier.Id)
+            if (id != dTransportDeduc.Id)
             {
                 return NotFound();
             }
@@ -117,15 +117,12 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    dSupplier.Br = "A";
-                    dSupplier.Freezed = "0";
-                    dSupplier.Mass = "0";
-                    _context.Update(dSupplier);
+                    _context.Update(dTransportDeduc);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DSupplierExists(dSupplier.Id))
+                    if (!DTransportDeducExists(dTransportDeduc.Id))
                     {
                         return NotFound();
                     }
@@ -136,10 +133,10 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(dSupplier);
+            return View(dTransportDeduc);
         }
 
-        // GET: DSuppliers/Delete/5
+        // GET: DTransportDeducs/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
             if (id == null)
@@ -147,30 +144,30 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dSupplier = await _context.DSuppliers
+            var dTransportDeduc = await _context.DTransportDeducs
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dSupplier == null)
+            if (dTransportDeduc == null)
             {
                 return NotFound();
             }
 
-            return View(dSupplier);
+            return View(dTransportDeduc);
         }
 
-        // POST: DSuppliers/Delete/5
+        // POST: DTransportDeducs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var dSupplier = await _context.DSuppliers.FindAsync(id);
-            _context.DSuppliers.Remove(dSupplier);
+            var dTransportDeduc = await _context.DTransportDeducs.FindAsync(id);
+            _context.DTransportDeducs.Remove(dTransportDeduc);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DSupplierExists(long id)
+        private bool DTransportDeducExists(long id)
         {
-            return _context.DSuppliers.Any(e => e.Id == id);
+            return _context.DTransportDeducs.Any(e => e.Id == id);
         }
     }
 }

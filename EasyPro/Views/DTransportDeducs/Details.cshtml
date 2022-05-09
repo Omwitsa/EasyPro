@@ -1,0 +1,96 @@
+﻿@model EasyPro.Models.DTransportDeduc
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DTransportDeduc</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.TransCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TransCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TdateDeduc)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TdateDeduc)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Amount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Period)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Period)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Startdate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Startdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Enddate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Enddate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Remarks)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Remarks)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdatetime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdatetime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Yyear)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Yyear)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Rate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Rate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Ai)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Ai)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
