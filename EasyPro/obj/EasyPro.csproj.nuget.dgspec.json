@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\EasyPro.csproj": {}
+    "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\EasyPro.csproj": {}
   },
   "projects": {
-    "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\EasyPro.csproj": {
+    "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\EasyPro.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\EasyPro.csproj",
+        "projectUniqueName": "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\EasyPro.csproj",
         "projectName": "EasyPro",
-        "projectPath": "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\EasyPro.csproj",
+        "projectPath": "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\EasyPro.csproj",
         "packagesPath": "C:\\Users\\wilso\\.nuget\\packages\\",
-        "outputPath": "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\obj\\",
+        "outputPath": "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\wilso\\AppData\\Roaming\\NuGet\\NuGet.Config",

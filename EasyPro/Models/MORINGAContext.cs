@@ -200,6 +200,7 @@ namespace EasyPro.Models
         public virtual DbSet<ReceiptBooking> ReceiptBookings { get; set; }
         public virtual DbSet<Receiptno> Receiptnos { get; set; }
         public virtual DbSet<Reportpath> Reportpaths { get; set; }
+        public virtual DbSet<ProductIntake> ProductIntake { get; set; }
         public virtual DbSet<Serialno> Serialnos { get; set; }
         public virtual DbSet<Session> Sessions { get; set; }
         public virtual DbSet<Setting> Settings { get; set; }

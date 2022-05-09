@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "0fpDdeWMvslvy4RDEWLDTRAxngAeIJ/LxqvuoEbPKWnW1mcVc5766qLvsRW4TCS/5mgCL0Jk91MjBjoMgNrGXw==",
+  "dgSpecHash": "4JJLVERmuQvRlywrqD+ny/uH01zB6lGksFS40+zlH/dKFTRycaQ+m4GdBW0Ycexe36pOFa/uaWYwPHaxoIUIIA==",
   "success": true,
-  "projectFilePath": "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\EasyPro.csproj",
+  "projectFilePath": "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\EasyPro.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\wilso\\.nuget\\packages\\aspnetcorehero.toastnotification\\1.1.0\\aspnetcorehero.toastnotification.1.1.0.nupkg.sha512",
     "C:\\Users\\wilso\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
