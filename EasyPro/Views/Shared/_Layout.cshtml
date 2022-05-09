@@ -119,7 +119,10 @@
                             <a data-toggle="tab" href="#deductions"><i class="notika-icon notika-house"></i>Deduction</a>
                         </li>
                         <li>
-                            <a data-toggle="tab" href="#Forms"><i class="notika-icon notika-form"></i> Forms</a>
+                            <a data-toggle="tab" href="#intake"><i class="notika-icon notika-form"></i> Product Intake</a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#setup"><i class="notika-icon notika-form"></i> Set Up</a>
                         </li>
                     </ul>
                     <div class="tab-content custom-menu-content">
@@ -145,7 +148,7 @@
                         <div id="deductions" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
-                                    <a asp-controller="DSupplierDeducs" asp-action="Index">Farmer</a>
+                                    <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DTransportDeducs" asp-action="Index">Transporter</a>
@@ -155,16 +158,23 @@
                                 </li>
                             </ul>
                         </div>
-                        <div id="Forms" class="tab-pane notika-tab-menu-bg animated flipInX">
+                        <div id="intake" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
-                                    <a href="form-elements.html">Form Elements</a>
+                                    <a asp-controller="ProductIntakes" asp-action="Index">Product Intake</a>
                                 </li>
                                 <li>
-                                    <a href="form-components.html">Form Components</a>
+                                    <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="setup" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="DCompanies" asp-action="Index">Company Setup</a>
                                 </li>
                                 <li>
-                                    <a href="form-examples.html">Form Examples</a>
+                                    <a asp-controller="UserAccounts" asp-action="Index">Users</a>
                                 </li>
                             </ul>
                         </div>

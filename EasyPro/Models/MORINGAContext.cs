@@ -3587,7 +3587,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DCompany>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_company");
 
@@ -10143,7 +10143,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<UserAccount>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Userid);
 
                 entity.Property(e => e.AssignGl)
                     .HasMaxLength(50)

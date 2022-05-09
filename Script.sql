@@ -10,6 +10,7 @@ CREATE TABLE ProductIntake (
 	Balance money,
 	Description nvarchar(50),
 	Remarks nvarchar(50),
+	TransactionType int,
 	AuditId nvarchar(50),
 	auditdatetime datetime,
 	Branch nvarchar(50)

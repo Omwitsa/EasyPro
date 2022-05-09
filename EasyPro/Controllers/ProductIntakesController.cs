@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using Microsoft.EntityFrameworkCore;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
@@ -21,7 +20,17 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ProductIntake.ToListAsync());
+            return View(await _context.ProductIntake.Where(i => i.TransactionType == TransactionType.Intake).ToListAsync());
+        }
+
+        public async Task<IActionResult> DeductionList()
+        {
+            return View(await _context.ProductIntake.Where(i => i.TransactionType == TransactionType.Deduction).ToListAsync());
+        }
+
+        public async Task<IActionResult> CorrectionList()
+        {
+            return View(await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Correction).ToListAsync());
         }
 
         // GET: ProductIntakes/Details/5
@@ -48,6 +57,16 @@ namespace EasyPro.Controllers
             return View();
         }
 
+        public IActionResult CreateDeduction()
+        {
+            return View();
+        }
+
+        public IActionResult CreateCorrection()
+        {
+            return View();
+        }
+
         // POST: ProductIntakes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -57,6 +76,7 @@ namespace EasyPro.Controllers
         {
             if (ModelState.IsValid)
             {
+                productIntake.TransactionType = TransactionType.Intake;
                 _context.Add(productIntake);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
