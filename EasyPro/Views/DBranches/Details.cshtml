@@ -1,0 +1,54 @@
+﻿@model EasyPro.Models.DBranch
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DBranch</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Bcode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bcode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Bname)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bname)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdatetime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdatetime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LocalId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LocalId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Run)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Run)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

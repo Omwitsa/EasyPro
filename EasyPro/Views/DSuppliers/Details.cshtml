@@ -11,16 +11,16 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Id)
-        </dd>
-        <dt>
             @Html.DisplayNameFor(model => model.LocalId)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.LocalId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Sno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sno)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Regdate)
@@ -343,6 +343,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Sno">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

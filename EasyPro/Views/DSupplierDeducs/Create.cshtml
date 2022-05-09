@@ -1,0 +1,114 @@
+﻿@model EasyPro.Models.DSupplierDeduc
+
+@{
+    ViewData["Title"] = "Create";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create Deduction</h2>
+            </div>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Deduction Date</label>
+                                    <input value="date" asp-for="DateDeduc" class="form-control" />
+                                    <span asp-validation-for="DateDeduc" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="Sno" class="control-label"></label>
+                                    <input asp-for="Sno" class="form-control" />
+                                    <span asp-validation-for="Sno" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Farmer Name</label>
+                                    <input class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="Description" class="control-label"></label>
+                                    <select asp-for="Description" class="form-control" asp-items="@ViewBag.Description"></select>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="Branch" class="control-label"></label>
+                                    <select asp-for="Branch" class="form-control" asp-items="@ViewBag.brances"></select>
+                                    <span asp-validation-for="Branch" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="nk-int-st">
+                            <div class="form-group">
+                                <label asp-for="Amount" class="control-label"></label>
+                                <input asp-for="Amount" class="form-control" />
+                                <span asp-validation-for="Amount" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="nk-int-st">
+                            <div class="form-group">
+                                <label asp-for="Remarks" class="control-label"></label>
+                                <textarea asp-for="Remarks" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

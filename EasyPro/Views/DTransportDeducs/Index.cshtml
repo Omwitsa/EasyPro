@@ -1,0 +1,69 @@
+﻿@model IEnumerable<EasyPro.Models.DTransportDeduc>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                    <h3 class="text-danger fa-bold">Transporters Deduction List</h3>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TransCode)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TdateDeduc)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Description)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Amount)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TransCode)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TdateDeduc)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Amount)
+                                </td>
+                                <td class="col-4">
+                                    <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                    @*<a class="btn-info btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
+                                    <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

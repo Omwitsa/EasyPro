@@ -1,0 +1,78 @@
+﻿@model EasyPro.Models.DBank
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DBank</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.BankCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BankCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BankName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BankName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BranchName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BranchName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Telephone)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Telephone)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BankAccNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BankAccNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Accno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Accno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AccType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AccType)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

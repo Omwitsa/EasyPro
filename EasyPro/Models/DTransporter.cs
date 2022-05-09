@@ -33,5 +33,6 @@ namespace EasyPro.Models
         public long Ttrate { get; set; }
         public string Br { get; set; }
         public string Freezed { get; set; }
+        public string PaymenMode { get; set; }
     }
 }

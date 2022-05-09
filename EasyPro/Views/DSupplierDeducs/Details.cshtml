@@ -1,0 +1,138 @@
+﻿@model EasyPro.Models.DSupplierDeduc
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DSupplierDeduc</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Sno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DateDeduc)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DateDeduc)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Amount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Period)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Period)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EndDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EndDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdatetime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdatetime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Yyear)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Yyear)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Remarks)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Remarks)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Branch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Branch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Bonus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bonus)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status1)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status1)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status2)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status2)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status3)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status3)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status4)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status4)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status5)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status5)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status6)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status6)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Branchcode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Branchcode)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

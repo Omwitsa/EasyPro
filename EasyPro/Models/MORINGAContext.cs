@@ -78,7 +78,7 @@ namespace EasyPro.Models
         public virtual DbSet<DBank> DBanks { get; set; }
         public virtual DbSet<DBonu> DBonus { get; set; }
         public virtual DbSet<DBonus2> DBonus2s { get; set; }
-        public virtual DbSet<DBranch> DBranches { get; set; }
+        public virtual DbSet<DBranch> DBranch { get; set; }
         public virtual DbSet<DBranchProduct> DBranchProducts { get; set; }
         public virtual DbSet<DBranchsalesman> DBranchsalesmen { get; set; }
         public virtual DbSet<DCashPay> DCashPays { get; set; }
@@ -3244,7 +3244,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DBank>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_BANKS");
 
@@ -3375,7 +3375,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DBranch>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Branch");
 
@@ -4042,7 +4042,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DDcode>(entity =>
             {
-                entity.HasKey(e => e.Dcode);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_DCodes");
 
@@ -5946,7 +5946,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DRegistration>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Registration");
 
@@ -6257,7 +6257,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DSupplier>(entity =>
             {
-                entity.HasKey(e => e.Sno);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Suppliers");
 
@@ -6467,7 +6467,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DSupplierDeduc>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_supplier_deduc");
 
@@ -6534,7 +6534,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DSupplierStandingorder>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_supplier_standingorder");
 
@@ -6859,7 +6859,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DTransport>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Transport");
 
@@ -6901,7 +6901,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DTransportDeduc>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Transport_Deduc");
 
@@ -6997,7 +6997,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DTransporter>(entity =>
             {
-                entity.HasKey(e => e.TransCode);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Transporters");
 

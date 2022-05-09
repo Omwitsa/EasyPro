@@ -1,0 +1,72 @@
+﻿@model EasyPro.Models.DTransport
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DTransport</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.TransCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TransCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Sno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Rate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Rate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Startdate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Startdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Active)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Active)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DateInactivate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DateInactivate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdatetime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdatetime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Isfrate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Isfrate)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
