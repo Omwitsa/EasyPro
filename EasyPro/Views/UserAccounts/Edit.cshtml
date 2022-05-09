@@ -1,0 +1,101 @@
+﻿@model EasyPro.Models.UserAccount
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<h4>UserAccount</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Userid" />
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserLoginIds" class="control-label"></label>
+                <input asp-for="UserLoginIds" class="form-control" />
+                <span asp-validation-for="UserLoginIds" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserGroup" class="control-label"></label>
+                <input asp-for="UserGroup" class="form-control" />
+                <span asp-validation-for="UserGroup" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PassExpire" class="control-label"></label>
+                <input asp-for="PassExpire" class="form-control" />
+                <span asp-validation-for="PassExpire" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateCreated" class="control-label"></label>
+                <input asp-for="DateCreated" class="form-control" />
+                <span asp-validation-for="DateCreated" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Superuser" class="control-label"></label>
+                <input asp-for="Superuser" class="form-control" />
+                <span asp-validation-for="Superuser" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AssignGl" class="control-label"></label>
+                <input asp-for="AssignGl" class="form-control" />
+                <span asp-validation-for="AssignGl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Branchcode" class="control-label"></label>
+                <input asp-for="Branchcode" class="form-control" />
+                <span asp-validation-for="Branchcode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Levels" class="control-label"></label>
+                <input asp-for="Levels" class="form-control" />
+                <span asp-validation-for="Levels" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Authorize" class="control-label"></label>
+                <input asp-for="Authorize" class="form-control" />
+                <span asp-validation-for="Authorize" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Branch" class="control-label"></label>
+                <input asp-for="Branch" class="form-control" />
+                <span asp-validation-for="Branch" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Sign" class="control-label"></label>
+                <input asp-for="Sign" class="form-control" />
+                <span asp-validation-for="Sign" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Phone" class="control-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

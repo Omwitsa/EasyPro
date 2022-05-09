@@ -1,0 +1,119 @@
+﻿@model IEnumerable<EasyPro.Models.UserAccount>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserLoginIds)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Password)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserGroup)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PassExpire)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateCreated)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Superuser)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AssignGl)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Branchcode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Levels)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Authorize)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Branch)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sign)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Phone)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserLoginIds)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Password)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserGroup)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PassExpire)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateCreated)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Superuser)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AssignGl)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Branchcode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Levels)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Authorize)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Branch)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sign)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Phone)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Userid">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Userid">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Userid">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

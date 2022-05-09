@@ -1,0 +1,54 @@
+﻿@model EasyPro.Models.DDcode
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DDcode</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Dcode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Dcode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Dedaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Dedaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Contraacc)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Contraacc)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdatetime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdatetime)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

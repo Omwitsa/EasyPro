@@ -1,0 +1,88 @@
+﻿@model EasyPro.Models.DRegistration
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create</h2>
+
+<h4>DRegistration</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Sno" class="control-label"></label>
+                <input asp-for="Sno" class="form-control" />
+                <span asp-validation-for="Sno" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Transdate" class="control-label"></label>
+                <input asp-for="Transdate" class="form-control" />
+                <span asp-validation-for="Transdate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Bal" class="control-label"></label>
+                <input asp-for="Bal" class="form-control" />
+                <span asp-validation-for="Bal" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Transdescription" class="control-label"></label>
+                <input asp-for="Transdescription" class="form-control" />
+                <span asp-validation-for="Transdescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Auditid" class="control-label"></label>
+                <input asp-for="Auditid" class="form-control" />
+                <span asp-validation-for="Auditid" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Auditdate" class="control-label"></label>
+                <input asp-for="Auditdate" class="form-control" />
+                <span asp-validation-for="Auditdate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Mno" class="control-label"></label>
+                <input asp-for="Mno" class="form-control" />
+                <span asp-validation-for="Mno" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Toledgers" class="control-label"></label>
+                <input asp-for="Toledgers" class="form-control" />
+                <span asp-validation-for="Toledgers" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Datepostedtoledger" class="control-label"></label>
+                <input asp-for="Datepostedtoledger" class="form-control" />
+                <span asp-validation-for="Datepostedtoledger" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Userledger" class="control-label"></label>
+                <input asp-for="Userledger" class="form-control" />
+                <span asp-validation-for="Userledger" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LocalId" class="control-label"></label>
+                <input asp-for="LocalId" class="form-control" />
+                <span asp-validation-for="LocalId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 
@@ -30,7 +33,7 @@ namespace EasyPro.Controllers
             }
 
             var dSupplier = await _context.DSuppliers
-                .FirstOrDefaultAsync(m => m.Sno == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (dSupplier == null)
             {
                 return NotFound();
@@ -42,9 +45,30 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Create
         public IActionResult Create()
         {
+            GetInitialValues();
             return View();
         }
+        private void GetInitialValues()
+        {
+            var banksname = _context.DBanks.Select(b => b.BankName).ToList();
+            ViewBag.banksname = new SelectList(banksname);
 
+            var brances = _context.DBranch.Select(b => b.Bname).ToList();
+            ViewBag.brances = new SelectList(brances);
+
+            List<SelectListItem> gender = new()
+            {
+                new SelectListItem { Value = "1", Text = "Male" },
+                new SelectListItem { Value = "2", Text = "Female" },
+            };
+            ViewBag.gender = gender;
+            List<SelectListItem> payment = new()
+            {
+                new SelectListItem { Value = "1", Text = "Weekly" },
+                new SelectListItem { Value = "2", Text = "Monthly" },
+            };
+            ViewBag.payment = payment;
+        }
         // POST: DSuppliers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -68,7 +92,7 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
+            GetInitialValues();
             var dSupplier = await _context.DSuppliers.FindAsync(id);
             if (dSupplier == null)
             {
@@ -84,7 +108,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
-            if (id != dSupplier.Sno)
+            if (id != dSupplier.Id)
             {
                 return NotFound();
             }
@@ -93,12 +117,15 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    dSupplier.Br = "A";
+                    dSupplier.Freezed = "0";
+                    dSupplier.Mass = "0";
                     _context.Update(dSupplier);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DSupplierExists(dSupplier.Sno))
+                    if (!DSupplierExists(dSupplier.Id))
                     {
                         return NotFound();
                     }
@@ -121,7 +148,7 @@ namespace EasyPro.Controllers
             }
 
             var dSupplier = await _context.DSuppliers
-                .FirstOrDefaultAsync(m => m.Sno == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (dSupplier == null)
             {
                 return NotFound();
@@ -143,7 +170,7 @@ namespace EasyPro.Controllers
 
         private bool DSupplierExists(long id)
         {
-            return _context.DSuppliers.Any(e => e.Sno == id);
+            return _context.DSuppliers.Any(e => e.Id == id);
         }
     }
 }

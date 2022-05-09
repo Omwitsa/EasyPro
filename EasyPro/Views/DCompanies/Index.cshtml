@@ -36,7 +36,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Location)
             </th>
-           
             <th>
                 @Html.DisplayNameFor(model => model.PhoneNo)
             </th>
@@ -46,7 +45,36 @@
             <th>
                 @Html.DisplayNameFor(model => model.Website)
             </th>
-            
+            <th>
+                @Html.DisplayNameFor(model => model.Fiscal)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Auditid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Auditdatetime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Acc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Motto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SendTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Smsno)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Smscost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Smsport)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Period)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -89,8 +117,36 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Website)
             </td>
-           
-           
+            <td>
+                @Html.DisplayFor(modelItem => item.Fiscal)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Auditid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Auditdatetime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Acc)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Motto)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SendTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Smsno)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Smscost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Smsport)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Period)
+            </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
