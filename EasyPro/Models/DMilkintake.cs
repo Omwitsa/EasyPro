@@ -12,13 +12,16 @@ namespace EasyPro.Models
         public DateTime? TransDate { get; set; }
         public decimal? Qsupplied { get; set; }
         public decimal? Ppu { get; set; }
-        public decimal? Pamount { get; set; }
         public string TransTime { get; set; }
+        public decimal? CR { get; set; }
+        public decimal? DR { get; set; }
+        public decimal? BAL { get; set; }
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }
         public bool Paid { get; set; }
         public int Lr { get; set; }
         public string Remark { get; set; }
+        public string Descript { get; set; }
         public string Comment { get; set; }
         public bool? Status1 { get; set; }
         public string Location { get; set; }

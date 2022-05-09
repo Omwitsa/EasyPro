@@ -1,21 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\EasyPro.csproj": {}
+    "C:\\EASYPRO\\EasyPro\\EasyPro\\EasyPro.csproj": {}
   },
   "projects": {
-    "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\EasyPro.csproj": {
+    "C:\\EASYPRO\\EasyPro\\EasyPro\\EasyPro.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\EasyPro.csproj",
+        "projectUniqueName": "C:\\EASYPRO\\EasyPro\\EasyPro\\EasyPro.csproj",
         "projectName": "EasyPro",
-        "projectPath": "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\EasyPro.csproj",
-        "packagesPath": "C:\\Users\\wilso\\.nuget\\packages\\",
-        "outputPath": "E:\\Newtech\\SourceCode\\CSharp\\EasyPro\\EasyPro\\obj\\",
+        "projectPath": "C:\\EASYPRO\\EasyPro\\EasyPro\\EasyPro.csproj",
+        "packagesPath": "C:\\Users\\BII\\.nuget\\packages\\",
+        "outputPath": "C:\\EASYPRO\\EasyPro\\EasyPro\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+        ],
         "configFilePaths": [
-          "C:\\Users\\wilso\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\BII\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
@@ -57,6 +63,10 @@
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
               "version": "[5.0.2, )"
+            },
+            "System.Configuration.ConfigurationManager": {
+              "target": "Package",
+              "version": "[6.0.0, )"
             }
           },
           "imports": [
@@ -77,7 +87,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.407\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.213\\RuntimeIdentifierGraph.json"
         }
       }
     }

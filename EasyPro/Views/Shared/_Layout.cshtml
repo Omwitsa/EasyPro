@@ -116,7 +116,13 @@
                             <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
                         </li>
                         <li>
-                            <a data-toggle="tab" href="#Forms"><i class="notika-icon notika-form"></i> Forms</a>
+                            <a data-toggle="tab" href="#Forms"><i class="notika-icon notika-form"></i>Forms</a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#activities"><i class="notika-icon notika-form"></i>Activities</a>
+                        </li>
+                        <li class="active">
+                            <a data-toggle="tab" href="#setup"><i class="notika-icon notika-form"></i>Setup</a>
                         </li>
                     </ul>
                     <div class="tab-content custom-menu-content">
@@ -140,6 +146,38 @@
                                 </li>
                                 <li>
                                     <a href="form-examples.html">Form Examples</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="activities" class="tab-pane in active notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="DMilkintakes" asp-action="Index">Product Intake</a>
+                                </li>
+                                @*<li>
+                                    <a asp-controller="DPrices" asp-action="Index">Pricing</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DCompanies" asp-action="Index">Company</a>
+                                </li>*@
+                                <li>
+                                    <a href="widgets.html">Widgets</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="setup" class="tab-pane in active notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="DBranchProducts" asp-action="Index">Add Product</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DPrices" asp-action="Index">Pricing</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DCompanies" asp-action="Index">Company</a>
+                                </li>
+                                <li>
+                                    <a href="widgets.html">Widgets</a>
                                 </li>
                             </ul>
                         </div>

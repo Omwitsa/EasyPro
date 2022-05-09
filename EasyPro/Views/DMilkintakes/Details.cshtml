@@ -1,0 +1,144 @@
+﻿@model EasyPro.Models.DMilkintake
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DMilkintake</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Sno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TransDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TransDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Qsupplied)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Qsupplied)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Ppu)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Ppu)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TransTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TransTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CR)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CR)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DR)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DR)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BAL)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BAL)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdatetime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdatetime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Paid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Paid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Lr)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Lr)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Remark)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Remark)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Descript)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Descript)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Comment)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Comment)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status1)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status1)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Location)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Location)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LocalId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LocalId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Run)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Run)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Type)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Productprocess)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Productprocess)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

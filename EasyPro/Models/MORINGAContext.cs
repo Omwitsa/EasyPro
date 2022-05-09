@@ -3409,7 +3409,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DBranchProduct>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e=> e.Id);
 
                 entity.ToTable("d_BranchProduct");
 
@@ -3586,7 +3586,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DCompany>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e=>e.Id);
 
                 entity.ToTable("d_company");
 
@@ -4850,7 +4850,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DMilkintake>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e=>e.Id);
 
                 entity.ToTable("d_Milkintake");
 
@@ -4880,11 +4880,11 @@ namespace EasyPro.Models
                     .IsUnicode(false)
                     .HasColumnName("LOCATION");
 
-                entity.Property(e => e.Lr).HasColumnName("LR");
+                entity.Property(e => e.Descript)
+                   .HasMaxLength(50)
+                   .HasColumnName("Descript");
 
-                entity.Property(e => e.Pamount)
-                    .HasColumnType("money")
-                    .HasColumnName("PAmount");
+                entity.Property(e => e.Lr).HasColumnName("LR");
 
                 entity.Property(e => e.Ppu)
                     .HasColumnType("money")
@@ -4893,6 +4893,18 @@ namespace EasyPro.Models
                 entity.Property(e => e.Qsupplied)
                     .HasColumnType("money")
                     .HasColumnName("QSupplied");
+
+                entity.Property(e => e.CR)
+                    .HasColumnType("money")
+                    .HasColumnName("CR");
+
+                entity.Property(e => e.DR)
+                   .HasColumnType("money")
+                   .HasColumnName("DR");
+
+                entity.Property(e => e.BAL)
+                   .HasColumnType("money")
+                   .HasColumnName("BAL");
 
                 entity.Property(e => e.Remark)
                     .HasMaxLength(50)
@@ -5773,9 +5785,11 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DPrice>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Price");
+
+                entity.Property(e => e.Id);
 
                 entity.Property(e => e.Edate)
                     .HasColumnType("datetime")
