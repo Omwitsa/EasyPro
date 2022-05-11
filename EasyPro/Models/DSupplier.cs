@@ -10,6 +10,7 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         public long? LocalId { get; set; }
+        [Required]
         public long Sno { get; set; }
         public DateTime? Regdate { get; set; }
         public string IdNo { get; set; }

@@ -1,5 +1,4 @@
-﻿@model EasyPro.Models.DTransportDeduc
-
+﻿@model EasyPro.ViewModels.TransportersVM.TransportersVM
 @{
     ViewData["Title"] = "Create";
 }
@@ -21,8 +20,8 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Deduction Date</label>
-                                    <input value="date" asp-for="TdateDeduc" class="form-control" />
-                                    <span asp-validation-for="TdateDeduc" class="text-danger"></span>
+                                    <input required value="date" asp-for="DTransportDeduc.TdateDeduc" class="form-control" />
+                                    <span asp-validation-for="DTransportDeduc.TdateDeduc" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -33,9 +32,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="TransCode" class="control-label"></label>
-                                    <input asp-for="TransCode" class="form-control" />
-                                    <span asp-validation-for="TransCode" class="text-danger"></span>
+                                    <label asp-for="DTransportDeduc.TransCode" class="control-label"></label>
+                                    <input required id="tcode" asp-for="DTransportDeduc.TransCode" class="form-control" />
+                                    <span asp-validation-for="DTransportDeduc.TransCode" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -45,7 +44,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Transporter Name</label>
-                                    <input class="form-control" />
+                                    <input id="tname" class="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -56,9 +55,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Description" class="control-label"></label>
-                                    <select asp-for="Description" class="form-control" asp-items="@ViewBag.Description"></select>
-                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                    <label asp-for="DTransportDeduc.Description" class="control-label"></label>
+                                    <select required asp-for="DTransportDeduc.Description" class="form-control" asp-items="@ViewBag.Description"></select>
+                                    <span asp-validation-for="DTransportDeduc.Description" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -67,9 +66,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Amount" class="control-label"></label>
-                                    <input asp-for="Amount" class="form-control" />
-                                    <span asp-validation-for="Amount" class="text-danger"></span>
+                                    <label asp-for="DTransportDeduc.Amount" class="control-label"></label>
+                                    <input required asp-for="DTransportDeduc.Amount" class="form-control" />
+                                    <span asp-validation-for="DTransportDeduc.Amount" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -79,8 +78,8 @@
                     <div class="form-group ic-cmp-int float-lb floating-lb">
                         <div class="nk-int-st">
                             <div class="form-group">
-                                <label asp-for="Remarks" class="control-label"></label>
-                                <textarea asp-for="Remarks" class="form-control"></textarea>
+                                <label asp-for="DTransportDeduc.Remarks" class="control-label"></label>
+                                <textarea asp-for="DTransportDeduc.Remarks" class="form-control"></textarea>
                             </div>
                         </div>
                     </div>
@@ -101,4 +100,16 @@
 
     @section Scripts {
         @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<script type="text/javascript">
+        $(function () {
+            $('#tcode').on('change', function () {
+                var products = @Html.Raw(Json.Serialize(Model.DTransporter));
+                var selectVal = parseInt($("#tcode").val());
+                var selectProducts = products.filter(p => p.transCode === selectVal);
+                    if (selectProducts[0]) {
+                        $("#tname").val(selectProducts[0].transName);
+                    }
+            });
+        });
+</script>
     }

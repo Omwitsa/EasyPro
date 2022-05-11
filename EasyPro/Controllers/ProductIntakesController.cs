@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using EasyPro.Models;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Constants;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using EasyPro.ViewModels;
+using EasyPro.ViewModels.FarmersVM;
 
 namespace EasyPro.Controllers
 {
@@ -12,20 +15,40 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
 
+        public FarmersVM Farmersobj { get; private set; }
+
         public ProductIntakesController(MORINGAContext context)
         {
             _context = context;
         }
-
         // GET: ProductIntakes
         public async Task<IActionResult> Index()
         {
             return View(await _context.ProductIntake.Where(i => i.TransactionType == TransactionType.Intake).ToListAsync());
         }
-
         public async Task<IActionResult> DeductionList()
         {
-            return View(await _context.ProductIntake.Where(i => i.TransactionType == TransactionType.Deduction).ToListAsync());
+            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction).ToListAsync();
+            var intakes = new List<ProductIntakeVm>();
+            foreach(var intake in productIntakes)
+            {
+                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno);
+                intakes.Add(new ProductIntakeVm { 
+                    Sno = intake.Sno,
+                    SupName = supplier.Names,
+                    TransDate = intake.TransDate,
+                    ProductType = intake.ProductType,
+                    Qsupplied = intake.Qsupplied,
+                    Ppu = intake.Ppu,
+                    CR = intake.CR,
+                    DR = intake.DR,
+                    Balance = intake.Balance,
+                    Description = intake.Description,
+                    Remarks = intake.Remarks,
+                    Branch = intake.Branch
+                });
+            }
+            return View(intakes);
         }
 
         public async Task<IActionResult> CorrectionList()
@@ -59,9 +82,36 @@ namespace EasyPro.Controllers
 
         public IActionResult CreateDeduction()
         {
-            return View();
+            GetInitialValues();
+            Farmersobj = new FarmersVM()
+            {
+                DSuppliers = _context.DSuppliers,
+                ProductIntake= new Models.ProductIntake()
+            };
+            //return Json(new { data = Farmersobj });
+            return View(Farmersobj);
         }
+        private void GetInitialValues()
+        {
+            var Descriptionname = _context.DDcodes.Select(b => b.Description).ToList();
+            ViewBag.Description = new SelectList(Descriptionname);
 
+            var brances = _context.DBranch.Select(b => b.Bname).ToList();
+            ViewBag.brances = new SelectList(brances);
+
+            List<SelectListItem> gender = new()
+            {
+                new SelectListItem { Value = "1", Text = "Male" },
+                new SelectListItem { Value = "2", Text = "Female" },
+            };
+            ViewBag.gender = gender;
+            List<SelectListItem> payment = new()
+            {
+                new SelectListItem { Value = "1", Text = "Weekly" },
+                new SelectListItem { Value = "2", Text = "Monthly" },
+            };
+            ViewBag.payment = payment;
+        }
         public IActionResult CreateCorrection()
         {
             return View();

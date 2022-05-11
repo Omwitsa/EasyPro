@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using EasyPro.ViewModels.TransportersVM;
 
 namespace EasyPro.Controllers
 {
@@ -17,7 +18,7 @@ namespace EasyPro.Controllers
         {
             _context = context;
         }
-
+        public TransportersVM Transportersobj { get; private set; }
         // GET: DTransportDeducs
         public async Task<IActionResult> Index()
         {
@@ -46,7 +47,13 @@ namespace EasyPro.Controllers
         public IActionResult Create()
         {
             GetInitialValues();
-            return View();
+            Transportersobj = new TransportersVM()
+            {
+                DTransporter = _context.DTransporters,
+                DTransportDeduc = new Models.DTransportDeduc()
+            };
+            //return Json(new { data = Farmersobj });
+            return View(Transportersobj);
         }
         private void GetInitialValues()
         {

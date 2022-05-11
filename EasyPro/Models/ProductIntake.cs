@@ -1,12 +1,15 @@
 ﻿using EasyPro.Constants;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace EasyPro.Models
 {
     public class ProductIntake
     {
         public long Id { get; set; }
+        [Required]
         public long Sno { get; set; }
+        [Required]
         public DateTime? TransDate { get; set; }
         public string ProductType { get; set; }
         public decimal? Qsupplied { get; set; }
