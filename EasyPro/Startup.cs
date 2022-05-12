@@ -1,3 +1,4 @@
+using AspNetCoreHero.ToastNotification;
 using EasyPro.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,6 +24,12 @@ namespace EasyPro
             services.AddDbContext<MORINGAContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("MoringaDbConnection")));
 
+            services.AddNotyf(config => 
+            { 
+                config.DurationInSeconds = 10; 
+                config.IsDismissable = true; 
+                config.Position = NotyfPosition.TopCenter; 
+            });
             services.AddControllersWithViews();
         }
 

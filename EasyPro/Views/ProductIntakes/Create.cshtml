@@ -1,93 +1,109 @@
 ﻿@model EasyPro.Models.ProductIntake
 
-@{
-    ViewData["Title"] = "Create";
-}
-
-<h2>Create</h2>
-
-<h4>ProductIntake</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Sno" class="control-label"></label>
-                <input asp-for="Sno" class="form-control" />
-                <span asp-validation-for="Sno" class="text-danger"></span>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create</h2>
             </div>
-            <div class="form-group">
-                <label asp-for="TransDate" class="control-label"></label>
-                <input asp-for="TransDate" class="form-control" />
-                <span asp-validation-for="TransDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProductType" class="control-label"></label>
-                <input asp-for="ProductType" class="form-control" />
-                <span asp-validation-for="ProductType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Qsupplied" class="control-label"></label>
-                <input asp-for="Qsupplied" class="form-control" />
-                <span asp-validation-for="Qsupplied" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Ppu" class="control-label"></label>
-                <input asp-for="Ppu" class="form-control" />
-                <span asp-validation-for="Ppu" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CR" class="control-label"></label>
-                <input asp-for="CR" class="form-control" />
-                <span asp-validation-for="CR" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DR" class="control-label"></label>
-                <input asp-for="DR" class="form-control" />
-                <span asp-validation-for="DR" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Balance" class="control-label"></label>
-                <input asp-for="Balance" class="form-control" />
-                <span asp-validation-for="Balance" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Remarks" class="control-label"></label>
-                <input asp-for="Remarks" class="form-control" />
-                <span asp-validation-for="Remarks" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AuditId" class="control-label"></label>
-                <input asp-for="AuditId" class="form-control" />
-                <span asp-validation-for="AuditId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Auditdatetime" class="control-label"></label>
-                <input asp-for="Auditdatetime" class="form-control" />
-                <span asp-validation-for="Auditdatetime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Branch" class="control-label"></label>
-                <input asp-for="Branch" class="form-control" />
-                <span asp-validation-for="Branch" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </form>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Sno" class="control-label"></label>
+                                <input asp-for="Sno" class="form-control" />
+                                <span asp-validation-for="Sno" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="ProductType" class="control-label"></label>
+                                <select id="ProductType" asp-for="ProductType" class="form-control" asp-items="@ViewBag.products"></select>
+                                <span asp-validation-for="ProductType" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Ppu" class="control-label"></label>
+                                <input id="Ppu" asp-for="Ppu" class="form-control" readonly />
+                                <span asp-validation-for="Ppu" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Qsupplied" class="control-label"></label>
+                                <input id="Qsupplied" asp-for="Qsupplied" class="form-control" />
+                                <span asp-validation-for="Qsupplied" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="CR" class="control-label"></label>
+                                <input asp-for="CR" id="CR" class="form-control" readonly />
+                                <span asp-validation-for="CR" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Description" class="control-label"></label>
+                                <input asp-for="Description" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Remarks" class="control-label"></label>
+                                <input asp-for="Remarks" class="form-control" />
+                                <span asp-validation-for="Remarks" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script type="text/javascript">
+        $(function () {
+            $('#ProductType').on('change', function () {
+                var selectVal = $("#ProductType").val();
+                var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
+                var selectProducts = products.filter(p => p.products === selectVal);
+                if (selectProducts[0]) {
+                    $("#CR").val();
+                    $("#Qsupplied").val();
+                    $("#Ppu").val(selectProducts[0].price);
+                }
+            });
+
+            $('#Qsupplied').on('keyup', function () {
+                calculatePrice();
+            });
+
+            function calculatePrice() {
+                var qty = parseFloat($("#Qsupplied").val());
+                var price = parseFloat($("#Ppu").val());
+                if (qty && price) {
+                    $("#CR").val(qty * price);
+                }
+            }
+        });
+</script>
 }

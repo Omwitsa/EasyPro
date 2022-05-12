@@ -2,6 +2,7 @@ CREATE TABLE ProductIntake (
 	Id bigint IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
 	Sno bigint NOT NULL,
 	TransDate datetime,
+	TransTime time(7),
 	ProductType nvarchar(50),
 	QSupplied money,
 	PPU money,

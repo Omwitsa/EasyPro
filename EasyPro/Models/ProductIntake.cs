@@ -10,7 +10,8 @@ namespace EasyPro.Models
         [Required]
         public long Sno { get; set; }
         [Required]
-        public DateTime? TransDate { get; set; }
+        public DateTime TransDate { get; set; }
+        public TimeSpan TransTime { get; set; }
         public string ProductType { get; set; }
         public decimal? Qsupplied { get; set; }
         public decimal? Ppu { get; set; }

@@ -8,18 +8,22 @@ using EasyPro.Constants;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using EasyPro.ViewModels;
 using EasyPro.ViewModels.FarmersVM;
+using System;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class ProductIntakesController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
         public FarmersVM Farmersobj { get; private set; }
 
-        public ProductIntakesController(MORINGAContext context)
+        public ProductIntakesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
         // GET: ProductIntakes
         public async Task<IActionResult> Index()
@@ -77,7 +81,15 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Create
         public IActionResult Create()
         {
+            SetIntakeInitialValues();
             return View();
+        }
+
+        private void SetIntakeInitialValues()
+        {
+            var products = _context.DPrices.ToList();
+            ViewBag.products = new SelectList(products, "Products", "Products");
+            ViewBag.productPrices = products;
         }
 
         public IActionResult CreateDeduction()
@@ -124,9 +136,26 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            if (productIntake.Sno < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide supplier No.");
+                return View(productIntake);
+            }
+            if (string.IsNullOrEmpty(productIntake.ProductType))
+            {
+                _notyf.Error("Sorry, Kindly select product type");
+                return View(productIntake);
+            }
+            if (productIntake.Qsupplied == null || productIntake.Qsupplied < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide quantity");
+                return View(productIntake);
+            }
             if (ModelState.IsValid)
             {
                 productIntake.TransactionType = TransactionType.Intake;
+                productIntake.TransDate = DateTime.Today;
+                productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 _context.Add(productIntake);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
