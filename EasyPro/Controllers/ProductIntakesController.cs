@@ -141,6 +141,11 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return View(productIntake);
             }
+            if(!_context.DSuppliers.Any(s => s.Sno == productIntake.Sno))
+            {
+                _notyf.Error("Sorry, Supplier No. not found");
+                return View(productIntake);
+            }
             if (string.IsNullOrEmpty(productIntake.ProductType))
             {
                 _notyf.Error("Sorry, Kindly select product type");
@@ -156,11 +161,26 @@ namespace EasyPro.Controllers
                 productIntake.TransactionType = TransactionType.Intake;
                 productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
+                productIntake.Balance = GetBalance(productIntake);
                 _context.Add(productIntake);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Intake saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(productIntake);
+        }
+
+        private decimal? GetBalance(ProductIntake productIntake)
+        {
+            var latestIntake = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno)
+                    .OrderByDescending(i => i.Id).FirstOrDefault();
+            if (latestIntake == null)
+                latestIntake = new ProductIntake();
+            latestIntake.Balance = latestIntake?.Balance ?? 0;
+            productIntake.DR = productIntake?.DR ?? 0;
+            productIntake.CR = productIntake?.CR ?? 0;
+            var balance = latestIntake.Balance + productIntake.CR - productIntake.DR;
+            return balance;
         }
 
         // GET: ProductIntakes/Edit/5
