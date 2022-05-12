@@ -5,13 +5,13 @@
         <div class="normal-table-list mg-t-30">
             <div class="row">
                 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-                    <h3 class="text-danger fa-bold">Farmers</h3>
+                    <h3 class="text-danger fa-bold">Corrections</h3>
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
 
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                    <a asp-action="CreateCorrection" class="btn btn-primary">Create New</a>
                 </div>
             </div>
 
@@ -36,6 +36,9 @@
                                     @Html.DisplayNameFor(model => model.Ppu)
                                 </th>
                                 <th>
+                                    @Html.DisplayNameFor(model => model.CR)
+                                </th>
+                                <th>
                                     @Html.DisplayNameFor(model => model.DR)
                                 </th>
                                 <th>
@@ -48,15 +51,8 @@
                                     @Html.DisplayNameFor(model => model.Remarks)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.AuditId)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Auditdatetime)
-                                </th>
-                                <th>
                                     @Html.DisplayNameFor(model => model.Branch)
                                 </th>
-                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -94,18 +90,7 @@
                                         @Html.DisplayFor(modelItem => item.Remarks)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.AuditId)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Auditdatetime)
-                                    </td>
-                                    <td>
                                         @Html.DisplayFor(modelItem => item.Branch)
-                                    </td>
-                                    <td>
-                                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                                     </td>
                                 </tr>
                             }
