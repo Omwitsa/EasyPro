@@ -45,7 +45,14 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Create
         public IActionResult Create()
         {
+            SetInitialValues();
             return View();
+        }
+
+        private void SetInitialValues()
+        {
+            var userGroups = _context.Usergroups.ToList();
+            ViewBag.userGroups = new SelectList(userGroups, "GroupId", "GroupName");
         }
 
         // POST: UserAccounts/Create
@@ -57,6 +64,7 @@ namespace EasyPro.Controllers
         {
             if (ModelState.IsValid)
             {
+                userAccount.DateCreated = DateTime.UtcNow.AddHours(3);
                 _context.Add(userAccount);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -67,6 +75,7 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            SetInitialValues();
             if (id == null)
             {
                 return NotFound();

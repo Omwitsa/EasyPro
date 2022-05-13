@@ -10302,7 +10302,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<Usergroup>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.GroupId);
 
                 entity.ToTable("USERGROUPS");
 
