@@ -47,14 +47,14 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Password" class="control-label"></label>
-                            <input asp-for="Password" id="Password" class="form-control" />
+                            <input asp-for="Password" type="password" id="Password" class="form-control" />
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label"> Confirm Password </label>
-                            <input id="confirmPassword" class="form-control" />
+                            <input id="confirmPassword" type="password" class="form-control" />
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
             $('#Branch').on('change', function () {
                 var selectVal = $("#Branch").val();
@@ -114,17 +114,19 @@
                 }
             });
 
-            //$('#Qsupplied').on('keyup', function () {
-            //    calculatePrice();
-            //});
-
-            //function calculatePrice() {
-            //    var qty = parseFloat($("#Qsupplied").val());
-            //    var price = parseFloat($("#Ppu").val());
-            //    if (qty && price) {
-            //        $("#CR").val(qty * price);
-            //    }
-            //}
+            $('#confirmPassword').on('blur', function () {
+                var confirmPassword = $("#confirmPassword").val();
+                var password = $("#Password").val();
+                if (!password) {
+                    $("#confirmPassword").val('');
+                    return
+                }
+                if (password != confirmPassword) {
+                    $("#Password").val('');
+                    $("#confirmPassword").val('');
+                    return
+                }
+            });
         });
-    </script>
+</script>
 }
