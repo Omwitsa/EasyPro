@@ -20,6 +20,7 @@ namespace EasyPro.Models
         public decimal? Balance { get; set; }
         public string Description { get; set; }
         public TransactionType TransactionType { get; set; }
+        public bool Paid { get; set; }
         public string Remarks { get; set; }
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }

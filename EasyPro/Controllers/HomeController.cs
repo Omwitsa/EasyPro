@@ -1,5 +1,9 @@
-﻿using EasyPro.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Models;
+using EasyPro.Utils;
+using EasyPro.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,10 +16,14 @@ namespace EasyPro.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(MORINGAContext context, ILogger<HomeController> logger, INotyfService notyf)
         {
+            _context = context;
             _logger = logger;
+            _notyf = notyf;
         }
 
         public IActionResult Index()
@@ -26,6 +34,39 @@ namespace EasyPro.Controllers
         public IActionResult Login()
         {
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login([Bind("Username,Password")] LoginVm login)
+        {
+            if (ModelState.IsValid)
+            {
+                if (string.IsNullOrEmpty(login.Username))
+                {
+                    _notyf.Error("Sorry, Kindly provide username");
+                    return View(login);
+                }
+                if (string.IsNullOrEmpty(login.Password))
+                {
+                    _notyf.Error("Sorry, Kindly provide password");
+                    return View(login);
+                }
+
+                login.Password = Decryptor.Decript_String(login.Password);
+                var isValidUser = await _context.UserAccounts
+                    .AnyAsync(u => u.UserLoginIds.ToUpper().Equals(login.Username.ToUpper()) 
+                    && u.Password.Equals(login.Password));
+                if (!isValidUser)
+                {
+                    _notyf.Error("Sorry, Invalid user credentials");
+                    return View(login);
+                }
+
+                _notyf.Success("Logged in successfully");
+                return RedirectToAction(nameof(Index));
+            }
+            return View(login);
         }
 
         public IActionResult Privacy()
