@@ -28,15 +28,15 @@ namespace EasyPro.Controllers
         }
        
         // GET: DPrices/Details/5
-        public async Task<IActionResult> Details(long? id)
+        public async Task<IActionResult> Details(string product)
         {
-            if (id == null)
+            if (product == null)
             {
                 return NotFound();
             }
 
             var dPrice = await _context.DPrices
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Products == product);
             if (dPrice == null)
             {
                 return NotFound();
@@ -109,10 +109,10 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Edate,Price,Products")] DPrice dPrice)
+        public async Task<IActionResult> Edit(string product, [Bind("Id,Edate,Price,Products")] DPrice dPrice)
         {
             GetInitialValues();
-            if (id != dPrice.Id)
+            if (product != dPrice.Products)
             {
                 return NotFound();
             }
@@ -126,7 +126,7 @@ namespace EasyPro.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DPriceExists(dPrice.Id))
+                    if (!DPriceExists(dPrice.Products))
                     {
                         return NotFound();
                     }
@@ -141,15 +141,15 @@ namespace EasyPro.Controllers
         }
 
         // GET: DPrices/Delete/5
-        public async Task<IActionResult> Delete(long? id)
+        public async Task<IActionResult> Delete(string product)
         {
-            if (id == null)
+            if (product == null)
             {
                 return NotFound();
             }
 
             var dPrice = await _context.DPrices
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Products == product);
             if (dPrice == null)
             {
                 return NotFound();
@@ -169,9 +169,9 @@ namespace EasyPro.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DPriceExists(long id)
+        private bool DPriceExists(string product)
         {
-            return _context.DPrices.Any(e => e.Id == id);
+            return _context.DPrices.Any(e => e.Products == product);
         }
     }
 }

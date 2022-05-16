@@ -10,6 +10,8 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         public long? LocalId { get; set; }
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Sno should be grater than 1")]
         public long Sno { get; set; }
         public DateTime? Regdate { get; set; }
         public string IdNo { get; set; }
@@ -23,7 +25,7 @@ namespace EasyPro.Models
         public string Division { get; set; }
         public string District { get; set; }
         public bool? Trader { get; set; }
-        public bool? Active { get; set; }
+        public bool Active { get; set; }
         public bool? Approval { get; set; }
         public string Branch { get; set; }
         public string PhoneNo { get; set; }

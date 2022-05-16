@@ -4,104 +4,98 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>Index</h2>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                    <h3 class="text-danger fa-bold">Intakes</h3>
+                </div>
+                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Sno)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TransDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Qsupplied)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Ppu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CR)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DR)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Balance)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Remarks)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AuditId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Auditdatetime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Branch)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sno)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TransDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Qsupplied)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Ppu)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CR)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DR)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Balance)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Remarks)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AuditId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Auditdatetime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Branch)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
+
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Sno)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TransDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ProductType)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Qsupplied)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Ppu)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.CR)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Balance)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Description)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Remarks)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Branch)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sno)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ProductType)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Qsupplied)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Ppu)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CR)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Balance)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Description)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Remarks)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Branch)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

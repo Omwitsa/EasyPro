@@ -1,13 +1,18 @@
 ﻿using EasyPro.Constants;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace EasyPro.Models
 {
     public class ProductIntake
     {
         public long Id { get; set; }
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Sno should be grater than 1")]
         public long Sno { get; set; }
-        public DateTime? TransDate { get; set; }
+        [Required]
+        public DateTime TransDate { get; set; }
+        public TimeSpan TransTime { get; set; }
         public string ProductType { get; set; }
         public decimal? Qsupplied { get; set; }
         public decimal? Ppu { get; set; }
@@ -16,6 +21,7 @@ namespace EasyPro.Models
         public decimal? Balance { get; set; }
         public string Description { get; set; }
         public TransactionType TransactionType { get; set; }
+        public bool Paid { get; set; }
         public string Remarks { get; set; }
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }

@@ -1,7 +1,6 @@
-﻿@model IEnumerable<EasyPro.Models.DTransport>
-
+﻿@model  IEnumerable<EasyPro.ViewModels.TranssupplyVM.TransSuppliersVM>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"]="Index" ;
 }
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -26,7 +25,13 @@
                                     @Html.DisplayNameFor(model => model.TransCode)
                                 </th>
                                 <th>
+                                    @Html.DisplayNameFor(model => model.TransName)
+                                </th>
+                                <th>
                                     @Html.DisplayNameFor(model => model.Sno)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Names)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.Rate)
@@ -34,6 +39,7 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.Startdate)
                                 </th>
+
                                 <th></th>
                             </tr>
                         </thead>
@@ -45,7 +51,13 @@
                                     @Html.DisplayFor(modelItem => item.TransCode)
                                 </td>
                                 <td>
+                                    @Html.DisplayFor(modelItem => item.TransName)
+                                </td>
+                                <td>
                                     @Html.DisplayFor(modelItem => item.Sno)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Names)
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.Rate)

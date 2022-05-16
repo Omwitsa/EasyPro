@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
@@ -45,7 +46,19 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Create
         public IActionResult Create()
         {
+            SetInitialValues();
             return View();
+        }
+
+        private void SetInitialValues()
+        {
+            var userGroups = _context.Usergroups.ToList();
+            ViewBag.userGroups = new SelectList(userGroups, "GroupId", "GroupName");
+            var branches = _context.DBranch.ToList();
+            ViewBag.branches = new SelectList(branches, "Bname", "Bname");
+            ViewBag.dBranches = branches;
+            var accounts = _context.Glsetups.ToList();
+            ViewBag.accounts = new SelectList(accounts, "AccNo", "GlAccName");
         }
 
         // POST: UserAccounts/Create
@@ -57,6 +70,8 @@ namespace EasyPro.Controllers
         {
             if (ModelState.IsValid)
             {
+                userAccount.DateCreated = DateTime.UtcNow.AddHours(3);
+                userAccount.Password = Decryptor.Decript_String(userAccount.Password);
                 _context.Add(userAccount);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -67,6 +82,7 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            SetInitialValues();
             if (id == null)
             {
                 return NotFound();

@@ -1,3 +1,5 @@
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
 using EasyPro.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -24,6 +26,12 @@ namespace EasyPro
             services.AddDbContext<MORINGAContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("MoringaDbConnection")));
 
+            services.AddNotyf(config => 
+            { 
+                config.DurationInSeconds = 10; 
+                config.IsDismissable = true; 
+                config.Position = NotyfPosition.TopCenter; 
+            });
             services.AddControllersWithViews();
             services.AddControllers().AddNewtonsoftJson(options =>
             {
@@ -48,11 +56,12 @@ namespace EasyPro
 
             app.UseAuthorization();
 
+            app.UseNotyf();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Login}/{id?}");
             });
         }
     }

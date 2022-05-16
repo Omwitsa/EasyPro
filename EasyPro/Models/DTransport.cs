@@ -12,7 +12,7 @@ namespace EasyPro.Models
         public long? Sno { get; set; }
         public decimal? Rate { get; set; }
         public DateTime? Startdate { get; set; }
-        public bool? Active { get; set; }
+        public bool Active { get; set; }
         public DateTime? DateInactivate { get; set; }
         public string Auditid { get; set; }
         public DateTime? Auditdatetime { get; set; }

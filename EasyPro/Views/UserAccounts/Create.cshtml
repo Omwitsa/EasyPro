@@ -1,100 +1,132 @@
 ﻿@model EasyPro.Models.UserAccount
 
-@{
-    ViewData["Title"] = "Create";
-}
-
-<h2>Create</h2>
-
-<h4>UserAccount</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create</h2>
             </div>
-            <div class="form-group">
-                <label asp-for="UserLoginIds" class="control-label"></label>
-                <input asp-for="UserLoginIds" class="form-control" />
-                <span asp-validation-for="UserLoginIds" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserGroup" class="control-label"></label>
-                <input asp-for="UserGroup" class="form-control" />
-                <span asp-validation-for="UserGroup" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PassExpire" class="control-label"></label>
-                <input asp-for="PassExpire" class="form-control" />
-                <span asp-validation-for="PassExpire" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateCreated" class="control-label"></label>
-                <input asp-for="DateCreated" class="form-control" />
-                <span asp-validation-for="DateCreated" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Superuser" class="control-label"></label>
-                <input asp-for="Superuser" class="form-control" />
-                <span asp-validation-for="Superuser" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AssignGl" class="control-label"></label>
-                <input asp-for="AssignGl" class="form-control" />
-                <span asp-validation-for="AssignGl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Branchcode" class="control-label"></label>
-                <input asp-for="Branchcode" class="form-control" />
-                <span asp-validation-for="Branchcode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Levels" class="control-label"></label>
-                <input asp-for="Levels" class="form-control" />
-                <span asp-validation-for="Levels" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Authorize" class="control-label"></label>
-                <input asp-for="Authorize" class="form-control" />
-                <span asp-validation-for="Authorize" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Branch" class="control-label"></label>
-                <input asp-for="Branch" class="form-control" />
-                <span asp-validation-for="Branch" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Sign" class="control-label"></label>
-                <input asp-for="Sign" class="form-control" />
-                <span asp-validation-for="Sign" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
-                <span asp-validation-for="Phone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </form>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="UserLoginIds" class="control-label"></label>
+                            <input asp-for="UserLoginIds" class="form-control" />
+                            <span asp-validation-for="UserLoginIds" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="UserName" class="control-label"></label>
+                            <input asp-for="UserName" class="form-control" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="UserGroup" class="control-label"></label>
+                            <select asp-for="UserGroup" class="form-control" asp-items="@ViewBag.userGroups"></select>
+                            <span asp-validation-for="UserGroup" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Phone" class="control-label"></label>
+                            <input asp-for="Phone" class="form-control" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Password" class="control-label"></label>
+                            <input asp-for="Password" type="password" id="Password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label"> Confirm Password </label>
+                            <input id="confirmPassword" type="password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Branch" class="control-label"></label>
+                            <select asp-for="Branch" id="Branch" class="form-control" asp-items="@ViewBag.branches"></select>
+                            <span asp-validation-for="Branch" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Branchcode" class="control-label"></label>
+                            <input asp-for="Branchcode" id="Branchcode" class="form-control" readonly />
+                            <span asp-validation-for="Branchcode" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="AssignGl" class="control-label"></label>
+                            <select asp-for="AssignGl" class="form-control" asp-items="@ViewBag.accounts"></select>
+                            <span asp-validation-for="AssignGl" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script type="text/javascript">
+        $(function () {
+            $('#Branch').on('change', function () {
+                var selectVal = $("#Branch").val();
+                var branches = @Html.Raw(Json.Serialize(ViewBag.dBranches));
+                var selectBranches = branches.filter(p => p.bname === selectVal);
+                if (selectBranches[0]) {
+                    $("#Branchcode").val(selectBranches[0].bcode);
+                }
+            });
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+            $('#confirmPassword').on('blur', function () {
+                var confirmPassword = $("#confirmPassword").val();
+                var password = $("#Password").val();
+                if (!password) {
+                    $("#confirmPassword").val('');
+                    return
+                }
+                if (password != confirmPassword) {
+                    $("#Password").val('');
+                    $("#confirmPassword").val('');
+                    return
+                }
+            });
+        });
+</script>
+}

@@ -1,4 +1,4 @@
-﻿@model EasyPro.Models.DTransport
+﻿@model EasyPro.ViewModels.TranssupplyVM.TransSuppliers
 
 @{
     ViewData["Title"] = "Create";
@@ -20,8 +20,8 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Assignment Date</label>
-                                    <input value="date" asp-for="Startdate" class="form-control" />
-                                    <span asp-validation-for="Startdate" class="text-danger"></span>
+                                    <input value="date" asp-for="DTransport.Startdate" class="form-control" required/>
+                                    <span asp-validation-for="DTransport.Startdate" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -32,9 +32,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="TransCode" class="control-label"></label>
-                                    <input asp-for="TransCode" class="form-control" />
-                                    <span asp-validation-for="TransCode" class="text-danger"></span>
+                                    <label asp-for="DTransport.TransCode" class="control-label"></label>
+                                    <input id="tcode" asp-for="DTransport.TransCode" class="form-control" required />
+                                    <span asp-validation-for="DTransport.TransCode" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -44,7 +44,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Transporter Name</label>
-                                    <input class="form-control" />
+                                    <input id="tname" class="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -55,9 +55,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Sno" class="control-label"></label>
-                                    <input asp-for="Sno" class="form-control" />
-                                    <span asp-validation-for="Sno" class="text-danger"></span>
+                                    <label asp-for="DTransport.Sno" class="control-label"></label>
+                                    <input id="sno" asp-for="DTransport.Sno" class="form-control" required />
+                                    <span asp-validation-for="DTransport.Sno" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -67,19 +67,34 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Farmer Name</label>
-                                    <input class="form-control" />
+                                    <input id="sname" class="form-control" />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group ic-cmp-int float-lb floating-lb">
-                        <div class="nk-int-st">
-                            <div class="form-group">
-                                <label asp-for="Rate" class="control-label"></label>
-                                <input asp-for="Rate" class="form-control" />
-                                <span asp-validation-for="Rate" class="text-danger"></span>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="DTransport.Rate" class="control-label"></label>
+                                    <input asp-for="DTransport.Rate" class="form-control" required />
+                                    <span asp-validation-for="DTransport.Rate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="DTransport.Active" class="control-label">
+                                        <input asp-for="DTransport.Active" type="checkbox" />@Html.DisplayNameFor(model => model.DTransport.Active)
+                                        @*<input type="checkbox"  required />*@ @Html.DisplayNameFor(model => model.DTransport.Active)
+                                        <span asp-validation-for="DTransport.Active" class="text-danger"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -98,5 +113,27 @@
     </div>
 </div>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+                    $(function () {
+                        $('#tcode').on('change', function () {
+                            var products = @Html.Raw(Json.Serialize(Model.DTransporter));
+                            var selectVal = $("#tcode").val();
+                            var selectProducts = products.filter(p => p.transCode === selectVal);
+                                if (selectProducts[0]) {
+                                    $("#tname").val(selectProducts[0].transName);
+                                }
+                        });
+                        $('#sno').on('change', function () {
+                            var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
+                            var selectVal = parseInt($("#sno").val());
+                            var selectProducts = products.filter(p => p.sno === selectVal);
+                                if (selectProducts[0]) {
+                                    $("#sname").val(selectProducts[0].names);
+                                }
+                        });
+                    });
+    </script>
 }

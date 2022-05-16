@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EasyPro</title>
+    <title>EasyPro</title>
     
     <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
     <!-- Bootstrap CSS
@@ -119,6 +119,9 @@
                             <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
                         </li>
                         <li>
+                            <a data-toggle="tab" href="#deductions"><i class="notika-icon notika-house"></i>Deductions</a>
+                        </li>
+                        <li>
                             <a data-toggle="tab" href="#activities"><i class="notika-icon notika-form"></i>Activities</a>
                         </li>
                         <li>
@@ -183,12 +186,6 @@
                                 <li>
                                     <a asp-controller="DMilkintakes" asp-action="Index">Product Intake</a>
                                 </li>
-                                @*<li>
-                    <a asp-controller="DPrices" asp-action="Index">Pricing</a>
-                </li>
-                <li>
-                    <a asp-controller="DCompanies" asp-action="Index">Company</a>
-                </li>*@
                                 <li>
                                     <a href="widgets.html">Widgets</a>
                                 </li>
@@ -207,6 +204,9 @@
                                 </li>
                                 <li>
                                     <a asp-controller="UserAccounts" asp-action="Index">Users</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Usergroups" asp-action="Index">User Groups</a>
                                 </li>
                             </ul>
                         </div>
@@ -309,6 +309,8 @@
         ============================================ -->
     <script src="~/assets/js/tawk-chat.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    @await Component.InvokeAsync("Notyf")
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

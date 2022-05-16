@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using EasyPro.ViewModels.TransportersVM;
 
 namespace EasyPro.Controllers
 {
@@ -17,11 +18,33 @@ namespace EasyPro.Controllers
         {
             _context = context;
         }
-
+        public TransportersVM Transportersobj { get; private set; }
         // GET: DTransportDeducs
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DTransportDeducs.ToListAsync());
+            var today = DateTime.Now;
+            var month = new DateTime(today.Year, today.Month, 1);
+            var startdate = month;
+            var enddate = startdate.AddMonths(1).AddDays(-1);
+            //var startdate = month.AddMonths(-1).ToString("dd/MM/yyy");
+            //var enddate = month.AddDays(-1).ToString("dd/MM/yyy");
+
+            var transdeduction = await _context.DTransportDeducs.Where(c => c.TdateDeduc >= startdate && c.TdateDeduc <= enddate).ToListAsync();
+            var intakes = new List<TransporterVm>();
+            foreach (var intake in transdeduction)
+            {
+                var supplier = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.TransCode);
+                intakes.Add(new TransporterVm
+                {
+                    TransCode = intake.TransCode,
+                    TransName = supplier.TransName,
+                    TdateDeduc = intake.TdateDeduc,
+                    Description = intake.Description,
+                    Amount = intake.Amount
+                });
+            }
+            return View(intakes);
+            //return View(await _context.DTransportDeducs.ToListAsync());
         }
 
         // GET: DTransportDeducs/Details/5
@@ -46,7 +69,13 @@ namespace EasyPro.Controllers
         public IActionResult Create()
         {
             GetInitialValues();
-            return View();
+            Transportersobj = new TransportersVM()
+            {
+                DTransporter = _context.DTransporters,
+                DTransportDeduc = new Models.DTransportDeduc()
+            };
+            //return Json(new { data = Farmersobj });
+            return View(Transportersobj);
         }
         private void GetInitialValues()
         {

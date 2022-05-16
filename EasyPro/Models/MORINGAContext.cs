@@ -5786,11 +5786,9 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DPrice>(entity =>
             {
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => e.Products);
 
                 entity.ToTable("d_Price");
-
-                entity.Property(e => e.Id);
 
                 entity.Property(e => e.Edate)
                     .HasColumnType("datetime")
@@ -10304,7 +10302,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<Usergroup>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.GroupId);
 
                 entity.ToTable("USERGROUPS");
 

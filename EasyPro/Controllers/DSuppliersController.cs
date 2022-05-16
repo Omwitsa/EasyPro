@@ -21,9 +21,8 @@ namespace EasyPro.Controllers
         // GET: DSuppliers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DSuppliers.ToListAsync());
+            return View(await _context.DSuppliers.Where(i=>i.Active== true || i.Active == false).ToListAsync());
         }
-
         // GET: DSuppliers/Details/5
         public async Task<IActionResult> Details(long? id)
         {
@@ -58,14 +57,14 @@ namespace EasyPro.Controllers
 
             List<SelectListItem> gender = new()
             {
-                new SelectListItem { Value = "1", Text = "Male" },
-                new SelectListItem { Value = "2", Text = "Female" },
+                new SelectListItem { Text = "Male" },
+                new SelectListItem { Text = "Female" },
             };
             ViewBag.gender = gender;
             List<SelectListItem> payment = new()
             {
-                new SelectListItem { Value = "1", Text = "Weekly" },
-                new SelectListItem { Value = "2", Text = "Monthly" },
+                new SelectListItem {  Text = "Weekly" },
+                new SelectListItem { Text = "Monthly" },
             };
             ViewBag.payment = payment;
         }
@@ -76,6 +75,18 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
+            if (dSupplier == null)
+            {
+                return NotFound();
+            }
+
+            var dSupplier1 = _context.DSuppliers.Where(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo);
+            if (dSupplier1 != null)
+            {
+                GetInitialValues();
+                return View();
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(dSupplier);
@@ -98,6 +109,7 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
+            dSupplier.Regdate = Convert.ToDateTime(dSupplier.Regdate);
             return View(dSupplier);
         }
 
@@ -117,6 +129,10 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    dSupplier.Sno = dSupplier.Sno;
+                    dSupplier.Regdate = dSupplier.Regdate;
+                    dSupplier.Trader = false;
+                    dSupplier.Approval = true;
                     dSupplier.Br = "A";
                     dSupplier.Freezed = "0";
                     dSupplier.Mass = "0";

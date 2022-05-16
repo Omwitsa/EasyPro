@@ -18,7 +18,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Sno" class="control-label"></label>
-                                <input readonly asp-for="Sno" class="form-control" disabled />
+                                <input asp-for="Sno" class="form-control" required />
                                 <span asp-validation-for="Sno" class="text-danger"></span>
                             </div>
                         </div>
@@ -28,7 +28,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Regdate" class="control-label"></label>
-                                    <input value="date" asp-for="Regdate" class="form-control" />
+                                    <input value="date" asp-for="Regdate" class="form-control" required />
                                     <span asp-validation-for="Regdate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -39,7 +39,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="IdNo" class="control-label"></label>
-                                    <input asp-for="IdNo" class="form-control" />
+                                    <input asp-for="IdNo" class="form-control" required />
                                     <span asp-validation-for="IdNo" class="text-danger"></span>
                                 </div>
                             </div>
@@ -51,7 +51,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Names" class="control-label"></label>
-                                <input asp-for="Names" class="form-control" />
+                                <input asp-for="Names" class="form-control" required/>
                                 <span asp-validation-for="Names" class="text-danger"></span>
                             </div>
                         </div>
@@ -72,7 +72,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Branch" class="control-label"></label>
-                                    <select asp-for="Branch" class="form-control" asp-items="@ViewBag.brances"></select>
+                                    <select asp-for="Branch" class="form-control" required asp-items="@ViewBag.brances"></select>
                                     <span asp-validation-for="Branch" class="text-danger"></span>
                                 </div>
                             </div>
@@ -88,7 +88,9 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Active" class="control-label">
-                                        <input type="checkbox" /> @Html.DisplayNameFor(model => model.Active)
+                                        <input asp-for="Active" type="checkbox" class="form-control" />@Html.DisplayNameFor(model => model.Active)
+                                        @*@Html.DisplayNameFor(model => model.Active)*@
+                                        @*<input type="checkbox"  required />*@
                                         <span asp-validation-for="Active" class="text-danger"></span>
                                     </label>
                                 </div>
@@ -147,7 +149,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="TransCode" class="control-label">Payment Mode</label>
-                                <select asp-for="TransCode" class="form-control" asp-items="@ViewBag.payment"></select>
+                                <select asp-for="TransCode" class="form-control" required asp-items="@ViewBag.payment"></select>
                                 <span asp-validation-for="TransCode" class="text-danger"></span>
                             </div>
                         </div>
@@ -157,7 +159,7 @@
                             <div class="nk-int-st">
                                 <label class="control-label">Gender</label>
                                 <div class="form-group">
-                                    <select asp-for="Type" class="form-control" asp-items="@ViewBag.gender"></select>
+                                    <select asp-for="Type" class="form-control" required asp-items="@ViewBag.gender"></select>
                                     <span asp-validation-for="Type" class="text-danger"></span>
                                 </div>
                             </div>
