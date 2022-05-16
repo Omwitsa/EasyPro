@@ -1,0 +1,80 @@
+﻿@model EasyPro.Models.Usergroup
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Delete</h2>
+            </div>
+            <hr />
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.GroupName)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.GroupName)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.CashBook)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.CashBook)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Transactions)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Transactions)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Activity)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Activity)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Reports)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Reports)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Setup)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Setup)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Files)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Files)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Accounts)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Accounts)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.AccountsPay)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.AccountsPay)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.FixedAssets)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.FixedAssets)
+                </dd>
+            </dl>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="GroupId" />
+                <input type="submit" value="Delete" class="btn btn-default" /> |
+                <a asp-action="Index">Back to List</a>
+            </form>
+        </div>
+    </div>
+</div>

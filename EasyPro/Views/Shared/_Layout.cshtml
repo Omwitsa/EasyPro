@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EasyPro</title>
+    <title>EasyPro</title>
     
     <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
     <!-- Bootstrap CSS
@@ -201,6 +201,9 @@
                                 <li>
                                     <a asp-controller="UserAccounts" asp-action="Index">Users</a>
                                 </li>
+                                <li>
+                                    <a asp-controller="Usergroups" asp-action="Index">User Groups</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -303,6 +306,7 @@
     <script src="~/assets/js/tawk-chat.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    @await Component.InvokeAsync("Notyf")
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

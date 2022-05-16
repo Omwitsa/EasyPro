@@ -1,119 +1,109 @@
 ﻿@model IEnumerable<EasyPro.Models.UserAccount>
 
-@{
-    ViewData["Title"] = "Index";
-}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                    <h3 class="text-danger fa-bold">Users</h3>
+                </div>
+                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
 
-<h2>Index</h2>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.UserName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserLoginIds)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Password)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserGroup)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PassExpire)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DateCreated)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Superuser)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AssignGl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Branchcode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Levels)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Authorize)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Branch)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sign)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Phone)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserLoginIds)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Password)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserGroup)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PassExpire)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateCreated)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Superuser)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AssignGl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Branchcode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Levels)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Authorize)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Branch)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sign)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Phone)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Userid">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Userid">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Userid">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.UserName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.UserLoginIds)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Password)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.UserGroup)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.DateCreated)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AssignGl)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Branchcode)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Levels)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Status)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Branch)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Sign)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.UserName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.UserLoginIds)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Password)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.UserGroup)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DateCreated)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.AssignGl)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Branchcode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Levels)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Status)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Branch)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Phone)
+                                    </td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.Userid">Edit</a> |
+                                        <a asp-action="Details" asp-route-id="@item.Userid">Details</a> |
+                                        <a asp-action="Delete" asp-route-id="@item.Userid">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

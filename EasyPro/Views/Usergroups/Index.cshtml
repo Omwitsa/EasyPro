@@ -1,17 +1,17 @@
-﻿@model IEnumerable<EasyPro.Models.ProductIntake>
+﻿@model IEnumerable<EasyPro.Models.Usergroup>
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
                 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-                    <h3 class="text-danger fa-bold">Corrections</h3>
+                    <h3 class="text-danger fa-bold">User Groups</h3>
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
 
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                    <a asp-action="CreateCorrection" class="btn btn-primary">Create New</a>
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
                 </div>
             </div>
 
@@ -21,38 +21,36 @@
                         <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Sno)
+                                    @Html.DisplayNameFor(model => model.GroupName)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.TransDate)
+                                    @Html.DisplayNameFor(model => model.CashBook)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.ProductType)
+                                    @Html.DisplayNameFor(model => model.Transactions)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Qsupplied)
+                                    @Html.DisplayNameFor(model => model.Activity)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Ppu)
+                                    @Html.DisplayNameFor(model => model.Reports)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.CR)
+                                    @Html.DisplayNameFor(model => model.Setup)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.DR)
+                                    @Html.DisplayNameFor(model => model.Files)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Balance)
+                                    @Html.DisplayNameFor(model => model.Accounts)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Description)
+                                    @Html.DisplayNameFor(model => model.AccountsPay)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Remarks)
+                                    @Html.DisplayNameFor(model => model.FixedAssets)
                                 </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Branch)
-                                </th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,37 +58,39 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Sno)
+                                        @Html.DisplayFor(modelItem => item.GroupName)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.TransDate)
+                                        @Html.DisplayFor(modelItem => item.CashBook)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.ProductType)
+                                        @Html.DisplayFor(modelItem => item.Transactions)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Qsupplied)
+                                        @Html.DisplayFor(modelItem => item.Activity)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Ppu)
+                                        @Html.DisplayFor(modelItem => item.Reports)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.CR)
+                                        @Html.DisplayFor(modelItem => item.Setup)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.DR)
+                                        @Html.DisplayFor(modelItem => item.Files)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Balance)
+                                        @Html.DisplayFor(modelItem => item.Accounts)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Description)
+                                        @Html.DisplayFor(modelItem => item.AccountsPay)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Remarks)
+                                        @Html.DisplayFor(modelItem => item.FixedAssets)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Branch)
+                                        <a asp-action="Edit" asp-route-id="@item.GroupId">Edit</a> |
+                                        <a asp-action="Details" asp-route-id="@item.GroupId">Details</a> |
+                                        <a asp-action="Delete" asp-route-id="@item.GroupId">Delete</a>
                                     </td>
                                 </tr>
                             }

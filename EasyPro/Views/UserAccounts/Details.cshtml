@@ -1,108 +1,110 @@
 ﻿@model EasyPro.Models.UserAccount
 
-@{
-    ViewData["Title"] = "Details";
-}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Details</h2>
+            </div>
+            <hr />
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.UserName)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.UserName)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.UserLoginIds)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.UserLoginIds)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Password)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Password)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.UserGroup)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.UserGroup)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.PassExpire)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.PassExpire)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.DateCreated)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.DateCreated)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Superuser)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Superuser)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.AssignGl)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.AssignGl)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Branchcode)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Branchcode)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Levels)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Levels)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Authorize)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Authorize)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Status)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Status)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Branch)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Branch)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Sign)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Sign)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Phone)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Phone)
+                </dd>
+            </dl>
+        </div>
 
-<h2>Details</h2>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Userid">Edit</a> |
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</div>
 
-<div>
-    <h4>UserAccount</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.UserName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.UserName)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.UserLoginIds)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.UserLoginIds)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Password)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Password)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.UserGroup)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.UserGroup)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.PassExpire)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.PassExpire)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.DateCreated)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.DateCreated)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Superuser)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Superuser)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.AssignGl)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.AssignGl)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Branchcode)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Branchcode)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Levels)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Levels)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Authorize)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Authorize)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Branch)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Branch)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Sign)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Sign)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Phone)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Phone)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Userid">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>

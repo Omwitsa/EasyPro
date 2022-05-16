@@ -184,7 +184,7 @@ body {}
 /*  2.  Header Top CSS
 /*----------------------------------------*/
 .header-top-area, .footer-copyright-area{
-	background:#00c292;
+	background: cadetblue;
 }
 .logo-area{
 	padding:14px 0px;
@@ -3572,7 +3572,7 @@ textarea.auto-size {
 .login-content, .error-page-area{
     min-height:100vh;
     text-align:center;
-    background-color:#00c292;
+    background-color:cadetblue;
 }
 .login-content:before, .error-page-area:before{
     content:'';

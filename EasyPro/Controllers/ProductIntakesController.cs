@@ -1,31 +1,37 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using EasyPro.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Constants;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using EasyPro.Models;
 using EasyPro.ViewModels;
 using EasyPro.ViewModels.FarmersVM;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
     public class ProductIntakesController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
         public FarmersVM Farmersobj { get; private set; }
 
-        public ProductIntakesController(MORINGAContext context)
+        public ProductIntakesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
         // GET: ProductIntakes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ProductIntake.Where(i => i.TransactionType == TransactionType.Intake).ToListAsync());
+            return View(await _context.ProductIntake
+                .Where(i => i.TransactionType == TransactionType.Intake)
+                .OrderByDescending(i => i.Id)
+                .ToListAsync());
         }
         public async Task<IActionResult> DeductionList()
         {
@@ -59,7 +65,10 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> CorrectionList()
         {
-            return View(await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Correction).ToListAsync());
+            return View(await _context.ProductIntake
+                .Where(c => c.TransactionType == TransactionType.Correction)
+                .OrderByDescending(i => i.Id)
+                .ToListAsync());
         }
 
         // GET: ProductIntakes/Details/5
@@ -83,7 +92,15 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Create
         public IActionResult Create()
         {
+            SetIntakeInitialValues();
             return View();
+        }
+
+        private void SetIntakeInitialValues()
+        {
+            var products = _context.DPrices.ToList();
+            ViewBag.products = new SelectList(products, "Products", "Products");
+            ViewBag.productPrices = products;
         }
 
         public IActionResult CreateDeduction()
@@ -120,6 +137,7 @@ namespace EasyPro.Controllers
         }
         public IActionResult CreateCorrection()
         {
+            SetIntakeInitialValues();
             return View();
         }
 
@@ -130,12 +148,35 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
-
+            if (productIntake.Sno < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide supplier No.");
+                return View(productIntake);
+            }
+            if(!_context.DSuppliers.Any(s => s.Sno == productIntake.Sno))
+            {
+                _notyf.Error("Sorry, Supplier No. not found");
+                return View(productIntake);
+            }
+            if (string.IsNullOrEmpty(productIntake.ProductType))
+            {
+                _notyf.Error("Sorry, Kindly select product type");
+                return View(productIntake);
+            }
+            if (productIntake.Qsupplied == null || productIntake.Qsupplied < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide quantity");
+                return View(productIntake);
+            }
             if (ModelState.IsValid)
             {
                 productIntake.TransactionType = TransactionType.Intake;
+                productIntake.TransDate = DateTime.Today;
+                productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
+                productIntake.Balance = GetBalance(productIntake);
                 _context.Add(productIntake);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Intake saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(productIntake);
@@ -177,6 +218,61 @@ namespace EasyPro.Controllers
             }
             return View();
         }
+
+        public async Task<IActionResult> CreateCorrection([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
+        {
+            if (productIntake.Sno < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide supplier No.");
+                return View(productIntake);
+            }
+            if (!_context.DSuppliers.Any(s => s.Sno == productIntake.Sno))
+            {
+                _notyf.Error("Sorry, Supplier No. not found");
+                return View(productIntake);
+            }
+            if (string.IsNullOrEmpty(productIntake.ProductType))
+            {
+                _notyf.Error("Sorry, Kindly select product type");
+                return View(productIntake);
+            }
+            if (productIntake.Qsupplied == null)
+            {
+                _notyf.Error("Sorry, Kindly provide quantity");
+                return View(productIntake);
+            }
+            if(productIntake.CR < 0)
+            {
+                productIntake.DR = -productIntake.CR;
+                productIntake.CR = 0;
+            }
+            if (ModelState.IsValid)
+            {
+                productIntake.TransactionType = TransactionType.Correction;
+                productIntake.TransDate = DateTime.Today;
+                productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
+                productIntake.Balance = GetBalance(productIntake);
+                _context.Add(productIntake);
+                await _context.SaveChangesAsync();
+                _notyf.Success("Correction saved successfully");
+                return RedirectToAction(nameof(CorrectionList));
+            }
+            return View(productIntake);
+        }
+
+        private decimal? GetBalance(ProductIntake productIntake)
+        {
+            var latestIntake = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno)
+                    .OrderByDescending(i => i.Id).FirstOrDefault();
+            if (latestIntake == null)
+                latestIntake = new ProductIntake();
+            latestIntake.Balance = latestIntake?.Balance ?? 0;
+            productIntake.DR = productIntake?.DR ?? 0;
+            productIntake.CR = productIntake?.CR ?? 0;
+            var balance = latestIntake.Balance + productIntake.CR - productIntake.DR;
+            return balance;
+        }
+
         // GET: ProductIntakes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
