@@ -20,87 +20,13 @@ namespace EasyPro.Controllers
         {
             _context = context;
         }
-        private readonly IConfiguration configuration;
-        //public DPricesController(IConfiguration config)
-        //{
-        //    this.configuration = config;
-        //}
-
+       
         // GET: DPrices
         public async Task<IActionResult> Index()
         {
             return View(await _context.DPrices.ToListAsync());
         }
-        //public IActionResult Index()
-        //{
-           
-        //    //DPrice dPricemodel = new DPrice();
-        //    //using (MORINGAContext db = new MORINGAContext())
-        //    //{
-        //    //    dPricemodel.Productcollection = db.DBranchProducts.ToList<DBranchProduct>();
-        //    //}
-           
-        //    //return View(dPricemodel);
-        //}
-        private List<SelectListItem> Populateproducts()
-        {
-            List<SelectListItem> items = new();
-           // string constr = ConfigurationManager.ConnectionStrings["MoringaDbConnection"].ConnectionString;
-            //string constr2 = "Data Source = BII - PC; Initial Catalog = MORINGA; User ID = sasa; Password = 'sasa';";
-            using (SqlConnection con = new SqlConnection("Data Source=BII-PC;Initial Catalog=MORINGA;Integrated Security=false;User ID=sasa;Password='sasa'"))
-            {
-                string query = "Select Bname from d_BranchProduct order by Bname";
-                using (SqlCommand cmd = new SqlCommand(query))
-                {
-                    cmd.Connection = con;
-                    con.Open();
-                    using (SqlDataReader sdr = cmd.ExecuteReader())
-                    {
-                        while (sdr.Read())
-                        {
-                            items.Add(new SelectListItem
-                            {
-                                Text = sdr["Bname"].ToString(),
-                                //Value = sdr["FruitId"].ToString()
-                            });
-                        }
-                    }
-                    con.Close();
-                }
-            }
-
-            return items;
-        }
-
-        //private List<SelectListItem> Populateproducts()
-        //{
-        //    List<SelectListItem> items = new();
-        //    string constr = "Data Source = BII - PC; Initial Catalog = MORINGA; User ID = sasa; Password = 'sasa';";
-        //    using (SqlConnection con = new SqlConnection(constr))
-        //    {
-        //        string query = "Select Bname from d_BranchProduct order by Bname";
-        //        using (SqlCommand cmd = new SqlCommand(query))
-        //        {
-        //            cmd.Connection = con;
-        //            con.Open();
-        //            using (SqlDataReader sdr = cmd.ExecuteReader())
-        //            {
-        //                while (sdr.Read())
-        //                {
-        //                    items.Add(new SelectListItem
-        //                    {
-        //                        Text = sdr["Bname"].ToString(),
-        //                        //Value = sdr["FruitId"].ToString()
-        //                    });
-        //                }
-        //            }
-        //            con.Close();
-        //        }
-        //    }
-
-        //    return items;
-        //}
-
+       
         // GET: DPrices/Details/5
         public async Task<IActionResult> Details(long? id)
         {
@@ -122,12 +48,30 @@ namespace EasyPro.Controllers
         // GET: DPrices/Create
         public IActionResult Create()
         {
-            DPrice products = new DPrice();
-            products.Productt = Populateproducts();
-            return View(products);
-            //return View();
+            GetInitialValues();
+            return View();
         }
+        private void GetInitialValues()
+        {
+            var products = _context.DBranchProducts.Select(b => b.Bname).ToList();
+            ViewBag.products = new SelectList(products);
 
+            //var brances = _context.DBranch.Select(b => b.Bname).ToList();
+            //ViewBag.brances = new SelectList(brances);
+
+            //List<SelectListItem> gender = new()
+            //{
+            //    new SelectListItem { Value = "1", Text = "Male" },
+            //    new SelectListItem { Value = "2", Text = "Female" },
+            //};
+            //ViewBag.gender = gender;
+            //List<SelectListItem> payment = new()
+            //{
+            //    new SelectListItem { Value = "1", Text = "Weekly" },
+            //    new SelectListItem { Value = "2", Text = "Monthly" },
+            //};
+            //ViewBag.payment = payment;
+        }
         // POST: DPrices/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -167,6 +111,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Edate,Price,Products")] DPrice dPrice)
         {
+            GetInitialValues();
             if (id != dPrice.Id)
             {
                 return NotFound();

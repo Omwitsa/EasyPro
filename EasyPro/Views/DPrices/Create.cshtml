@@ -23,8 +23,9 @@
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Products"  class="control-label"></label>
-                @Html.DropDownListFor(m => m.Id, Model.Productt, "Please select")
+                <label asp-for="Products" class="control-label"></label>
+                @*@Html.DropDownListFor(m => m.Id, Model.Productt, "Please select")*@
+                <select asp-for="Products" class="form-control" asp-items="@ViewBag.products"></select>
                 @*@Html.DropDownListFor(model => model.Id, new SelectList(Model.Productcollection, "Id", "Bname"), "select")*@
                 <span asp-validation-for="Products" class="text-danger"></span>
             </div>

@@ -1,0 +1,171 @@
+﻿@model EasyPro.ViewModels.EnquiryVM.EnquiryVM
+
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group ic-cmp-int float-lb floating-lb">
+            <div class="nk-int-st">
+                <label class="control-label">sno</label>
+                <input id="sno" asp-for="suppliers.Sno" />
+                <span asp-validation-for="suppliers.Sno" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group ic-cmp-int float-lb floating-lb">
+            <div class="nk-int-st">
+                <div class="form-group">
+                    <label class="control-label">Names</label>
+                    <input id="names" asp-for="suppliers.Names" />
+                    <span asp-validation-for="suppliers.Names" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group ic-cmp-int float-lb floating-lb">
+            <div class="nk-int-st">
+                <div class="form-group">
+                    <label class="control-label">IdNo</label>
+                    <input id="idno" asp-for="suppliers.IdNo" />
+                    <span asp-validation-for="suppliers.IdNo" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group ic-cmp-int float-lb floating-lb">
+            <div class="nk-int-st">
+                <label class="control-label">Phone No</label>
+                <input id="phoneno" asp-for="suppliers.PhoneNo" />
+                <span asp-validation-for="suppliers.PhoneNo" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group ic-cmp-int float-lb floating-lb">
+            <div class="nk-int-st">
+                <div class="form-group">
+                    <label class="control-label">Acc No</label>
+                    <input id="accno" asp-for="suppliers.AccNo" />
+                    <span asp-validation-for="suppliers.AccNo" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group ic-cmp-int float-lb floating-lb">
+            <div class="nk-int-st">
+                <div class="form-group">
+                    <label class="control-label">Bank</label>
+                    <input id="bbranch" asp-for="suppliers.Bbranch" />
+                    <span asp-validation-for="suppliers.Bbranch" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group ic-cmp-int float-lb floating-lb">
+            <div class="nk-int-st">
+                <label class="control-label">DateFrom</label>
+                <input value="date" asp-for="intakes.TransDate" />
+                <span asp-validation-for="intakes.TransDate" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group ic-cmp-int float-lb floating-lb">
+            <div class="nk-int-st">
+                <div class="form-group">
+                    <label class="control-label">DateTo</label>
+                    <input value="date" asp-for="intakes.TransDate" />
+                    <span asp-validation-for="intakes.TransDate" class="text-danger"></span>
+                    <a class="btn-warning btn-success" asp-action="Show">Show</a>
+                </div>
+            </div>
+        </div>
+    </div>   
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group ic-cmp-int float-lb floating-lb">
+            <div class="nk-int-st">
+                <div class="form-group">
+                    <label class="control-label">NET PAY</label>
+                    <input id="netpay"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bsc-tbl-hvr table-border-style">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Product Type</th>
+                    <th>Remarks</th>
+                    <th>CR</th>
+                    <th>DR</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+@*<script>
+    $(document).ready(function () {
+        $("#sno").click(function () {
+            var searchby = $("#searchby").val();
+            var searchvalue = $("#sno").val();
+            var setdata = $("#sno").val();
+        })
+
+    })
+</script>*@
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            $('#sno').on('keyup', function () {
+                var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
+                var selectVal = parseInt($("#sno").val());
+                var selectsuppliers = suppliers.filter(p => p.sno === selectVal);
+                    if (selectsuppliers[0]) {
+                        $("#names").val(selectsuppliers[0].names);
+                        $("#idno").val(selectsuppliers[0].idNo);
+                        $("#phoneno").val(selectsuppliers[0].phoneNo);
+                        $("#accno").val(selectsuppliers[0].accNo);
+                        $("#bbranch").val(selectsuppliers[0].bbranch);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "getIntakes",
+                            contentType: "application/json",
+                            data: JSON.stringify(supplier),
+                            success: function (response) {
+                                populateIntake(response)
+                            }, 
+                            error: function (response) {
+                            }
+                        });                        
+                    }
+            });
+            function populateIntake(intakes) {
+                debugger
+            }
+        });
+    </script>
+}
