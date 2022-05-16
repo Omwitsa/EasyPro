@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EasyPro.Models.DTransportDeduc>
+﻿@model IEnumerable<EasyPro.ViewModels.TransportersVM.TransporterVm>
 
 @{
     ViewData["Title"] = "Index";
@@ -26,6 +26,9 @@
                                     @Html.DisplayNameFor(model => model.TransCode)
                                 </th>
                                 <th>
+                                    @Html.DisplayNameFor(model => model.TransName)
+                                </th>
+                                <th>
                                     @Html.DisplayNameFor(model => model.TdateDeduc)
                                 </th>
                                 <th>
@@ -34,7 +37,6 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.Amount)
                                 </th>
-                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,6 +47,9 @@
                                     @Html.DisplayFor(modelItem => item.TransCode)
                                 </td>
                                 <td>
+                                    @Html.DisplayFor(modelItem => item.TransName)
+                                </td>
+                                <td>
                                     @Html.DisplayFor(modelItem => item.TdateDeduc)
                                 </td>
                                 <td>
@@ -52,11 +57,6 @@
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.Amount)
-                                </td>
-                                <td class="col-4">
-                                    <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                    @*<a class="btn-info btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
-                                    <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                                 </td>
                             </tr>
                             }

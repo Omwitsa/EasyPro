@@ -177,11 +177,11 @@
                                     <a asp-controller="DMilkintakes" asp-action="Index">Product Intake</a>
                                 </li>
                                 @*<li>
-                                    <a asp-controller="DPrices" asp-action="Index">Pricing</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="DCompanies" asp-action="Index">Company</a>
-                                </li>*@
+                                        <a asp-controller="DPrices" asp-action="Index">Pricing</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="DCompanies" asp-action="Index">Company</a>
+                                    </li>*@
                                 <li>
                                     <a href="widgets.html">Widgets</a>
                                 </li>
@@ -302,6 +302,7 @@
         ============================================ -->
     <script src="~/assets/js/tawk-chat.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

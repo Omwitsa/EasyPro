@@ -20,7 +20,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="TregDate" class="control-label"></label>
-                                <input asp-for="TregDate" class="form-control" />
+                                <input asp-for="TregDate" class="form-control" required />
                                 <span asp-validation-for="TregDate" class="text-danger"></span>
                             </div>
                         </div>
@@ -31,7 +31,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="TransCode" class="control-label"></label>
-                                <input readonly asp-for="TransCode" class="form-control" />
+                                <input readonly asp-for="TransCode" class="form-control" required/>
                                 <span asp-validation-for="TransCode" class="text-danger"></span>
                             </div>
                         </div>
@@ -40,7 +40,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="TransName" class="control-label"></label>
-                                <input asp-for="TransName" class="form-control" />
+                                <input asp-for="TransName" class="form-control"/>
                                 <span asp-validation-for="TransName" class="text-danger"></span>
                             </div>
                         </div>
@@ -49,7 +49,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">ID No</label>
-                                <input asp-for="CertNo" class="form-control" />
+                                <input asp-for="CertNo" class="form-control" required/>
                                 <span asp-validation-for="CertNo" class="text-danger"></span>
                             </div>
                         </div>
@@ -78,7 +78,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="PaymenMode" class="control-label">Payment Mode</label>
-                                <select asp-for="PaymenMode" class="form-control" asp-items="@ViewBag.payment"></select>
+                                <select asp-for="PaymenMode" class="form-control" asp-items="@ViewBag.payment" required></select>
                                 <span asp-validation-for="PaymenMode" class="text-danger"></span>
                             </div>
                         </div>
@@ -89,7 +89,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Branch</label>
-                                <select asp-for="Tbranch" class="form-control" asp-items="@ViewBag.brances"></select>
+                                <select asp-for="Tbranch" class="form-control" asp-items="@ViewBag.brances" required></select>
                                 <span asp-validation-for="Tbranch" class="text-danger"></span>
                             </div>
                         </div>
@@ -98,8 +98,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label>
-                                        <input type="checkbox" /> @Html.DisplayNameFor(model => model.Active)
+                                    <label asp-for="Active" class="control-label">
+                                        <input asp-for="Active" type="checkbox" />@Html.DisplayNameFor(model => model.Active)
+                                        <span asp-validation-for="Active" class="text-danger"></span>
                                     </label>
                                 </div>
                             </div>

@@ -44,42 +44,48 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.PhoneNo)
                                 </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Active)
+                                </th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Sno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Regdate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Names)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.IdNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.AccNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Location)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Branch)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.PhoneNo)
-                                    </td>
-                                    <td class="col-4">
-                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Sno)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Regdate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Names)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.IdNo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.AccNo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Location)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Branch)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PhoneNo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Active)
+                                </td>
+                                <td class="col-4">
+                                    <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                    <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                </td>
+                            </tr>
                             }
                         </tbody>
                     </table>

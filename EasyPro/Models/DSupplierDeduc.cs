@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -8,6 +9,8 @@ namespace EasyPro.Models
     public partial class DSupplierDeduc
     {
         public long Id { get; set; }
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Sno should be grater than 1")]
         public long? Sno { get; set; }
         public DateTime? DateDeduc { get; set; }
         public string Description { get; set; }

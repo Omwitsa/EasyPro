@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace EasyPro.Models
+namespace EasyPro.ViewModels.TranssupplyVM
 {
-    public partial class DTransport
+    public class TransSuppliersVM
     {
         public long Id { get; set; }
         public string TransCode { get; set; }
+        public string TransName { get; set; }
         public long? Sno { get; set; }
+        public string Names { get; set; }
         public decimal? Rate { get; set; }
         public DateTime? Startdate { get; set; }
-        public bool Active { get; set; }
+        //public bool? Active { get; set; }
         public DateTime? DateInactivate { get; set; }
-        public string Auditid { get; set; }
-        public DateTime? Auditdatetime { get; set; }
-        public string Isfrate { get; set; }
     }
 }

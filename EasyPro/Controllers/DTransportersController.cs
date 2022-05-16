@@ -21,7 +21,7 @@ namespace EasyPro.Controllers
         // GET: DTransporters
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DTransporters.ToListAsync());
+            return View(await _context.DTransporters.Where(i => i.Active == true || i.Active == false).ToListAsync());
         }
 
         // GET: DTransporters/Details/5
@@ -58,14 +58,14 @@ namespace EasyPro.Controllers
 
             List<SelectListItem> gender = new()
             {
-                new SelectListItem { Value = "1", Text = "Male" },
-                new SelectListItem { Value = "2", Text = "Female" },
+                new SelectListItem { Text = "Male" },
+                new SelectListItem {Text = "Female" },
             };
             ViewBag.gender = gender;
             List<SelectListItem> payment = new()
             {
-                new SelectListItem { Value = "1", Text = "Weekly" },
-                new SelectListItem { Value = "2", Text = "Monthly" },
+                new SelectListItem {  Text = "Weekly" },
+                new SelectListItem { Text = "Monthly" },
             };
             ViewBag.payment = payment;
         }
@@ -76,6 +76,16 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode")] DTransporter dTransporter)
         {
+            if (dTransporter == null)
+            {
+                return NotFound();
+            }
+            var dTransporter10 = _context.DTransporters.Where(i=>i.TransCode == dTransporter.TransCode && i.CertNo == dTransporter.CertNo).Count();
+            if (dTransporter10 != 0)
+            {
+                GetInitialValues();
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(dTransporter);
@@ -112,11 +122,12 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
+            
             if (ModelState.IsValid)
             {
                 try
                 {
+                    dTransporter.TransCode = dTransporter.TransCode;
                     dTransporter.Br = "A";
                     dTransporter.Freezed = "0";
                     _context.Update(dTransporter);
@@ -159,9 +170,9 @@ namespace EasyPro.Controllers
         // POST: DTransporters/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long id)
+        public async Task<IActionResult> DeleteConfirmed(long itemId)
         {
-            var dTransporter = await _context.DTransporters.FindAsync(id);
+            var dTransporter = await _context.DTransporters.FindAsync(itemId);
             _context.DTransporters.Remove(dTransporter);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

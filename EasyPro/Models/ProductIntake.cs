@@ -8,6 +8,7 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Sno should be grater than 1")]
         public long Sno { get; set; }
         [Required]
         public DateTime? TransDate { get; set; }

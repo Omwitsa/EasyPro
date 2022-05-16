@@ -4,6 +4,7 @@ using EasyPro.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using EasyPro.ViewModels.TransportersVM;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyPro.ViewModels.TransportersVM
 {

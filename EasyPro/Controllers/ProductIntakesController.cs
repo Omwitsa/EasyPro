@@ -8,6 +8,7 @@ using EasyPro.Constants;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using EasyPro.ViewModels;
 using EasyPro.ViewModels.FarmersVM;
+using System;
 
 namespace EasyPro.Controllers
 {
@@ -28,7 +29,12 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> DeductionList()
         {
-            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction).ToListAsync();
+            var today = DateTime.Now;
+            var month = new DateTime(today.Year, today.Month, 1);
+            var startdate = month;
+            var enddate = startdate.AddMonths(1).AddDays(-1);
+
+            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.TransDate >= startdate && c.TransDate <= enddate).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach(var intake in productIntakes)
             {
@@ -124,6 +130,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+
             if (ModelState.IsValid)
             {
                 productIntake.TransactionType = TransactionType.Intake;
@@ -134,6 +141,42 @@ namespace EasyPro.Controllers
             return View(productIntake);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
+        {
+            var Supplier = _context.DSuppliers.Where(i => i.Sno == productIntake.Sno && i.Active == true).Count();
+            if (Supplier == 0)
+            {
+                GetInitialValues();
+                Farmersobj = new FarmersVM()
+                {
+                    DSuppliers = _context.DSuppliers,
+                    ProductIntake = new Models.ProductIntake()
+                };
+                //return Json(new { data = Farmersobj });
+                return View(Farmersobj);
+            }
+            if (productIntake.Sno == 0)
+            {
+                GetInitialValues();
+                Farmersobj = new FarmersVM()
+                {
+                    DSuppliers = _context.DSuppliers,
+                    ProductIntake = new Models.ProductIntake()
+                };
+                //return Json(new { data = Farmersobj });
+                return View(Farmersobj);
+            }
+            if (ModelState.IsValid)
+            {
+                productIntake.TransactionType = TransactionType.Deduction; 
+                _context.Add(productIntake);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(DeductionList));
+            }
+            return View();
+        }
         // GET: ProductIntakes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {

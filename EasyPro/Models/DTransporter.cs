@@ -26,7 +26,7 @@ namespace EasyPro.Models
         public string Accno { get; set; }
         public string Bcode { get; set; }
         public string Bbranch { get; set; }
-        public bool? Active { get; set; }
+        public bool Active { get; set; }
         public string Tbranch { get; set; }
         public string Auditid { get; set; }
         public string Auditdatetime { get; set; }

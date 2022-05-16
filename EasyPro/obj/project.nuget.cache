@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "LfYnkGGkBpVNYTRv9u2jK7/9eTjn7+AHEyIA8rm9jf5Z06rH99/o+nCB3kPYSN24PGFR2lGVUJP2H1lb1nrN3w==",
+  "dgSpecHash": "MYwvNpVsNeiPZjvOaDiVMvcJALISpW82ALsyiygcaltufUcEdRo/n1VqdFUwl8I6n1vEozF1yjuAkI0TVyOqTA==",
   "success": true,
   "projectFilePath": "D:\\EASY 2022\\EasyPro\\EasyPro\\EasyPro.csproj",
   "expectedPackageFiles": [
@@ -128,8 +128,7 @@
     "C:\\Users\\LANGAT\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
     "C:\\Users\\LANGAT\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
     "C:\\Users\\LANGAT\\.nuget\\packages\\system.xml.xmldocument\\4.3.0\\system.xml.xmldocument.4.3.0.nupkg.sha512",
-    "C:\\Users\\LANGAT\\.nuget\\packages\\system.xml.xmlserializer\\4.3.0\\system.xml.xmlserializer.4.3.0.nupkg.sha512",
-    "C:\\Users\\LANGAT\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.16\\microsoft.netcore.app.host.win-x64.5.0.16.nupkg.sha512"
+    "C:\\Users\\LANGAT\\.nuget\\packages\\system.xml.xmlserializer\\4.3.0\\system.xml.xmlserializer.4.3.0.nupkg.sha512"
   ],
   "logs": []
 }

@@ -44,45 +44,85 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.Bbranch)
                                 </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Active)
+                                </th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TransCode)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TransName)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.CertNo)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Phoneno)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Bcode)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Accno)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Bbranch)
-                                </td>
-                                <td class="col-4">
-                                    <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                    @*<a class="btn-info btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
-                                    <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransCode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CertNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Phoneno)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Bcode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Accno)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Bbranch)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Active)
+                                    </td>
+                                    <td class="col-4">
+                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                        @*<a class="btn-info btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
+                                        <input type="button" class="btn-danger btn-danger" id="delete" onClick="Delete('@item.Id')" value="Delete"/>
+                                    </td>
+                                </tr>
                             }
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
-            </div>
         </div>
     </div>
+</div>
+@section scripts{
+    <script>
+        function Delete() {
+            swal({
+                
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true
+            }).then((willDelete) => {
+                if (willDelete) {
+                    $.ajax({
+                        url: "/Delete",
+                        data: { "itemId": item.Id },
+                        type: "POST",
+                        success: function (data) {
+                            if (data.success) {
+                                //success notification
+                                toastr.success(data.message);
+                                //dataTable.ajax.reload();
+                            }
+                            else {
+                                //failsure notification
+                                toastr.error(data.message);
+                            }
+                        }
+                    });
+                }
+            });
+
+        }
+    </script>
+}
