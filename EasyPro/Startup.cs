@@ -35,6 +35,7 @@ namespace EasyPro
             services.AddControllersWithViews();
             services.AddControllers().AddNewtonsoftJson(options =>
             {
+                // Use the default property (Pascal) casing
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
             });
         }

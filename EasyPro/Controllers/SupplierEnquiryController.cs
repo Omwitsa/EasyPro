@@ -39,7 +39,7 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetIntakes([FromBody] DSupplier supplier)
+        public JsonResult SuppliedProducts([FromBody] DSupplier supplier)
         {
             var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno).ToList();
             return Json(intakes);

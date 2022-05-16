@@ -89,11 +89,11 @@
             $('#ProductType').on('change', function () {
                 var selectVal = $("#ProductType").val();
                 var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
-                var selectProducts = products.filter(p => p.products === selectVal);
+                var selectProducts = products.filter(p => p.Products === selectVal);
                 if (selectProducts[0]) {
                     $("#CR").val();
                     $("#Qsupplied").val();
-                    $("#Ppu").val(selectProducts[0].price);
+                    $("#Ppu").val(selectProducts[0].Price);
                 }
             });
 

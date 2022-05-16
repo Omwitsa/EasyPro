@@ -107,31 +107,21 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
                     <th>Product Type</th>
-                    <th>Remarks</th>
+                    <th>Quantity</th>
                     <th>CR</th>
                     <th>DR</th>
                     <th>Balance</th>
+                    <th>Description</th>
+                    <th>Remarks</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="intakes">
 
             </tbody>
         </table>
     </div>
 </div>
-@*<script>
-    $(document).ready(function () {
-        $("#sno").click(function () {
-            var searchby = $("#searchby").val();
-            var searchvalue = $("#sno").val();
-            var setdata = $("#sno").val();
-        })
-
-    })
-</script>*@
 
 @section Scripts {
     @{
@@ -142,29 +132,49 @@
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
                 var selectVal = parseInt($("#sno").val());
-                var selectsuppliers = suppliers.filter(p => p.sno === selectVal);
+                var selectsuppliers = suppliers.filter(p => p.Sno === selectVal);
                     if (selectsuppliers[0]) {
-                        $("#names").val(selectsuppliers[0].names);
-                        $("#idno").val(selectsuppliers[0].idNo);
-                        $("#phoneno").val(selectsuppliers[0].phoneNo);
-                        $("#accno").val(selectsuppliers[0].accNo);
-                        $("#bbranch").val(selectsuppliers[0].bbranch);
+                        $("#names").val(selectsuppliers[0].Names);
+                        $("#idno").val(selectsuppliers[0].IdNo);
+                        $("#phoneno").val(selectsuppliers[0].PhoneNo);
+                        $("#accno").val(selectsuppliers[0].AccNo);
+                        $("#bbranch").val(selectsuppliers[0].Bbranch);
 
                         $.ajax({
-                            type: "POST",
-                            url: "getIntakes",
-                            contentType: "application/json",
-                            data: JSON.stringify(supplier),
+                            type: 'POST',
+                            url: `suppliedProducts`,
+                            contentType: 'application/json',
+                            data: JSON.stringify(selectsuppliers[0]),
                             success: function (response) {
+                                //if (response.Success) {
+                                    
+                                //}
                                 populateIntake(response)
-                            }, 
-                            error: function (response) {
+                            },
+                            failure: function (response) {
                             }
-                        });                        
+                        }).then(function () {
+                            // ...
+                        });
                     }
             });
+
             function populateIntake(intakes) {
-                debugger
+                let itemTableRows = new Array();
+                intakes.forEach(i => {
+                    itemTableRows.push(`<tr>
+				        <td>${i.TransDate}</td>
+                        <td>${i.ProductType}</td>
+                        <td>${i.Qsupplied}</td>
+                        <td>${i.CR}</td>
+                        <td>${i.DR}</td>
+                        <td>${i.Balance}</td>
+                        <td>${i.Description}</td>
+                        <td>${i.Remarks}</td>
+			        </tr>`)
+                });
+
+                $('#intakes').html(itemTableRows);
             }
         });
     </script>
