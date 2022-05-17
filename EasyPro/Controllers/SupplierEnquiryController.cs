@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using EasyPro.ViewModels.EnquiryVM;
 
 namespace EasyPro.Controllers
 {
@@ -24,7 +23,7 @@ namespace EasyPro.Controllers
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
-
+            
             ViewBag.suppliers = _context.DSuppliers.Select(s => new DSupplier
             {
                 Sno = s.Sno,

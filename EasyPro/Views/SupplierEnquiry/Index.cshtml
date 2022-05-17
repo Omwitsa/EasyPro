@@ -1,5 +1,4 @@
-﻿@model EasyPro.ViewModels.EnquiryVM.EnquiryVM
-
+﻿
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <div class="row">
@@ -7,8 +6,7 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <label class="control-label">sno</label>
-                <input id="sno" asp-for="suppliers.Sno" />
-                <span asp-validation-for="suppliers.Sno" class="text-danger"></span>
+                <input id="sno" />
             </div>
         </div>
     </div>
@@ -17,8 +15,7 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">Names</label>
-                    <input id="names" asp-for="suppliers.Names" />
-                    <span asp-validation-for="suppliers.Names" class="text-danger"></span>
+                    <input id="names" />
                 </div>
             </div>
         </div>
@@ -28,8 +25,7 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">IdNo</label>
-                    <input id="idno" asp-for="suppliers.IdNo" />
-                    <span asp-validation-for="suppliers.IdNo" class="text-danger"></span>
+                    <input id="idno" />
                 </div>
             </div>
         </div>
@@ -40,8 +36,7 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <label class="control-label">Phone No</label>
-                <input id="phoneno" asp-for="suppliers.PhoneNo" />
-                <span asp-validation-for="suppliers.PhoneNo" class="text-danger"></span>
+                <input id="phoneno" />
             </div>
         </div>
     </div>
@@ -50,8 +45,7 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">Acc No</label>
-                    <input id="accno" asp-for="suppliers.AccNo" />
-                    <span asp-validation-for="suppliers.AccNo" class="text-danger"></span>
+                    <input id="accno" />
                 </div>
             </div>
         </div>
@@ -61,8 +55,7 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">Bank</label>
-                    <input id="bbranch" asp-for="suppliers.Bbranch" />
-                    <span asp-validation-for="suppliers.Bbranch" class="text-danger"></span>
+                    <input id="bbranch" />
                 </div>
             </div>
         </div>
@@ -73,8 +66,7 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <label class="control-label">DateFrom</label>
-                <input value="date" asp-for="intakes.TransDate" />
-                <span asp-validation-for="intakes.TransDate" class="text-danger"></span>
+                <input id="startDate" type="date"/>
             </div>
         </div>
     </div>
@@ -83,8 +75,7 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">DateTo</label>
-                    <input value="date" asp-for="intakes.TransDate" />
-                    <span asp-validation-for="intakes.TransDate" class="text-danger"></span>
+                    <input id="endDate" type="date"/>
                     <a class="btn-warning btn-success" asp-action="Show">Show</a>
                 </div>
             </div>
@@ -129,6 +120,12 @@
     }
     <script type="text/javascript">
         $(function () {
+            var date = new Date();
+            var startDate = new Date(date.getFullYear(), date.getMonth(), 2);
+            var endDate = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+            
+            $("#startDate").val(startDate.toISOString().split('T')[0]);
+            $("#endDate").val(endDate.toISOString().split('T')[0]);
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
                 var selectVal = parseInt($("#sno").val());
