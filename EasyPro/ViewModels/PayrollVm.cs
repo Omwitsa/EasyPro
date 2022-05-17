@@ -1,4 +1,6 @@
-﻿namespace EasyPro.ViewModels
+﻿using System;
+
+namespace EasyPro.ViewModels
 {
     public class PayrollVm
     {
@@ -16,5 +18,10 @@
         public decimal? Advance { get; set; }
         public decimal? Others { get; set; }
         public decimal? Netpay { get; set; }
+    }
+
+    public class PayrollPeriod
+    {
+        public DateTime EndDate { get; set; }
     }
 }

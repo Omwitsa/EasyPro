@@ -75,9 +75,17 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Sno,Mpesa")] DPayroll dPayroll)
+        public async Task<IActionResult> Create([Bind("EndDate")] PayrollPeriod period)
         {
-            var intakes = _context.ProductIntake.Where(p => !p.Paid).GroupBy(p => p.Sno).ToList();
+            var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            var payrolls = _context.DPayrolls.Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month);
+            _context.DPayrolls.RemoveRange(payrolls);
+            _context.SaveChanges();
+
+            var productIntakes = _context.ProductIntake
+                .Where(p => !p.Paid && p.TransDate >= startDate && p.TransDate <= endDate).ToList();
+            var intakes = productIntakes.GroupBy(p => p.Sno).ToList();
             intakes.ForEach(p =>
             {
                 p.ToList().ForEach(i =>
@@ -85,23 +93,26 @@ namespace EasyPro.Controllers
                     i.Paid = true;
                 });
 
+                var advance = p.ToList().Where(k => k.Description.ToLower().Contains("advance"));
+                var transport = p.ToList().Where(k => k.Description.ToLower().Contains("transport"));
+                var agrovet = p.ToList().Where(k => k.Description.ToLower().Contains("agrovet"));
+                var bonus = p.ToList().Where(k => k.Description.ToLower().Contains("bonus"));
+                var shares = p.ToList().Where(k => k.Description.ToLower().Contains("shares"));
                 var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == p.Key);
                 var payroll = new DPayroll();
                 payroll.Sno = (int?)supplier.Sno;
                 payroll.Gpay = p.Sum(s => s.CR);
                 payroll.KgsSupplied = (double?)p.Sum(s => s.Qsupplied);
-                payroll.Advance = 0;
+                payroll.Advance = advance.Sum(s => s.DR);
                 payroll.Others = 0;
-                payroll.Transport = 0;
-                payroll.Agrovet = 0;
-                payroll.Bonus = 0;
-                payroll.Tmshares = 0;
-                payroll.Fsa = 0;
-                payroll.Hshares = 0;
-                payroll.Tdeductions = 0;
-                payroll.Npay = payroll.Gpay - payroll.Advance - payroll.Others;
-                payroll.Yyear = 2022;
-                payroll.Mmonth = 2;
+                payroll.Transport = transport.Sum(s => s.DR);
+                payroll.Agrovet = agrovet.Sum(s => s.DR);
+                payroll.Bonus = bonus.Sum(s => s.DR);
+                payroll.Hshares = shares.Sum(s => s.DR);
+                payroll.Tdeductions = payroll.Advance + payroll.Transport + payroll.Agrovet + payroll.Bonus + payroll.Hshares;
+                payroll.Npay = payroll.Gpay - payroll.Tdeductions;
+                payroll.Yyear = endDate.Year;
+                payroll.Mmonth = endDate.Month;
                 payroll.AccountNumber = supplier.AccNo;
                 payroll.Bbranch = supplier.Bbranch;
                 payroll.IdNo = supplier.IdNo;

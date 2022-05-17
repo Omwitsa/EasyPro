@@ -66,7 +66,9 @@ namespace EasyPro.Controllers
             ViewBag.branches = new SelectList(branches, "Bname", "Bname");
             ViewBag.dBranches = branches;
             var accounts = _context.Glsetups.ToList();
-            ViewBag.accounts = new SelectList(accounts, "AccNo", "GlAccName");
+            ViewBag.accounts = new SelectList(accounts, "AccNo", "GlAccName"); 
+            var saccos = _context.DCompanies.ToList();
+            ViewBag.saccos = new SelectList(saccos, "Name", "Name");
         }
 
         // POST: UserAccounts/Create

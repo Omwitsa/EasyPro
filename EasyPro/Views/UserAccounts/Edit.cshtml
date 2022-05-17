@@ -55,7 +55,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Branchcode" class="control-label"></label>
-                            <input asp-for="Branchcode" class="form-control" />
+                            <select asp-for="Branchcode" class="form-control" asp-items="@ViewBag.saccos"></select>
                             <span asp-validation-for="Branchcode" class="text-danger"></span>
                         </div>
                     </div>
