@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
@@ -21,7 +23,10 @@ namespace EasyPro.Controllers
         // GET: DSuppliers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DSuppliers.Where(i=>i.Active== true || i.Active == false).ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            return View(await _context.DSuppliers
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
         // GET: DSuppliers/Details/5
         public async Task<IActionResult> Details(long? id)
@@ -89,6 +94,9 @@ namespace EasyPro.Controllers
 
             if (ModelState.IsValid)
             {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                sacco = sacco ?? "";
+                dSupplier.Scode = sacco;
                 _context.Add(dSupplier);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -136,6 +144,9 @@ namespace EasyPro.Controllers
                     dSupplier.Br = "A";
                     dSupplier.Freezed = "0";
                     dSupplier.Mass = "0";
+                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                    sacco = sacco ?? "";
+                    dSupplier.Scode = sacco;
                     _context.Update(dSupplier);
                     await _context.SaveChangesAsync();
                 }

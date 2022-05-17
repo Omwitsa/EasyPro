@@ -7,22 +7,30 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using EasyPro.Utils;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class UserAccountsController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public UserAccountsController(MORINGAContext context)
+        public UserAccountsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: UserAccounts
         public async Task<IActionResult> Index()
         {
-            return View(await _context.UserAccounts.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            return View(await _context.UserAccounts
+                .Where(u => u.Branchcode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
         // GET: UserAccounts/Details/5
@@ -70,8 +78,15 @@ namespace EasyPro.Controllers
         {
             if (ModelState.IsValid)
             {
+                userAccount.Branchcode = userAccount?.Branchcode ?? "";
+                userAccount.UserLoginIds = userAccount?.UserLoginIds ?? "";
                 userAccount.DateCreated = DateTime.UtcNow.AddHours(3);
                 userAccount.Password = Decryptor.Decript_String(userAccount.Password);
+                if(_context.UserAccounts.Any(u => u.UserLoginIds.ToUpper().Equals(userAccount.UserLoginIds.ToUpper())))
+                {
+                    _notyf.Error("Sorry, UserName already exist");
+                    return View(userAccount);
+                }
                 _context.Add(userAccount);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -112,6 +127,7 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    userAccount.Branchcode = userAccount?.Branchcode ?? "";
                     _context.Update(userAccount);
                     await _context.SaveChangesAsync();
                 }

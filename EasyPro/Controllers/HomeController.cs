@@ -1,7 +1,9 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
 using EasyPro.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -54,15 +56,17 @@ namespace EasyPro.Controllers
                 }
 
                 login.Password = Decryptor.Decript_String(login.Password);
-                var isValidUser = await _context.UserAccounts
-                    .AnyAsync(u => u.UserLoginIds.ToUpper().Equals(login.Username.ToUpper()) 
+                var user = await _context.UserAccounts
+                    .FirstOrDefaultAsync(u => u.UserLoginIds.ToUpper().Equals(login.Username.ToUpper()) 
                     && u.Password.Equals(login.Password));
-                if (!isValidUser)
+                if (user == null)
                 {
                     _notyf.Error("Sorry, Invalid user credentials");
                     return View(login);
                 }
 
+                HttpContext.Session.SetString(StrValues.LoggedInUser, user.UserLoginIds);
+                HttpContext.Session.SetString(StrValues.UserSacco, user.Branchcode);
                 _notyf.Success("Logged in successfully");
                 return RedirectToAction(nameof(Index));
             }

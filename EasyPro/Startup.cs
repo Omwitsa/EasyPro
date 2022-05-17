@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace EasyPro
 {
@@ -32,6 +33,10 @@ namespace EasyPro
                 config.IsDismissable = true; 
                 config.Position = NotyfPosition.TopCenter; 
             });
+            services.AddDistributedMemoryCache();
+            services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromMinutes(1);//You can set Time   
+            });
             services.AddControllersWithViews();
             services.AddControllers().AddNewtonsoftJson(options =>
             {
@@ -52,11 +57,9 @@ namespace EasyPro
                 app.UseExceptionHandler("/Home/Error");
             }
             app.UseStaticFiles();
-
+            app.UseSession();
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseNotyf();
             app.UseEndpoints(endpoints =>
             {
