@@ -125,10 +125,10 @@
             $('#sno').on('change', function () {
                 var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
                 var selectVal = parseInt($("#sno").val());
-                var selectProducts = products.filter(p => p.sno === selectVal);
+                var selectProducts = products.filter(p => p.Sno === selectVal);
                // debugger;
                     if (selectProducts[0]) {
-                        $("#name").val(selectProducts[0].names);
+                        $("#name").val(selectProducts[0].Names);
                     }
             });
         });
