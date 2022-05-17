@@ -108,9 +108,9 @@
                             
                             var products = @Html.Raw(Json.Serialize(Model.DTransporter));
                             var selectVal = $("#transCode").val();
-                            var selectProducts = products.filter(p => p.transCode === selectVal);
+                            var selectProducts = products.filter(p => p.TransCode === selectVal);
                                 if (selectProducts[0]) {
-                                    $("#name").val(selectProducts[0].transName);
+                                    $("#name").val(selectProducts[0].TransName);
                                 }
                         });
                     });

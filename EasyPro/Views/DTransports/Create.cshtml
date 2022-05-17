@@ -121,17 +121,17 @@
                         $('#tcode').on('change', function () {
                             var products = @Html.Raw(Json.Serialize(Model.DTransporter));
                             var selectVal = $("#tcode").val();
-                            var selectProducts = products.filter(p => p.transCode === selectVal);
+                            var selectProducts = products.filter(p => p.TransCode === selectVal);
                                 if (selectProducts[0]) {
-                                    $("#tname").val(selectProducts[0].transName);
+                                    $("#tname").val(selectProducts[0].TransName);
                                 }
                         });
                         $('#sno').on('change', function () {
                             var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
                             var selectVal = parseInt($("#sno").val());
-                            var selectProducts = products.filter(p => p.sno === selectVal);
+                            var selectProducts = products.filter(p => p.Sno === selectVal);
                                 if (selectProducts[0]) {
-                                    $("#sname").val(selectProducts[0].names);
+                                    $("#sname").val(selectProducts[0].Names);
                                 }
                         });
                     });

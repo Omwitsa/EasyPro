@@ -80,8 +80,8 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dSupplier1 = _context.DSuppliers.Where(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo);
-            if (dSupplier1 != null)
+            var dSupplier1 = _context.DSuppliers.Where(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo).Count();
+            if (dSupplier1 != 0)
             {
                 GetInitialValues();
                 return View();
