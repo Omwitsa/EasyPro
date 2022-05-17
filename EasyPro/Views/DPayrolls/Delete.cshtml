@@ -1,0 +1,261 @@
+﻿@model EasyPro.Models.DPayroll
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>DPayroll</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Sno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Transport)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Transport)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Agrovet)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Agrovet)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Bonus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bonus)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tmshares)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tmshares)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Fsa)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Fsa)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Hshares)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Hshares)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Advance)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Advance)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Others)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Others)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tdeductions)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tdeductions)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.KgsSupplied)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.KgsSupplied)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Gpay)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Gpay)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Npay)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Npay)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Yyear)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Yyear)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Mmonth)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Mmonth)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Bank)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bank)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AccountNumber)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AccountNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Bbranch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bbranch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Trader)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Trader)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Sbranch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sbranch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EndofPeriod)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EndofPeriod)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdatetime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdatetime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Mainaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Mainaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Transportaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Transportaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Agrovetaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Agrovetaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Aiaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Aiaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tmsharesaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tmsharesaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Fsaaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Fsaaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Hsharesaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Hsharesaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Advanceaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Advanceaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Otheraccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Otheraccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Netaccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Netaccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Subsidy)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Subsidy)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Cbo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Cbo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IdNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IdNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tchp)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tchp)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Midmonth)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Midmonth)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Deduct12)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Deduct12)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Mpesa)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Mpesa)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
