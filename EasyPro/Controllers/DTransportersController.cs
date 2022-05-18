@@ -6,16 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class DTransportersController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DTransportersController(MORINGAContext context)
+        public DTransportersController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: DTransporters
@@ -56,6 +59,9 @@ namespace EasyPro.Controllers
             var brances = _context.DBranch.Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
+            var bankbrances = _context.DBankBranch.Select(b => b.Bname).ToList();
+            ViewBag.bankbrances = new SelectList(bankbrances);
+
             List<SelectListItem> gender = new()
             {
                 new SelectListItem { Text = "Male" },
@@ -78,18 +84,21 @@ namespace EasyPro.Controllers
         {
             if (dTransporter == null)
             {
+                _notyf.Error("Transporter cannot be empty");
                 return NotFound();
             }
             var dTransporter10 = _context.DTransporters.Where(i=>i.TransCode == dTransporter.TransCode && i.CertNo == dTransporter.CertNo).Count();
             if (dTransporter10 != 0)
             {
                 GetInitialValues();
+                _notyf.Error("Transporter entered already exist");
                 return View();
             }
             if (ModelState.IsValid)
             {
                 _context.Add(dTransporter);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Transporter saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(dTransporter);
@@ -120,6 +129,7 @@ namespace EasyPro.Controllers
         {
             if (id != dTransporter.Id)
             {
+                _notyf.Error("Sorry, error occured while editing, try again");
                 return NotFound();
             }
             
@@ -132,6 +142,7 @@ namespace EasyPro.Controllers
                     dTransporter.Freezed = "0";
                     _context.Update(dTransporter);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Transporter Edited successfully");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -175,6 +186,7 @@ namespace EasyPro.Controllers
             var dTransporter = await _context.DTransporters.FindAsync(itemId);
             _context.DTransporters.Remove(dTransporter);
             await _context.SaveChangesAsync();
+            _notyf.Success("Transporter Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 

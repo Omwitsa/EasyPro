@@ -6,16 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class DSupplierDeducsController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DSupplierDeducsController(MORINGAContext context)
+        public DSupplierDeducsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
+
         }
 
         // GET: DSupplierDeducs
@@ -76,6 +80,14 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,DateDeduc,Description,Amount,Period,StartDate,EndDate,Auditid,Auditdatetime,Yyear,Remarks,Branch,Bonus,Status1,Status2,Status3,Status4,Status5,Status6,Branchcode")] DSupplierDeduc dSupplierDeduc)
         {
+            var dSupplier1 = _context.DSupplierDeducs.Where(i => i.Sno == dSupplierDeduc.Sno).Count();
+            if (dSupplier1 != 0)
+            {
+                GetInitialValues();
+                _notyf.Error("Transporter code does not exist");
+                return View();
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(dSupplierDeduc);
