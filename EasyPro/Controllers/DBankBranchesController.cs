@@ -63,7 +63,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,BankCode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBankBranch dBankBranch)
         {
-            var dSupplier1 = _context.DBankBranch.Where(i => i.Bname == dBankBranch.Bname).Count();
+            var dSupplier1 = _context.DBankBranch.Where(i => i.Bname == dBankBranch.Bname && i.BankCode == dBankBranch.BankCode).Count();
             if (dSupplier1 != 0)
             {
                 _notyf.Error("Sorry, The Bank Branch Name already exist");
