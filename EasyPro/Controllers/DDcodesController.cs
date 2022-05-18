@@ -6,22 +6,30 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
     public class DDcodesController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DDcodesController(MORINGAContext context)
+        public DDcodesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: DDcodes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DDcodes.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            return View(await _context.DDcodes
+                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
         // GET: DDcodes/Details/5
@@ -55,11 +63,21 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Dcode,Description,Dedaccno,Contraacc,Auditid,Auditdatetime")] DDcode dDcode)
         {
+            var dSupplier1 = _context.DDcodes.Where(i => i.Description == dDcode.Description && i.Dcode== dDcode.Dcode).Count();
+            if (dSupplier1 != 0)
+            {
+                _notyf.Error("Sorry, The Branch Name already exist");
+                return View();
+            }
+
             if (ModelState.IsValid)
             {
-               
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                sacco = sacco ?? "";
+                dDcode.Dcode = sacco;
                 _context.Add(dDcode);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Deduction saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(dDcode);
@@ -90,6 +108,7 @@ namespace EasyPro.Controllers
         {
             if (id != dDcode.Id)
             {
+                _notyf.Error("Sorry, an error occured while eidting");
                 return NotFound();
             }
 
@@ -97,8 +116,12 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                    sacco = sacco ?? "";
+                    dDcode.Dcode = sacco;
                     _context.Update(dDcode);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Deduction saved successfully");
                 }
                 catch (DbUpdateConcurrencyException)
                 {

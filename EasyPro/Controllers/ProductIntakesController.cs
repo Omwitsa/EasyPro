@@ -186,9 +186,11 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+
             var Supplier = _context.DSuppliers.Where(i => i.Sno == productIntake.Sno && i.Active == true).Count();
             if (Supplier == 0)
             {
+                _notyf.Error("Sorry, Farmer Number code does not exist");
                 GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
@@ -201,6 +203,7 @@ namespace EasyPro.Controllers
             if (productIntake.Sno == 0)
             {
                 GetInitialValues();
+                _notyf.Error("Sorry, Farmer code cannot be zero");
                 Farmersobj = new FarmersVM()
                 {
                     DSuppliers = _context.DSuppliers,
@@ -213,6 +216,7 @@ namespace EasyPro.Controllers
             {
                 productIntake.TransactionType = TransactionType.Deduction; 
                 _context.Add(productIntake);
+                _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(DeductionList));
             }

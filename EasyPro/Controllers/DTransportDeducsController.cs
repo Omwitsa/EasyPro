@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using EasyPro.ViewModels.TransportersVM;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class DTransportDeducsController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DTransportDeducsController(MORINGAContext context)
+        public DTransportDeducsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
         public TransportersVM Transportersobj { get; private set; }
         // GET: DTransportDeducs
@@ -39,7 +42,7 @@ namespace EasyPro.Controllers
                     TransCode = intake.TransCode,
                     TransName = supplier.TransName,
                     TdateDeduc = intake.TdateDeduc,
-                    Description = intake.Description,
+                    Description = intake.Remarks,
                     Amount = intake.Amount
                 });
             }
@@ -105,10 +108,19 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,TransCode,TdateDeduc,Description,Amount,Period,Startdate,Enddate,Auditid,Remarks,Auditdatetime,Yyear,Rate,Ai")] DTransportDeduc dTransportDeduc)
         {
+            var dSupplier1 = _context.DTransporters.Where(i => i.TransCode == dTransportDeduc.TransCode).Count();
+            if (dSupplier1 != 0)
+            {
+                GetInitialValues();
+                _notyf.Error("Sorry, Transporter code does not exist");
+                return View();
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(dTransportDeduc);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Transporter Deduction saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(dTransportDeduc);
@@ -139,6 +151,7 @@ namespace EasyPro.Controllers
         {
             if (id != dTransportDeduc.Id)
             {
+                _notyf.Error("Sorry, An Error occured while Editing the Transporter Deduction");
                 return NotFound();
             }
 
@@ -148,6 +161,7 @@ namespace EasyPro.Controllers
                 {
                     _context.Update(dTransportDeduc);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Transporter Deduction edited successfully");
                 }
                 catch (DbUpdateConcurrencyException)
                 {

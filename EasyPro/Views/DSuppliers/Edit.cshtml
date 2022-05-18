@@ -28,7 +28,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Regdate" class="control-label"></label>
-                                    <input value="date" asp-for="Regdate" class="form-control" required />
+                                    <input type="date" asp-for="Regdate" class="form-control" required />
                                     <span asp-validation-for="Regdate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -195,8 +195,8 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Bbranch" class="control-label"></label>
-                                <input asp-for="Bbranch" class="form-control" />
+                                <label asp-for="Bbranch" class="control-label">Bank Branch</label>
+                                <select asp-for="Bbranch" class="form-control" asp-items="@ViewBag.bankbrances" required></select>
                                 <span asp-validation-for="Bbranch" class="text-danger"></span>
                             </div>
                         </div>

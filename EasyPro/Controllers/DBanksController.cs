@@ -6,22 +6,30 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
     public class DBanksController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DBanksController(MORINGAContext context)
+        public DBanksController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: DBanks
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DBanks.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            return View(await _context.DBanks
+                .Where(i => i.BankCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
         // GET: DBanks/Details/5
@@ -55,10 +63,20 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,BankCode,BankName,BranchName,Address,Telephone,AuditId,AuditTime,BankAccNo,Accno,AccType")] DBank dBank)
         {
+            var dSupplier1 = _context.DBanks.Where(i => i.BankName == dBank.BankName).Count();
+            if (dSupplier1 != 0)
+            {
+                _notyf.Error("Sorry, The Bank Name already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                sacco = sacco ?? "";
+                dBank.BankCode = sacco;
                 _context.Add(dBank);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Bank saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(dBank);
@@ -89,6 +107,7 @@ namespace EasyPro.Controllers
         {
             if (id != dBank.Id)
             {
+                _notyf.Error("Sorry, an error occured while eidting");
                 return NotFound();
             }
 
@@ -96,7 +115,11 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                    sacco = sacco ?? "";
+                    dBank.BankCode = sacco;
                     _context.Update(dBank);
+                    _notyf.Success("Bank Edited successfully");
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -141,6 +164,7 @@ namespace EasyPro.Controllers
             var dBank = await _context.DBanks.FindAsync(id);
             _context.DBanks.Remove(dBank);
             await _context.SaveChangesAsync();
+            _notyf.Success("Bank Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 
