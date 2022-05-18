@@ -9,22 +9,22 @@ using EasyPro.Models;
 
 namespace EasyPro.Controllers
 {
-    public class DCompaniesController : Controller
+    public class WardsController : Controller
     {
         private readonly MORINGAContext _context;
 
-        public DCompaniesController(MORINGAContext context)
+        public WardsController(MORINGAContext context)
         {
             _context = context;
         }
 
-        // GET: DCompanies
+        // GET: Wards
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DCompanies.ToListAsync());
+            return View(await _context.Ward.ToListAsync());
         }
 
-        // GET: DCompanies/Details/5
+        // GET: Wards/Details/5
         public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
@@ -32,40 +32,40 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dCompany = await _context.DCompanies
+            var ward = await _context.Ward
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dCompany == null)
+            if (ward == null)
             {
                 return NotFound();
             }
 
-            return View(dCompany);
+            return View(ward);
         }
 
-        // GET: DCompanies/Create
+        // GET: Wards/Create
         public IActionResult Create()
         {
             SetInitialValues();
             return View();
         }
 
-        // POST: DCompanies/Create
+        // POST: Wards/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Adress,Town,Country,Province,District,Division,Location,FaxNo,PhoneNo,Email,Website,Fiscal,Auditid,Auditdatetime,Acc,Motto,SendTime,Smsno,Smscost,Smsport,Period")] DCompany dCompany)
+        public async Task<IActionResult> Create([Bind("Id,Name,SubCounty,Contact,Closed,CreatedOn,CreatedBy")] Ward ward)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(dCompany);
+                _context.Add(ward);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(dCompany);
+            return View(ward);
         }
 
-        // GET: DCompanies/Edit/5
+        // GET: Wards/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
             SetInitialValues();
@@ -74,36 +74,28 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dCompany = await _context.DCompanies.FindAsync(id);
-            if (dCompany == null)
+            var ward = await _context.Ward.FindAsync(id);
+            if (ward == null)
             {
                 return NotFound();
             }
-            return View(dCompany);
+            return View(ward);
         }
 
         private void SetInitialValues()
         {
-            var counties = _context.County.Where(c => !c.Closed).ToList();
-            ViewBag.counties = new SelectList(counties, "Name", "Name");
             var subCounties = _context.SubCounty.Where(c => !c.Closed).ToList();
             ViewBag.subCounties = new SelectList(subCounties, "Name", "Name");
-            var wards = _context.Ward.Where(c => !c.Closed).ToList();
-            ViewBag.wards = new SelectList(wards, "Name", "Name");
-            var locations = _context.DLocations.ToList();
-            ViewBag.locations = new SelectList(locations, "Lcode", "Lname");
         }
 
-
-
-        // POST: DCompanies/Edit/5
+        // POST: Wards/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Adress,Town,Country,Province,District,Division,Location,FaxNo,PhoneNo,Email,Website,Fiscal,Auditid,Auditdatetime,Acc,Motto,SendTime,Smsno,Smscost,Smsport,Period")] DCompany dCompany)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,Name,SubCounty,Contact,Closed,CreatedOn,CreatedBy")] Ward ward)
         {
-            if (id != dCompany.Id)
+            if (id != ward.Id)
             {
                 return NotFound();
             }
@@ -112,12 +104,12 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    _context.Update(dCompany);
+                    _context.Update(ward);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DCompanyExists(dCompany.Id))
+                    if (!WardExists(ward.Id))
                     {
                         return NotFound();
                     }
@@ -128,10 +120,10 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(dCompany);
+            return View(ward);
         }
 
-        // GET: DCompanies/Delete/5
+        // GET: Wards/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
             if (id == null)
@@ -139,30 +131,30 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dCompany = await _context.DCompanies
+            var ward = await _context.Ward
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dCompany == null)
+            if (ward == null)
             {
                 return NotFound();
             }
 
-            return View(dCompany);
+            return View(ward);
         }
 
-        // POST: DCompanies/Delete/5
+        // POST: Wards/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var dCompany = await _context.DCompanies.FindAsync(id);
-            _context.DCompanies.Remove(dCompany);
+            var ward = await _context.Ward.FindAsync(id);
+            _context.Ward.Remove(ward);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DCompanyExists(long id)
+        private bool WardExists(long id)
         {
-            return _context.DCompanies.Any(e => e.Id == id);
+            return _context.Ward.Any(e => e.Id == id);
         }
     }
 }

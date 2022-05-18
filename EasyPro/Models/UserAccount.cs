@@ -12,6 +12,8 @@ namespace EasyPro.Models
         public string UserName { get; set; }
         [Display(Name = "User Code")]
         public string UserLoginIds { get; set; }
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         public string Password { get; set; }
         [Display(Name = "User Group")]
         public string UserGroup { get; set; }

@@ -4,11 +4,12 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
             <div class="cmp-tb-hd">
-                <h2>Create</h2>
+                <h2>Edit</h2>
             </div>
             <hr />
             <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
@@ -37,7 +38,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Country" class="control-label"></label>
-                            <input asp-for="Country" class="form-control" />
+                            <input asp-for="Country" value="Kenya" class="form-control" readonly />
                             <span asp-validation-for="Country" class="text-danger"></span>
                         </div>
                     </div>
@@ -47,14 +48,15 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Province" class="control-label"></label>
-                            <input asp-for="Province" class="form-control" />
+                            <select asp-for="Province" id="county" class="form-control" asp-items="@ViewBag.counties"></select>
                             <span asp-validation-for="Province" class="text-danger"></span>
                         </div>
                     </div>
+
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="District" class="control-label"></label>
-                            <input asp-for="District" class="form-control" />
+                            <select asp-for="District" id="sub-county" class="form-control" asp-items="@ViewBag.subCounties"></select>
                             <span asp-validation-for="District" class="text-danger"></span>
                         </div>
                     </div>
@@ -64,14 +66,14 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Division" class="control-label"></label>
-                            <input asp-for="Division" class="form-control" />
+                            <select asp-for="Division" id="county" class="form-control" asp-items="@ViewBag.wards"></select>
                             <span asp-validation-for="Division" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Location" class="control-label"></label>
-                            <input asp-for="Location" class="form-control" />
+                            <select asp-for="Location" id="county" class="form-control" asp-items="@ViewBag.locations"></select>
                             <span asp-validation-for="Location" class="text-danger"></span>
                         </div>
                     </div>
@@ -80,21 +82,11 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="FaxNo" class="control-label"></label>
-                            <input asp-for="FaxNo" class="form-control" />
-                            <span asp-validation-for="FaxNo" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
                             <label asp-for="PhoneNo" class="control-label"></label>
                             <input asp-for="PhoneNo" class="form-control" />
                             <span asp-validation-for="PhoneNo" class="text-danger"></span>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Email" class="control-label"></label>
@@ -102,6 +94,9 @@
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Website" class="control-label"></label>
@@ -109,23 +104,11 @@
                             <span asp-validation-for="Website" class="text-danger"></span>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Fiscal" class="control-label"></label>
                             <input asp-for="Fiscal" class="form-control" />
                             <span asp-validation-for="Fiscal" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <div class="checkbox">
-                                <label>
-                                    <input asp-for="Acc" /> @Html.DisplayNameFor(model => model.Acc)
-                                </label>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -139,43 +122,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Smscost" class="control-label"></label>
-                            <input asp-for="Smscost" class="form-control" />
-                            <span asp-validation-for="Smscost" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Smsno" class="control-label"></label>
-                            <input asp-for="Smsno" class="form-control" />
-                            <span asp-validation-for="Smsno" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Smsport" class="control-label"></label>
-                            <input asp-for="Smsport" class="form-control" />
-                            <span asp-validation-for="Smsport" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Period" class="control-label"></label>
-                            <input asp-for="Period" class="form-control" />
-                            <span asp-validation-for="Period" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-
-                        </div>
                     </div>
                 </div>
 

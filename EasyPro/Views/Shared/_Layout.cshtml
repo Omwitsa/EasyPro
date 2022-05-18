@@ -112,10 +112,10 @@
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <ul class="nav nav-tabs notika-menu-wrap menu-it-icon-pro">
-                        <li>
+                        <li class="active">
                             <a data-toggle="tab" href="#file"><i class="notika-icon notika-form"></i>File</a>
                         </li>
-                        <li class="active">
+                        <li>
                             <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
                         </li>
                         <li>
@@ -129,6 +129,13 @@
                         </li>
                     </ul>
                     <div class="tab-content custom-menu-content">
+                        <div id="file" class="tab-pane in active notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div id="registration" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
@@ -147,13 +154,6 @@
                                     <a asp-controller="DBankBranches" asp-action="Index">Bank Branch</a>
                                 </li>
 
-                            </ul>
-                        </div>
-                        <div id="file" class="tab-pane notika-tab-menu-bg animated flipInX">
-                            <ul class="notika-main-menu-dropdown">
-                                <li>
-                                    <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
-                                </li>
                             </ul>
                         </div>
                         <div id="deductions" class="tab-pane notika-tab-menu-bg animated flipInX">
@@ -201,6 +201,15 @@
                                 </li>
                                 <li>
                                     <a asp-controller="Usergroups" asp-action="Index">User Groups</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Counties" asp-action="Index">Counties</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="SubCounties" asp-action="Index">Sub Counties</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Wards" asp-action="Index">Wards</a>
                                 </li>
                             </ul>
                         </div>

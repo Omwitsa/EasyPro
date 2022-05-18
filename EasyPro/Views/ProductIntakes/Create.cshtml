@@ -13,10 +13,18 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Sno" class="control-label"></label>
-                            <input asp-for="Sno" class="form-control" />
+                            <input asp-for="Sno" id="Sno" class="form-control" />
                             <span asp-validation-for="Sno" class="text-danger"></span>
                         </div>
                     </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Names</label>
+                            <input id="Names" class="form-control" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="ProductType" class="control-label"></label>
@@ -24,8 +32,6 @@
                             <span asp-validation-for="ProductType" class="text-danger"></span>
                         </div>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Ppu" class="control-label"></label>
@@ -33,6 +39,8 @@
                             <span asp-validation-for="Ppu" class="text-danger"></span>
                         </div>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Qsupplied" class="control-label"></label>
@@ -40,20 +48,11 @@
                             <span asp-validation-for="Qsupplied" class="text-danger"></span>
                         </div>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="CR" class="control-label"></label>
                             <input asp-for="CR" id="CR" class="form-control" readonly />
                             <span asp-validation-for="CR" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Description" class="control-label"></label>
-                            <input asp-for="Description" class="form-control" />
-                            <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -94,6 +93,15 @@
                     $("#CR").val();
                     $("#Qsupplied").val();
                     $("#Ppu").val(selectProducts[0].Price);
+                }
+            });
+
+            $('#Sno').on('keyup', function () {
+                var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
+                var selectVal = parseInt($("#Sno").val());
+                var selectSupplier = suppliers.filter(p => p.Sno === selectVal);
+                if (selectSupplier[0]) {
+                    $("#Names").val(selectSupplier[0].Names);
                 }
             });
 
