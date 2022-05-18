@@ -80,8 +80,11 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var payrolls = _context.DPayrolls.Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month);
-            _context.DPayrolls.RemoveRange(payrolls);
-            _context.SaveChanges();
+            if (payrolls.Any())
+            {
+                _context.DPayrolls.RemoveRange(payrolls);
+                _context.SaveChanges();
+            }
 
             var productIntakes = _context.ProductIntake
                 .Where(p => !p.Paid && p.TransDate >= startDate && p.TransDate <= endDate).ToList();
@@ -93,11 +96,12 @@ namespace EasyPro.Controllers
                     i.Paid = true;
                 });
 
-                var advance = p.ToList().Where(k => k.Description.ToLower().Contains("advance"));
-                var transport = p.ToList().Where(k => k.Description.ToLower().Contains("transport"));
-                var agrovet = p.ToList().Where(k => k.Description.ToLower().Contains("agrovet"));
-                var bonus = p.ToList().Where(k => k.Description.ToLower().Contains("bonus"));
-                var shares = p.ToList().Where(k => k.Description.ToLower().Contains("shares"));
+                var advance = p.Where(k => k.Description.ToLower().Contains("advance"));
+                var transport = p.Where(k => k.Description.ToLower().Contains("transport"));
+                var agrovet = p.Where(k => k.Description.ToLower().Contains("agrovet"));
+                var bonus = p.Where(k => k.Description.ToLower().Contains("bonus"));
+                var shares = p.Where(k => k.Description.ToLower().Contains("shares"));
+
                 var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == p.Key);
                 var payroll = new DPayroll();
                 payroll.Sno = (int?)supplier.Sno;
