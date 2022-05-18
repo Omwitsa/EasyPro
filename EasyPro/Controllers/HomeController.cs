@@ -30,6 +30,7 @@ namespace EasyPro.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.intakes = 22;
             return View();
         }
 
@@ -47,12 +48,12 @@ namespace EasyPro.Controllers
                 if (string.IsNullOrEmpty(login.Username))
                 {
                     _notyf.Error("Sorry, Kindly provide username");
-                    return View(login);
+                    return View();
                 }
                 if (string.IsNullOrEmpty(login.Password))
                 {
                     _notyf.Error("Sorry, Kindly provide password");
-                    return View(login);
+                    return View();
                 }
 
                 login.Password = Decryptor.Decript_String(login.Password);
@@ -62,7 +63,7 @@ namespace EasyPro.Controllers
                 if (user == null)
                 {
                     _notyf.Error("Sorry, Invalid user credentials");
-                    return View(login);
+                    return View();
                 }
 
                 HttpContext.Session.SetString(StrValues.LoggedInUser, user.UserLoginIds);

@@ -78,22 +78,28 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone")] UserAccount userAccount)
         {
-            if (ModelState.IsValid)
+            try
             {
                 userAccount.Branchcode = userAccount?.Branchcode ?? "";
                 userAccount.UserLoginIds = userAccount?.UserLoginIds ?? "";
                 userAccount.DateCreated = DateTime.UtcNow.AddHours(3);
                 userAccount.Password = Decryptor.Decript_String(userAccount.Password);
-                if(_context.UserAccounts.Any(u => u.UserLoginIds.ToUpper().Equals(userAccount.UserLoginIds.ToUpper())))
+                if (_context.UserAccounts.Any(u => u.UserLoginIds.ToUpper().Equals(userAccount.UserLoginIds.ToUpper())))
                 {
                     _notyf.Error("Sorry, UserName already exist");
                     return View(userAccount);
                 }
+
+                _notyf.Success("User created successfully");
                 _context.Add(userAccount);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(userAccount);
+            catch (Exception)
+            {
+                _notyf.Error("Sorry, An error occurred");
+                return View(userAccount);
+            }
         }
 
         // GET: UserAccounts/Edit/5
@@ -122,6 +128,7 @@ namespace EasyPro.Controllers
         {
             if (id != userAccount.Userid)
             {
+                _notyf.Error("Sorry, User not found");
                 return NotFound();
             }
 
@@ -129,12 +136,14 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    _notyf.Success("User saved successfully");
                     userAccount.Branchcode = userAccount?.Branchcode ?? "";
                     _context.Update(userAccount);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
+                    _notyf.Error("Sorry, An error occurred");
                     if (!UserAccountExists(userAccount.Userid))
                     {
                         return NotFound();
@@ -146,6 +155,7 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            _notyf.Error("Sorry, An error occurred");
             return View(userAccount);
         }
 

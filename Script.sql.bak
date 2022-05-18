@@ -13,17 +13,6 @@ CREATE TABLE County (
 CREATE TABLE SubCounty (
 	Id bigint IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
 	[Name] [varchar](50) NULL,
-	[County] [varchar](50) NULL,
-	[Contact] [varchar](50) NULL,
-	[Closed] [bit] NOT NULL,
-	[CreatedOn] [smalldatetime] NULL,
-	[CreatedBy] [varchar](50) NULL,
-);
-
-CREATE TABLE Ward (
-	Id bigint IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
-	[Name] [varchar](50) NULL,
-	[SubCounty] [varchar](50) NULL,
 	[Contact] [varchar](50) NULL,
 	[Closed] [bit] NOT NULL,
 	[CreatedOn] [smalldatetime] NULL,

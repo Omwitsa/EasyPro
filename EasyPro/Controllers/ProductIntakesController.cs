@@ -98,6 +98,8 @@ namespace EasyPro.Controllers
 
         private void SetIntakeInitialValues()
         {
+            var suppliers = _context.DSuppliers.ToList();
+            ViewBag.suppliers = suppliers;
             var products = _context.DPrices.ToList();
             ViewBag.products = new SelectList(products, "Products", "Products");
             ViewBag.productPrices = products;
@@ -170,6 +172,7 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                productIntake.Description = "Intake";
                 productIntake.TransactionType = TransactionType.Intake;
                 productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
@@ -219,6 +222,8 @@ namespace EasyPro.Controllers
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCorrection([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
             if (productIntake.Sno < 1)
@@ -248,6 +253,7 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                productIntake.Description = "Correction";
                 productIntake.TransactionType = TransactionType.Correction;
                 productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;

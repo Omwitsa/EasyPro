@@ -247,6 +247,9 @@ namespace EasyPro.Models
         public virtual DbSet<Vwshare> Vwshares { get; set; }
         public virtual DbSet<Vwsharebal> Vwsharebals { get; set; }
         public virtual DbSet<staff> staff { get; set; }
+        public virtual DbSet<County> County { get; set; }
+        public virtual DbSet<SubCounty> SubCounty { get; set; }
+        public virtual DbSet<Ward> Ward { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

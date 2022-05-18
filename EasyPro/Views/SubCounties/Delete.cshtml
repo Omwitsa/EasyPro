@@ -1,0 +1,63 @@
+﻿@model EasyPro.Models.SubCounty
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Delete</h2>
+            </div>
+            <hr />
+            <div>
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Name)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.County)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.County)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Contact)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Contact)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Closed)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Closed)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.CreatedOn)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.CreatedOn)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.CreatedBy)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.CreatedBy)
+                    </dd>
+                </dl>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="submit" value="Delete" class="btn btn-default" /> |
+                    <a asp-action="Index">Back to List</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

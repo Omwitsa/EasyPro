@@ -6,16 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class UsergroupsController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public UsergroupsController(MORINGAContext context)
+        public UsergroupsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: Usergroups
@@ -55,13 +58,18 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets")] Usergroup usergroup)
         {
-            if (ModelState.IsValid)
+            try
             {
+                _notyf.Success("Group saved successfuly");
                 _context.Add(usergroup);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(usergroup);
+            catch (Exception)
+            {
+                _notyf.Error("Sorry, An error occurred");
+                return View(usergroup);
+            }
         }
 
         // GET: Usergroups/Edit/5
@@ -96,11 +104,13 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    _notyf.Success("Group edited successfully");
                     _context.Update(usergroup);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
+                    _notyf.Error("Sorry, An error occurred");
                     if (!UsergroupExists(usergroup.GroupId))
                     {
                         return NotFound();
@@ -112,6 +122,7 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            _notyf.Error("Sorry, An error occurred");
             return View(usergroup);
         }
 
