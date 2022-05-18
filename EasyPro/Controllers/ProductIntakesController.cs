@@ -29,18 +29,12 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.ProductIntake
-                .Where(i => i.TransactionType == TransactionType.Intake)
-                .OrderByDescending(i => i.Id)
+                .Where(i => i.TransactionType == TransactionType.Intake && i.TransDate == DateTime.Today)
                 .ToListAsync());
         }
         public async Task<IActionResult> DeductionList()
         {
-            var today = DateTime.Now;
-            var month = new DateTime(today.Year, today.Month, 1);
-            var startdate = month;
-            var enddate = startdate.AddMonths(1).AddDays(-1);
-
-            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.TransDate >= startdate && c.TransDate <= enddate).ToListAsync();
+            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.TransDate == DateTime.Today).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach(var intake in productIntakes)
             {
@@ -66,8 +60,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CorrectionList()
         {
             return View(await _context.ProductIntake
-                .Where(c => c.TransactionType == TransactionType.Correction)
-                .OrderByDescending(i => i.Id)
+                .Where(c => c.TransactionType == TransactionType.Correction && c.TransDate == DateTime.Today)
                 .ToListAsync());
         }
 
@@ -150,6 +143,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            productIntake.Description = productIntake?.Description ?? "";
             if (productIntake.Sno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
@@ -189,9 +183,8 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
-
-            var Supplier = _context.DSuppliers.Where(i => i.Sno == productIntake.Sno && i.Active == true).Count();
-            if (Supplier == 0)
+            productIntake.Description = productIntake?.Description ?? "";
+            if (!_context.DSuppliers.Any(i => i.Sno == productIntake.Sno && i.Active))
             {
                 _notyf.Error("Sorry, Farmer Number code does not exist");
                 GetInitialValues();
@@ -217,7 +210,8 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
-                productIntake.TransactionType = TransactionType.Deduction; 
+                productIntake.TransactionType = TransactionType.Deduction;
+                productIntake.TransDate = DateTime.Today;
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
@@ -230,6 +224,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCorrection([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            productIntake.Description = productIntake?.Description ?? "";
             if (productIntake.Sno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
@@ -306,6 +301,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            productIntake.Description = productIntake?.Description ?? "";
             if (id != productIntake.Id)
             {
                 return NotFound();

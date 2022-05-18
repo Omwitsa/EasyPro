@@ -3447,7 +3447,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DBranchProduct>(entity =>
             {
-                entity.HasKey(e=> e.Id);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_BranchProduct");
 
@@ -4888,7 +4888,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DMilkintake>(entity =>
             {
-                entity.HasKey(e=>e.Id);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Milkintake");
 

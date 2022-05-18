@@ -87,7 +87,7 @@ namespace EasyPro.Controllers
             }
 
             var productIntakes = _context.ProductIntake
-                .Where(p => !p.Paid && p.TransDate >= startDate && p.TransDate <= endDate).ToList();
+                .Where(p => p.TransDate >= startDate && p.TransDate <= endDate).ToList();
             var intakes = productIntakes.GroupBy(p => p.Sno).ToList();
             intakes.ForEach(p =>
             {
