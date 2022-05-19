@@ -57,13 +57,17 @@ namespace EasyPro.Controllers
         }
         private void GetInitialValues()
         {
-            var banksname = _context.DBanks.Select(b => b.BankName).ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var dScode = sacco;
+
+            var banksname = _context.DBanks.Where(a=>a.BankCode == dScode).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
 
-            var brances = _context.DBranch.Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(a => a.Bcode == dScode).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
-            var bankbrances = _context.DBankBranch.Select(b => b.Bname).ToList();
+            var bankbrances = _context.DBankBranch.Where(a => a.BankCode == dScode).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
 
             List<SelectListItem> gender = new()
@@ -92,7 +96,7 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dSupplier1 = _context.DSuppliers.Where(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo).Count();
+            var dSupplier1 = _context.DSuppliers.Where(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo && i.Scode == dSupplier.Scode).Count();
             if (dSupplier1 != 0)
             {
                 GetInitialValues();
