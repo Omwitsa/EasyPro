@@ -7,32 +7,32 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
-using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
-    public class DBranchesController : Controller
+    public class DBankBranchesController : Controller
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
 
-        public DBranchesController(MORINGAContext context, INotyfService notyf)
+        public DBankBranchesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
         }
 
-        // GET: DBranches
+        // GET: DBankBranches
         public async Task<IActionResult> Index()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            return View(await _context.DBranch
-                .Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
+            return View(await _context.DBankBranch
+                .Where(i => i.BankCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
-        // GET: DBranches/Details/5
+        // GET: DBankBranches/Details/5
         public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
@@ -40,49 +40,49 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dBranch = await _context.DBranch
+            var dBankBranch = await _context.DBankBranch
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dBranch == null)
+            if (dBankBranch == null)
             {
                 return NotFound();
             }
 
-            return View(dBranch);
+            return View(dBankBranch);
         }
 
-        // GET: DBranches/Create
+        // GET: DBankBranches/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: DBranches/Create
+        // POST: DBankBranches/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranch dBranch)
+        public async Task<IActionResult> Create([Bind("Id,BankCode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBankBranch dBankBranch)
         {
-            var dSupplier1 = _context.DBranch.Where(i => i.Bname == dBranch.Bname && i.Bcode == dBranch.Bcode).Count();
+            var dSupplier1 = _context.DBankBranch.Where(i => i.Bname == dBankBranch.Bname && i.BankCode == dBankBranch.BankCode).Count();
             if (dSupplier1 != 0)
             {
-                _notyf.Error("Sorry, The Branch Name already exist");
+                _notyf.Error("Sorry, The Bank Branch Name already exist");
                 return View();
             }
             if (ModelState.IsValid)
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                 sacco = sacco ?? "";
-                dBranch.Bcode = sacco;
-                _context.Add(dBranch);
+                dBankBranch.BankCode = sacco;
+                _context.Add(dBankBranch);
                 await _context.SaveChangesAsync();
-                _notyf.Success("Branch saved successfully");
+                _notyf.Success("Bank Branch saved successfully");
                 return RedirectToAction(nameof(Index));
             }
-            return View(dBranch);
+            return View(dBankBranch);
         }
 
-        // GET: DBranches/Edit/5
+        // GET: DBankBranches/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
             if (id == null)
@@ -90,22 +90,22 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dBranch = await _context.DBranch.FindAsync(id);
-            if (dBranch == null)
+            var dBankBranch = await _context.DBankBranch.FindAsync(id);
+            if (dBankBranch == null)
             {
                 return NotFound();
             }
-            return View(dBranch);
+            return View(dBankBranch);
         }
 
-        // POST: DBranches/Edit/5
+        // POST: DBankBranches/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranch dBranch)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,BankCode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBankBranch dBankBranch)
         {
-            if (id != dBranch.Id)
+            if (id != dBankBranch.Id)
             {
                 _notyf.Error("Sorry, an error occured while eidting");
                 return NotFound();
@@ -117,14 +117,14 @@ namespace EasyPro.Controllers
                 {
                     var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                     sacco = sacco ?? "";
-                    dBranch.Bcode = sacco;
-                    _context.Update(dBranch);
+                    dBankBranch.BankCode = sacco;
+                    _context.Update(dBankBranch);
                     await _context.SaveChangesAsync();
-                    _notyf.Success("Branch saved successfully");
+                    _notyf.Success("Bank Branch Edited successfully");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DBranchExists(dBranch.Id))
+                    if (!DBankBranchExists(dBankBranch.Id))
                     {
                         return NotFound();
                     }
@@ -135,10 +135,10 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(dBranch);
+            return View(dBankBranch);
         }
 
-        // GET: DBranches/Delete/5
+        // GET: DBankBranches/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
             if (id == null)
@@ -146,31 +146,31 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dBranch = await _context.DBranch
+            var dBankBranch = await _context.DBankBranch
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dBranch == null)
+            if (dBankBranch == null)
             {
                 return NotFound();
             }
 
-            return View(dBranch);
+            return View(dBankBranch);
         }
 
-        // POST: DBranches/Delete/5
+        // POST: DBankBranches/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var dBranch = await _context.DBranch.FindAsync(id);
-            _context.DBranch.Remove(dBranch);
+            var dBankBranch = await _context.DBankBranch.FindAsync(id);
+            _context.DBankBranch.Remove(dBankBranch);
             await _context.SaveChangesAsync();
-            _notyf.Success("Branch Deleted successfully");
+            _notyf.Success("Bank Branch Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DBranchExists(long id)
+        private bool DBankBranchExists(long id)
         {
-            return _context.DBranch.Any(e => e.Id == id);
+            return _context.DBankBranch.Any(e => e.Id == id);
         }
     }
 }

@@ -79,6 +79,7 @@ namespace EasyPro.Models
         public virtual DbSet<DBonu> DBonus { get; set; }
         public virtual DbSet<DBonus2> DBonus2s { get; set; }
         public virtual DbSet<DBranch> DBranch { get; set; }
+        public virtual DbSet<DBankBranch> DBankBranch { get; set; }
         public virtual DbSet<DBranchProduct> DBranchProducts { get; set; }
         public virtual DbSet<DBranchsalesman> DBranchsalesmen { get; set; }
         public virtual DbSet<DCashPay> DCashPays { get; set; }
@@ -3397,6 +3398,39 @@ namespace EasyPro.Models
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("BCode")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Bname)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("BName");
+
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity.Property(e => e.LocalId).HasColumnName("local_id");
+
+                entity.Property(e => e.Run).HasDefaultValueSql("((0))");
+            });
+            modelBuilder.Entity<DBankBranch>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("d_BankBranch");
+
+                entity.Property(e => e.Auditdatetime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("auditdatetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Auditid)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("auditid");
+
+                entity.Property(e => e.BankCode)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("BankCode")
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Bname)

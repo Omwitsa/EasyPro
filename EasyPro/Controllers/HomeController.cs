@@ -30,7 +30,21 @@ namespace EasyPro.Controllers
 
         public IActionResult Index()
         {
-            ViewBag.intakes = 22;
+            var intakes = _context.ProductIntake.Where(i => i.TransDate == DateTime.Today);
+            var seeds = intakes.Where(i => i.ProductType.ToLower().Equals("seeds"));
+            ViewBag.seeds = (seeds.Count() * 100) / intakes.Count();
+            var leaves = intakes.Where(i => i.ProductType.ToLower().Equals("leaves"));
+            ViewBag.leaves = (leaves.Count() * 100) / intakes.Count();
+            var powder = intakes.Where(i => i.ProductType.ToLower().Equals("powder"));
+            ViewBag.powder = (powder.Count() * 100) / intakes.Count();
+            var moringaSeeds = intakes.Where(i => i.ProductType.ToLower().Equals("moringa seeds"));
+            ViewBag.moringaSeeds = (moringaSeeds.Count() * 100) / intakes.Count();
+            var dryLeaves = intakes.Where(i => i.ProductType.ToLower().Equals("dry leaves"));
+            ViewBag.dryLeaves = (dryLeaves.Count() * 100) / intakes.Count();
+            var freshLeaves = intakes.Where(i => i.ProductType.ToLower().Equals("fresh leaves"));
+            ViewBag.freshLeaves = (freshLeaves.Count() * 100) / intakes.Count();
+
+            ViewBag.prices = _context.DPrices.Where(p => p.Edate >= DateTime.Today).ToList();
             return View();
         }
 

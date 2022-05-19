@@ -21,7 +21,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Deduction Date</label>
-                                    <input value="date" asp-for="ProductIntake.TransDate" class="form-control" />
+                                    <input type="date" asp-for="ProductIntake.TransDate" class="form-control" required/>
                                     <span asp-validation-for="ProductIntake.TransDate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -57,9 +57,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="ProductIntake.Description" class="control-label"></label>
-                                    <select asp-for="ProductIntake.Description" required class="form-control" asp-items="@ViewBag.Description"></select>
-                                    <span asp-validation-for="ProductIntake.Description" class="text-danger"></span>
+                                    <label asp-for="ProductIntake.ProductType" class="control-label"></label>
+                                    <select asp-for="ProductIntake.ProductType" required class="form-control" asp-items="@ViewBag.Description"></select>
+                                    <span asp-validation-for="ProductIntake.ProductType" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>

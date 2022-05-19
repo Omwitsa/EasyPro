@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class DSuppliersController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DSuppliersController(MORINGAContext context)
+        public DSuppliersController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: DSuppliers
@@ -60,6 +63,9 @@ namespace EasyPro.Controllers
             var brances = _context.DBranch.Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
+            var bankbrances = _context.DBankBranch.Select(b => b.Bname).ToList();
+            ViewBag.bankbrances = new SelectList(bankbrances);
+
             List<SelectListItem> gender = new()
             {
                 new SelectListItem { Text = "Male" },
@@ -82,6 +88,7 @@ namespace EasyPro.Controllers
         {
             if (dSupplier == null)
             {
+                _notyf.Error("Sorry, Supplier code cannot be empty");
                 return NotFound();
             }
 
@@ -89,6 +96,7 @@ namespace EasyPro.Controllers
             if (dSupplier1 != 0)
             {
                 GetInitialValues();
+                _notyf.Error("Sorry, The Supplier already exist");
                 return View();
             }
 
@@ -99,6 +107,7 @@ namespace EasyPro.Controllers
                 dSupplier.Scode = sacco;
                 _context.Add(dSupplier);
                 await _context.SaveChangesAsync();
+                _notyf.Success("The Supplier saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(dSupplier);
@@ -149,6 +158,7 @@ namespace EasyPro.Controllers
                     dSupplier.Scode = sacco;
                     _context.Update(dSupplier);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("The Supplier edited successfully");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
