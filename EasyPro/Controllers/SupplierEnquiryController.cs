@@ -24,7 +24,7 @@ namespace EasyPro.Controllers
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
-
+            
             ViewBag.suppliers = _context.DSuppliers.Select(s => new DSupplier
             {
                 Sno = s.Sno,
@@ -35,13 +35,18 @@ namespace EasyPro.Controllers
                 Bbranch = s.Bbranch
             }).ToList();
 
+            
             return View();
         }
 
         [HttpPost]
         public JsonResult SuppliedProducts([FromBody] DSupplier supplier)
         {
-            var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno).ToList();
+            DateTime now = DateTime.Now;
+            var startDate = new DateTime(now.Year, now.Month, 1);
+            var enDate = startDate.AddMonths(1).AddDays(-1);
+            //var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno).ToList();
+            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno == supplier.Sno).ToList();
             return Json(intakes);
         }
     }
