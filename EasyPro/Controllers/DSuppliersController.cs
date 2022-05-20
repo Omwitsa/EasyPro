@@ -92,8 +92,7 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dSupplier1 = _context.DSuppliers.Where(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo).Count();
-            if (dSupplier1 != 0)
+            if (_context.DSuppliers.Any(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo))
             {
                 GetInitialValues();
                 _notyf.Error("Sorry, The Supplier already exist");

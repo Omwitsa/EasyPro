@@ -5617,8 +5617,7 @@ namespace EasyPro.Models
                     .HasColumnName("midmonth");
 
                 entity.Property(e => e.Mmonth)
-                    .HasColumnName("MMonth")
-                    .HasComputedColumnSql("(datepart(month,[EndofPeriod]))", false);
+                    .HasColumnName("MMonth");
 
                 entity.Property(e => e.Mpesa).HasColumnType("money");
 
@@ -5678,8 +5677,7 @@ namespace EasyPro.Models
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Yyear)
-                    .HasColumnName("YYear")
-                    .HasComputedColumnSql("(datepart(year,[EndofPeriod]))", false);
+                    .HasColumnName("YYear");
             });
 
             modelBuilder.Entity<DPayrollCopy>(entity =>

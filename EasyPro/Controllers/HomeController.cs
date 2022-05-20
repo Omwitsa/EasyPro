@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -60,6 +61,16 @@ namespace EasyPro.Controllers
             ViewBag.dryLeaves = dryLeavesRate;
             ViewBag.freshLeaves = freshLeavesRate;
 
+            var group = HttpContext.Session.GetString(StrValues.UserGroup);
+            var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group));
+            ViewBag.files = usergroup.Files;
+            ViewBag.accounts = usergroup.Accounts;
+            ViewBag.transactions = usergroup.Transactions;
+            ViewBag.activity = usergroup.Activity;
+            ViewBag.setup = usergroup.Setup;
+
+            //ViewBag.privileges = JsonConvert.SerializeObject(selectedSettings);
+
             ViewBag.prices = _context.DPrices.Where(p => p.Edate >= DateTime.Today).ToList();
             return View();
         }
@@ -75,32 +86,85 @@ namespace EasyPro.Controllers
         {
             if (ModelState.IsValid)
             {
+                try
+                {
+                    if (string.IsNullOrEmpty(login.Username))
+                    {
+                        _notyf.Error("Sorry, Kindly provide username");
+                        return View();
+                    }
+                    if (string.IsNullOrEmpty(login.Password))
+                    {
+                        _notyf.Error("Sorry, Kindly provide password");
+                        return View();
+                    }
+
+                    var user = await _context.UserAccounts
+                        .FirstOrDefaultAsync(u => u.UserLoginIds.ToUpper().Equals(login.Username.ToUpper()));
+                    if (user == null)
+                    {
+                        _notyf.Error("Sorry, Invalid user credentials");
+                        return View();
+                    }
+                    user.Reset = user?.Reset ?? false;
+                    if ((bool)user.Reset)
+                    {
+                        _notyf.Error("Sorry, Kindly wait while your password is being reset");
+                        return View();
+                    }
+                    login.Password = Decryptor.Decript_String(login.Password);
+                    if (!user.Password.Equals(login.Password))
+                    {
+                        _notyf.Error("Sorry, Invalid user credentials");
+                        return View();
+                    }
+
+                    HttpContext.Session.SetString(StrValues.LoggedInUser, user.UserLoginIds);
+                    HttpContext.Session.SetString(StrValues.UserSacco, user.Branchcode);
+                    HttpContext.Session.SetString(StrValues.UserGroup, user.UserGroup);
+                    _notyf.Success("Logged in successfully");
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception)
+                {
+                    
+                }
+            }
+            _notyf.Error("Sorry, An error occurred");
+            return View(login);
+        }
+
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword([Bind("Username,Password")] LoginVm login)
+        {
+            if (ModelState.IsValid)
+            {
                 if (string.IsNullOrEmpty(login.Username))
                 {
                     _notyf.Error("Sorry, Kindly provide username");
                     return View();
                 }
-                if (string.IsNullOrEmpty(login.Password))
-                {
-                    _notyf.Error("Sorry, Kindly provide password");
-                    return View();
-                }
-
-                login.Password = Decryptor.Decript_String(login.Password);
+                
                 var user = await _context.UserAccounts
-                    .FirstOrDefaultAsync(u => u.UserLoginIds.ToUpper().Equals(login.Username.ToUpper()) 
-                    && u.Password.Equals(login.Password));
+                    .FirstOrDefaultAsync(u => u.UserLoginIds.ToUpper().Equals(login.Username.ToUpper()));
                 if (user == null)
                 {
                     _notyf.Error("Sorry, Invalid user credentials");
                     return View();
                 }
 
-                HttpContext.Session.SetString(StrValues.LoggedInUser, user.UserLoginIds);
-                HttpContext.Session.SetString(StrValues.UserSacco, user.Branchcode);
-                _notyf.Success("Logged in successfully");
-                return RedirectToAction(nameof(Index));
+                user.Reset = true;
+                _context.SaveChanges();
+                _notyf.Success("Request submitted successfully");
+                return RedirectToAction(nameof(Login));
             }
+            _notyf.Error("Sorry, Invalid user credentials");
             return View(login);
         }
 

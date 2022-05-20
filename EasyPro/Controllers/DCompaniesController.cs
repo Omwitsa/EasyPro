@@ -6,16 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class DCompaniesController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DCompaniesController(MORINGAContext context)
+        public DCompaniesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: DCompanies
@@ -56,13 +59,28 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Adress,Town,Country,Province,District,Division,Location,FaxNo,PhoneNo,Email,Website,Fiscal,Auditid,Auditdatetime,Acc,Motto,SendTime,Smsno,Smscost,Smsport,Period")] DCompany dCompany)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(dCompany);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    dCompany.Name = dCompany?.Name ?? "";
+                    if (_context.DCompanies.Any(c => c.Name.ToUpper().Equals(dCompany.Name.ToUpper())))
+                    {
+                        _notyf.Error("Sorry, Society already exist");
+                        return View(dCompany);
+                    }
+                    _context.Add(dCompany);
+                    await _context.SaveChangesAsync();
+                    _notyf.Success("Saciety saved successfully");
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(dCompany);
             }
-            return View(dCompany);
+            catch (Exception ex)
+            {
+                _notyf.Error("Sorry, An error occurred");
+                return View(dCompany);
+            }
         }
 
         // GET: DCompanies/Edit/5
@@ -117,6 +135,7 @@ namespace EasyPro.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
+                    _notyf.Error("Sorry, An error occurred");
                     if (!DCompanyExists(dCompany.Id))
                     {
                         return NotFound();
@@ -126,8 +145,10 @@ namespace EasyPro.Controllers
                         throw;
                     }
                 }
+                _notyf.Success("Society edited successfully");
                 return RedirectToAction(nameof(Index));
             }
+            _notyf.Error("Sorry, An error occurred");
             return View(dCompany);
         }
 

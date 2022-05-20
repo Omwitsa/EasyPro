@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
@@ -57,6 +59,8 @@ namespace EasyPro.Controllers
         {
             if (ModelState.IsValid)
             {
+                county.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                county.CreatedOn = DateTime.Today;
                 _context.Add(county);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -96,6 +100,8 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    county.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                    county.CreatedOn = DateTime.Today;
                     _context.Update(county);
                     await _context.SaveChangesAsync();
                 }

@@ -26,6 +26,7 @@ namespace EasyPro.Models
         public string Branchcode { get; set; }
         public string Levels { get; set; }
         public bool? Authorize { get; set; }
+        public bool? Reset { get; set; }
         public string Status { get; set; }
         public string Branch { get; set; }
         public string Sign { get; set; }

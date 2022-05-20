@@ -60,6 +60,26 @@ namespace EasyPro.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(usergroup.GroupId))
+                {
+                    _notyf.Error("Sorry, Kindly provide group code");
+                    return View(usergroup);
+                }
+                if (string.IsNullOrEmpty(usergroup.GroupName))
+                {
+                    _notyf.Error("Sorry, Kindly provide group name");
+                    return View(usergroup);
+                }
+                if (_context.Usergroups.Any(g => g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper())))
+                {
+                    _notyf.Error("Sorry, Group code already exist");
+                    return View(usergroup);
+                }
+                if (_context.Usergroups.Any(g => g.GroupName.ToUpper().Equals(usergroup.GroupName.ToUpper())))
+                {
+                    _notyf.Error("Sorry, Group name already exist");
+                    return View(usergroup);
+                }
                 _notyf.Success("Group saved successfuly");
                 _context.Add(usergroup);
                 await _context.SaveChangesAsync();
@@ -104,6 +124,30 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(usergroup.GroupId))
+                    {
+                        _notyf.Error("Sorry, Kindly provide group code");
+                        return View(usergroup);
+                    }
+                    if (string.IsNullOrEmpty(usergroup.GroupName))
+                    {
+                        _notyf.Error("Sorry, Kindly provide group name");
+                        return View(usergroup);
+                    }
+                    var codeExist = _context.Usergroups.Any(g => g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper())
+                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()));
+                    if (codeExist)
+                    {
+                        _notyf.Error("Sorry, Group code already exist");
+                        return View(usergroup);
+                    }
+                    var nameExist = _context.Usergroups.Any(g => g.GroupName.ToUpper().Equals(usergroup.GroupName.ToUpper())
+                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()));
+                    if (nameExist)
+                    {
+                        _notyf.Error("Sorry, Group name already exist");
+                        return View(usergroup);
+                    }
                     _notyf.Success("Group edited successfully");
                     _context.Update(usergroup);
                     await _context.SaveChangesAsync();

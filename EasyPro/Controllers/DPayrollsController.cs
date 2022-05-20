@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using EasyPro.ViewModels;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class DPayrollsController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DPayrollsController(MORINGAContext context)
+        public DPayrollsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: DPayrolls
@@ -102,7 +105,8 @@ namespace EasyPro.Controllers
                 var bonus = p.Where(k => k.Description.ToLower().Contains("bonus"));
                 var shares = p.Where(k => k.Description.ToLower().Contains("shares"));
 
-                var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == p.Key);
+                long.TryParse(p.Key, out long sno);
+                var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
                 var payroll = new DPayroll();
                 payroll.Sno = (int?)supplier.Sno;
                 payroll.Gpay = p.Sum(s => s.CR);

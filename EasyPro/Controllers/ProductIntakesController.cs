@@ -38,9 +38,10 @@ namespace EasyPro.Controllers
             var intakes = new List<ProductIntakeVm>();
             foreach(var intake in productIntakes)
             {
-                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno);
+                long.TryParse(intake.Sno, out long sno);
+                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == sno);
                 intakes.Add(new ProductIntakeVm { 
-                    Sno = intake.Sno,
+                    Sno = sno,
                     SupName = supplier.Names,
                     TransDate = intake.TransDate,
                     ProductType = intake.ProductType,
@@ -144,12 +145,13 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
             productIntake.Description = productIntake?.Description ?? "";
-            if (productIntake.Sno < 1)
+            long.TryParse(productIntake.Sno, out long sno);
+            if (sno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return View(productIntake);
             }
-            if(!_context.DSuppliers.Any(s => s.Sno == productIntake.Sno))
+            if(!_context.DSuppliers.Any(s => s.Sno == sno))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
                 return View(productIntake);
@@ -171,7 +173,30 @@ namespace EasyPro.Controllers
                 productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
-                _context.Add(productIntake);
+                _context.ProductIntake.Add(productIntake);
+
+                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active);
+                if(transport != null)
+                {
+                    // Debit supplier transport amount
+                    productIntake.Ppu = transport.Rate;
+                    productIntake.CR = 0;
+                    productIntake.DR = productIntake.Qsupplied * transport.Rate;
+                    productIntake.Balance = productIntake.Balance - productIntake.DR;
+                    productIntake.Description = "Transport";
+                    productIntake.TransactionType = TransactionType.Deduction;
+                    _context.ProductIntake.Add(productIntake);
+
+                    // Credit transpoter transport amount
+                    productIntake.Sno = transport.TransCode;
+                    productIntake.Ppu = transport.Rate;
+                    productIntake.CR = productIntake.Qsupplied * transport.Rate;
+                    productIntake.DR = 0;
+                    productIntake.Balance = GetBalance(productIntake); ;
+                    productIntake.Description = "Transport";
+                    productIntake.TransactionType = TransactionType.Deduction;
+                    _context.ProductIntake.Add(productIntake);
+                }
                 await _context.SaveChangesAsync();
                 _notyf.Success("Intake saved successfully");
                 return RedirectToAction(nameof(Index));
@@ -183,8 +208,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            long.TryParse(productIntake.Sno, out long sno);
             productIntake.Description = productIntake?.Description ?? "";
-            if (!_context.DSuppliers.Any(i => i.Sno == productIntake.Sno && i.Active))
+            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Active))
             {
                 _notyf.Error("Sorry, Farmer Number code does not exist");
                 GetInitialValues();
@@ -196,7 +222,7 @@ namespace EasyPro.Controllers
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
             }
-            if (productIntake.Sno == 0)
+            if (sno == 0)
             {
                 GetInitialValues();
                 _notyf.Error("Sorry, Farmer code cannot be zero");
@@ -224,13 +250,14 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCorrection([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            long.TryParse(productIntake.Sno, out long sno);
             productIntake.Description = productIntake?.Description ?? "";
-            if (productIntake.Sno < 1)
+            if (sno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return View(productIntake);
             }
-            if (!_context.DSuppliers.Any(s => s.Sno == productIntake.Sno))
+            if (!_context.DSuppliers.Any(s => s.Sno == sno))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
                 return View(productIntake);
