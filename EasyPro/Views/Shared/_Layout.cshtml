@@ -126,23 +126,17 @@
                         }
                         @if (ViewBag.accounts)
                         {
-                            <li class="disabled">
-                                <a data-toggle="tab" href="#mailbox"><i class="notika-icon notika-mail"></i> Email</a>
+                            <li>
+                                <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
                             </li>
                         }
                         @if (ViewBag.transactions)
                         {
                             <li>
-                                <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
-                            </li>
-                        }
-                        @if (ViewBag.activity)
-                        {
-                            <li>
                                 <a data-toggle="tab" href="#deductions"><i class="notika-icon notika-house"></i>Deductions</a>
                             </li>
                         }
-                        @if (ViewBag.setup)
+                        @if (ViewBag.activity)
                         {
                             <li>
                                 <a data-toggle="tab" href="#activities"><i class="notika-icon notika-form"></i>Activities</a>
@@ -160,19 +154,6 @@
                             <ul class="notika-main-menu-dropdown">
                                 <li>
                                     <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div id="mailbox" class="tab-pane notika-tab-menu-bg animated flipInX">
-                            <ul class="notika-main-menu-dropdown">
-                                <li>
-                                    <a href="inbox.html">Inbox</a>
-                                </li>
-                                <li>
-                                    <a href="view-email.html">View Email</a>
-                                </li>
-                                <li>
-                                    <a href="compose-email.html">Compose Email</a>
                                 </li>
                             </ul>
                         </div>
