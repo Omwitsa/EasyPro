@@ -150,13 +150,16 @@
                         }
                     </ul>
                     <div class="tab-content custom-menu-content">
-                        <div id="file" class="tab-pane in active notika-tab-menu-bg animated flipInX">
-                            <ul class="notika-main-menu-dropdown">
-                                <li>
-                                    <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
-                                </li>
-                            </ul>
-                        </div>
+                        @if (ViewBag.filesRole)
+                        {
+                            <div id="file" class="tab-pane in active notika-tab-menu-bg animated flipInX">
+                                <ul class="notika-main-menu-dropdown">
+                                    <li>
+                                        <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
                         <div id="registration" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
