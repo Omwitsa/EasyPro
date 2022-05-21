@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,14 +58,6 @@ namespace EasyPro.Controllers
             ViewBag.moringaSeeds = moringaSeedsRate;
             ViewBag.dryLeaves = dryLeavesRate;
             ViewBag.freshLeaves = freshLeavesRate;
-
-            var group = HttpContext.Session.GetString(StrValues.UserGroup);
-            var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group));
-            ViewBag.files = usergroup.Files;
-            ViewBag.accounts = usergroup.Accounts;
-            ViewBag.transactions = usergroup.Transactions;
-            ViewBag.activity = usergroup.Activity;
-            ViewBag.setup = usergroup.Setup;
 
             //ViewBag.privileges = JsonConvert.SerializeObject(selectedSettings);
 
