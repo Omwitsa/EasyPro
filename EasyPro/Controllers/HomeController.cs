@@ -19,16 +19,19 @@ namespace EasyPro.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public HomeController(MORINGAContext context, ILogger<HomeController> logger, INotyfService notyf)
         {
             _context = context;
             _logger = logger;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         public IActionResult Index()
         {
+            utilities.SetUpPrivileges(this);
             var intakes = _context.ProductIntake.Where(i => i.TransDate == DateTime.Today);
             var seedsRate = 0;
             var leavesRate = 0;

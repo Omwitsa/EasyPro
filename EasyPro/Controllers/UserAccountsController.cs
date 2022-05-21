@@ -16,16 +16,19 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public UserAccountsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: UserAccounts
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             return View(await _context.UserAccounts
@@ -35,6 +38,7 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -53,6 +57,7 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
         }
@@ -77,6 +82,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone")] UserAccount userAccount)
         {
+            utilities.SetUpPrivileges(this);
             try
             {
                 userAccount.Branchcode = userAccount?.Branchcode ?? "";
@@ -104,6 +110,7 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
             {
@@ -125,6 +132,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone")] UserAccount userAccount)
         {
+            utilities.SetUpPrivileges(this);
             if (id != userAccount.Userid)
             {
                 _notyf.Error("Sorry, User not found");
@@ -161,6 +169,7 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -181,6 +190,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var userAccount = await _context.UserAccounts.FindAsync(id);
             _context.UserAccounts.Remove(userAccount);
             await _context.SaveChangesAsync();
@@ -194,12 +204,14 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> ResetPasswordList()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.UserAccounts
                 .Where(u => (bool)u.Reset).ToListAsync());
         }
 
         public async Task<IActionResult> ResetPassword(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -217,6 +229,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(long id, [Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone")] UserAccount userAccount)
         {
+            utilities.SetUpPrivileges(this);
             if (id != userAccount.Userid)
             {
                 _notyf.Error("Sorry, User not found");

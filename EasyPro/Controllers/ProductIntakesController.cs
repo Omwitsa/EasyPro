@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Constants;
 using EasyPro.Models;
+using EasyPro.Utils;
 using EasyPro.ViewModels;
 using EasyPro.ViewModels.FarmersVM;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public FarmersVM Farmersobj { get; private set; }
 
@@ -24,16 +26,19 @@ namespace EasyPro.Controllers
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
         // GET: ProductIntakes
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Intake && i.TransDate == DateTime.Today)
                 .ToListAsync());
         }
         public async Task<IActionResult> DeductionList()
         {
+            utilities.SetUpPrivileges(this);
             var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.TransDate == DateTime.Today).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach(var intake in productIntakes)
@@ -60,6 +65,7 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> CorrectionList()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.ProductIntake
                 .Where(c => c.TransactionType == TransactionType.Correction && c.TransDate == DateTime.Today)
                 .ToListAsync());
@@ -68,6 +74,7 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -86,6 +93,7 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             SetIntakeInitialValues();
             return View();
         }
@@ -101,6 +109,7 @@ namespace EasyPro.Controllers
 
         public IActionResult CreateDeduction()
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             Farmersobj = new FarmersVM()
             {
@@ -133,6 +142,7 @@ namespace EasyPro.Controllers
         }
         public IActionResult CreateCorrection()
         {
+            utilities.SetUpPrivileges(this);
             SetIntakeInitialValues();
             return View();
         }
@@ -144,6 +154,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            utilities.SetUpPrivileges(this);
             productIntake.Description = productIntake?.Description ?? "";
             long.TryParse(productIntake.Sno, out long sno);
             if (sno < 1)
@@ -208,6 +219,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            utilities.SetUpPrivileges(this);
             long.TryParse(productIntake.Sno, out long sno);
             productIntake.Description = productIntake?.Description ?? "";
             if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Active))
@@ -250,6 +262,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCorrection([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            utilities.SetUpPrivileges(this);
             long.TryParse(productIntake.Sno, out long sno);
             productIntake.Description = productIntake?.Description ?? "";
             if (sno < 1)
@@ -308,6 +321,7 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -328,6 +342,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            utilities.SetUpPrivileges(this);
             productIntake.Description = productIntake?.Description ?? "";
             if (id != productIntake.Id)
             {
@@ -360,6 +375,7 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -380,6 +396,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var productIntake = await _context.ProductIntake.FindAsync(id);
             _context.ProductIntake.Remove(productIntake);
             await _context.SaveChangesAsync();

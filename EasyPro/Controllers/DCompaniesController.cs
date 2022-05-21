@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
@@ -14,22 +15,26 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public DCompaniesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: DCompanies
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.DCompanies.ToListAsync());
         }
 
         // GET: DCompanies/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -48,6 +53,7 @@ namespace EasyPro.Controllers
         // GET: DCompanies/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
         }
@@ -59,6 +65,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Adress,Town,Country,Province,District,Division,Location,FaxNo,PhoneNo,Email,Website,Fiscal,Auditid,Auditdatetime,Acc,Motto,SendTime,Smsno,Smscost,Smsport,Period")] DCompany dCompany)
         {
+            utilities.SetUpPrivileges(this);
             try
             {
                 if (ModelState.IsValid)
@@ -86,6 +93,7 @@ namespace EasyPro.Controllers
         // GET: DCompanies/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
             {
@@ -121,6 +129,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Adress,Town,Country,Province,District,Division,Location,FaxNo,PhoneNo,Email,Website,Fiscal,Auditid,Auditdatetime,Acc,Motto,SendTime,Smsno,Smscost,Smsport,Period")] DCompany dCompany)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dCompany.Id)
             {
                 return NotFound();
@@ -155,6 +164,7 @@ namespace EasyPro.Controllers
         // GET: DCompanies/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -175,6 +185,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dCompany = await _context.DCompanies.FindAsync(id);
             _context.DCompanies.Remove(dCompany);
             await _context.SaveChangesAsync();

@@ -9,6 +9,7 @@ using EasyPro.Models;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
@@ -16,16 +17,19 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public DSuppliersController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: DSuppliers
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             return View(await _context.DSuppliers
@@ -34,6 +38,7 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -52,6 +57,7 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
         }
@@ -86,6 +92,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
+            utilities.SetUpPrivileges(this);
             if (dSupplier == null)
             {
                 _notyf.Error("Sorry, Supplier code cannot be empty");
@@ -115,6 +122,7 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -136,6 +144,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dSupplier.Id)
             {
                 return NotFound();
@@ -178,6 +187,7 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -198,6 +208,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dSupplier = await _context.DSuppliers.FindAsync(id);
             _context.DSuppliers.Remove(dSupplier);
             await _context.SaveChangesAsync();

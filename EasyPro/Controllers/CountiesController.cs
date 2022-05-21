@@ -1,34 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
     public class CountiesController : Controller
     {
         private readonly MORINGAContext _context;
+        private Utilities utilities;
 
         public CountiesController(MORINGAContext context)
         {
             _context = context;
+            utilities = new Utilities(context);
         }
 
         // GET: Counties
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.County.ToListAsync());
         }
 
         // GET: Counties/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -47,6 +50,7 @@ namespace EasyPro.Controllers
         // GET: Counties/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
@@ -57,6 +61,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Contact,Closed,CreatedOn,CreatedBy")] County county)
         {
+            utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
                 county.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
@@ -71,6 +76,7 @@ namespace EasyPro.Controllers
         // GET: Counties/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -91,6 +97,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Contact,Closed,CreatedOn,CreatedBy")] County county)
         {
+            utilities.SetUpPrivileges(this);
             if (id != county.Id)
             {
                 return NotFound();
@@ -124,6 +131,7 @@ namespace EasyPro.Controllers
         // GET: Counties/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -144,6 +152,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var county = await _context.County.FindAsync(id);
             _context.County.Remove(county);
             await _context.SaveChangesAsync();

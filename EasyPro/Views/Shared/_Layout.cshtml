@@ -1,21 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
-@using EasyPro.Constants
-@using EasyPro.Controllers
-@using EasyPro.Models
-
-@{
-    @inject MORINGAContext _context;
-    @inject HomeController homeController;
-    var group = homeController.HttpContext.Session.GetString(StrValues.UserGroup);
-    var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group));
-    ViewBag.files = usergroup.Files;
-    ViewBag.accounts = usergroup.Accounts;
-    ViewBag.transactions = usergroup.Transactions;
-    ViewBag.activity = usergroup.Activity;
-    ViewBag.setup = usergroup.Setup;
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EasyPro.Models;
+using EasyPro.Utils;
 using EasyPro.ViewModels.TranssupplyVM;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,10 +14,12 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private IEnumerable<DSupplier> DSuppliers;
+        private Utilities utilities;
 
         public DTransportsController(MORINGAContext context)
         {
             _context = context;
+            utilities = new Utilities(context);
         }
         public TransSuppliers TransSuppliersobj { get; private set; }
         public IEnumerable<DTransporter> DTransporter { get; private set; }
@@ -24,6 +27,7 @@ namespace EasyPro.Controllers
         // GET: DTransports
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             var today = DateTime.Now;
             var month = new DateTime(today.Year, today.Month, 1);
             var startdate = month;
@@ -55,6 +59,7 @@ namespace EasyPro.Controllers
         // GET: DTransports/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -73,6 +78,7 @@ namespace EasyPro.Controllers
         // GET: DTransports/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             TransSuppliersobj = new TransSuppliers
             {
                 DTransport = new DTransport(),
@@ -91,6 +97,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate")] DTransport dTransport)
         {
+            utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
                 _context.Add(dTransport);
@@ -103,9 +110,9 @@ namespace EasyPro.Controllers
         // GET: DTransports/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
-           
+            utilities.SetUpPrivileges(this);
             //return Json(new { data = Farmersobj });
-            
+
             if (id == null)
             {
                 return NotFound();
@@ -136,6 +143,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate")] DTransport dTransport)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dTransport.Id)
             {
                 return NotFound();
@@ -167,6 +175,7 @@ namespace EasyPro.Controllers
         // GET: DTransports/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -187,6 +196,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dTransport = await _context.DTransports.FindAsync(id);
             _context.DTransports.Remove(dTransport);
             await _context.SaveChangesAsync();

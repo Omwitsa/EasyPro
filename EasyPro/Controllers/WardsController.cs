@@ -8,27 +8,32 @@ using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
     public class WardsController : Controller
     {
         private readonly MORINGAContext _context;
+        private Utilities utilities;
 
         public WardsController(MORINGAContext context)
         {
             _context = context;
+            utilities = new Utilities(context);
         }
 
         // GET: Wards
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.Ward.ToListAsync());
         }
 
         // GET: Wards/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -47,6 +52,7 @@ namespace EasyPro.Controllers
         // GET: Wards/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
         }
@@ -58,6 +64,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,SubCounty,Contact,Closed,CreatedOn,CreatedBy")] Ward ward)
         {
+            utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
                 ward.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
@@ -72,6 +79,7 @@ namespace EasyPro.Controllers
         // GET: Wards/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
             {
@@ -99,6 +107,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,SubCounty,Contact,Closed,CreatedOn,CreatedBy")] Ward ward)
         {
+            utilities.SetUpPrivileges(this);
             if (id != ward.Id)
             {
                 return NotFound();
@@ -132,6 +141,7 @@ namespace EasyPro.Controllers
         // GET: Wards/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -152,6 +162,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var ward = await _context.Ward.FindAsync(id);
             _context.Ward.Remove(ward);
             await _context.SaveChangesAsync();

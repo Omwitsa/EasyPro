@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
@@ -16,16 +14,19 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public DBankBranchesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: DBankBranches
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             return View(await _context.DBankBranch
@@ -35,6 +36,7 @@ namespace EasyPro.Controllers
         // GET: DBankBranches/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -53,6 +55,7 @@ namespace EasyPro.Controllers
         // GET: DBankBranches/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
@@ -63,6 +66,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,BankCode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBankBranch dBankBranch)
         {
+            utilities.SetUpPrivileges(this);
             var dSupplier1 = _context.DBankBranch.Where(i => i.Bname == dBankBranch.Bname && i.BankCode == dBankBranch.BankCode).Count();
             if (dSupplier1 != 0)
             {
@@ -85,6 +89,7 @@ namespace EasyPro.Controllers
         // GET: DBankBranches/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -105,6 +110,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,BankCode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBankBranch dBankBranch)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dBankBranch.Id)
             {
                 _notyf.Error("Sorry, an error occured while eidting");
@@ -141,6 +147,7 @@ namespace EasyPro.Controllers
         // GET: DBankBranches/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -161,6 +168,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dBankBranch = await _context.DBankBranch.FindAsync(id);
             _context.DBankBranch.Remove(dBankBranch);
             await _context.SaveChangesAsync();

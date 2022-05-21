@@ -1,35 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using Microsoft.Data.SqlClient;
-using System.Configuration;
-using Microsoft.Extensions.Configuration;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
     public class DPricesController : Controller
     {
         private readonly MORINGAContext _context;
+        private Utilities utilities;
 
         public DPricesController(MORINGAContext context)
         {
             _context = context;
+            utilities = new Utilities(context);
         }
        
         // GET: DPrices
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.DPrices.ToListAsync());
         }
        
         // GET: DPrices/Details/5
         public async Task<IActionResult> Details(string product)
         {
+            utilities.SetUpPrivileges(this);
             if (product == null)
             {
                 return NotFound();
@@ -48,6 +48,7 @@ namespace EasyPro.Controllers
         // GET: DPrices/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
         }
@@ -79,6 +80,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Edate,Price,Products")] DPrice dPrice)
         {
+            utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
                 _context.Add(dPrice);
@@ -91,6 +93,7 @@ namespace EasyPro.Controllers
         // GET: DPrices/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -111,6 +114,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string product, [Bind("Id,Edate,Price,Products")] DPrice dPrice)
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (product != dPrice.Products)
             {
@@ -143,6 +147,7 @@ namespace EasyPro.Controllers
         // GET: DPrices/Delete/5
         public async Task<IActionResult> Delete(string product)
         {
+            utilities.SetUpPrivileges(this);
             if (product == null)
             {
                 return NotFound();
@@ -163,6 +168,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dPrice = await _context.DPrices.FindAsync(id);
             _context.DPrices.Remove(dPrice);
             await _context.SaveChangesAsync();
