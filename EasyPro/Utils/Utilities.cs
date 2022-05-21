@@ -21,11 +21,11 @@ namespace EasyPro.Utils
         {
             var group = controller.HttpContext.Session.GetString(StrValues.UserGroup);
             var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group));
-            controller.ViewBag.files = usergroup.Files;
-            controller.ViewBag.accounts = usergroup.Accounts;
-            controller.ViewBag.transactions = usergroup.Transactions;
-            controller.ViewBag.activity = usergroup.Activity;
-            controller.ViewBag.setup = usergroup.Setup;
+            controller.ViewBag.filesRole = usergroup.Files;
+            controller.ViewBag.accountsRole = usergroup.Accounts;
+            controller.ViewBag.transactionsRole = usergroup.Transactions;
+            controller.ViewBag.activityRole = usergroup.Activity;
+            controller.ViewBag.setupRole = usergroup.Setup;
         }
     }
 }
