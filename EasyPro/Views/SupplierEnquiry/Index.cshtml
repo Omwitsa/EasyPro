@@ -1,4 +1,4 @@
-﻿@model EasyPro.ViewModels.EnquiryVM.EnquiryVM
+﻿@model EasyPro.Models.DSupplier;
 
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -7,8 +7,8 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <label class="control-label">sno</label>
-                <input id="sno" asp-for="suppliers.Sno" />
-                <span asp-validation-for="suppliers.Sno" class="text-danger"></span>
+                <input id="sno" />
+                <span  class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -17,8 +17,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">Names</label>
-                    <input id="names" asp-for="suppliers.Names" />
-                    <span asp-validation-for="suppliers.Names" class="text-danger"></span>
+                    <input id="names"/>
+                    <span class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -28,8 +28,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">IdNo</label>
-                    <input id="idno" asp-for="suppliers.IdNo" />
-                    <span asp-validation-for="suppliers.IdNo" class="text-danger"></span>
+                    <input id="idno"  />
+                    <span  class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -40,8 +40,8 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <label class="control-label">Phone No</label>
-                <input id="phoneno" asp-for="suppliers.PhoneNo" />
-                <span asp-validation-for="suppliers.PhoneNo" class="text-danger"></span>
+                <input id="phoneno"  />
+                <span  class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -50,8 +50,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">Acc No</label>
-                    <input id="accno" asp-for="suppliers.AccNo" />
-                    <span asp-validation-for="suppliers.AccNo" class="text-danger"></span>
+                    <input id="accno"/>
+                    <span  class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -61,8 +61,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">Bank</label>
-                    <input id="bbranch" asp-for="suppliers.Bbranch" />
-                    <span asp-validation-for="suppliers.Bbranch" class="text-danger"></span>
+                    <input id="bbranch" />
+                    <span  class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -73,8 +73,9 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <label class="control-label">DateFrom</label>
-                <input value="date" asp-for="intakes.TransDate" />
-                <span asp-validation-for="intakes.TransDate" class="text-danger"></span>
+                <input id="firstdate" value="date"/>
+                @*@Html.TextBoxFor(Model=>Model.intakk.TransDate, new {@value=System.DateTime.Now})*@
+                <span  class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -83,8 +84,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">DateTo</label>
-                    <input value="date" asp-for="intakes.TransDate" />
-                    <span asp-validation-for="intakes.TransDate" class="text-danger"></span>
+                    <input id="enddate" value="date"/>
+                    <span class="text-danger"></span>
                     <a class="btn-warning btn-success" asp-action="Show">Show</a>
                 </div>
             </div>
@@ -117,7 +118,6 @@
                 </tr>
             </thead>
             <tbody id="intakes">
-
             </tbody>
         </table>
     </div>
@@ -127,11 +127,25 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+
+
+    </script>
     <script type="text/javascript">
+
         $(function () {
+            var date = new Date();
+            var firstDay = new Date(date.getYear(), date.getMonth(), 1);
+            var lastDay = new Date(date.getYear(), date.getMonth() +1, 0);
+            $("#firstdate").val(firstDay).toLocaleString("dd-MM-yyyy");
+            $("#enddate").val(lastDay).toLocaleString("dd-MM-yyyy");
+        });
+        $(function () {
+
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
-                var selectVal = parseInt($("#sno").val());
+                var selectVal = parseInt($("#sno").val());               
+              
                 var selectsuppliers = suppliers.filter(p => p.Sno === selectVal);
                     if (selectsuppliers[0]) {
                         $("#names").val(selectsuppliers[0].Names);
@@ -139,7 +153,6 @@
                         $("#phoneno").val(selectsuppliers[0].PhoneNo);
                         $("#accno").val(selectsuppliers[0].AccNo);
                         $("#bbranch").val(selectsuppliers[0].Bbranch);
-
                         $.ajax({
                             type: 'POST',
                             url: `suppliedProducts`,
@@ -158,12 +171,14 @@
                         });
                     }
             });
-
+           
             function populateIntake(intakes) {
+                var selectVal = parseInt($("#sno").val());
                 let itemTableRows = new Array();
                 intakes.forEach(i => {
+
                     itemTableRows.push(`<tr>
-				        <td>${i.TransDate}</td>
+				        <td>${i.TransDate}</td>                        
                         <td>${i.ProductType}</td>
                         <td>${i.Qsupplied}</td>
                         <td>${i.CR}</td>
@@ -174,7 +189,11 @@
 			        </tr>`)
                 });
 
+                //var cr = Number(ParseFloat($(i., this).text()));
+                //var dr = Number(ParseFloat($('.dr', this).text()));
+                //var sum =$(this).closest('tr').prev('tr').find('.total', this).text();
                 $('#intakes').html(itemTableRows);
+                $('#netpay').val(intakes[0].Balance);
             }
         });
     </script>

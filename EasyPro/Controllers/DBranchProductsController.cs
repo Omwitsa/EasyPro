@@ -67,7 +67,7 @@ namespace EasyPro.Controllers
                 _context.Add(dBranchProduct);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
+            }           
             return View(dBranchProduct);
         }
 

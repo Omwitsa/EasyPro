@@ -1,42 +1,39 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
-    public class DPricesController : Controller
+    public class DPriceController : Controller
     {
         private readonly MORINGAContext _context;
-        private Utilities utilities;
 
-        public DPricesController(MORINGAContext context)
+        public DPriceController(MORINGAContext context)
         {
             _context = context;
-            utilities = new Utilities(context);
         }
-       
-        // GET: DPrices
+
+        // GET: DPrice
         public async Task<IActionResult> Index()
         {
-            utilities.SetUpPrivileges(this);
             return View(await _context.DPrices.ToListAsync());
         }
-       
-        // GET: DPrices/Details/5
-        public async Task<IActionResult> Details(string product)
+
+        // GET: DPrice/Details/5
+        public async Task<IActionResult> Details(string id)
         {
-            utilities.SetUpPrivileges(this);
-            if (product == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
             var dPrice = await _context.DPrices
-                .FirstOrDefaultAsync(m => m.Products == product);
+                .FirstOrDefaultAsync(m => m.Products == id);
             if (dPrice == null)
             {
                 return NotFound();
@@ -45,26 +42,24 @@ namespace EasyPro.Controllers
             return View(dPrice);
         }
 
-        // GET: DPrices/Create
+        // GET: DPrice/Create
         public IActionResult Create()
         {
-            utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
         }
         private void GetInitialValues()
         {
             var products = _context.DBranchProducts.Select(b => b.Bname).ToList();
-            ViewBag.products = new SelectList(products);          
+            ViewBag.products = new SelectList(products);
         }
-        // POST: DPrices/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+            // POST: DPrice/Create
+            // To protect from overposting attacks, enable the specific properties you want to bind to.
+            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+            [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Edate,Price,Products")] DPrice dPrice)
+        public async Task<IActionResult> Create([Bind("Products,Edate,Price")] DPrice dPrice)
         {
-            utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
                 _context.Add(dPrice);
@@ -74,16 +69,15 @@ namespace EasyPro.Controllers
             return View(dPrice);
         }
 
-        // GET: DPrices/Edit/5
-        public async Task<IActionResult> Edit(string product)
+        // GET: DPrice/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
-            utilities.SetUpPrivileges(this);
-            if (product == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var dPrice = await _context.DPrices.FindAsync(product);
+            var dPrice = await _context.DPrices.FindAsync(id);
             if (dPrice == null)
             {
                 return NotFound();
@@ -91,16 +85,14 @@ namespace EasyPro.Controllers
             return View(dPrice);
         }
 
-        // POST: DPrices/Edit/5
+        // POST: DPrice/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string product, [Bind("Id,Edate,Price,Products")] DPrice dPrice)
+        public async Task<IActionResult> Edit(string id, [Bind("Products,Edate,Price")] DPrice dPrice)
         {
-            utilities.SetUpPrivileges(this);
-            GetInitialValues();
-            if (product != dPrice.Products)
+            if (id != dPrice.Products)
             {
                 return NotFound();
             }
@@ -128,17 +120,16 @@ namespace EasyPro.Controllers
             return View(dPrice);
         }
 
-        // GET: DPrices/Delete/5
-        public async Task<IActionResult> Delete(string product)
+        // GET: DPrice/Delete/5
+        public async Task<IActionResult> Delete(string id)
         {
-            utilities.SetUpPrivileges(this);
-            if (product == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
             var dPrice = await _context.DPrices
-                .FirstOrDefaultAsync(m => m.Products == product);
+                .FirstOrDefaultAsync(m => m.Products == id);
             if (dPrice == null)
             {
                 return NotFound();
@@ -147,21 +138,20 @@ namespace EasyPro.Controllers
             return View(dPrice);
         }
 
-        // POST: DPrices/Delete/5
+        // POST: DPrice/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string product)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            utilities.SetUpPrivileges(this);
-            var dPrice = await _context.DPrices.FindAsync(product);
+            var dPrice = await _context.DPrices.FindAsync(id);
             _context.DPrices.Remove(dPrice);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DPriceExists(string product)
+        private bool DPriceExists(string id)
         {
-            return _context.DPrices.Any(e => e.Products == product);
+            return _context.DPrices.Any(e => e.Products == id);
         }
     }
 }
