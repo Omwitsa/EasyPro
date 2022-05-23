@@ -206,10 +206,10 @@ namespace EasyPro.Controllers
         // POST: DTransporters/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long itemId)
+        public async Task<IActionResult> DeleteConfirmed(long id)
         {
             utilities.SetUpPrivileges(this);
-            var dTransporter = await _context.DTransporters.FindAsync(itemId);
+            var dTransporter = await _context.DTransporters.FindAsync(id);
             _context.DTransporters.Remove(dTransporter);
             await _context.SaveChangesAsync();
             _notyf.Success("Transporter Deleted successfully");

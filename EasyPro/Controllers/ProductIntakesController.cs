@@ -114,7 +114,9 @@ namespace EasyPro.Controllers
             Farmersobj = new FarmersVM()
             {
                 DSuppliers = _context.DSuppliers,
-                ProductIntake= new Models.ProductIntake()
+                ProductIntake= new ProductIntake { 
+                    TransDate = DateTime.Today
+                }
             };
             //return Json(new { data = Farmersobj });
             return View(Farmersobj);
@@ -222,7 +224,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             long.TryParse(productIntake.Sno, out long sno);
             productIntake.Description = productIntake?.Description ?? "";
-            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Active))
+            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Active == true && i.Approval==true))
             {
                 _notyf.Error("Sorry, Farmer Number code does not exist");
                 GetInitialValues();
@@ -250,6 +252,10 @@ namespace EasyPro.Controllers
             {
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.TransDate = DateTime.Today;
+                productIntake.Qsupplied = 0;
+                productIntake.CR = 0;
+                productIntake.Description = "0";
+                productIntake.Balance = 0;
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();

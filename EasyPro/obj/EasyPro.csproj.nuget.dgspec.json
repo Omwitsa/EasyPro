@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\EasyPro.csproj": {}
+    "D:\\EASY 2022\\EasyPro\\EasyPro\\EasyPro.csproj": {}
   },
   "projects": {
-    "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\EasyPro.csproj": {
+    "D:\\EASY 2022\\EasyPro\\EasyPro\\EasyPro.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\EasyPro.csproj",
+        "projectUniqueName": "D:\\EASY 2022\\EasyPro\\EasyPro\\EasyPro.csproj",
         "projectName": "EasyPro",
-        "projectPath": "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\EasyPro.csproj",
-        "packagesPath": "C:\\Users\\wilso\\.nuget\\packages\\",
-        "outputPath": "E:\\Newtech\\SourceCode\\CSharp\\Amtech\\EasyPro\\EasyPro\\EasyPro\\obj\\",
+        "projectPath": "D:\\EASY 2022\\EasyPro\\EasyPro\\EasyPro.csproj",
+        "packagesPath": "C:\\Users\\LANGAT\\.nuget\\packages\\",
+        "outputPath": "D:\\EASY 2022\\EasyPro\\EasyPro\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\wilso\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\LANGAT\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -89,7 +93,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.408\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.203\\RuntimeIdentifierGraph.json"
         }
       }
     }
