@@ -1,21 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class DPriceController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DPriceController(MORINGAContext context)
+        public DPriceController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: DPrice
@@ -60,6 +61,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Products,Edate,Price")] DPrice dPrice)
         {
+            var dpricer = _context.DPrices.Where(i => i.Products ==dPrice.Products).Count();
+            if (dpricer != 0)
+            {
+                _notyf.Error("Sorry, The product already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(dPrice);

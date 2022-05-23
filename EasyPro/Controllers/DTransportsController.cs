@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
 using EasyPro.ViewModels.TranssupplyVM;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,11 +18,13 @@ namespace EasyPro.Controllers
         private readonly MORINGAContext _context;
         private IEnumerable<DSupplier> DSuppliers;
         private Utilities utilities;
+        private readonly INotyfService _notyf;
 
-        public DTransportsController(MORINGAContext context)
+        public DTransportsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             utilities = new Utilities(context);
+            _notyf = notyf;
         }
         public TransSuppliers TransSuppliersobj { get; private set; }
         public IEnumerable<DTransporter> DTransporter { get; private set; }
@@ -74,7 +79,13 @@ namespace EasyPro.Controllers
 
             return View(dTransport);
         }
-
+        private void GetInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var producttypes = _context.DPrices.Where(i => i.SaccoCode == sacco).Select(b => b.Products).ToList();
+            ViewBag.producttypes = new SelectList(producttypes,"");
+        }
         // GET: DTransports/Create
         public IActionResult Create()
         {
@@ -86,6 +97,7 @@ namespace EasyPro.Controllers
                 DTransporter = _context.DTransporters,
                 DSuppliers = _context.DSuppliers,
             };
+            GetInitialValues();
             //return Json(new { data = Farmersobj });
             return View(TransSuppliersobj);
         }
@@ -95,11 +107,21 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate")] DTransport dTransport)
+        public async Task<IActionResult> Create([Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype")] DTransport dTransport)
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var dTransporterExists = _context.DTransports.Any(i => i.Sno == dTransport.Sno && i.Active==true && i.producttype== dTransport.producttype && i.saccocode == sacco);
+            if (dTransporterExists)
+            {
+                GetInitialValues();
+                _notyf.Error("Supplier has an active Assignment");
+                return View();
+            }
             if (ModelState.IsValid)
             {
+                dTransport.saccocode = sacco;
                 _context.Add(dTransport);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -130,7 +152,7 @@ namespace EasyPro.Controllers
                 DTransporter = _context.DTransporters,
                 DSuppliers = _context.DSuppliers,
             };
-
+            GetInitialValues();
             TransSuppliersobj.DTransporter = TransSuppliersobj.DTransporter.Where(i => i.TransCode == dTransport.TransCode);
             TransSuppliersobj.DSuppliers = TransSuppliersobj.DSuppliers.Where(i => i.Sno == dTransport.Sno);
             return View(TransSuppliersobj);
@@ -141,18 +163,23 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate")] DTransport dTransport)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype")] DTransport dTransport)
         {
             utilities.SetUpPrivileges(this);
             if (id != dTransport.Id)
             {
+                GetInitialValues();
                 return NotFound();
             }
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    dTransport.saccocode = sacco;
+                    //dTransport.producttype = dTransport.producttype;
                     _context.Update(dTransport);
                     await _context.SaveChangesAsync();
                 }

@@ -67,8 +67,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,Dcode,Description,Dedaccno,Contraacc,Auditid,Auditdatetime")] DDcode dDcode)
         {
             utilities.SetUpPrivileges(this);
-            var dSupplier1 = _context.DDcodes.Where(i => i.Description == dDcode.Description && i.Dcode== dDcode.Dcode).Count();
-            if (dSupplier1 != 0)
+            var dCodesExists= _context.DDcodes.Any(i => i.Description == dDcode.Description && i.Dcode== dDcode.Dcode);
+            if (dCodesExists)
             {
                 _notyf.Error("Sorry, The Branch Name already exist");
                 return View();

@@ -4,7 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+<<<<<<< HEAD
 using EasyPro.Utils;
+=======
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
+using AspNetCoreHero.ToastNotification.Abstractions;
+>>>>>>> 5944e892640a0fb3f95ee5cae42b55a24310fd74
 
 namespace EasyPro.Controllers
 {

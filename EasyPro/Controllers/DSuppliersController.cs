@@ -23,7 +23,11 @@ namespace EasyPro.Controllers
         {
             _context = context;
             _notyf = notyf;
+<<<<<<< HEAD
             utilities = new Utilities(context);
+=======
+            
+>>>>>>> 5944e892640a0fb3f95ee5cae42b55a24310fd74
         }
 
         // GET: DSuppliers
@@ -63,13 +67,24 @@ namespace EasyPro.Controllers
         }
         private void GetInitialValues()
         {
-            var banksname = _context.DBanks.Select(b => b.BankName).ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var dScode = sacco; //bankbrances
+            var countyname = _context.DCompanies.Select(b => b.Province).ToList();
+            ViewBag.countyname = new SelectList(countyname);
+            var SubCountyName= _context.SubCounty.Select(b => b.Name).ToList();
+            ViewBag.SubCountyName = new SelectList(SubCountyName);
+            var WardSubCounty = _context.Ward.Select(b => b.Name).ToList();
+            ViewBag.WardSubCounty = new SelectList(WardSubCounty);
+            var locations = _context.DLocations.Select(b => b.Lname).ToList();
+            ViewBag.locations = new SelectList(locations);
+            var banksname = _context.DBanks.Where(a=>a.BankCode == dScode).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
 
-            var brances = _context.DBranch.Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(a => a.Bcode == dScode).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
-            var bankbrances = _context.DBankBranch.Select(b => b.Bname).ToList();
+            var bankbrances = _context.DBankBranch.Where(a => a.BankCode == dScode).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
 
             List<SelectListItem> gender = new()
@@ -92,24 +107,35 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
+<<<<<<< HEAD
             utilities.SetUpPrivileges(this);
+=======
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+>>>>>>> 5944e892640a0fb3f95ee5cae42b55a24310fd74
             if (dSupplier == null)
             {
                 _notyf.Error("Sorry, Supplier code cannot be empty");
                 return NotFound();
             }
+<<<<<<< HEAD
 
             if (_context.DSuppliers.Any(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo))
+=======
+             
+            var dSupplierExists = _context.DSuppliers.Any(i => (i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo) && i.Scode == sacco);
+            if (dSupplierExists)
+>>>>>>> 5944e892640a0fb3f95ee5cae42b55a24310fd74
             {
+                //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)
                 GetInitialValues();
                 _notyf.Error("Sorry, The Supplier already exist");
                 return View();
             }
+            //}
 
             if (ModelState.IsValid)
             {
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-                sacco = sacco ?? "";
                 dSupplier.Scode = sacco;
                 _context.Add(dSupplier);
                 await _context.SaveChangesAsync();

@@ -17,5 +17,7 @@ namespace EasyPro.Models
         public string Auditid { get; set; }
         public DateTime? Auditdatetime { get; set; }
         public string Isfrate { get; set; }
+        public string saccocode { get; set; }
+        public string producttype { get; set; }
     }
 }

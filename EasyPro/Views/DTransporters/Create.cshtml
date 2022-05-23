@@ -57,15 +57,6 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Locations" class="control-label"></label>
-                                <input asp-for="Locations" class="form-control" />
-                                <span asp-validation-for="Locations" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
                                 <label asp-for="Phoneno" class="control-label"></label>
                                 <input asp-for="Phoneno" class="form-control" required />
                                 <span asp-validation-for="Phoneno" class="text-danger"></span>
@@ -95,12 +86,12 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                    <div class="form-group">
-                                        <label asp-for="Active" class="control-label">
-                                            <input asp-for="Active" type="checkbox" />@Html.DisplayNameFor(model => model.Active)
-                                            <span asp-validation-for="Active" class="text-danger"></span>
-                                        </label>
-                                    </div>
+                                <div class="form-group">
+                                    <label asp-for="Active" class="control-label">
+                                        <input asp-for="Active" type="checkbox" />@Html.DisplayNameFor(model => model.Active)
+                                        <span asp-validation-for="Active" class="text-danger"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>

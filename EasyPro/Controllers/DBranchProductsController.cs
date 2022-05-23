@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using EasyPro.Utils;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyPro.Controllers
 {
@@ -14,11 +12,13 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private Utilities utilities;
+        private readonly INotyfService _notyf;
 
-        public DBranchProductsController(MORINGAContext context)
+        public DBranchProductsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             utilities = new Utilities(context);
+            _notyf = notyf;
         }
 
         // GET: DBranchProducts
@@ -62,6 +62,12 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
         {
             utilities.SetUpPrivileges(this);
+            var dbranchproduct = _context.DBranchProducts.Where(i => i.Bcode == dBranchProduct.Bcode || i.Bname == dBranchProduct.Bname).Count();
+            if (dbranchproduct != 0)
+            {
+                _notyf.Error("Sorry, The product already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(dBranchProduct);

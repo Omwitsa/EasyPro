@@ -24,6 +24,7 @@ namespace EasyPro.Models
         public string Location { get; set; }
         public string Division { get; set; }
         public string District { get; set; }
+        public string County { get; set; }
         public bool? Trader { get; set; }
         public bool Active { get; set; }
         public bool? Approval { get; set; }
