@@ -216,6 +216,7 @@ namespace EasyPro.Controllers
             var dTransportDeduc = await _context.DTransportDeducs.FindAsync(id);
             _context.DTransportDeducs.Remove(dTransportDeduc);
             await _context.SaveChangesAsync();
+            _notyf.Error("Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 

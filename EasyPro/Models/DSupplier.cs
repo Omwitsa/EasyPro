@@ -27,7 +27,7 @@ namespace EasyPro.Models
         public string County { get; set; }
         public bool? Trader { get; set; }
         public bool Active { get; set; }
-        public bool? Approval { get; set; }
+        public bool Approval { get; set; }
         public string Branch { get; set; }
         public string PhoneNo { get; set; }
         public string Address { get; set; }

@@ -124,6 +124,7 @@ namespace EasyPro.Controllers
                 dTransport.saccocode = sacco;
                 _context.Add(dTransport);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Assignment saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(dTransport);
@@ -181,6 +182,7 @@ namespace EasyPro.Controllers
                     dTransport.saccocode = sacco;
                     //dTransport.producttype = dTransport.producttype;
                     _context.Update(dTransport);
+                    _notyf.Success("Edit saved successfully");
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -227,6 +229,7 @@ namespace EasyPro.Controllers
             var dTransport = await _context.DTransports.FindAsync(id);
             _context.DTransports.Remove(dTransport);
             await _context.SaveChangesAsync();
+            _notyf.Error("Data Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 

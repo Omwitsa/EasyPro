@@ -95,6 +95,12 @@ namespace EasyPro.Controllers
                 new SelectListItem { Text = "Monthly" },
             };
             ViewBag.payment = payment;
+            List<SelectListItem> approved = new()
+            {
+                new SelectListItem { Value="0", Text = "No" },
+                new SelectListItem { Value = "1", Text = "Yes" },
+            };
+            ViewBag.approved = approved;
         }
         // POST: DSuppliers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -111,6 +117,11 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Supplier code cannot be empty");
                 return NotFound();
             }
+
+            //if (dSupplier.Approval.Value == 0)
+            //    dSupplier.Approval = false;
+            //else
+            //    dSupplier.Approval = true;
 
             var dSupplierExists = _context.DSuppliers.Any(i => (i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo) && i.Scode == sacco);
             if (dSupplierExists)
