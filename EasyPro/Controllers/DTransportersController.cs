@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
@@ -24,7 +26,10 @@ namespace EasyPro.Controllers
         // GET: DTransporters
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DTransporters.Where(i => i.Active == true || i.Active == false).ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            return View(await _context.DTransporters
+                .Where(i => (i.Active == true || i.Active == false) && i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
         // GET: DTransporters/Details/5
@@ -53,14 +58,18 @@ namespace EasyPro.Controllers
         }
         private void GetInitialValues()
         {
-            var banksname = _context.DBanks.Select(b => b.BankName).ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var banksname = _context.DBanks.Where(i=>i.BankCode== sacco).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
 
-            var brances = _context.DBranch.Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(i => i.Bcode == sacco).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
-            var bankbrances = _context.DBankBranch.Select(b => b.Bname).ToList();
+            var bankbrances = _context.DBankBranch.Where(i => i.BankCode == sacco).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
+
+            
 
             List<SelectListItem> gender = new()
             {
@@ -87,8 +96,10 @@ namespace EasyPro.Controllers
                 _notyf.Error("Transporter cannot be empty");
                 return NotFound();
             }
-            var dTransporter10 = _context.DTransporters.Where(i=>i.TransCode == dTransporter.TransCode && i.CertNo == dTransporter.CertNo).Count();
-            if (dTransporter10 != 0)
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var dTransporterExists = _context.DTransporters.Any(i=>(i.TransCode == dTransporter.TransCode || i.CertNo == dTransporter.CertNo) && i.ParentT== sacco);
+            if (dTransporterExists)
             {
                 GetInitialValues();
                 _notyf.Error("Transporter entered already exist");
@@ -96,6 +107,7 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                dTransporter.ParentT = sacco;
                 _context.Add(dTransporter);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Transporter saved successfully");
@@ -132,7 +144,9 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, error occured while editing, try again");
                 return NotFound();
             }
-            
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+
             if (ModelState.IsValid)
             {
                 try
@@ -140,6 +154,7 @@ namespace EasyPro.Controllers
                     dTransporter.TransCode = dTransporter.TransCode;
                     dTransporter.Br = "A";
                     dTransporter.Freezed = "0";
+                    dTransporter.ParentT = sacco;
                     _context.Update(dTransporter);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Transporter Edited successfully");

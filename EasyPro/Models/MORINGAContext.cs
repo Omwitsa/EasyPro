@@ -6946,7 +6946,7 @@ namespace EasyPro.Models
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("Trans_Code")
-                    .IsFixedLength(true);
+                    .IsFixedLength(true); 
             });
 
             modelBuilder.Entity<DTransportDeduc>(entity =>

@@ -11,11 +11,13 @@ namespace EasyPro.Models
     public partial class DPrice
     {
         [Key]
+        public long Id { get; set; }
         public string Products { get; set; }
         public DateTime? Edate { get; set; }
         public decimal? Price { get; set; }
-        
-       // [NotMapped]
+        public string SaccoCode { get; set; }
+
+        // [NotMapped]
         //public List<DBranchProduct> Productcollection { get; set; }
         [NotMapped]
         public List<SelectListItem> Productt { get; set; }
