@@ -215,6 +215,7 @@ namespace EasyPro.Controllers
                 }
                 await _context.SaveChangesAsync();
                 _notyf.Success("Intake saved successfully");
+                RedirectToAction("Get", "Report");
                 return RedirectToAction(nameof(Index));
             }
             return View(productIntake);
