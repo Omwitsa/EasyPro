@@ -8,6 +8,7 @@ using EasyPro.Models;
 using EasyPro.ViewModels;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
@@ -110,28 +111,32 @@ namespace EasyPro.Controllers
                 var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
                 var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
                 var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
+                var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
 
-                long.TryParse(p.Key, out long sno);
-                var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
                 var payroll = new DPayroll();
-                payroll.Sno = (int?)supplier.Sno;
-                payroll.Gpay = p.Sum(s => s.CR);
-                payroll.KgsSupplied = (double?)p.Sum(s => s.Qsupplied);
-                payroll.Advance = advance.Sum(s => s.DR);
-                payroll.Others = 0;
-                payroll.Transport = transport.Sum(s => s.DR);
-                payroll.Agrovet = agrovet.Sum(s => s.DR);
-                payroll.Bonus = bonus.Sum(s => s.DR);
-                payroll.Hshares = shares.Sum(s => s.DR);
-                payroll.Tdeductions = payroll.Advance + payroll.Transport + payroll.Agrovet + payroll.Bonus + payroll.Hshares;
-                payroll.Npay = payroll.Gpay - payroll.Tdeductions;
-                payroll.Yyear = endDate.Year;
-                payroll.Mmonth = endDate.Month;
-                payroll.AccountNumber = supplier.AccNo;
-                payroll.Bbranch = supplier.Bbranch;
-                payroll.IdNo = supplier.IdNo;
-
-                _context.DPayrolls.Add(payroll);
+                long.TryParse(p.Key, out long sno);
+                if(sno > 0)
+                {
+                    var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
+                    payroll.Sno = (int?)supplier.Sno;
+                    payroll.Gpay = p.Sum(s => s.CR);
+                    payroll.KgsSupplied = (double?)p.Sum(s => s.Qsupplied);
+                    payroll.Advance = advance.Sum(s => s.DR);
+                    payroll.Others = 0;
+                    payroll.Transport = transport.Sum(s => s.DR);
+                    payroll.Agrovet = agrovet.Sum(s => s.DR);
+                    payroll.Bonus = bonus.Sum(s => s.DR);
+                    payroll.Hshares = shares.Sum(s => s.DR);
+                    payroll.Tdeductions = payroll.Advance + payroll.Transport + payroll.Agrovet + payroll.Bonus + payroll.Hshares;
+                    var debits = corrections.Sum(s => s.DR);
+                    payroll.Npay = payroll.Gpay - debits - payroll.Tdeductions;
+                    payroll.Yyear = endDate.Year;
+                    payroll.Mmonth = endDate.Month;
+                    payroll.AccountNumber = supplier.AccNo;
+                    payroll.Bbranch = supplier.Bbranch;
+                    payroll.IdNo = supplier.IdNo;
+                    _context.DPayrolls.Add(payroll);
+                }
             });
 
             await _context.SaveChangesAsync();

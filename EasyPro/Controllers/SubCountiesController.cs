@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +8,7 @@ using EasyPro.Models;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using EasyPro.Utils;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
@@ -16,10 +16,12 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private Utilities utilities;
+        private readonly INotyfService _notyf;
 
-        public SubCountiesController(MORINGAContext context)
+        public SubCountiesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
             utilities = new Utilities(context);
         }
 
@@ -67,6 +69,23 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(subCounty.Name))
+                {
+                    _notyf.Error("Sorry, Kindly provide sub-county");
+                    return View(subCounty);
+                }
+                if (string.IsNullOrEmpty(subCounty.County))
+                {
+                    _notyf.Error("Sorry, Kindly provide county");
+                    return View(subCounty);
+                }
+                var subCountyExist = _context.SubCounty.Any(g => g.Name.ToUpper().Equals(subCounty.Name.ToUpper()) 
+                && g.County.ToUpper().Equals(subCounty.County.ToUpper()));
+                if (subCountyExist)
+                {
+                    _notyf.Error("Sorry, Sub-county already exist");
+                    return View(subCounty);
+                }
                 subCounty.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
                 subCounty.CreatedOn = DateTime.Today;
                 _context.Add(subCounty);
@@ -117,6 +136,23 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(subCounty.Name))
+                    {
+                        _notyf.Error("Sorry, Kindly provide sub-county");
+                        return View(subCounty);
+                    }
+                    if (string.IsNullOrEmpty(subCounty.County))
+                    {
+                        _notyf.Error("Sorry, Kindly provide county");
+                        return View(subCounty);
+                    }
+                    var subCountyExist = _context.SubCounty.Any(g => g.Name.ToUpper().Equals(subCounty.Name.ToUpper())
+                    && g.County.ToUpper().Equals(subCounty.County.ToUpper()) && g.Id != subCounty.Id);
+                    if (subCountyExist)
+                    {
+                        _notyf.Error("Sorry, Sub-county already exist");
+                        return View(subCounty);
+                    }
                     subCounty.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
                     subCounty.CreatedOn = DateTime.Today;
                     _context.Update(subCounty);

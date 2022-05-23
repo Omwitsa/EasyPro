@@ -7,6 +7,7 @@ using EasyPro.Models;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Utils;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
@@ -14,10 +15,12 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private Utilities utilities;
+        private readonly INotyfService _notyf;
 
-        public CountiesController(MORINGAContext context)
+        public CountiesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
             utilities = new Utilities(context);
         }
 
@@ -64,6 +67,16 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(county.Name))
+                {
+                    _notyf.Error("Sorry, Kindly provide county");
+                    return View(county);
+                }
+                if (_context.County.Any(g => g.Name.ToUpper().Equals(county.Name.ToUpper())))
+                {
+                    _notyf.Error("Sorry, County already exist");
+                    return View(county);
+                }
                 county.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
                 county.CreatedOn = DateTime.Today;
                 _context.Add(county);
@@ -107,6 +120,16 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(county.Name))
+                    {
+                        _notyf.Error("Sorry, Kindly provide county");
+                        return View(county);
+                    }
+                    if (_context.County.Any(g => g.Name.ToUpper().Equals(county.Name.ToUpper()) && g.Id != county.Id))
+                    {
+                        _notyf.Error("Sorry, County already exist");
+                        return View(county);
+                    }
                     county.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
                     county.CreatedOn = DateTime.Today;
                     _context.Update(county);

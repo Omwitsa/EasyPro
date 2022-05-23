@@ -1,5 +1,7 @@
 using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using EasyPro.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,6 +29,8 @@ namespace EasyPro
             services.AddDbContext<MORINGAContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("MoringaDbConnection")));
 
+            services.AddSingleton(typeof(IConverter),
+            new SynchronizedConverter(new PdfTools()));
             services.AddNotyf(config => 
             { 
                 config.DurationInSeconds = 10; 
