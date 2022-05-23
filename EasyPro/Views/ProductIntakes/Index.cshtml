@@ -48,37 +48,41 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.Remarks)
                                 </th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Sno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.TransDate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.ProductType)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Qsupplied)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Ppu)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.CR)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Description)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Remarks)
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Sno)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TransDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ProductType)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Qsupplied)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Ppu)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CR)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Remarks)
+                                </td>
+                                <td class="col-4">
+                                   
+                                </td>
+                            </tr>
                             }
                         </tbody>
                     </table>

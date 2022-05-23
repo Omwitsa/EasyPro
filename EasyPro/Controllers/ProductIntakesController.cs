@@ -4,6 +4,7 @@ using EasyPro.Models;
 using EasyPro.Utils;
 using EasyPro.ViewModels;
 using EasyPro.ViewModels.FarmersVM;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -179,14 +180,18 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                productIntake.SaccoCode = sacco ?? "";
                 productIntake.Description = "Intake";
                 productIntake.TransactionType = TransactionType.Intake;
                 productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
                 _context.ProductIntake.Add(productIntake);
-
-                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active);
+                
+                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active 
+                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) 
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
                 if(transport != null)
                 {
                     // Debit supplier transport amount

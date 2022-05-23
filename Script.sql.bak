@@ -47,6 +47,5 @@ CREATE TABLE ProductIntake (
 	TransactionType int,
 	AuditId nvarchar(50),
 	auditdatetime datetime,
-	Branch nvarchar(50),
-	SaccoCode nvarchar(50)
+	Branch nvarchar(50)
 );

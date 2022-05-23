@@ -9,6 +9,7 @@ using EasyPro.Models;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using EasyPro.Utils;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
@@ -16,10 +17,12 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private Utilities utilities;
+        private readonly INotyfService _notyf;
 
-        public WardsController(MORINGAContext context)
+        public WardsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
             utilities = new Utilities(context);
         }
 
@@ -67,6 +70,23 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(ward.Name))
+                {
+                    _notyf.Error("Sorry, Kindly provide ward");
+                    return View(ward);
+                }
+                if (string.IsNullOrEmpty(ward.SubCounty))
+                {
+                    _notyf.Error("Sorry, Kindly provide sub-county");
+                    return View(ward);
+                }
+                var subCountyExist = _context.Ward.Any(g => g.Name.ToUpper().Equals(ward.Name.ToUpper())
+                && g.SubCounty.ToUpper().Equals(ward.SubCounty.ToUpper()));
+                if (subCountyExist)
+                {
+                    _notyf.Error("Sorry, Ward already exist");
+                    return View(ward);
+                }
                 ward.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
                 ward.CreatedOn = DateTime.Today;
                 _context.Add(ward);
@@ -108,6 +128,23 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,SubCounty,Contact,Closed,CreatedOn,CreatedBy")] Ward ward)
         {
             utilities.SetUpPrivileges(this);
+            if (string.IsNullOrEmpty(ward.Name))
+            {
+                _notyf.Error("Sorry, Kindly provide ward");
+                return View(ward);
+            }
+            if (string.IsNullOrEmpty(ward.SubCounty))
+            {
+                _notyf.Error("Sorry, Kindly provide sub-county");
+                return View(ward);
+            }
+            var wardExist = _context.Ward.Any(g => g.Name.ToUpper().Equals(ward.Name.ToUpper())
+            && g.SubCounty.ToUpper().Equals(ward.SubCounty.ToUpper()) && g.Id != ward.Id);
+            if (wardExist)
+            {
+                _notyf.Error("Sorry, Ward already exist");
+                return View(ward);
+            }
             if (id != ward.Id)
             {
                 return NotFound();
