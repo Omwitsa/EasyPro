@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using Microsoft.Data.SqlClient;
-using System.Configuration;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
@@ -54,23 +54,7 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var products = _context.DBranchProducts.Select(b => b.Bname).ToList();
-            ViewBag.products = new SelectList(products);
-
-            //var brances = _context.DBranch.Select(b => b.Bname).ToList();
-            //ViewBag.brances = new SelectList(brances);
-
-            //List<SelectListItem> gender = new()
-            //{
-            //    new SelectListItem { Value = "1", Text = "Male" },
-            //    new SelectListItem { Value = "2", Text = "Female" },
-            //};
-            //ViewBag.gender = gender;
-            //List<SelectListItem> payment = new()
-            //{
-            //    new SelectListItem { Value = "1", Text = "Weekly" },
-            //    new SelectListItem { Value = "2", Text = "Monthly" },
-            //};
-            //ViewBag.payment = payment;
+            ViewBag.products = new SelectList(products);          
         }
         // POST: DPrices/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -89,14 +73,14 @@ namespace EasyPro.Controllers
         }
 
         // GET: DPrices/Edit/5
-        public async Task<IActionResult> Edit(long? id)
+        public async Task<IActionResult> Edit(string product)
         {
-            if (id == null)
+            if (product == null)
             {
                 return NotFound();
             }
 
-            var dPrice = await _context.DPrices.FindAsync(id);
+            var dPrice = await _context.DPrices.FindAsync(product);
             if (dPrice == null)
             {
                 return NotFound();
@@ -161,9 +145,9 @@ namespace EasyPro.Controllers
         // POST: DPrices/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long id)
+        public async Task<IActionResult> DeleteConfirmed(string product)
         {
-            var dPrice = await _context.DPrices.FindAsync(id);
+            var dPrice = await _context.DPrices.FindAsync(product);
             _context.DPrices.Remove(dPrice);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

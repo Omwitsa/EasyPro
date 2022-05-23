@@ -12,93 +12,98 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
-    public class DBranchProductsController : Controller
+    public class DPriceController : Controller
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
 
-        public DBranchProductsController(MORINGAContext context, INotyfService notyf)
+        public DPriceController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
         }
 
-        // GET: DBranchProducts
+        // GET: DPrice
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DBranchProducts.ToListAsync());
+            return View(await _context.DPrices.ToListAsync());
         }
 
-        // GET: DBranchProducts/Details/5
-        public async Task<IActionResult> Details(long? id)
+        // GET: DPrice/Details/5
+        public async Task<IActionResult> Details(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var dBranchProduct = await _context.DBranchProducts
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (dBranchProduct == null)
+            var dPrice = await _context.DPrices
+                .FirstOrDefaultAsync(m => m.Products == id);
+            if (dPrice == null)
             {
                 return NotFound();
             }
 
-            return View(dBranchProduct);
+            return View(dPrice);
         }
 
-        // GET: DBranchProducts/Create
+        // GET: DPrice/Create
         public IActionResult Create()
-        {            
+        {
+            GetInitialValues();
             return View();
         }
-
-        // POST: DBranchProducts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
+        private void GetInitialValues()
         {
-            var dbranchproduct = _context.DBranchProducts.Where(i => i.Bcode == dBranchProduct.Bcode || i.Bname == dBranchProduct.Bname).Count();
-            if (dbranchproduct != 0)
+            var products = _context.DBranchProducts.Select(b => b.Bname).ToList();
+            ViewBag.products = new SelectList(products);
+        }
+            // POST: DPrice/Create
+            // To protect from overposting attacks, enable the specific properties you want to bind to.
+            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+            [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Products,Edate,Price")] DPrice dPrice)
+        {
+            var dpricer = _context.DPrices.Where(i => i.Products ==dPrice.Products).Count();
+            if (dpricer != 0)
             {
                 _notyf.Error("Sorry, The product already exist");
                 return View();
             }
             if (ModelState.IsValid)
             {
-                _context.Add(dBranchProduct);
+                _context.Add(dPrice);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }           
-            return View(dBranchProduct);
+            }
+            return View(dPrice);
         }
 
-        // GET: DBranchProducts/Edit/5
-        public async Task<IActionResult> Edit(long? id)
+        // GET: DPrice/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var dBranchProduct = await _context.DBranchProducts.FindAsync(id);
-            if (dBranchProduct == null)
+            var dPrice = await _context.DPrices.FindAsync(id);
+            if (dPrice == null)
             {
                 return NotFound();
             }
-            return View(dBranchProduct);
+            return View(dPrice);
         }
 
-        // POST: DBranchProducts/Edit/5
+        // POST: DPrice/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
+        public async Task<IActionResult> Edit(string id, [Bind("Products,Edate,Price")] DPrice dPrice)
         {
-            if (id != dBranchProduct.Id)
+            if (id != dPrice.Products)
             {
                 return NotFound();
             }
@@ -107,12 +112,12 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    _context.Update(dBranchProduct);
+                    _context.Update(dPrice);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DBranchProductExists(dBranchProduct.Id))
+                    if (!DPriceExists(dPrice.Products))
                     {
                         return NotFound();
                     }
@@ -123,41 +128,41 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(dBranchProduct);
+            return View(dPrice);
         }
 
-        // GET: DBranchProducts/Delete/5
-        public async Task<IActionResult> Delete(long? id)
+        // GET: DPrice/Delete/5
+        public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var dBranchProduct = await _context.DBranchProducts
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (dBranchProduct == null)
+            var dPrice = await _context.DPrices
+                .FirstOrDefaultAsync(m => m.Products == id);
+            if (dPrice == null)
             {
                 return NotFound();
             }
 
-            return View(dBranchProduct);
+            return View(dPrice);
         }
 
-        // POST: DBranchProducts/Delete/5
+        // POST: DPrice/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var dBranchProduct = await _context.DBranchProducts.FindAsync(id);
-            _context.DBranchProducts.Remove(dBranchProduct);
+            var dPrice = await _context.DPrices.FindAsync(id);
+            _context.DPrices.Remove(dPrice);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DBranchProductExists(long id)
+        private bool DPriceExists(string id)
         {
-            return _context.DBranchProducts.Any(e => e.Id == id);
+            return _context.DPrices.Any(e => e.Products == id);
         }
     }
 }

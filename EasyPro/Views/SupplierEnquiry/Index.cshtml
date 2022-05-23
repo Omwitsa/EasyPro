@@ -1,4 +1,4 @@
-﻿@model EasyPro.ViewModels.EnquiryVM.EnquiryVM
+﻿@model EasyPro.ViewModels.EnquiryVM.EnquiryVM;
 
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -7,8 +7,8 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <label class="control-label">sno</label>
-                <input id="sno" asp-for="suppliers.Sno" />
-                <span asp-validation-for="suppliers.Sno" class="text-danger"></span>
+                <input id="sno" />
+                <span  class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -17,8 +17,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">Names</label>
-                    <input id="names" asp-for="suppliers.Names" />
-                    <span asp-validation-for="suppliers.Names" class="text-danger"></span>
+                    <input id="names"/>
+                    <span class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -28,8 +28,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">IdNo</label>
-                    <input id="idno" asp-for="suppliers.IdNo" />
-                    <span asp-validation-for="suppliers.IdNo" class="text-danger"></span>
+                    <input id="idno"  />
+                    <span  class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -40,8 +40,8 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <label class="control-label">Phone No</label>
-                <input id="phoneno" asp-for="suppliers.PhoneNo" />
-                <span asp-validation-for="suppliers.PhoneNo" class="text-danger"></span>
+                <input id="phoneno"  />
+                <span  class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -50,8 +50,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">Acc No</label>
-                    <input id="accno" asp-for="suppliers.AccNo" />
-                    <span asp-validation-for="suppliers.AccNo" class="text-danger"></span>
+                    <input id="accno"/>
+                    <span  class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -61,8 +61,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">Bank</label>
-                    <input id="bbranch" asp-for="suppliers.Bbranch" />
-                    <span asp-validation-for="suppliers.Bbranch" class="text-danger"></span>
+                    <input id="bbranch" />
+                    <span  class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -73,8 +73,9 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <label class="control-label">DateFrom</label>
-                <input value="date" asp-for="intakes.TransDate" />
-                <span asp-validation-for="intakes.TransDate" class="text-danger"></span>
+                <input id="firstdate" value="date"/>
+                @*@Html.TextBoxFor(Model=>Model.iint.TransDate, new {id= "firstdate"} )*@
+                <span  class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -83,8 +84,8 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">DateTo</label>
-                    <input value="date" asp-for="intakes.TransDate" />
-                    <span asp-validation-for="intakes.TransDate" class="text-danger"></span>
+                    <input id="enddate" value="date"/>
+                    <span class="text-danger"></span>
                     <a class="btn-warning btn-success" asp-action="Show">Show</a>
                 </div>
             </div>
@@ -104,7 +105,6 @@
 <div class="bsc-tbl-hvr table-border-style">
     <div class="table-responsive">
         <table class="table table-hover">
-            <thead>
                 <tr>
                     <th>Date</th>
                     <th>Product Type</th>
@@ -115,9 +115,7 @@
                     <th>Description</th>
                     <th>Remarks</th>
                 </tr>
-            </thead>
             <tbody id="intakes">
-
             </tbody>
         </table>
     </div>
@@ -127,11 +125,28 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+
+
+    </script>
     <script type="text/javascript">
+
         $(function () {
+
+            var date = new Date();
+
+            var firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString();
+            var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toLocaleDateString();
+            $("#firstdate").val(firstDay);
+            $("#enddate").val(lastDay);
+
+        });
+        $(function () {
+
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
-                var selectVal = parseInt($("#sno").val());
+                var selectVal = parseInt($("#sno").val());               
+              
                 var selectsuppliers = suppliers.filter(p => p.Sno === selectVal);
                     if (selectsuppliers[0]) {
                         $("#names").val(selectsuppliers[0].Names);
@@ -139,7 +154,6 @@
                         $("#phoneno").val(selectsuppliers[0].PhoneNo);
                         $("#accno").val(selectsuppliers[0].AccNo);
                         $("#bbranch").val(selectsuppliers[0].Bbranch);
-
                         $.ajax({
                             type: 'POST',
                             url: `suppliedProducts`,
@@ -158,12 +172,17 @@
                         });
                     }
             });
-
+           
             function populateIntake(intakes) {
+               
+                var selectVal = parseInt($("#sno").val());
                 let itemTableRows = new Array();
                 intakes.forEach(i => {
+                    debugger;
+                    var ddate = i.TransDate;
+                    var dd1=new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
-				        <td>${i.TransDate}</td>
+				        <td>${dd1}</td>                        
                         <td>${i.ProductType}</td>
                         <td>${i.Qsupplied}</td>
                         <td>${i.CR}</td>
@@ -172,8 +191,22 @@
                         <td>${i.Description}</td>
                         <td>${i.Remarks}</td>
 			        </tr>`)
-                });
+                    var Total = 0;
+                    var Total2 = 0;
+                    var netpay = 0;
+                    intakes.forEach(i => {
+                        var ddr = 0;
+                        var ccr = 0;
+                        ddr = i.DR;
+                        ccr = i.CR;
+                        Total2 = Total2 + ddr;
+                        Total = Total + ccr;
+                        netpay = Total - Total2;
 
+                    });
+                    $('#netpay').val(netpay);
+                });
+                
                 $('#intakes').html(itemTableRows);
             }
         });
