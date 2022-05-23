@@ -23,11 +23,7 @@ namespace EasyPro.Controllers
         {
             _context = context;
             _notyf = notyf;
-<<<<<<< HEAD
             utilities = new Utilities(context);
-=======
-            
->>>>>>> 5944e892640a0fb3f95ee5cae42b55a24310fd74
         }
 
         // GET: DSuppliers
@@ -107,25 +103,17 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
-<<<<<<< HEAD
             utilities.SetUpPrivileges(this);
-=======
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
->>>>>>> 5944e892640a0fb3f95ee5cae42b55a24310fd74
             if (dSupplier == null)
             {
                 _notyf.Error("Sorry, Supplier code cannot be empty");
                 return NotFound();
             }
-<<<<<<< HEAD
 
-            if (_context.DSuppliers.Any(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo))
-=======
-             
             var dSupplierExists = _context.DSuppliers.Any(i => (i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo) && i.Scode == sacco);
             if (dSupplierExists)
->>>>>>> 5944e892640a0fb3f95ee5cae42b55a24310fd74
             {
                 //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)
                 GetInitialValues();
