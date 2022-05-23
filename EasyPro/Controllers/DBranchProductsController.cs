@@ -6,16 +6,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class DBranchProductsController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
 
-        public DBranchProductsController(MORINGAContext context)
+        public DBranchProductsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: DBranchProducts
@@ -44,7 +49,7 @@ namespace EasyPro.Controllers
 
         // GET: DBranchProducts/Create
         public IActionResult Create()
-        {
+        {            
             return View();
         }
 
@@ -55,6 +60,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
         {
+            var dbranchproduct = _context.DBranchProducts.Where(i => i.Bcode == dBranchProduct.Bcode || i.Bname == dBranchProduct.Bname).Count();
+            if (dbranchproduct != 0)
+            {
+                _notyf.Error("Sorry, The product already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(dBranchProduct);

@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using Microsoft.Data.SqlClient;
-using System.Configuration;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {

@@ -46,7 +46,7 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
             //var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno).ToList();
-            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno == supplier.Sno).ToList();
+            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno == supplier.Sno && i.TransDate>=startDate && i.TransDate<=enDate).ToList();
             return Json(intakes);
         }
     }

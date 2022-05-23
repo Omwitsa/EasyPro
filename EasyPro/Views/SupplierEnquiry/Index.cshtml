@@ -1,4 +1,4 @@
-﻿@model EasyPro.Models.DSupplier;
+﻿@model EasyPro.ViewModels.EnquiryVM.EnquiryVM;
 
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -74,7 +74,7 @@
             <div class="nk-int-st">
                 <label class="control-label">DateFrom</label>
                 <input id="firstdate" value="date"/>
-                @*@Html.TextBoxFor(Model=>Model.intakk.TransDate, new {@value=System.DateTime.Now})*@
+                @*@Html.TextBoxFor(Model=>Model.iint.TransDate, new {id= "firstdate"} )*@
                 <span  class="text-danger"></span>
             </div>
         </div>
@@ -105,7 +105,6 @@
 <div class="bsc-tbl-hvr table-border-style">
     <div class="table-responsive">
         <table class="table table-hover">
-            <thead>
                 <tr>
                     <th>Date</th>
                     <th>Product Type</th>
@@ -116,7 +115,6 @@
                     <th>Description</th>
                     <th>Remarks</th>
                 </tr>
-            </thead>
             <tbody id="intakes">
             </tbody>
         </table>
@@ -134,11 +132,14 @@
     <script type="text/javascript">
 
         $(function () {
+
             var date = new Date();
-            var firstDay = new Date(date.getYear(), date.getMonth(), 1);
-            var lastDay = new Date(date.getYear(), date.getMonth() +1, 0);
-            $("#firstdate").val(firstDay).toLocaleString("dd-MM-yyyy");
-            $("#enddate").val(lastDay).toLocaleString("dd-MM-yyyy");
+
+            var firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString();
+            var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toLocaleDateString();
+            $("#firstdate").val(firstDay);
+            $("#enddate").val(lastDay);
+
         });
         $(function () {
 
@@ -173,12 +174,15 @@
             });
            
             function populateIntake(intakes) {
+               
                 var selectVal = parseInt($("#sno").val());
                 let itemTableRows = new Array();
                 intakes.forEach(i => {
-
+                    debugger;
+                    var ddate = i.TransDate;
+                    var dd1=new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
-				        <td>${i.TransDate}</td>                        
+				        <td>${dd1}</td>                        
                         <td>${i.ProductType}</td>
                         <td>${i.Qsupplied}</td>
                         <td>${i.CR}</td>
@@ -187,13 +191,23 @@
                         <td>${i.Description}</td>
                         <td>${i.Remarks}</td>
 			        </tr>`)
-                });
+                    var Total = 0;
+                    var Total2 = 0;
+                    var netpay = 0;
+                    intakes.forEach(i => {
+                        var ddr = 0;
+                        var ccr = 0;
+                        ddr = i.DR;
+                        ccr = i.CR;
+                        Total2 = Total2 + ddr;
+                        Total = Total + ccr;
+                        netpay = Total - Total2;
 
-                //var cr = Number(ParseFloat($(i., this).text()));
-                //var dr = Number(ParseFloat($('.dr', this).text()));
-                //var sum =$(this).closest('tr').prev('tr').find('.total', this).text();
+                    });
+                    $('#netpay').val(netpay);
+                });
+                
                 $('#intakes').html(itemTableRows);
-                $('#netpay').val(intakes[0].Balance);
             }
         });
     </script>
