@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace EasyPro.Controllers.Reports
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ReportController : ControllerBase
     {
         private readonly IReportProvider _reportProvider;
