@@ -106,11 +106,11 @@ namespace EasyPro.Controllers
                     i.Paid = true;
                 });
 
-                var advance = p.Where(k => k.Description.ToLower().Contains("advance"));
-                var transport = p.Where(k => k.Description.ToLower().Contains("transport"));
-                var agrovet = p.Where(k => k.Description.ToLower().Contains("agrovet"));
-                var bonus = p.Where(k => k.Description.ToLower().Contains("bonus"));
-                var shares = p.Where(k => k.Description.ToLower().Contains("shares"));
+                var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
+                var transport = p.Where(k => k.ProductType.ToLower().Contains("transport"));
+                var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
+                var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
+                var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
 
                 long.TryParse(p.Key, out long sno);
                 var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
