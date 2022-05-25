@@ -36,6 +36,8 @@ namespace EasyPro.Controllers
             return View(await _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Intake && i.TransDate == DateTime.Today)
                 .ToListAsync());
+
+
         }
         public async Task<IActionResult> DeductionList()
         {
@@ -186,7 +188,7 @@ namespace EasyPro.Controllers
                 productIntake.SaccoCode = sacco ?? "";
                 productIntake.Description = "Intake";
                 productIntake.TransactionType = TransactionType.Intake;
-                productIntake.TransDate = DateTime.Today;
+                //productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
                 _context.ProductIntake.Add(productIntake);
@@ -306,7 +308,7 @@ namespace EasyPro.Controllers
             {
                 productIntake.Description = "Correction";
                 productIntake.TransactionType = TransactionType.Correction;
-                productIntake.TransDate = DateTime.Today;
+                //productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
                 _context.Add(productIntake);

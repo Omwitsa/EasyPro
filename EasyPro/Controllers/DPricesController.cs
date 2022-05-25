@@ -15,10 +15,11 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private Utilities utilities;
-
-        public DPricesController(MORINGAContext context)
+        private readonly INotyfService _notyf;
+        public DPricesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
             utilities = new Utilities(context);
         }
        
@@ -67,6 +68,12 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Edate,Price,Products")] DPrice dPrice)
         {
             utilities.SetUpPrivileges(this);
+            var dpricer = _context.DPrices.Where(i => i.Products == dPrice.Products).Count();
+            if (dpricer != 0)
+            {
+                _notyf.Error("Sorry, The product already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(dPrice);
@@ -105,7 +112,12 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
+            var dpricer = _context.DPrices.Where(i => i.Products == dPrice.Products).Count();
+            if (dpricer != 0)
+            {
+                _notyf.Error("Sorry, The product already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 try
