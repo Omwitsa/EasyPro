@@ -120,7 +120,7 @@ namespace EasyPro.Controllers
                 }
                 catch (Exception)
                 {
-                    
+                    _notyf.Error("Logged in fail.");
                 }
             }
             _notyf.Error("Sorry, An error occurred");
