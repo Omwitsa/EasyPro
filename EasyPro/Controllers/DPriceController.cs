@@ -107,7 +107,12 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
+            var dpricer = _context.DPrices.Where(i => i.Products == dPrice.Products).Count();
+            if (dpricer != 0)
+            {
+                _notyf.Error("Sorry, The product already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 try

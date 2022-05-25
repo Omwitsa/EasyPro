@@ -21,6 +21,7 @@ namespace EasyPro.Controllers
 
         public IActionResult Index()
         {
+            GetInitialValues();
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
@@ -38,7 +39,11 @@ namespace EasyPro.Controllers
             
             return View();
         }
-
+        private void GetInitialValues()
+        {
+            var products = _context.DBranchProducts.Select(b => b.Bname).ToList();
+            ViewBag.products = new SelectList(products);
+        }
         [HttpPost]
         public JsonResult SuppliedProducts([FromBody] DSupplier supplier)
         {

@@ -34,7 +34,6 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
             var dPrice = await _context.DPrices
                 .FirstOrDefaultAsync(m => m.Products == product);
             if (dPrice == null)
@@ -71,7 +70,6 @@ namespace EasyPro.Controllers
             }
             return View(dPrice);
         }
-
         // GET: DPrices/Edit/5
         public async Task<IActionResult> Edit(string product)
         {
