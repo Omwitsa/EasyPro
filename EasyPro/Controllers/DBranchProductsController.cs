@@ -1,37 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using Microsoft.AspNetCore.Http;
-using EasyPro.Constants;
+using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyPro.Controllers
 {
     public class DBranchProductsController : Controller
     {
         private readonly MORINGAContext _context;
+        private Utilities utilities;
         private readonly INotyfService _notyf;
 
         public DBranchProductsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            utilities = new Utilities(context);
             _notyf = notyf;
         }
 
         // GET: DBranchProducts
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.DBranchProducts.ToListAsync());
         }
 
         // GET: DBranchProducts/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -49,7 +49,8 @@ namespace EasyPro.Controllers
 
         // GET: DBranchProducts/Create
         public IActionResult Create()
-        {            
+        {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
@@ -60,6 +61,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
         {
+            utilities.SetUpPrivileges(this);
             var dbranchproduct = _context.DBranchProducts.Where(i => i.Bcode == dBranchProduct.Bcode || i.Bname == dBranchProduct.Bname).Count();
             if (dbranchproduct != 0)
             {
@@ -78,6 +80,7 @@ namespace EasyPro.Controllers
         // GET: DBranchProducts/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -98,6 +101,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dBranchProduct.Id)
             {
                 return NotFound();
@@ -134,6 +138,7 @@ namespace EasyPro.Controllers
         // GET: DBranchProducts/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -154,6 +159,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dBranchProduct = await _context.DBranchProducts.FindAsync(id);
             _context.DBranchProducts.Remove(dBranchProduct);
             await _context.SaveChangesAsync();

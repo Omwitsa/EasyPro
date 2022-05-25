@@ -47,8 +47,11 @@
     <!-- modernizr JS
         ============================================ -->
     <script src="~/assets/js/vendor/modernizr-2.8.3.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js">
+    </script>
 </head>
 <body>
+    <!--<input type="hidden" id="privileges" value="@ViewBag.privileges" />-->
     <div class="header-top-area">
         <div class="container">
             <div class="row">
@@ -60,6 +63,11 @@
                 <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
                     <div class="header-top-menu">
                         <ul class="nav navbar-nav notika-top-nav">
+                            <li class="nav-item dropdown">
+                                <a asp-controller="Home" asp-action="Login">
+                                    <span><i class="notika-icon notika-logout"></i>Log Out</span>
+                                </a>
+                            </li>
                             <li class="nav-item dropdown">
 
                             </li>
@@ -112,30 +120,48 @@
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <ul class="nav nav-tabs notika-menu-wrap menu-it-icon-pro">
-                        <li>
-                            <a data-toggle="tab" href="#file"><i class="notika-icon notika-form"></i>File</a>
-                        </li>
-                        <li>
-                            <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
-                        </li>
-                        <li>
-                            <a data-toggle="tab" href="#deductions"><i class="notika-icon notika-house"></i>Deductions</a>
-                        </li>
-                        <li>
-                            <a data-toggle="tab" href="#activities"><i class="notika-icon notika-form"></i>Activities</a>
-                        </li>
-                        <li>
-                            <a data-toggle="tab" href="#setup"><i class="notika-icon notika-form"></i>Setup</a>
-                        </li>
+                        @if (ViewBag.filesRole)
+                        {
+                            <li class="active">
+                                <a data-toggle="tab" href="#file"><i class="notika-icon notika-form"></i>File</a>
+                            </li>
+                        }
+                        @if (ViewBag.accountsRole)
+                        {
+                            <li>
+                                <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
+                            </li>
+                        }
+                        @if (ViewBag.transactionsRole)
+                        {
+                            <li>
+                                <a data-toggle="tab" href="#deductions"><i class="notika-icon notika-house"></i>Deductions</a>
+                            </li>
+                        }
+                        @if (ViewBag.activityRole)
+                        {
+                            <li>
+                                <a data-toggle="tab" href="#activities"><i class="notika-icon notika-form"></i>Activities</a>
+                            </li>
+                        }
+                        @if (ViewBag.setupRole)
+                        {
+                            <li>
+                                <a data-toggle="tab" href="#setup"><i class="notika-icon notika-form"></i>Setup</a>
+                            </li>
+                        }
                     </ul>
                     <div class="tab-content custom-menu-content">
-                        <div id="file" class="tab-pane notika-tab-menu-bg animated flipInX">
-                            <ul class="notika-main-menu-dropdown">
-                                <li>
-                                    <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
-                                </li>
-                            </ul>
-                        </div>
+                        @if (ViewBag.filesRole)
+                        {
+                            <div id="file" class="tab-pane notika-tab-menu-bg animated flipInX">
+                                <ul class="notika-main-menu-dropdown">
+                                    <li>
+                                        <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
                         <div id="registration" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
@@ -191,10 +217,10 @@
                                     <a asp-controller="DPrice" asp-action="Index">Pricing</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DCompanies" asp-action="Index">Company Setup</a>
+                                    <a asp-controller="DCompanies" asp-action="Index">Organization Setup</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DBranches" asp-action="Index">Company Branch</a>
+                                    <a asp-controller="DBranches" asp-action="Index">Organization Branch</a>
                                 </li>
                                 <li>
                                     <a asp-controller="UserAccounts" asp-action="Index">Users</a>
@@ -210,6 +236,12 @@
                                 </li>
                                 <li>
                                     <a asp-controller="Wards" asp-action="Index">Wards</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Glsetups" asp-action="Index">Charts of Accounts</a>
                                 </li>
                             </ul>
                         </div>

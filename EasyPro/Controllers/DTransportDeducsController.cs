@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using EasyPro.ViewModels.TransportersVM;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
@@ -15,16 +16,19 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public DTransportDeducsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
         public TransportersVM Transportersobj { get; private set; }
         // GET: DTransportDeducs
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             var today = DateTime.Now;
             var month = new DateTime(today.Year, today.Month, 1);
             var startdate = month;
@@ -53,6 +57,7 @@ namespace EasyPro.Controllers
         // GET: DTransportDeducs/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -71,6 +76,7 @@ namespace EasyPro.Controllers
         // GET: DTransportDeducs/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             Transportersobj = new TransportersVM()
             {
@@ -108,6 +114,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,TransCode,TdateDeduc,Description,Amount,Period,Startdate,Enddate,Auditid,Remarks,Auditdatetime,Yyear,Rate,Ai")] DTransportDeduc dTransportDeduc)
         {
+            utilities.SetUpPrivileges(this);
             var dSupplier1 = _context.DTransporters.Where(i => i.TransCode == dTransportDeduc.TransCode).Count();
             if (dSupplier1 != 0)
             {
@@ -129,6 +136,7 @@ namespace EasyPro.Controllers
         // GET: DTransportDeducs/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -149,6 +157,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,TdateDeduc,Description,Amount,Period,Startdate,Enddate,Auditid,Remarks,Auditdatetime,Yyear,Rate,Ai")] DTransportDeduc dTransportDeduc)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dTransportDeduc.Id)
             {
                 _notyf.Error("Sorry, An Error occured while Editing the Transporter Deduction");
@@ -182,6 +191,7 @@ namespace EasyPro.Controllers
         // GET: DTransportDeducs/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -202,9 +212,11 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dTransportDeduc = await _context.DTransportDeducs.FindAsync(id);
             _context.DTransportDeducs.Remove(dTransportDeduc);
             await _context.SaveChangesAsync();
+            _notyf.Error("Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 

@@ -5,10 +5,22 @@
 }
 
 <h2>Index</h2>
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+        <p>
+            <a asp-action="Create">Create New</a>
+        </p>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+        <input id="gfg" type="text" class="form-control"
+               placeholder="Search here">
+    </div>
+</div>
+
+
 <table class="table">
     <thead>
         <tr>
@@ -78,78 +90,92 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sno)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TransDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Qsupplied)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Ppu)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TransTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CR)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DR)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BAL)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AuditId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Auditdatetime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Paid)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Lr)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Remark)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descript)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Comment)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status1)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Location)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LocalId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Run)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Type)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Productprocess)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+    <tbody id="geeks">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Sno)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TransDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Qsupplied)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ppu)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TransTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CR)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DR)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BAL)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AuditId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Auditdatetime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Paid)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lr)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Remark)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Descript)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Comment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status1)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LocalId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Run)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Productprocess)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("#gfg").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#geeks tr").filter(function () {
+                    $(this).toggle($(this).text()
+                        .toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

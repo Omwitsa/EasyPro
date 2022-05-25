@@ -32,7 +32,7 @@ CREATE TABLE Ward (
 
 CREATE TABLE ProductIntake (
 	Id bigint IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
-	Sno bigint NOT NULL,
+	Sno nvarchar(50) NOT NULL,
 	TransDate datetime,
 	TransTime time(7),
 	ProductType nvarchar(50),
@@ -47,5 +47,6 @@ CREATE TABLE ProductIntake (
 	TransactionType int,
 	AuditId nvarchar(50),
 	auditdatetime datetime,
-	Branch nvarchar(50)
+	Branch nvarchar(50),
+	SaccoCode nvarchar(50)
 );

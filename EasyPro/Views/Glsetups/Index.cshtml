@@ -1,0 +1,266 @@
+﻿@model IEnumerable<EasyPro.Models.Glsetup>
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                    <h3 class="text-danger fa-bold">Charts of Accounts</h3>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                    <input id="gfg" type="text" class="form-control"
+                           placeholder="Search here">
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right">
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
+
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.GlCode)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.GlAccName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.GlAccType)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.GlAccGroup)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.GlAccMainGroup)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.NormalBal)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.GlAccStatus)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.OpeningBal)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.CurrentBal)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Bal)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.CurrCode)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AuditOrg)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AuditId)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AuditDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Curr)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Actuals)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Budgetted)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TransDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.IsSubLedger)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AccCategory)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.NewGlopeningBal)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.NewGlopeningBalDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Branch)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Hcode)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Mcode)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Hname)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Header)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Mheader)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Iorder)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Border)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Type)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Subtype)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.IsRearning)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Issuspense)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Run)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="geeks">
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.GlCode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.GlAccName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.GlAccType)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.GlAccGroup)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.GlAccMainGroup)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.NormalBal)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.GlAccStatus)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.OpeningBal)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CurrentBal)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Bal)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CurrCode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.AuditOrg)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.AuditId)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.AuditDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Curr)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Actuals)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Budgetted)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.IsSubLedger)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.AccCategory)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.NewGlopeningBal)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.NewGlopeningBalDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Branch)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Hcode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Mcode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Hname)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Header)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Mheader)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Iorder)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Border)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Type)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Subtype)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.IsRearning)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Issuspense)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Run)
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                                        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ })
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("#gfg").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#geeks tr").filter(function () {
+                    $(this).toggle($(this).text()
+                        .toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

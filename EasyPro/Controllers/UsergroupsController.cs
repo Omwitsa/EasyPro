@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
@@ -14,22 +13,26 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public UsergroupsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: Usergroups
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.Usergroups.ToListAsync());
         }
 
         // GET: Usergroups/Details/5
         public async Task<IActionResult> Details(string id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -48,6 +51,7 @@ namespace EasyPro.Controllers
         // GET: Usergroups/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
@@ -58,8 +62,29 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets")] Usergroup usergroup)
         {
+            utilities.SetUpPrivileges(this);
             try
             {
+                if (string.IsNullOrEmpty(usergroup.GroupId))
+                {
+                    _notyf.Error("Sorry, Kindly provide group code");
+                    return View(usergroup);
+                }
+                if (string.IsNullOrEmpty(usergroup.GroupName))
+                {
+                    _notyf.Error("Sorry, Kindly provide group name");
+                    return View(usergroup);
+                }
+                if (_context.Usergroups.Any(g => g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper())))
+                {
+                    _notyf.Error("Sorry, Group code already exist");
+                    return View(usergroup);
+                }
+                if (_context.Usergroups.Any(g => g.GroupName.ToUpper().Equals(usergroup.GroupName.ToUpper())))
+                {
+                    _notyf.Error("Sorry, Group name already exist");
+                    return View(usergroup);
+                }
                 _notyf.Success("Group saved successfuly");
                 _context.Add(usergroup);
                 await _context.SaveChangesAsync();
@@ -75,6 +100,7 @@ namespace EasyPro.Controllers
         // GET: Usergroups/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -95,6 +121,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets")] Usergroup usergroup)
         {
+            utilities.SetUpPrivileges(this);
             if (id != usergroup.GroupId)
             {
                 return NotFound();
@@ -104,6 +131,30 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(usergroup.GroupId))
+                    {
+                        _notyf.Error("Sorry, Kindly provide group code");
+                        return View(usergroup);
+                    }
+                    if (string.IsNullOrEmpty(usergroup.GroupName))
+                    {
+                        _notyf.Error("Sorry, Kindly provide group name");
+                        return View(usergroup);
+                    }
+                    var codeExist = _context.Usergroups.Any(g => g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper())
+                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()));
+                    if (codeExist)
+                    {
+                        _notyf.Error("Sorry, Group code already exist");
+                        return View(usergroup);
+                    }
+                    var nameExist = _context.Usergroups.Any(g => g.GroupName.ToUpper().Equals(usergroup.GroupName.ToUpper())
+                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()));
+                    if (nameExist)
+                    {
+                        _notyf.Error("Sorry, Group name already exist");
+                        return View(usergroup);
+                    }
                     _notyf.Success("Group edited successfully");
                     _context.Update(usergroup);
                     await _context.SaveChangesAsync();
@@ -129,6 +180,7 @@ namespace EasyPro.Controllers
         // GET: Usergroups/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -149,6 +201,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
+            utilities.SetUpPrivileges(this);
             var usergroup = await _context.Usergroups.FindAsync(id);
             _context.Usergroups.Remove(usergroup);
             await _context.SaveChangesAsync();

@@ -1,26 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using EasyPro.ViewModels.EnquiryVM;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
     public class SupplierEnquiryController : Controller
     {
         private readonly MORINGAContext _context;
+        private Utilities utilities;
 
         public SupplierEnquiryController(MORINGAContext context)
         {
             _context = context;
+            utilities = new Utilities(context);
         }
 
         public IActionResult Index()
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
@@ -47,11 +46,11 @@ namespace EasyPro.Controllers
         [HttpPost]
         public JsonResult SuppliedProducts([FromBody] DSupplier supplier)
         {
+            utilities.SetUpPrivileges(this);
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
-            //var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno).ToList();
-            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno == supplier.Sno && i.TransDate>=startDate && i.TransDate<=enDate).ToList();
+            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno == supplier.Sno.ToString() && i.TransDate>=startDate && i.TransDate<=enDate).ToList();
             return Json(intakes);
         }
     }

@@ -9,6 +9,7 @@ using EasyPro.Models;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
@@ -16,16 +17,19 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public DSuppliersController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: DSuppliers
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             return View(await _context.DSuppliers
@@ -34,6 +38,7 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -52,18 +57,30 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
         }
         private void GetInitialValues()
         {
-            var banksname = _context.DBanks.Select(b => b.BankName).ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var dScode = sacco; //bankbrances
+            var countyname = _context.DCompanies.Select(b => b.Province).ToList();
+            ViewBag.countyname = new SelectList(countyname);
+            var SubCountyName= _context.SubCounty.Select(b => b.Name).ToList();
+            ViewBag.SubCountyName = new SelectList(SubCountyName);
+            var WardSubCounty = _context.Ward.Select(b => b.Name).ToList();
+            ViewBag.WardSubCounty = new SelectList(WardSubCounty);
+            var locations = _context.DLocations.Select(b => b.Lname).ToList();
+            ViewBag.locations = new SelectList(locations);
+            var banksname = _context.DBanks.Where(a=>a.BankCode == dScode).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
 
-            var brances = _context.DBranch.Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(a => a.Bcode == dScode).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
-            var bankbrances = _context.DBankBranch.Select(b => b.Bname).ToList();
+            var bankbrances = _context.DBankBranch.Where(a => a.BankCode == dScode).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
 
             List<SelectListItem> gender = new()
@@ -78,6 +95,12 @@ namespace EasyPro.Controllers
                 new SelectListItem { Text = "Monthly" },
             };
             ViewBag.payment = payment;
+            List<SelectListItem> approved = new()
+            {
+                new SelectListItem { Value="0", Text = "No" },
+                new SelectListItem { Value = "1", Text = "Yes" },
+            };
+            ViewBag.approved = approved;
         }
         // POST: DSuppliers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -86,24 +109,32 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
             if (dSupplier == null)
             {
                 _notyf.Error("Sorry, Supplier code cannot be empty");
                 return NotFound();
             }
 
-            var dSupplier1 = _context.DSuppliers.Where(i => i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo).Count();
-            if (dSupplier1 != 0)
+            //if (dSupplier.Approval.Value == 0)
+            //    dSupplier.Approval = false;
+            //else
+            //    dSupplier.Approval = true;
+
+            var dSupplierExists = _context.DSuppliers.Any(i => (i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo) && i.Scode == sacco);
+            if (dSupplierExists)
             {
+                //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)
                 GetInitialValues();
                 _notyf.Error("Sorry, The Supplier already exist");
                 return View();
             }
+            //}
 
             if (ModelState.IsValid)
             {
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-                sacco = sacco ?? "";
                 dSupplier.Scode = sacco;
                 _context.Add(dSupplier);
                 await _context.SaveChangesAsync();
@@ -116,6 +147,7 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -137,6 +169,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dSupplier.Id)
             {
                 return NotFound();
@@ -179,6 +212,7 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -199,6 +233,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dSupplier = await _context.DSuppliers.FindAsync(id);
             _context.DSuppliers.Remove(dSupplier);
             await _context.SaveChangesAsync();

@@ -4,13 +4,14 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
                     <h3 class="text-danger fa-bold">Payroll</h3>
                 </div>
-                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
-
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                    <input id="gfg" type="text" class="form-control"
+                           placeholder="Search here">
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
                     <a asp-action="Create" class="btn btn-primary">Process Payroll</a>
                 </div>
             </div>
@@ -64,7 +65,7 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="geeks">
                             @foreach (var item in Model)
                             {
                                 <tr>
@@ -119,3 +120,16 @@
         </div>
     </div>
 </div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("#gfg").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#geeks tr").filter(function () {
+                    $(this).toggle($(this).text()
+                        .toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

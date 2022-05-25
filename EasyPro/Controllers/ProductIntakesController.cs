@@ -1,8 +1,10 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Constants;
 using EasyPro.Models;
+using EasyPro.Utils;
 using EasyPro.ViewModels;
 using EasyPro.ViewModels.FarmersVM;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,7 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public FarmersVM Farmersobj { get; private set; }
 
@@ -24,29 +27,27 @@ namespace EasyPro.Controllers
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
         // GET: ProductIntakes
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.ProductIntake
-                .Where(i => i.TransactionType == TransactionType.Intake)
-                .OrderByDescending(i => i.Id)
+                .Where(i => i.TransactionType == TransactionType.Intake && i.TransDate == DateTime.Today)
                 .ToListAsync());
         }
         public async Task<IActionResult> DeductionList()
         {
-            var today = DateTime.Now;
-            var month = new DateTime(today.Year, today.Month, 1);
-            var startdate = month;
-            var enddate = startdate.AddMonths(1).AddDays(-1);
-
-            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.TransDate >= startdate && c.TransDate <= enddate).ToListAsync();
+            utilities.SetUpPrivileges(this);
+            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.TransDate == DateTime.Today).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach(var intake in productIntakes)
             {
-                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno);
+                long.TryParse(intake.Sno, out long sno);
+                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == sno);
                 intakes.Add(new ProductIntakeVm { 
-                    Sno = intake.Sno,
+                    Sno = sno,
                     SupName = supplier.Names,
                     TransDate = intake.TransDate,
                     ProductType = intake.ProductType,
@@ -65,15 +66,16 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> CorrectionList()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.ProductIntake
-                .Where(c => c.TransactionType == TransactionType.Correction)
-                .OrderByDescending(i => i.Id)
+                .Where(c => c.TransactionType == TransactionType.Correction && c.TransDate == DateTime.Today)
                 .ToListAsync());
         }
 
         // GET: ProductIntakes/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -92,6 +94,7 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             SetIntakeInitialValues();
             return View();
         }
@@ -107,11 +110,14 @@ namespace EasyPro.Controllers
 
         public IActionResult CreateDeduction()
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             Farmersobj = new FarmersVM()
             {
                 DSuppliers = _context.DSuppliers,
-                ProductIntake= new Models.ProductIntake()
+                ProductIntake= new ProductIntake { 
+                    TransDate = DateTime.Today
+                }
             };
             //return Json(new { data = Farmersobj });
             return View(Farmersobj);
@@ -139,6 +145,7 @@ namespace EasyPro.Controllers
         }
         public IActionResult CreateCorrection()
         {
+            utilities.SetUpPrivileges(this);
             SetIntakeInitialValues();
             return View();
         }
@@ -150,12 +157,15 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
-            if (productIntake.Sno < 1)
+            utilities.SetUpPrivileges(this);
+            productIntake.Description = productIntake?.Description ?? "";
+            long.TryParse(productIntake.Sno, out long sno);
+            if (sno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return View(productIntake);
             }
-            if(!_context.DSuppliers.Any(s => s.Sno == productIntake.Sno))
+            if(!_context.DSuppliers.Any(s => s.Sno == sno))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
                 return View(productIntake);
@@ -172,14 +182,42 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                productIntake.SaccoCode = sacco ?? "";
                 productIntake.Description = "Intake";
                 productIntake.TransactionType = TransactionType.Intake;
                 productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
-                _context.Add(productIntake);
+                _context.ProductIntake.Add(productIntake);
+                
+                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active 
+                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) 
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
+                if(transport != null)
+                {
+                    // Debit supplier transport amount
+                    productIntake.Ppu = transport.Rate;
+                    productIntake.CR = 0;
+                    productIntake.DR = productIntake.Qsupplied * transport.Rate;
+                    productIntake.Balance = productIntake.Balance - productIntake.DR;
+                    productIntake.Description = "Transport";
+                    productIntake.TransactionType = TransactionType.Deduction;
+                    _context.ProductIntake.Add(productIntake);
+
+                    // Credit transpoter transport amount
+                    productIntake.Sno = transport.TransCode;
+                    productIntake.Ppu = transport.Rate;
+                    productIntake.CR = productIntake.Qsupplied * transport.Rate;
+                    productIntake.DR = 0;
+                    productIntake.Balance = GetBalance(productIntake); ;
+                    productIntake.Description = "Transport";
+                    productIntake.TransactionType = TransactionType.Deduction;
+                    _context.ProductIntake.Add(productIntake);
+                }
                 await _context.SaveChangesAsync();
                 _notyf.Success("Intake saved successfully");
+                RedirectToAction("Get", "Report");
                 return RedirectToAction(nameof(Index));
             }
             return View(productIntake);
@@ -189,9 +227,10 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
-
-            var Supplier = _context.DSuppliers.Where(i => i.Sno == productIntake.Sno && i.Active == true).Count();
-            if (Supplier == 0)
+            utilities.SetUpPrivileges(this);
+            long.TryParse(productIntake.Sno, out long sno);
+            productIntake.Description = productIntake?.Description ?? "";
+            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Active == true && i.Approval==true))
             {
                 _notyf.Error("Sorry, Farmer Number code does not exist");
                 GetInitialValues();
@@ -203,7 +242,7 @@ namespace EasyPro.Controllers
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
             }
-            if (productIntake.Sno == 0)
+            if (sno == 0)
             {
                 GetInitialValues();
                 _notyf.Error("Sorry, Farmer code cannot be zero");
@@ -217,7 +256,12 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
-                productIntake.TransactionType = TransactionType.Deduction; 
+                productIntake.TransactionType = TransactionType.Deduction;
+                productIntake.TransDate = DateTime.Today;
+                productIntake.Qsupplied = 0;
+                productIntake.CR = 0;
+                productIntake.Description = "0";
+                productIntake.Balance = 0;
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
@@ -230,12 +274,15 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCorrection([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
-            if (productIntake.Sno < 1)
+            utilities.SetUpPrivileges(this);
+            long.TryParse(productIntake.Sno, out long sno);
+            productIntake.Description = productIntake?.Description ?? "";
+            if (sno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return View(productIntake);
             }
-            if (!_context.DSuppliers.Any(s => s.Sno == productIntake.Sno))
+            if (!_context.DSuppliers.Any(s => s.Sno == sno))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
                 return View(productIntake);
@@ -286,6 +333,7 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -306,6 +354,8 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            utilities.SetUpPrivileges(this);
+            productIntake.Description = productIntake?.Description ?? "";
             if (id != productIntake.Id)
             {
                 return NotFound();
@@ -337,6 +387,7 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -357,6 +408,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var productIntake = await _context.ProductIntake.FindAsync(id);
             _context.ProductIntake.Remove(productIntake);
             await _context.SaveChangesAsync();

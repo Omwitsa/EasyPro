@@ -6,27 +6,32 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
     public class DRegistrationsController : Controller
     {
         private readonly MORINGAContext _context;
+        private Utilities utilities;
 
         public DRegistrationsController(MORINGAContext context)
         {
             _context = context;
+            utilities = new Utilities(context);
         }
 
         // GET: DRegistrations
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.DRegistrations.ToListAsync());
         }
 
         // GET: DRegistrations/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -45,6 +50,7 @@ namespace EasyPro.Controllers
         // GET: DRegistrations/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
@@ -55,6 +61,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,Transdate,Amount,Bal,Transdescription,Auditid,Auditdate,Mno,Toledgers,Datepostedtoledger,Userledger,LocalId,Run")] DRegistration dRegistration)
         {
+            utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
                 _context.Add(dRegistration);
@@ -67,6 +74,7 @@ namespace EasyPro.Controllers
         // GET: DRegistrations/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -87,6 +95,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,Transdate,Amount,Bal,Transdescription,Auditid,Auditdate,Mno,Toledgers,Datepostedtoledger,Userledger,LocalId,Run")] DRegistration dRegistration)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dRegistration.Id)
             {
                 return NotFound();
@@ -118,6 +127,7 @@ namespace EasyPro.Controllers
         // GET: DRegistrations/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -138,6 +148,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dRegistration = await _context.DRegistrations.FindAsync(id);
             _context.DRegistrations.Remove(dRegistration);
             await _context.SaveChangesAsync();

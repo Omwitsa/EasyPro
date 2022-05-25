@@ -1,34 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using Microsoft.AspNetCore.Http;
-using EasyPro.Constants;
+using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.EntityFrameworkCore;
+
 namespace EasyPro.Controllers
 {
     public class DCompaniesController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
+        private Utilities utilities;
 
-        public DCompaniesController(MORINGAContext context)
+        public DCompaniesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: DCompanies
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.DCompanies.ToListAsync());
         }
 
         // GET: DCompanies/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -47,6 +52,7 @@ namespace EasyPro.Controllers
         // GET: DCompanies/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
         }
@@ -58,18 +64,35 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Adress,Town,Country,Province,District,Division,Location,FaxNo,PhoneNo,Email,Website,Fiscal,Auditid,Auditdatetime,Acc,Motto,SendTime,Smsno,Smscost,Smsport,Period")] DCompany dCompany)
         {
-            if (ModelState.IsValid)
+            utilities.SetUpPrivileges(this);
+            try
             {
-                _context.Add(dCompany);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    dCompany.Name = dCompany?.Name ?? "";
+                    if (_context.DCompanies.Any(c => c.Name.ToUpper().Equals(dCompany.Name.ToUpper())))
+                    {
+                        _notyf.Error("Sorry, Society already exist");
+                        return View(dCompany);
+                    }
+                    _context.Add(dCompany);
+                    await _context.SaveChangesAsync();
+                    _notyf.Success("Saciety saved successfully");
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(dCompany);
             }
-            return View(dCompany);
+            catch (Exception ex)
+            {
+                _notyf.Error("Sorry, An error occurred");
+                return View(dCompany);
+            }
         }
 
         // GET: DCompanies/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
             {
@@ -105,6 +128,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Adress,Town,Country,Province,District,Division,Location,FaxNo,PhoneNo,Email,Website,Fiscal,Auditid,Auditdatetime,Acc,Motto,SendTime,Smsno,Smscost,Smsport,Period")] DCompany dCompany)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dCompany.Id)
             {
                 return NotFound();
@@ -119,6 +143,7 @@ namespace EasyPro.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
+                    _notyf.Error("Sorry, An error occurred");
                     if (!DCompanyExists(dCompany.Id))
                     {
                         return NotFound();
@@ -128,14 +153,17 @@ namespace EasyPro.Controllers
                         throw;
                     }
                 }
+                _notyf.Success("Society edited successfully");
                 return RedirectToAction(nameof(Index));
             }
+            _notyf.Error("Sorry, An error occurred");
             return View(dCompany);
         }
 
         // GET: DCompanies/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -156,6 +184,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dCompany = await _context.DCompanies.FindAsync(id);
             _context.DCompanies.Remove(dCompany);
             await _context.SaveChangesAsync();

@@ -1,32 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
+using EasyPro.Utils;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace EasyPro.Controllers
 {
     public class SubCountiesController : Controller
     {
         private readonly MORINGAContext _context;
+        private Utilities utilities;
+        private readonly INotyfService _notyf;
 
-        public SubCountiesController(MORINGAContext context)
+        public SubCountiesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: SubCounties
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.SubCounty.ToListAsync());
         }
 
         // GET: SubCounties/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -45,6 +54,7 @@ namespace EasyPro.Controllers
         // GET: SubCounties/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
         }
@@ -56,8 +66,28 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,County,Contact,Closed,CreatedOn,CreatedBy")] SubCounty subCounty)
         {
+            utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(subCounty.Name))
+                {
+                    _notyf.Error("Sorry, Kindly provide sub-county");
+                    return View(subCounty);
+                }
+                if (string.IsNullOrEmpty(subCounty.County))
+                {
+                    _notyf.Error("Sorry, Kindly provide county");
+                    return View(subCounty);
+                }
+                var subCountyExist = _context.SubCounty.Any(g => g.Name.ToUpper().Equals(subCounty.Name.ToUpper()) 
+                && g.County.ToUpper().Equals(subCounty.County.ToUpper()));
+                if (subCountyExist)
+                {
+                    _notyf.Error("Sorry, Sub-county already exist");
+                    return View(subCounty);
+                }
+                subCounty.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                subCounty.CreatedOn = DateTime.Today;
                 _context.Add(subCounty);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -68,6 +98,7 @@ namespace EasyPro.Controllers
         // GET: SubCounties/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
             {
@@ -95,6 +126,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,County,Contact,Closed,CreatedOn,CreatedBy")] SubCounty subCounty)
         {
+            utilities.SetUpPrivileges(this);
             if (id != subCounty.Id)
             {
                 return NotFound();
@@ -104,6 +136,25 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(subCounty.Name))
+                    {
+                        _notyf.Error("Sorry, Kindly provide sub-county");
+                        return View(subCounty);
+                    }
+                    if (string.IsNullOrEmpty(subCounty.County))
+                    {
+                        _notyf.Error("Sorry, Kindly provide county");
+                        return View(subCounty);
+                    }
+                    var subCountyExist = _context.SubCounty.Any(g => g.Name.ToUpper().Equals(subCounty.Name.ToUpper())
+                    && g.County.ToUpper().Equals(subCounty.County.ToUpper()) && g.Id != subCounty.Id);
+                    if (subCountyExist)
+                    {
+                        _notyf.Error("Sorry, Sub-county already exist");
+                        return View(subCounty);
+                    }
+                    subCounty.CreatedBy = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                    subCounty.CreatedOn = DateTime.Today;
                     _context.Update(subCounty);
                     await _context.SaveChangesAsync();
                 }
@@ -126,6 +177,7 @@ namespace EasyPro.Controllers
         // GET: SubCounties/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -146,6 +198,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var subCounty = await _context.SubCounty.FindAsync(id);
             _context.SubCounty.Remove(subCounty);
             await _context.SaveChangesAsync();

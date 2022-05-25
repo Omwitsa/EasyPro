@@ -3,25 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using EasyPro.ViewModels;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
     public class DPayrollsController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly INotyfService _notyf;
+        private Utilities utilities;
 
-        public DPayrollsController(MORINGAContext context)
+        public DPayrollsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: DPayrolls
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             var payroll = await _context.DPayrolls.Join(
                 _context.DSuppliers,
                 p => p.Sno.ToString(),
@@ -49,6 +56,7 @@ namespace EasyPro.Controllers
         // GET: DPayrolls/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -67,6 +75,7 @@ namespace EasyPro.Controllers
         // GET: DPayrolls/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
@@ -77,6 +86,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("EndDate")] PayrollPeriod period)
         {
+            utilities.SetUpPrivileges(this);
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var payrolls = _context.DPayrolls.Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month);
@@ -87,7 +97,7 @@ namespace EasyPro.Controllers
             }
 
             var productIntakes = _context.ProductIntake
-                .Where(p => !p.Paid && p.TransDate >= startDate && p.TransDate <= endDate).ToList();
+                .Where(p => p.TransDate >= startDate && p.TransDate <= endDate).ToList();
             var intakes = productIntakes.GroupBy(p => p.Sno).ToList();
             intakes.ForEach(p =>
             {
@@ -96,32 +106,37 @@ namespace EasyPro.Controllers
                     i.Paid = true;
                 });
 
-                var advance = p.Where(k => k.Description.ToLower().Contains("advance"));
-                var transport = p.Where(k => k.Description.ToLower().Contains("transport"));
-                var agrovet = p.Where(k => k.Description.ToLower().Contains("agrovet"));
-                var bonus = p.Where(k => k.Description.ToLower().Contains("bonus"));
-                var shares = p.Where(k => k.Description.ToLower().Contains("shares"));
+                var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
+                var transport = p.Where(k => k.ProductType.ToLower().Contains("transport"));
+                var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
+                var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
+                var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
+                var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
 
-                var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == p.Key);
                 var payroll = new DPayroll();
-                payroll.Sno = (int?)supplier.Sno;
-                payroll.Gpay = p.Sum(s => s.CR);
-                payroll.KgsSupplied = (double?)p.Sum(s => s.Qsupplied);
-                payroll.Advance = advance.Sum(s => s.DR);
-                payroll.Others = 0;
-                payroll.Transport = transport.Sum(s => s.DR);
-                payroll.Agrovet = agrovet.Sum(s => s.DR);
-                payroll.Bonus = bonus.Sum(s => s.DR);
-                payroll.Hshares = shares.Sum(s => s.DR);
-                payroll.Tdeductions = payroll.Advance + payroll.Transport + payroll.Agrovet + payroll.Bonus + payroll.Hshares;
-                payroll.Npay = payroll.Gpay - payroll.Tdeductions;
-                payroll.Yyear = endDate.Year;
-                payroll.Mmonth = endDate.Month;
-                payroll.AccountNumber = supplier.AccNo;
-                payroll.Bbranch = supplier.Bbranch;
-                payroll.IdNo = supplier.IdNo;
-
-                _context.DPayrolls.Add(payroll);
+                long.TryParse(p.Key, out long sno);
+                if(sno > 0)
+                {
+                    var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
+                    payroll.Sno = (int?)supplier.Sno;
+                    payroll.Gpay = p.Sum(s => s.CR);
+                    payroll.KgsSupplied = (double?)p.Sum(s => s.Qsupplied);
+                    payroll.Advance = advance.Sum(s => s.DR);
+                    payroll.Others = 0;
+                    payroll.Transport = transport.Sum(s => s.DR);
+                    payroll.Agrovet = agrovet.Sum(s => s.DR);
+                    payroll.Bonus = bonus.Sum(s => s.DR);
+                    payroll.Hshares = shares.Sum(s => s.DR);
+                    payroll.Tdeductions = payroll.Advance + payroll.Transport + payroll.Agrovet + payroll.Bonus + payroll.Hshares;
+                    var debits = corrections.Sum(s => s.DR);
+                    payroll.Npay = payroll.Gpay - debits - payroll.Tdeductions;
+                    payroll.Yyear = endDate.Year;
+                    payroll.Mmonth = endDate.Month;
+                    payroll.AccountNumber = supplier.AccNo;
+                    payroll.Bbranch = supplier.Bbranch;
+                    payroll.IdNo = supplier.IdNo;
+                    _context.DPayrolls.Add(payroll);
+                }
             });
 
             await _context.SaveChangesAsync();
@@ -131,6 +146,7 @@ namespace EasyPro.Controllers
         // GET: DPayrolls/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -151,6 +167,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,Transport,Agrovet,Bonus,Tmshares,Fsa,Hshares,Advance,Others,Tdeductions,KgsSupplied,Gpay,Npay,Yyear,Mmonth,Bank,AccountNumber,Bbranch,Trader,Sbranch,EndofPeriod,Auditid,Auditdatetime,Mainaccno,Transportaccno,Agrovetaccno,Aiaccno,Tmsharesaccno,Fsaaccno,Hsharesaccno,Advanceaccno,Otheraccno,Netaccno,Subsidy,Cbo,IdNo,Tchp,Midmonth,Deduct12,Mpesa")] DPayroll dPayroll)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dPayroll.Id)
             {
                 return NotFound();
@@ -182,6 +199,7 @@ namespace EasyPro.Controllers
         // GET: DPayrolls/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -202,6 +220,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dPayroll = await _context.DPayrolls.FindAsync(id);
             _context.DPayrolls.Remove(dPayroll);
             await _context.SaveChangesAsync();

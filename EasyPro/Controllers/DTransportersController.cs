@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
@@ -14,22 +16,30 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public DTransportersController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: DTransporters
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.DTransporters.Where(i => i.Active == true || i.Active == false).ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            return View(await _context.DTransporters
+                .Where(i => (i.Active == true || i.Active == false) && i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
         // GET: DTransporters/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -48,19 +58,24 @@ namespace EasyPro.Controllers
         // GET: DTransporters/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
         }
         private void GetInitialValues()
         {
-            var banksname = _context.DBanks.Select(b => b.BankName).ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var banksname = _context.DBanks.Where(i=>i.BankCode== sacco).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
 
-            var brances = _context.DBranch.Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(i => i.Bcode == sacco).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
-            var bankbrances = _context.DBankBranch.Select(b => b.Bname).ToList();
+            var bankbrances = _context.DBankBranch.Where(i => i.BankCode == sacco).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
+
+            
 
             List<SelectListItem> gender = new()
             {
@@ -82,13 +97,16 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode")] DTransporter dTransporter)
         {
+            utilities.SetUpPrivileges(this);
             if (dTransporter == null)
             {
                 _notyf.Error("Transporter cannot be empty");
                 return NotFound();
             }
-            var dTransporter10 = _context.DTransporters.Where(i=>i.TransCode == dTransporter.TransCode && i.CertNo == dTransporter.CertNo).Count();
-            if (dTransporter10 != 0)
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var dTransporterExists = _context.DTransporters.Any(i=>(i.TransCode == dTransporter.TransCode || i.CertNo == dTransporter.CertNo) && i.ParentT== sacco);
+            if (dTransporterExists)
             {
                 GetInitialValues();
                 _notyf.Error("Transporter entered already exist");
@@ -96,6 +114,7 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                dTransporter.ParentT = sacco;
                 _context.Add(dTransporter);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Transporter saved successfully");
@@ -107,6 +126,7 @@ namespace EasyPro.Controllers
         // GET: DTransporters/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -127,12 +147,15 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode")] DTransporter dTransporter)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dTransporter.Id)
             {
                 _notyf.Error("Sorry, error occured while editing, try again");
                 return NotFound();
             }
-            
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+
             if (ModelState.IsValid)
             {
                 try
@@ -140,6 +163,7 @@ namespace EasyPro.Controllers
                     dTransporter.TransCode = dTransporter.TransCode;
                     dTransporter.Br = "A";
                     dTransporter.Freezed = "0";
+                    dTransporter.ParentT = sacco;
                     _context.Update(dTransporter);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Transporter Edited successfully");
@@ -163,6 +187,7 @@ namespace EasyPro.Controllers
         // GET: DTransporters/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -181,9 +206,10 @@ namespace EasyPro.Controllers
         // POST: DTransporters/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long itemId)
+        public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var dTransporter = await _context.DTransporters.FindAsync(itemId);
+            utilities.SetUpPrivileges(this);
+            var dTransporter = await _context.DTransporters.FindAsync(id);
             _context.DTransporters.Remove(dTransporter);
             await _context.SaveChangesAsync();
             _notyf.Success("Transporter Deleted successfully");

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
@@ -14,23 +14,27 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private Utilities utilities;
 
         public DSupplierDeducsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
+            utilities = new Utilities(context);
 
         }
 
         // GET: DSupplierDeducs
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.DSupplierDeducs.ToListAsync());
         }
 
         // GET: DSupplierDeducs/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -49,6 +53,7 @@ namespace EasyPro.Controllers
         // GET: DSupplierDeducs/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
         }
@@ -80,6 +85,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,DateDeduc,Description,Amount,Period,StartDate,EndDate,Auditid,Auditdatetime,Yyear,Remarks,Branch,Bonus,Status1,Status2,Status3,Status4,Status5,Status6,Branchcode")] DSupplierDeduc dSupplierDeduc)
         {
+            utilities.SetUpPrivileges(this);
             var dSupplier1 = _context.DSupplierDeducs.Where(i => i.Sno == dSupplierDeduc.Sno).Count();
             if (dSupplier1 != 0)
             {
@@ -100,6 +106,7 @@ namespace EasyPro.Controllers
         // GET: DSupplierDeducs/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -120,6 +127,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,DateDeduc,Description,Amount,Period,StartDate,EndDate,Auditid,Auditdatetime,Yyear,Remarks,Branch,Bonus,Status1,Status2,Status3,Status4,Status5,Status6,Branchcode")] DSupplierDeduc dSupplierDeduc)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dSupplierDeduc.Id)
             {
                 return NotFound();
@@ -151,6 +159,7 @@ namespace EasyPro.Controllers
         // GET: DSupplierDeducs/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -171,6 +180,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dSupplierDeduc = await _context.DSupplierDeducs.FindAsync(id);
             _context.DSupplierDeducs.Remove(dSupplierDeduc);
             await _context.SaveChangesAsync();

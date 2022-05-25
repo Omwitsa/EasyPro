@@ -1,32 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
     public class DMilkintakesController : Controller
     {
         private readonly MORINGAContext _context;
+        private Utilities utilities;
 
         public DMilkintakesController(MORINGAContext context)
         {
             _context = context;
+            utilities = new Utilities(context);
         }
 
         // GET: DMilkintakes
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
             return View(await _context.DMilkintakes.ToListAsync());
         }
 
         // GET: DMilkintakes/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -44,6 +46,7 @@ namespace EasyPro.Controllers
         // GET: DMilkintakes/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
@@ -54,6 +57,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,Qsupplied,Ppu,TransTime,CR,DR,BAL,AuditId,Auditdatetime,Paid,Lr,Remark,Descript,Comment,Status1,Location,LocalId,Run,Type,Productprocess")] DMilkintake dMilkintake)
         {
+            utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
                 _context.Add(dMilkintake);
@@ -66,6 +70,7 @@ namespace EasyPro.Controllers
         // GET: DMilkintakes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -86,6 +91,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,TransDate,Qsupplied,Ppu,TransTime,CR,DR,BAL,AuditId,Auditdatetime,Paid,Lr,Remark,Descript,Comment,Status1,Location,LocalId,Run,Type,Productprocess")] DMilkintake dMilkintake)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dMilkintake.Id)
             {
                 return NotFound();
@@ -117,6 +123,7 @@ namespace EasyPro.Controllers
         // GET: DMilkintakes/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -137,6 +144,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dMilkintake = await _context.DMilkintakes.FindAsync(id);
             _context.DMilkintakes.Remove(dMilkintake);
             await _context.SaveChangesAsync();

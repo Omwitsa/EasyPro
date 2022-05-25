@@ -14,7 +14,18 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="DTransport.Id" />
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="DTransport.producttype" class="control-label">Organization Code</label>
+                                <select asp-for="DTransport.producttype" class="form-control" asp-items="@ViewBag.producttypes" required>
+                                    <option value="" disabled selected hidden>Please Choose...</option>
+                                </select>
+                                <span asp-validation-for="DTransport.producttype" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
@@ -92,7 +103,6 @@
                                 <div class="form-group">
                                     <label asp-for="DTransport.Active" class="control-label">
                                         <input asp-for="DTransport.Active" type="checkbox" />@Html.DisplayNameFor(model => model.DTransport.Active)
-                                        @*<input type="checkbox"  required />*@ @Html.DisplayNameFor(model => model.DTransport.Active)
                                         <span asp-validation-for="DTransport.Active" class="text-danger"></span>
                                     </label>
                                 </div>
@@ -119,22 +129,22 @@
     }
     <script type="text/javascript">
         $(function () {
-            $('#tcode').on('change', function () {
-               
-                            var products = @Html.Raw(Json.Serialize(Model.DTransporter));
-                            var selectVal = $("#tcode").val();
-                            var selectProducts = products.filter(p => p.transCode === selectVal);
-                                if (selectProducts[0]) {
-                                    $("#tname").val(selectProducts[0].transName);
-                                }
+            $('#tcode').on('keyup', function () {
+                debugger
+                var selectVal = $("#tcode").val();
+                debugger
+                var products = @Html.Raw(Json.Serialize(Model.DTransporter));
+                var selectProducts = products.filter(p => p.TransCode === selectVal);
+                    if (selectProducts[0]) {
+                        $("#tname").val(selectProducts[0].TransName);
+                    }
             });
-            debugger;
                         $('#sno').on('change', function () {
                             var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
                             var selectVal = parseInt($("#sno").val());
-                            var selectProducts = products.filter(p => p.sno === selectVal);
+                            var selectProducts = products.filter(p => p.Sno === selectVal);
                                 if (selectProducts[0]) {
-                                    $("#sname").val(selectProducts[0].names);
+                                    $("#sname").val(selectProducts[0].Names);
                                 }
                         });
                     });

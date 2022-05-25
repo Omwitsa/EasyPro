@@ -11,7 +11,8 @@
                     <h3 class="text-danger fa-bold">Transporters Deduction List</h3>
                 </div>
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-
+                    <input id="gfg" type="text" class="form-control"
+                           placeholder="Search here">
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <a asp-action="Create" class="btn btn-primary">Create New</a>
@@ -39,31 +40,45 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="geeks">
                             @foreach (var item in Model)
                             {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TransCode)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TransName)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TdateDeduc)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Description)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Amount)
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransCode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TdateDeduc)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Description)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Amount)
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("#gfg").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#geeks tr").filter(function () {
+                    $(this).toggle($(this).text()
+                        .toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

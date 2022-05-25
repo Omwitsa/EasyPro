@@ -8,8 +8,7 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Sno should be grater than 1")]
-        public long Sno { get; set; }
+        public string Sno { get; set; }
         [Required]
         public DateTime TransDate { get; set; }
         public TimeSpan TransTime { get; set; }
@@ -26,5 +25,6 @@ namespace EasyPro.Models
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }
         public string Branch { get; set; }
+        public string SaccoCode { get; set; }
     }
 }

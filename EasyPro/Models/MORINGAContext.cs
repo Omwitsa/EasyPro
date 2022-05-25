@@ -3447,7 +3447,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DBranchProduct>(entity =>
             {
-                entity.HasKey(e=> e.Id);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_BranchProduct");
 
@@ -4888,7 +4888,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DMilkintake>(entity =>
             {
-                entity.HasKey(e=>e.Id);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Milkintake");
 
@@ -5617,8 +5617,7 @@ namespace EasyPro.Models
                     .HasColumnName("midmonth");
 
                 entity.Property(e => e.Mmonth)
-                    .HasColumnName("MMonth")
-                    .HasComputedColumnSql("(datepart(month,[EndofPeriod]))", false);
+                    .HasColumnName("MMonth");
 
                 entity.Property(e => e.Mpesa).HasColumnType("money");
 
@@ -5678,8 +5677,7 @@ namespace EasyPro.Models
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Yyear)
-                    .HasColumnName("YYear")
-                    .HasComputedColumnSql("(datepart(year,[EndofPeriod]))", false);
+                    .HasColumnName("YYear");
             });
 
             modelBuilder.Entity<DPayrollCopy>(entity =>
@@ -6946,7 +6944,7 @@ namespace EasyPro.Models
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("Trans_Code")
-                    .IsFixedLength(true);
+                    .IsFixedLength(true); 
             });
 
             modelBuilder.Entity<DTransportDeduc>(entity =>
