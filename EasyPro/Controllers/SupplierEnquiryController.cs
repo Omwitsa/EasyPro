@@ -21,7 +21,6 @@ namespace EasyPro.Controllers
             _context = context;
             utilities = new Utilities(context);
         }
-
         public IActionResult Index()
         {
             utilities.SetUpPrivileges(this);
