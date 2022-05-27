@@ -36,6 +36,8 @@ namespace EasyPro.Controllers
             return View(await _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Intake && i.TransDate == DateTime.Today)
                 .ToListAsync());
+
+
         }
         public async Task<IActionResult> DeductionList()
         {

@@ -118,9 +118,9 @@ namespace EasyPro.Controllers
                     _notyf.Success("Logged in successfully");
                     return RedirectToAction(nameof(Index));
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    
+                    _notyf.Error("Logged in fail.");
                 }
             }
             _notyf.Error("Sorry, An error occurred");

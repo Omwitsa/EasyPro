@@ -106,7 +106,12 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
+            var dbranchproduct = _context.DBranchProducts.Where(i => i.Bcode == dBranchProduct.Bcode || i.Bname == dBranchProduct.Bname).Count();
+            if (dbranchproduct != 0)
+            {
+                _notyf.Error("Sorry, The product already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 try

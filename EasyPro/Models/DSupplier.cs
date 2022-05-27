@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable disable
 
 namespace EasyPro.Models
 {
+    [Table("DSupplier")]
     public partial class DSupplier
     {
         public long Id { get; set; }
@@ -19,6 +21,7 @@ namespace EasyPro.Models
         public string AccNo { get; set; }
         public string Bcode { get; set; }
         public string Bbranch { get; set; }
+        [Display(Name = "Gender")]
         public string Type { get; set; }
         public string Village { get; set; }
         public string Location { get; set; }

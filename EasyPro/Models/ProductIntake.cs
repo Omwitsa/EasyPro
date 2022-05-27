@@ -1,9 +1,11 @@
 ﻿using EasyPro.Constants;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EasyPro.Models
 {
+    [Table("ProductIntake")]
     public class ProductIntake
     {
         public long Id { get; set; }

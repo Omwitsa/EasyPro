@@ -35,6 +35,7 @@ namespace EasyPro.Controllers
             return View(await _context.DSuppliers
                 .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
+
         // GET: DSuppliers/Details/5
         public async Task<IActionResult> Details(long? id)
         {

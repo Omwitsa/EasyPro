@@ -15,10 +15,11 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private Utilities utilities;
-
-        public DPricesController(MORINGAContext context)
+        private readonly INotyfService _notyf;
+        public DPricesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
             utilities = new Utilities(context);
         }
        
@@ -30,16 +31,15 @@ namespace EasyPro.Controllers
         }
        
         // GET: DPrices/Details/5
-        public async Task<IActionResult> Details(string product)
+        public async Task<IActionResult> Details(string id)
         {
             utilities.SetUpPrivileges(this);
-            if (product == null)
+            if (id == null)
             {
                 return NotFound();
             }
-
             var dPrice = await _context.DPrices
-                .FirstOrDefaultAsync(m => m.Products == product);
+                .FirstOrDefaultAsync(m => m.Products == id);
             if (dPrice == null)
             {
                 return NotFound();
@@ -68,6 +68,12 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Edate,Price,Products")] DPrice dPrice)
         {
             utilities.SetUpPrivileges(this);
+            var dpricer = _context.DPrices.Where(i => i.Products == dPrice.Products).Count();
+            if (dpricer != 0)
+            {
+                _notyf.Error("Sorry, The product already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(dPrice);
@@ -76,17 +82,16 @@ namespace EasyPro.Controllers
             }
             return View(dPrice);
         }
-
         // GET: DPrices/Edit/5
-        public async Task<IActionResult> Edit(string product)
+        public async Task<IActionResult> Edit(string id)
         {
             utilities.SetUpPrivileges(this);
-            if (product == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var dPrice = await _context.DPrices.FindAsync(product);
+            var dPrice = await _context.DPrices.FindAsync(id);
             if (dPrice == null)
             {
                 return NotFound();
@@ -99,15 +104,20 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string product, [Bind("Id,Edate,Price,Products")] DPrice dPrice)
+        public async Task<IActionResult> Edit(string id, [Bind("Edate,Price,Products")] DPrice dPrice)
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
-            if (product != dPrice.Products)
+            if (id != dPrice.Products)
             {
                 return NotFound();
             }
-
+            var dpricer = _context.DPrices.Where(i => i.Products == dPrice.Products).Count();
+            if (dpricer != 0)
+            {
+                _notyf.Error("Sorry, The product already exist");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 try
@@ -132,16 +142,16 @@ namespace EasyPro.Controllers
         }
 
         // GET: DPrices/Delete/5
-        public async Task<IActionResult> Delete(string product)
+        public async Task<IActionResult> Delete(string id)
         {
             utilities.SetUpPrivileges(this);
-            if (product == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
             var dPrice = await _context.DPrices
-                .FirstOrDefaultAsync(m => m.Products == product);
+                .FirstOrDefaultAsync(m => m.Products == id);
             if (dPrice == null)
             {
                 return NotFound();
