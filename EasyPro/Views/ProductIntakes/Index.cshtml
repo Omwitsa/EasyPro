@@ -80,8 +80,7 @@
                                     @Html.DisplayFor(modelItem => item.Remarks)
                                 </td>
                                 <td class="col-4">
-                                    <a asp-controller="Report" asp-action="Get">Print</a>
-                                    @*<a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a>*@ |
+                                    <a asp-controller="PdfReport" asp-action="GetIntakeReceipt" asp-route-id="@item.Id">Re-Print</a>
                                 </td>
                             </tr>
                             }

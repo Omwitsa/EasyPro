@@ -1,7 +1,9 @@
-﻿namespace EasyPro.IProvider
+﻿using EasyPro.ViewModels;
+
+namespace EasyPro.IProvider
 {
     public interface IReportProvider
     {
-        public byte[] GeneratePdfReport();
+        public byte[] GetIntakeReport(ProductIntakeVm intake);
     }
 }

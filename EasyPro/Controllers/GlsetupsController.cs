@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
+using System;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EasyPro.Controllers
 {
@@ -50,8 +52,22 @@ namespace EasyPro.Controllers
         // GET: Glsetups/Create
         public IActionResult Create()
         {
+            SetInitialValues();
             utilities.SetUpPrivileges(this);
             return View();
+        }
+
+        private void SetInitialValues()
+        {
+            // var products = _context.DPrices.ToList();
+            //ViewBag.products = new SelectList(products, "Products", "Products");
+
+            var accTypes = new string[] { "Income Statement", "Balance Sheet", "Retained Earnings"};
+            ViewBag.accTypes = new SelectList(accTypes);
+            var accGroups = new string[] { "ASSETS", "CAPITAL", "EXPENSES", "INCOME", "LIABILITIES", "RETAINED EARNINGS", "SUSPENSE ACCOUNT" };
+            ViewBag.accGroups = new SelectList(accGroups);
+            var subGroups = new string[] { "" };
+            ViewBag.accGroups = new SelectList(subGroups);
         }
 
         // POST: Glsetups/Create

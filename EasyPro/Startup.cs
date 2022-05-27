@@ -31,8 +31,7 @@ namespace EasyPro
             services.AddDbContext<MORINGAContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("MoringaDbConnection")));
 
-            services.AddSingleton(typeof(IConverter),
-            new SynchronizedConverter(new PdfTools()));
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddTransient<IReportProvider, ReportProvider>();
             services.AddNotyf(config => 
             { 
