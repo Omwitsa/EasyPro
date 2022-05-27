@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewData["Title"] = "DownloadReport";
+}
+@*@{
+    ViewData["Title"] = "Export Excel";
+}*@
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Suppliers Register</h3>
+                </div>
+                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="DownloadReport" method="post">
+                    <div class="card-body register-card-body">
+                        <div class="form-row">
+                            <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Intakes</h3>
+                </div>
+                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="DownloadReport1" method="post">
+                    <div class="card-body register-card-body">
+                        <div class="form-row">
+                            <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Deductions</h3>
+                </div>
+                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="DownloadReport2" method="post">
+                    <div class="card-body register-card-body">
+                        <div class="form-row">
+                            <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Payroll Report</h3>
+                </div>
+                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="DownloadReport" method="post">
+                    <div class="card-body register-card-body">
+                        <div class="form-row">
+                            <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
