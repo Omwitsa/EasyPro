@@ -134,6 +134,13 @@
                             <li>
                                 <a data-toggle="tab" href="#setup"><i class="notika-icon notika-form"></i>Setup</a>
                             </li>
+                        }
+                        @if (ViewBag.setupRole)
+                        {
+                            <li>
+                                <a data-toggle="tab" href="#Reports"><i class="notika-icon notika-form"></i>Reports</a>
+                            </li>
+                        }
                     </ul>
                     <div class="tab-content custom-menu-content">
                             <div id="file" class="tab-pane notika-tab-menu-bg animated flipInX">
@@ -195,7 +202,7 @@
                                     <a asp-controller="DBranchProducts" asp-action="Index">Add Product</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DPrice" asp-action="Index">Pricing</a>
+                                    <a asp-controller="DPrices" asp-action="Index">Pricing</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DCompanies" asp-action="Index">Organization Setup</a>
@@ -223,6 +230,13 @@
                                 </li>
                                 <li>
                                     <a asp-controller="Glsetups" asp-action="Index">Charts of Accounts</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="Reports" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="Report" asp-action="DownloadReport">Farmers Register</a>
                                 </li>
                             </ul>
                         </div>

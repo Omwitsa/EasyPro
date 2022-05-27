@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -32,6 +33,12 @@ namespace EasyPro.Models
         public virtual DbSet<AgReceipt> AgReceipts { get; set; }
         public virtual DbSet<AgReceipts1> AgReceipts1s { get; set; }
         public virtual DbSet<AgReceipts3> AgReceipts3s { get; set; }
+
+        internal Task GetDataAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual DbSet<AgReceiptsEnqury> AgReceiptsEnquries { get; set; }
         public virtual DbSet<AgReceiptsProcess> AgReceiptsProcesses { get; set; }
         public virtual DbSet<AgReceiptsalesrep> AgReceiptsalesreps { get; set; }
@@ -251,6 +258,7 @@ namespace EasyPro.Models
         public virtual DbSet<County> County { get; set; }
         public virtual DbSet<SubCounty> SubCounty { get; set; }
         public virtual DbSet<Ward> Ward { get; set; }
+        public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

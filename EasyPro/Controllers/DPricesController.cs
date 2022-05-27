@@ -16,7 +16,6 @@ namespace EasyPro.Controllers
         private readonly MORINGAContext _context;
         private Utilities utilities;
         private readonly INotyfService _notyf;
-
         public DPricesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;

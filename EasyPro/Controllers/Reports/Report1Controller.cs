@@ -9,10 +9,10 @@ namespace EasyPro.Controllers.Reports
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ReportController : ControllerBase
+    public class Report1Controller : ControllerBase
     {
         private readonly IReportProvider _reportProvider;
-        public ReportController(IReportProvider reportProvider)
+        public Report1Controller(IReportProvider reportProvider)
         {
             _reportProvider = reportProvider;
         }
