@@ -229,7 +229,3 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
-
-libwkhtmltox.dll
-libwkhtmltox.dylib
-libwkhtmltox.so
