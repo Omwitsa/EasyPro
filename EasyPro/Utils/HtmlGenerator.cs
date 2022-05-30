@@ -30,25 +30,29 @@ namespace EasyPro.Utils
                                    <td>{2}</td>
                                 </tr>
                                 <tr>
-                                   <td>Quantity:</td>
+                                   <td>Product Type:</td>
                                    <td>{3}</td>
                                 </tr>
                                 <tr>
-                                   <td>Product Type:</td>
+                                   <td>Quantity:</td>
                                    <td>{4}</td>
                                 </tr>
                                 <tr>
-                                   <td>Trans Date:</td>
+                                   <td>Cumlative:</td>
                                    <td>{5}</td>
                                 </tr>
                                 <tr>
-                                   <td>Served By:</td>
+                                   <td>Trans Date:</td>
                                    <td>{6}</td>
+                                </tr>
+                                <tr>
+                                   <td>Served By:</td>
+                                   <td>{7}</td>
                                 </tr>
                               </table>",
                               intake.SaccoCode, intake.Sno, intake.SupName,
-                              intake.Qsupplied, intake.ProductType, intake.TransDate,
-                              intake.AuditId);
+                              intake.ProductType, intake.Qsupplied, intake.Cumlative, 
+                              intake.TransDate, intake.AuditId);
             sb.Append(@"
                             </body>
                         </html>");

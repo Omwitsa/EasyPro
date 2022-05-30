@@ -182,10 +182,17 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return View(productIntake);
             }
+            if(!_context.DSuppliers.Any(s => s.Sno == sno))
+            {
+                _notyf.Error("Sorry, Supplier does not exist");
+                return View(productIntake);
+            }
             if (ModelState.IsValid)
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                 productIntake.SaccoCode = sacco ?? "";
+                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                productIntake.AuditId = auditId ?? "";
                 productIntake.Description = "Intake";
                 productIntake.TransactionType = TransactionType.Intake;
                 productIntake.TransDate = DateTime.Today;
@@ -257,6 +264,8 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                productIntake.AuditId = auditId ?? "";
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.TransDate = DateTime.Today;
                 productIntake.Qsupplied = 0;
@@ -305,6 +314,8 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                productIntake.AuditId = auditId ?? "";
                 productIntake.Description = "Correction";
                 productIntake.TransactionType = TransactionType.Correction;
                 productIntake.TransDate = DateTime.Today;
