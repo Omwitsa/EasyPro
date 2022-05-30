@@ -39,17 +39,40 @@ namespace EasyPro.Controllers
 
 
         }
-        public async Task<IActionResult> DeductionList()
+        public async Task<IActionResult> TDeductionList()
         {
             utilities.SetUpPrivileges(this);
-            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.TransDate == DateTime.Today).ToListAsync();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.Qsupplied==0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach(var intake in productIntakes)
             {
+                var supplier = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.Sno);
+                intakes.Add(new ProductIntakeVm { 
+                    Sno = supplier.TransCode,
+                    SupName = supplier.TransName,
+                    TransDate = intake.TransDate,
+                    ProductType = intake.ProductType,
+                    DR = intake.DR,
+                    Remarks = intake.Remarks,
+                    Branch = intake.Branch
+                });
+            }
+            return View(intakes);
+        }
+        public async Task<IActionResult> DeductionList()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.Qsupplied != 0 && c.SaccoCode== sacco && c.TransDate == DateTime.Today).ToListAsync();
+            var intakes = new List<ProductIntakeVm>();
+            foreach (var intake in productIntakes)
+            {
                 long.TryParse(intake.Sno, out long sno);
                 var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == sno);
-                intakes.Add(new ProductIntakeVm { 
-                    Sno = sno,
+                intakes.Add(new ProductIntakeVm
+                {
+                    Sno = intake.Sno,
                     SupName = supplier.Names,
                     TransDate = intake.TransDate,
                     ProductType = intake.ProductType,
@@ -65,7 +88,6 @@ namespace EasyPro.Controllers
             }
             return View(intakes);
         }
-
         public async Task<IActionResult> CorrectionList()
         {
             utilities.SetUpPrivileges(this);
@@ -122,6 +144,21 @@ namespace EasyPro.Controllers
                 }
             };
             //return Json(new { data = Farmersobj });
+            return View(Farmersobj);
+        }
+
+        public IActionResult CreateTDeduction()
+        {
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            Farmersobj = new FarmersVM()
+            {
+                DTransporters = _context.DTransporters,
+                ProductIntake = new ProductIntake
+                {
+                    TransDate = DateTime.Today
+                }
+            };
             return View(Farmersobj);
         }
         private void GetInitialValues()
@@ -266,6 +303,53 @@ namespace EasyPro.Controllers
             {
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
                 productIntake.AuditId = auditId ?? "";
+                productIntake.TransactionType = TransactionType.Deduction;
+                productIntake.TransDate = DateTime.Today;
+                productIntake.Qsupplied = 0;
+                productIntake.CR = 0;
+                productIntake.Description = "0";
+                productIntake.Balance = 0;
+                _context.Add(productIntake);
+                _notyf.Success("Deducted successfully");
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(DeductionList));
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateTDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
+        {
+            utilities.SetUpPrivileges(this);
+            long.TryParse(productIntake.Sno, out long sno);
+            productIntake.Description = productIntake?.Description ?? "";
+            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Active == true && i.Approval == true))
+            {
+                _notyf.Error("Sorry, Farmer Number code does not exist");
+                GetInitialValues();
+                Farmersobj = new FarmersVM()
+                {
+                    DSuppliers = _context.DSuppliers,
+                    ProductIntake = new Models.ProductIntake()
+                };
+                //return Json(new { data = Farmersobj });
+                return View(Farmersobj);
+            }
+            if (sno == 0)
+            {
+                GetInitialValues();
+                _notyf.Error("Sorry, Farmer code cannot be zero");
+                Farmersobj = new FarmersVM()
+                {
+                    DSuppliers = _context.DSuppliers,
+                    ProductIntake = new Models.ProductIntake()
+                };
+                //return Json(new { data = Farmersobj });
+                return View(Farmersobj);
+            }
+            if (ModelState.IsValid)
+            {
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.TransDate = DateTime.Today;
                 productIntake.Qsupplied = 0;

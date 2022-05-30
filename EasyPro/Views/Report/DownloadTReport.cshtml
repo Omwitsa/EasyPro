@@ -1,15 +1,15 @@
 ﻿@model EasyPro.ViewModels.FilterVm
 @{
-    ViewData["Title"] = "DownloadReport";
+    ViewData["Title"] = "DownloadTReport";
 }
 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
     <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Suppliers Register Report</h3>
+                    <h3 class="card-title">Transporter Register Report</h3>
                 </div>
-                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="Suppliers" method="post">
+                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="Transporter" method="post">
                     <div class="card-body register-card-body">
                         <div class="form-row">
                             <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
@@ -28,9 +28,9 @@
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Suppliers Intake Report</h3>
+                    <h3 class="card-title">Transporters Intake Report</h3>
                 </div>
-                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="Intake" method="post">
+                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="TIntake" method="post">
                     <div class="row">
                         <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
                             <div class="form-group">
@@ -60,9 +60,9 @@
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Suppliers Deduction Report</h3>
+                    <h3 class="card-title">Transporters Deduction Report</h3>
                 </div>
-                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="Deductions" method="post">
+                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="TDeductions" method="post">
                     <div class="row">
                         <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
                             <div class="form-group">
@@ -91,4 +91,5 @@
         </div>
     </div>
 </div>
+
 
