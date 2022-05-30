@@ -194,7 +194,7 @@
                                     <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DTransportDeducs" asp-action="Index">Transporter</a>
+                                    <a asp-controller="ProductIntakes" asp-action="TDeductionList">Transporter</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DTransports" asp-action="Index">Transporter Assignement</a>
@@ -254,7 +254,13 @@
                         <div id="Reports" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
-                                    <a asp-controller="Report" asp-action="DownloadReport">Farmers Register</a>
+                                    <a asp-controller="Report" asp-action="DownloadReport">Suppliers</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Report" asp-action="DownloadTReport">Transporters</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
                                 </li>
                             </ul>
                         </div>

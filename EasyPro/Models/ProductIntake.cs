@@ -8,6 +8,7 @@ namespace EasyPro.Models
     [Table("ProductIntake")]
     public class ProductIntake
     {
+        [Key]
         public long Id { get; set; }
         [Required]
         public string Sno { get; set; }

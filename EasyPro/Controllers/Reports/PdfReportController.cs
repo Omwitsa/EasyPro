@@ -28,7 +28,7 @@ namespace EasyPro.Controllers.Reports
             var intake = new ProductIntakeVm
             {
                 SaccoCode = productIntake.SaccoCode,
-                Sno = supplier.Sno,
+                Sno = productIntake.Sno,
                 SupName = supplier.Names,
                 Qsupplied = productIntake.Qsupplied,
                 ProductType = productIntake.ProductType,

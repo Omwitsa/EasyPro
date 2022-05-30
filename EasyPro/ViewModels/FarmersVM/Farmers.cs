@@ -11,5 +11,6 @@ namespace EasyPro.ViewModels.FarmersVM
     {
         public ProductIntake ProductIntake { get; set; }
         public IEnumerable<DSupplier> DSuppliers { get; set; }
+        public IEnumerable<DTransporter> DTransporters { get; set; }
     }
 }
