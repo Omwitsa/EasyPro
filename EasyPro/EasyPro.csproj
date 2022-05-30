@@ -15,6 +15,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\css\jquery-ui.css" />
+    <None Include="wwwroot\css\jquery-ui.min.css" />
+    <None Include="wwwroot\css\jquery-ui.structure.css" />
+    <None Include="wwwroot\css\jquery-ui.structure.min.css" />
+    <None Include="wwwroot\css\jquery-ui.theme.css" />
+    <None Include="wwwroot\css\jquery-ui.theme.min.css" />
+    <None Include="wwwroot\js\jquery-ui.js" />
+    <None Include="wwwroot\js\jquery-ui.min.js" />
+    <None Include="wwwroot\js\jquery.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
     <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="jQuery.UI.Combined" Version="1.13.1" />

@@ -38,11 +38,6 @@ namespace EasyPro.Controllers
                 AccNo = s.AccNo,
                 Bbranch = s.Bbranch
             }).ToList();
-            //ViewBag.intakess = _context.ProductIntake.Select(s => new ProductIntake
-            //{
-            //    Sno = s.Sno,
-            //    ProductType = s.ProductType,
-            //}).ToList();
 
             return View();
         }
@@ -52,25 +47,34 @@ namespace EasyPro.Controllers
             ViewBag.products = new SelectList(products);
         }
         [HttpPost]
-        public JsonResult SuppliedProducts([FromBody] DSupplier supplier)
+        public JsonResult SuppliedProducts([FromBody] DSupplier supplier,DateTime date1, DateTime date2)
         {
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
-            //var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno).ToList();
-            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno == supplier.Sno.ToString()).ToList();
+
+            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno == supplier.Sno.ToString() && i.TransDate>=date1 && i.TransDate<=date2).ToList();
             return Json(intakes);
         }
         [HttpPost]
-        public JsonResult SuppliedProducts2([FromBody] ProductIntake intakess)
+        public JsonResult SuppliedProducts2(string sno, string producttype, DateTime date1, DateTime date2)
         {
             utilities.SetUpPrivileges(this);
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
-            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno ==intakess.ProductType).ToList();
+            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno ==sno && i.ProductType==producttype && i.TransDate >= date1 && i.TransDate <= date2).ToList();
             return Json(intakes);
         }
+        [HttpPost]
+        public JsonResult SuppliedProducts3(string sno, DateTime date1, DateTime date2)
+        {
+            DateTime now = DateTime.Now;
+            var startDate = new DateTime(now.Year, now.Month, 1);
+            var enDate = startDate.AddMonths(1).AddDays(-1);
 
+            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate).Where(i => i.Sno == sno && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+            return Json(intakes);
+        }
     }
 }

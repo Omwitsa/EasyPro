@@ -94,10 +94,8 @@
     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
-                <label class="control-label">DateFrom</label>
-                <input id="firstdate" value="date" type="date"/>
-
-                @*@Html.TextBoxFor(Model=>Model.iint.TransDate, new {id= "firstdate"} )*@
+                <label class="control-label">DateFro</label>
+                <input id="firstdate" type="text" />
                 <span class="text-danger"></span>
             </div>
         </div>
@@ -107,9 +105,9 @@
             <div class="nk-int-st">
                 <div class="form-group">
                     <label class="control-label">DateTo</label>
-                    <input id="enddate" value="date" />
+                    <input id="enddate" type="text" />
                     <span class="text-danger"></span>
-                    <a class="btn-warning btn-success" asp-action="Show">Show</a>
+                    <a id="showtable" class="btn-warning btn-success">Show</a>
                 </div>
             </div>
         </div>
@@ -118,7 +116,7 @@
         <div class="form-group ic-cmp-int float-lb floating-lb">
             <div class="nk-int-st">
                 <div class="form-group">
-                    <label class="control-label">NET PAY</label>
+                    <label class="control-label">NETPAY</label>
                     <input id="netpay" />
                 </div>
             </div>
@@ -154,11 +152,15 @@
         </table>
     </div>
 </div>
-
+@*<link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">*@
+<link href="~/css/jquery-ui.css" rel="stylesheet" />
 @section Scripts {
-   
-        
-  
+
+    <script src="~/js/jquery.js"></script>
+    <script src="~/js/jquery-ui.js"></script>
+    @*<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>*@
 
     <script type="text/javascript">
        /* const { Doc } = require("codemirror");*/
@@ -174,49 +176,101 @@
             $("#enddate").val(lastDay);
             $("#bname").prop("selectedIndex", -1);
         });
-    //$(function () {
-    //        $('#firstdate').datepicker({
-    //            //"singleDatePicker": true,
-    //            //"startDate": moment(),
-    //            //"endDate": moment().endOf('year'),
-    //            //"opens": "center"
-    //        });
-    //    });
-        //$(function () {
-        //    $("#firstdate").datepicker({
+        $(function () {
+            $("#firstdate").datepicker();
+        });
+        $(function () {
+            $("#enddate").datepicker();
+        });
 
-        //    });
-        //});
-        @*$(function () {
+         $(function () {
+
+             $("#showtable").click(function () {
+                var sno = $("#sno").val();
+                var date1 = $("#firstdate").val();
+                var date2 = $("#enddate").val();
+                    $.ajax(
+                        {
+                            type: 'POST',
+                            url: "SuppliedProducts3?sno="+sno+"&date1="+date1+"&date2="+date2+"",
+                            contentType: 'application/json',
+                            data: JSON.stringify(),
+                            success: function (response) {
+                                //if (response.Success) {
+
+                                //}
+                                populateIntake3(response)
+                            },
+                            failure: function (response) {
+                            }
+                        }).then(function () {
+                            // ...
+                        });
+                });
+            function populateIntake3(intakes) {
+
+                var selectVal = parseInt($("#sno").val());
+                let itemTableRows = new Array();
+                intakes.forEach(i => {
+                    //debugger;
+                    var ddate = i.TransDate;
+                    var dd1 = new Date(ddate).toLocaleDateString();
+                    itemTableRows.push(`<tr>
+				        <td>${dd1}</td>
+                        <td>${i.ProductType}</td>
+                        <td>${i.Qsupplied}</td>
+                        <td>${i.CR}</td>
+                        <td>${i.DR}</td>
+                        <td>${i.Balance}</td>
+                        <td>${i.Description}</td>
+                        <td>${i.Remarks}</td>
+			        </tr>`)
+                    var Total = 0;
+                    var Total2 = 0;
+                    var netpay = 0;
+                    intakes.forEach(i => {
+                        var ddr = 0;
+                        var ccr = 0;
+                        ddr = i.DR;
+                        ccr = i.CR;
+                        Total2 = Total2 + ddr;
+                        Total = Total + ccr;
+                        netpay = Total - Total2;
+
+                    });
+                    $('#netpay').val(netpay);
+                    $('#totaldeductions').val(Total2)
+                    $('#grosspay').val(Total)
+                });
+
+                $('#intakes').html(itemTableRows);
+            }
+            });
+        $(function () {
 
             $("#bname").change(function () {
-                debugger;
-                var intakess = @Html.Raw(Json.Serialize(ViewBag.intakess));
-
                 var producttype = $("#bname").val();
                 var sno = $("#sno").val();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
-                //var selectproducts = intakess.filter(p => p.ProductType === products);
-                //if (selectproducts[0]) {
-                $.ajax(
-                    {
-                        type: 'POST',
-                        url: `SuppliedProducts2`,
-                        contentType: 'application/json',
-                        data: "{producttype:"+JSON.stringify(producttype+"}",
-                        success: function (response) {
-                            //if (response.Success) {
+                    $.ajax(
+                        {
+                            type: 'POST',
+                            url: "SuppliedProducts2?sno="+sno+"&producttype="+producttype+"&date1="+date1+"&date2="+date2+"",
+                            contentType: 'application/json',
+                            data: JSON.stringify(),
+                            success: function (response) {
+                                //if (response.Success) {
 
-                            //}
-                            populateIntake2(response)
-                        },
-                        failure: function (response) {
-                        }
-                    }).then(function () {
-                        // ...
-                    });
-            });
+                                //}
+                                populateIntake2(response)
+                            },
+                            failure: function (response) {
+                            }
+                        }).then(function () {
+                            // ...
+                        });
+                });
             function populateIntake2(intakes) {
 
                 var selectVal = parseInt($("#sno").val());
@@ -255,14 +309,13 @@
 
                 $('#intakes').html(itemTableRows);
             }
-            });*@
+            });
         $(function () {
 
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
-                //var intakeee = @Html.Raw(Json.Serialize(ViewBag.intake));
+                debugger;
                 var selectVal = parseInt($("#sno").val());
-                //debugger;
                 var sno = $("#sno").val();
                 var idno = $("#idno").val();
                 var date1 = $("#firstdate").val();
@@ -276,7 +329,7 @@
                         $("#bbranch").val(selectsuppliers[0].Bbranch);
                         $.ajax({
                             type: 'POST',
-                            url: `suppliedProducts`,
+                            url: "suppliedProducts?date1="+date1+"&date2="+date2+"",
                             contentType: 'application/json',
                             data: JSON.stringify(selectsuppliers[0]),
                             success: function (response) {
