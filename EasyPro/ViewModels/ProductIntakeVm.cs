@@ -13,6 +13,7 @@ namespace EasyPro.ViewModels
         public DateTime? TransDate { get; set; }
         public string ProductType { get; set; }
         public decimal? Qsupplied { get; set; }
+        public decimal? Cumlative { get; set; }
         public decimal? Ppu { get; set; }
         public decimal? CR { get; set; }
         public decimal? DR { get; set; }
@@ -23,5 +24,6 @@ namespace EasyPro.ViewModels
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }
         public string Branch { get; set; }
+        public string SaccoCode { get; set; }
     }
 }

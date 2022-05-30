@@ -1,59 +1,56 @@
 ﻿using DinkToPdf;
 using DinkToPdf.Contracts;
 using EasyPro.IProvider;
+using EasyPro.Utils;
+using EasyPro.ViewModels;
 using System;
+using System.Text;
 
 namespace EasyPro.Provider
 {
     public class ReportProvider : IReportProvider
     {
         private readonly IConverter _converter;
+        private GlobalSettings recieptGlobalSettings;
+        private GlobalSettings pdfGlobalSettings;
         public ReportProvider(IConverter converter)
         {
             _converter = converter;
+            recieptGlobalSettings = new GlobalSettings
+            {
+                ColorMode = ColorMode.Color,
+                Orientation = Orientation.Portrait,
+                PaperSize = PaperKind.Prc32K,
+                Margins = new MarginSettings { Top = 2 },
+            };
+            pdfGlobalSettings = new GlobalSettings
+            {
+                ColorMode = ColorMode.Color,
+                Orientation = Orientation.Portrait,
+                PaperSize = PaperKind.A4,
+                Margins = new MarginSettings { Top = 10 },
+            };
         }
-        public byte[] GeneratePdfReport()
+        
+        public byte[] GetIntakeReport(ProductIntakeVm intake)
         {
-            var html = $@"
-               <!DOCTYPE html>
-               <html lang=""en"">
-               <head>
-                   This is the header of this document.
-               </head>
-              <body>
-              <h1>This is the heading for demonstration purposes only.</h1>
-              <p>This is a line of text for demonstration purposes only.</p>
-              </body>
-              </html>
-              ";
-            GlobalSettings globalSettings = new GlobalSettings();
-            globalSettings.ColorMode = ColorMode.Color;
-            globalSettings.Orientation = Orientation.Portrait;
-            globalSettings.PaperSize = PaperKind.A4;
-            globalSettings.Margins = new MarginSettings { Top = 25, Bottom = 25 };
-            ObjectSettings objectSettings = new ObjectSettings();
-            objectSettings.PagesCount = true;
-            objectSettings.HtmlContent = html;
-            WebSettings webSettings = new WebSettings();
-            webSettings.DefaultEncoding = "utf-8";
-            HeaderSettings headerSettings = new HeaderSettings();
-            headerSettings.FontSize = 15;
-            headerSettings.FontName = "Ariel";
-            headerSettings.Right = "Page [page] of [toPage]";
-            headerSettings.Line = true;
-            FooterSettings footerSettings = new FooterSettings();
-            footerSettings.FontSize = 12;
-            footerSettings.FontName = "Ariel";
-            footerSettings.Center = "This is for demonstration purposes only.";
-            footerSettings.Line = true;
-            objectSettings.HeaderSettings = headerSettings;
-            objectSettings.FooterSettings = footerSettings;
-            objectSettings.WebSettings = webSettings;
+            
+            var objectSettings = new ObjectSettings
+            {
+                //PagesCount = true,
+                HtmlContent = HtmlGenerator.GenerateIntakeReceiptHtml(intake),
+                WebSettings = { DefaultEncoding = "utf-8" },
+                //HeaderSettings = { FontSize = 10, Right = "Page [page] of [toPage]", Line = true },
+                //FooterSettings = { FontSize = 8, Center = "PDF demo from JeminPro", Line = true },
+            };
+
+            recieptGlobalSettings.DocumentTitle = $"{intake.ProductType} Intake";
             HtmlToPdfDocument htmlToPdfDocument = new HtmlToPdfDocument()
             {
-                GlobalSettings = globalSettings,
+                GlobalSettings = recieptGlobalSettings,
                 Objects = { objectSettings },
             };
+
             return _converter.Convert(htmlToPdfDocument);
         }
     }

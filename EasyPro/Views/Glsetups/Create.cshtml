@@ -12,16 +12,16 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="GlAccName" class="control-label"></label>
-                            <input asp-for="GlAccName" class="form-control" />
-                            <span asp-validation-for="GlAccName" class="text-danger"></span>
+                            <label asp-for="AccNo" class="control-label"></label>
+                            <input asp-for="AccNo" class="form-control" />
+                            <span asp-validation-for="AccNo" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="AccNo" class="control-label"></label>
-                            <input asp-for="AccNo" class="form-control" />
-                            <span asp-validation-for="AccNo" class="text-danger"></span>
+                            <label asp-for="GlAccName" class="control-label"></label>
+                            <input asp-for="GlAccName" class="form-control" />
+                            <span asp-validation-for="GlAccName" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -30,15 +30,19 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="GlAccType" class="control-label"></label>
-                            <input asp-for="GlAccType" class="form-control" />
+                            <select asp-for="GlAccType" class="form-control" asp-items="@ViewBag.accTypes">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
                             <span asp-validation-for="GlAccType" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="GlAccGroup" class="control-label"></label>
-                            <input asp-for="GlAccGroup" class="form-control" />
-                            <span asp-validation-for="GlAccGroup" class="text-danger"></span>
+                            <label asp-for="GlAccMainGroup" class="control-label"></label>
+                            <select asp-for="GlAccMainGroup" class="form-control" asp-items="@ViewBag.accGroups">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="GlAccMainGroup" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -46,9 +50,11 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="GlAccMainGroup" class="control-label"></label>
-                            <input asp-for="GlAccMainGroup" class="form-control" />
-                            <span asp-validation-for="GlAccMainGroup" class="text-danger"></span>
+                            <label asp-for="GlAccGroup" class="control-label"></label>
+                            <select asp-for="GlAccGroup" class="form-control" asp-items="@ViewBag.accGroups">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="GlAccGroup" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
