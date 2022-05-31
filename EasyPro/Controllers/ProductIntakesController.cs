@@ -313,27 +313,40 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CreateTDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
             utilities.SetUpPrivileges(this);
-            long.TryParse(productIntake.Sno, out long sno);
-            productIntake.Description = productIntake?.Description ?? "";
-            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Active == true && i.Approval == true))
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            //long.TryParse(, out long sno);
+            productIntake.Remarks = productIntake?.Remarks ?? "";
+            if (!_context.DTransporters.Any(i => i.TransCode == productIntake.Sno && i.Active == true && i.ParentT == sacco))
             {
-                _notyf.Error("Sorry, Farmer Number code does not exist");
+                _notyf.Error("Sorry, Transporter code does not exist");
                 GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = _context.DSuppliers,
+                    DTransporters = _context.DTransporters,
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
             }
-            if (sno == 0)
+            if (productIntake.DR == 0)
             {
                 GetInitialValues();
-                _notyf.Error("Sorry, Farmer code cannot be zero");
+                _notyf.Error("Sorry, Amount cannot be zero");
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = _context.DSuppliers,
+                    DTransporters = _context.DTransporters,
+                    ProductIntake = new Models.ProductIntake()
+                };
+                //return Json(new { data = Farmersobj });
+                return View(Farmersobj);
+            }
+            if (productIntake.Sno == "0")
+            {
+                GetInitialValues();
+                _notyf.Error("Sorry, Transporter code cannot be zero");
+                Farmersobj = new FarmersVM()
+                {
+                    DTransporters = _context.DTransporters,
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -341,8 +354,8 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
-                productIntake.TransactionType = TransactionType.Deduction;
-                productIntake.TransDate = DateTime.Today;
+                //productIntake.TransactionType = TransactionType.Deduction;
+                //productIntake.TransDate = DateTime.Today;
                 productIntake.Qsupplied = 0;
                 productIntake.CR = 0;
                 productIntake.Description = "0";

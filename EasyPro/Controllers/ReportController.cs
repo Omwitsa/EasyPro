@@ -32,6 +32,8 @@ namespace EasyPro.Controllers
         public IEnumerable<DSupplier> suppliersobj { get; set; }
         public IEnumerable<ProductIntake> productIntakeobj { get; set; }
         public IEnumerable<DTransporter> transporterobj { get; set; }
+        public IEnumerable<DCompany> companyobj { get; set; }
+        
         [HttpGet]
         public IActionResult DownloadReport()
         {
@@ -104,12 +106,40 @@ namespace EasyPro.Controllers
             productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied != 0 && u.SaccoCode==sacco);
             return IntakeExcel();
         }
+        [HttpPost]
+        public IActionResult TIntake([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            //dSupplier.Scode = sacco;
+
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied != 0 && u.SaccoCode == sacco);
+            return TIntakeExcel();
+        }
         public IActionResult TransporterExcel()
         {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("transporterobj");
                 var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                //var currentRow = 1;
+                //worksheet.Cell(currentRow, 2).Value = companyobj;
+
+                currentRow = 5;
                 worksheet.Cell(currentRow, 1).Value = "TransCode";
                 worksheet.Cell(currentRow, 2).Value = "Name";
                 worksheet.Cell(currentRow, 3).Value = "RegDate";
@@ -148,10 +178,26 @@ namespace EasyPro.Controllers
         }
         public IActionResult Excel()
         {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("suppliersobj");
                 var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                //var currentRow = 1;
+                //worksheet.Cell(currentRow, 2).Value = companyobj;
+
+                currentRow = 5;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
                 worksheet.Cell(currentRow, 2).Value = "Name";
                 worksheet.Cell(currentRow, 3).Value = "RegDate";
@@ -204,26 +250,50 @@ namespace EasyPro.Controllers
         {
             using (var workbook = new XLWorkbook())
             {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                 var worksheet = workbook.Worksheets.Add("productIntakeobj");
                 var currentRow = 1;
-                worksheet.Cell(currentRow, 1).Value = "SNo";
-                worksheet.Cell(currentRow, 2).Value = "TransDate";
-                worksheet.Cell(currentRow, 3).Value = "ProductType";
-                worksheet.Cell(currentRow, 4).Value = "Qsupplied";
-                worksheet.Cell(currentRow, 5).Value = "Price";
-                worksheet.Cell(currentRow, 6).Value = "Description";
+                companyobj = _context.DCompanies.Where(u=>u.Name== sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                    //var currentRow = 1;
+                    //worksheet.Cell(currentRow, 2).Value = companyobj;
 
+                currentRow = 5;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "TransDate";
+                worksheet.Cell(currentRow, 4).Value = "ProductType";
+                worksheet.Cell(currentRow, 5).Value = "Qsupplied";
+                worksheet.Cell(currentRow, 6).Value = "Price";
+                worksheet.Cell(currentRow, 7).Value = "Description";
+                decimal sum = 0;
                 foreach (var emp in productIntakeobj)
                 {
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                    worksheet.Cell(currentRow, 2).Value = emp.TransDate;
-                    worksheet.Cell(currentRow, 3).Value = emp.ProductType;
-                    worksheet.Cell(currentRow, 4).Value = emp.Qsupplied;
-                    worksheet.Cell(currentRow, 5).Value = emp.Ppu;
-                    worksheet.Cell(currentRow, 6).Value = emp.Description;
-
+                    long.TryParse(emp.Sno, out long sno);
+                    var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode==sacco);
+                    foreach (var al in TName)
+                        worksheet.Cell(currentRow, 2).Value = al.Names;
+                    worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                    worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                    worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
+                    worksheet.Cell(currentRow, 6).Value = emp.Ppu;
+                    worksheet.Cell(currentRow, 7).Value = emp.Description;
+                    sum += (emp.Qsupplied);
                 }
+                currentRow++;
+                worksheet.Cell(currentRow, 4).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 5).Value = sum;
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
@@ -234,29 +304,107 @@ namespace EasyPro.Controllers
                 }
             }
         }
+        public IActionResult TIntakeExcel()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("productIntakeobj");
+                var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 1).Value = "TransCode";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "TransDate";
+                worksheet.Cell(currentRow, 4).Value = "ProductType";
+                worksheet.Cell(currentRow, 5).Value = "Qsupplied";
+                worksheet.Cell(currentRow, 6).Value = "Price";
+                worksheet.Cell(currentRow, 7).Value = "Description";
+                decimal sum = 0; 
+                foreach (var emp in productIntakeobj)
+                {
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                    var TName = _context.DTransporters.Where(u => u.TransCode == emp.Sno && u.ParentT== sacco);
+                    foreach(var ann in TName)
+                        worksheet.Cell(currentRow, 2).Value = ann.TransName;
+                    worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                    worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                    worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
+                    worksheet.Cell(currentRow, 6).Value = emp.Ppu;
+                    worksheet.Cell(currentRow, 7).Value = emp.Description;
+                    sum += (emp.Qsupplied);
+                }
+                currentRow++;
+                worksheet.Cell(currentRow, 4).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 5).Value = sum;
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Transporter Intake.xlsx");
+                }
+            }
+        }
 
         public IActionResult DeductionsExcel()
         {
             using (var workbook = new XLWorkbook())
             {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                 var worksheet = workbook.Worksheets.Add("productIntakeobj");
                 var currentRow = 1;
-                worksheet.Cell(currentRow, 1).Value = "SNo";
-                worksheet.Cell(currentRow, 2).Value = "TransDate";
-                worksheet.Cell(currentRow, 3).Value = "ProductType";
-                worksheet.Cell(currentRow, 4).Value = "Amount";
-                worksheet.Cell(currentRow, 5).Value = "Remarks";
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                //var currentRow = 1;
+                //worksheet.Cell(currentRow, 2).Value = companyobj;
 
+                currentRow = 5;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "TransDate";
+                worksheet.Cell(currentRow, 4).Value = "ProductType";
+                worksheet.Cell(currentRow, 5).Value = "Amount";
+                worksheet.Cell(currentRow, 6).Value = "Remarks";
+                decimal? sum = 0;
                 foreach (var emp in productIntakeobj)
                 {
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                    worksheet.Cell(currentRow, 2).Value = emp.TransDate;
-                    worksheet.Cell(currentRow, 3).Value = emp.ProductType;
-                    worksheet.Cell(currentRow, 4).Value = emp.DR;
-                    worksheet.Cell(currentRow, 5).Value = emp.Remarks;
-
+                    long.TryParse(emp.Sno, out long sno);
+                    var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                    foreach (var ann in TName)
+                        worksheet.Cell(currentRow, 2).Value = ann.Names;
+                    worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                    worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                    worksheet.Cell(currentRow, 5).Value = emp.DR;
+                    worksheet.Cell(currentRow, 6).Value = emp.Remarks;
+                    sum += (emp.DR);
                 }
+                currentRow++;
+                worksheet.Cell(currentRow, 4).Value = "Total Amount";
+                worksheet.Cell(currentRow, 5).Value = sum;
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
@@ -271,24 +419,47 @@ namespace EasyPro.Controllers
         {
             using (var workbook = new XLWorkbook())
             {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                 var worksheet = workbook.Worksheets.Add("productIntakeobj");
                 var currentRow = 1;
-                worksheet.Cell(currentRow, 1).Value = "TCode";
-                worksheet.Cell(currentRow, 2).Value = "TransDate";
-                worksheet.Cell(currentRow, 3).Value = "ProductType";
-                worksheet.Cell(currentRow, 4).Value = "Amount";
-                worksheet.Cell(currentRow, 5).Value = "Remarks";
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                //var currentRow = 1;
+                //worksheet.Cell(currentRow, 2).Value = companyobj;
 
+                currentRow = 5;
+                worksheet.Cell(currentRow, 1).Value = "TCode";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "TransDate";
+                worksheet.Cell(currentRow, 4).Value = "ProductType";
+                worksheet.Cell(currentRow, 5).Value = "Amount";
+                worksheet.Cell(currentRow, 6).Value = "Remarks";
+                decimal? sum = 0;
                 foreach (var emp in productIntakeobj)
                 {
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                    worksheet.Cell(currentRow, 2).Value = emp.TransDate;
-                    worksheet.Cell(currentRow, 3).Value = emp.ProductType;
-                    worksheet.Cell(currentRow, 4).Value = emp.DR;
-                    worksheet.Cell(currentRow, 5).Value = emp.Remarks;
-
+                    var TName = _context.DTransporters.Where(u => u.TransCode == emp.Sno && u.ParentT == sacco);
+                    foreach (var ann in TName)
+                        worksheet.Cell(currentRow, 2).Value = ann.TransName;
+                    worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                    worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                    worksheet.Cell(currentRow, 5).Value = emp.DR;
+                    worksheet.Cell(currentRow, 6).Value = emp.Remarks;
+                    sum += (emp.DR);
                 }
+                currentRow++;
+                worksheet.Cell(currentRow, 4).Value = "Total Amount";
+                worksheet.Cell(currentRow, 5).Value = sum;
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
