@@ -59,15 +59,22 @@ namespace EasyPro.Controllers
 
         private void SetInitialValues()
         {
-            // var products = _context.DPrices.ToList();
-            //ViewBag.products = new SelectList(products, "Products", "Products");
-
-            var accTypes = new string[] { "Income Statement", "Balance Sheet", "Retained Earnings"};
+            var accTypes = new string[] { "Income Statement", "Balance Sheet", "Retained Earnings" };
             ViewBag.accTypes = new SelectList(accTypes);
             var accGroups = new string[] { "ASSETS", "CAPITAL", "EXPENSES", "INCOME", "LIABILITIES", "RETAINED EARNINGS", "SUSPENSE ACCOUNT" };
             ViewBag.accGroups = new SelectList(accGroups);
-            var subGroups = new string[] { "" };
-            ViewBag.accGroups = new SelectList(subGroups);
+            var subGroups = new string[] { "Accumulated Depreciation", "Assets", "Board Costs", "Closing Inventory", 
+                "Cost and Expenses", "Cost of Sales", "Current Assets", "Current liabilities", "Fixed assets", 
+                "Interest Income", "Liabilities", "Long Term Liability", "Openning Inventory", "Operating Expenses", 
+                "Operating Income", "Other", "Other Assets", "Other Income and Expenses", "Provision for Income Taxes", 
+                "Purchases", "Retained Earnings", "Revenue", "Share Holders Equity", "Staff Costs", "Suspense Acc" };
+            ViewBag.subGroups = new SelectList(subGroups);
+            var normalBal = new string[] { "Debit", "Credit" };
+            ViewBag.normalBal = new SelectList(normalBal);
+            var currencies = new string[] { "KES", "USD", "GBP", "TSH", "USH", "ZAR" };
+            ViewBag.currencies = new SelectList(currencies);
+            var categories = new string[] { "FINANCIAL EXP", "PERSONNEL EXP", "ADMININISTRATIVE EXP", "MANAGEMENT EXP", "GOVERNANCE EXP", "DIRECT EXP" };
+            ViewBag.categories = new SelectList(categories);
         }
 
         // POST: Glsetups/Create
@@ -78,38 +85,50 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run")] Glsetup glsetup)
         {
             utilities.SetUpPrivileges(this);
+            glsetup.NewGlopeningBalDate = DateTime.Now;
             if (ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(glsetup.AccNo))
+                try
                 {
-                    _notyf.Error("Sorry, Kindly provide account No.");
-                    return View(glsetup);
+                    if (string.IsNullOrEmpty(glsetup.AccNo))
+                    {
+                        _notyf.Error("Sorry, Kindly provide account No.");
+                        return View(glsetup);
+                    }
+                    if (string.IsNullOrEmpty(glsetup.GlAccName))
+                    {
+                        _notyf.Error("Sorry, Kindly provide account Name");
+                        return View(glsetup);
+                    }
+                    if (_context.Glsetups.Any(u => u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper())))
+                    {
+                        _notyf.Error("Sorry, Account No. already exist");
+                        return View(glsetup);
+                    }
+                    if (_context.Glsetups.Any(u => u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper())))
+                    {
+                        _notyf.Error("Sorry, Account Name already exist");
+                        return View(glsetup);
+                    }
+                    glsetup.CurrCode = glsetup?.CurrCode ?? 0;
+                    glsetup.IsSubLedger = glsetup?.IsSubLedger ?? false;
+                    _context.Add(glsetup);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                if (string.IsNullOrEmpty(glsetup.GlAccName))
+                catch (Exception ex)
                 {
-                    _notyf.Error("Sorry, Kindly provide account Name");
-                    return View(glsetup);
+                   
                 }
-                if (_context.Glsetups.Any(u => u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper())))
-                {
-                    _notyf.Error("Sorry, Account No. already exist");
-                    return View(glsetup);
-                }
-                if (_context.Glsetups.Any(u => u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper())))
-                {
-                    _notyf.Error("Sorry, Account Name already exist");
-                    return View(glsetup);
-                }
-                _context.Add(glsetup);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
             }
+            _notyf.Error("Sorry, An error occurred");
             return View(glsetup);
         }
 
         // GET: Glsetups/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
+            SetInitialValues();
             utilities.SetUpPrivileges(this);
             if (id == null)
             {

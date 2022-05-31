@@ -22,7 +22,7 @@
                         <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.GlCode)
+                                    @Html.DisplayNameFor(model => model.AccNo)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.GlAccName)
@@ -47,21 +47,6 @@
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.CurrentBal)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Bal)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.CurrCode)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.AuditOrg)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.AuditId)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.AuditDate)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.Curr)
@@ -90,42 +75,6 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.Branch)
                                 </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Hcode)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Mcode)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Hname)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Header)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Mheader)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Iorder)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Border)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Type)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Subtype)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.IsRearning)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Issuspense)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Run)
-                                </th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -134,7 +83,7 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.GlCode)
+                                        @Html.DisplayFor(modelItem => item.AccNo)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.GlAccName)
@@ -159,21 +108,6 @@
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.CurrentBal)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Bal)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.CurrCode)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.AuditOrg)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.AuditId)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.AuditDate)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.Curr)
@@ -201,42 +135,6 @@
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.Branch)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Hcode)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Mcode)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Hname)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Header)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Mheader)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Iorder)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Border)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Type)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Subtype)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.IsRearning)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Issuspense)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Run)
                                     </td>
                                     <td>
                                         @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |

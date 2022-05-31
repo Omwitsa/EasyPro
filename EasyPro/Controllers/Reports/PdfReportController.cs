@@ -3,9 +3,7 @@ using EasyPro.Models;
 using EasyPro.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace EasyPro.Controllers.Reports
 {
@@ -25,6 +23,9 @@ namespace EasyPro.Controllers.Reports
             var productIntake = _context.ProductIntake.FirstOrDefault(i => i.Id == id);
             long.TryParse(productIntake.Sno, out long sno);
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var cumlativeIntake = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno 
+            && s.TransDate >= startDate && s.ProductType.ToUpper().Equals(productIntake.ProductType.ToUpper()));
             var intake = new ProductIntakeVm
             {
                 SaccoCode = productIntake.SaccoCode,
@@ -33,7 +34,8 @@ namespace EasyPro.Controllers.Reports
                 Qsupplied = productIntake.Qsupplied,
                 ProductType = productIntake.ProductType,
                 TransDate = productIntake.TransDate,
-                AuditId = productIntake.AuditId
+                AuditId = productIntake.AuditId,
+                Cumlative = cumlativeIntake.Sum(c => c.Qsupplied)
             };
 
             var pdfFile = _reportProvider.GetIntakeReport(intake);

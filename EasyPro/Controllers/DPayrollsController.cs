@@ -118,24 +118,27 @@ namespace EasyPro.Controllers
                 if(sno > 0)
                 {
                     var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
-                    payroll.Sno = (int?)supplier.Sno;
-                    payroll.Gpay = p.Sum(s => s.CR);
-                    payroll.KgsSupplied = (double?)p.Sum(s => s.Qsupplied);
-                    payroll.Advance = advance.Sum(s => s.DR);
-                    payroll.Others = 0;
-                    payroll.Transport = transport.Sum(s => s.DR);
-                    payroll.Agrovet = agrovet.Sum(s => s.DR);
-                    payroll.Bonus = bonus.Sum(s => s.DR);
-                    payroll.Hshares = shares.Sum(s => s.DR);
-                    payroll.Tdeductions = payroll.Advance + payroll.Transport + payroll.Agrovet + payroll.Bonus + payroll.Hshares;
-                    var debits = corrections.Sum(s => s.DR);
-                    payroll.Npay = payroll.Gpay - debits - payroll.Tdeductions;
-                    payroll.Yyear = endDate.Year;
-                    payroll.Mmonth = endDate.Month;
-                    payroll.AccountNumber = supplier.AccNo;
-                    payroll.Bbranch = supplier.Bbranch;
-                    payroll.IdNo = supplier.IdNo;
-                    _context.DPayrolls.Add(payroll);
+                    if(supplier != null)
+                    {
+                        payroll.Sno = (int?)supplier.Sno;
+                        payroll.Gpay = p.Sum(s => s.CR);
+                        payroll.KgsSupplied = (double?)p.Sum(s => s.Qsupplied);
+                        payroll.Advance = advance.Sum(s => s.DR);
+                        payroll.Others = 0;
+                        payroll.Transport = transport.Sum(s => s.DR);
+                        payroll.Agrovet = agrovet.Sum(s => s.DR);
+                        payroll.Bonus = bonus.Sum(s => s.DR);
+                        payroll.Hshares = shares.Sum(s => s.DR);
+                        payroll.Tdeductions = payroll.Advance + payroll.Transport + payroll.Agrovet + payroll.Bonus + payroll.Hshares;
+                        var debits = corrections.Sum(s => s.DR);
+                        payroll.Npay = payroll.Gpay - debits - payroll.Tdeductions;
+                        payroll.Yyear = endDate.Year;
+                        payroll.Mmonth = endDate.Month;
+                        payroll.AccountNumber = supplier.AccNo;
+                        payroll.Bbranch = supplier.Bbranch;
+                        payroll.IdNo = supplier.IdNo;
+                        _context.DPayrolls.Add(payroll);
+                    }
                 }
             });
 
