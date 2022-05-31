@@ -136,10 +136,10 @@ namespace EasyPro.Controllers
                     currentRow++;
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
-                //var currentRow = 1;
-                //worksheet.Cell(currentRow, 2).Value = companyobj;
-
                 currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Transporters Register";
+
+                currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "TransCode";
                 worksheet.Cell(currentRow, 2).Value = "Name";
                 worksheet.Cell(currentRow, 3).Value = "RegDate";
@@ -194,10 +194,10 @@ namespace EasyPro.Controllers
                     currentRow++;
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
-                //var currentRow = 1;
-                //worksheet.Cell(currentRow, 2).Value = companyobj;
-
                 currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Suppliers Register";
+
+                currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
                 worksheet.Cell(currentRow, 2).Value = "Name";
                 worksheet.Cell(currentRow, 3).Value = "RegDate";
@@ -264,10 +264,10 @@ namespace EasyPro.Controllers
                     currentRow++;
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
-                    //var currentRow = 1;
-                    //worksheet.Cell(currentRow, 2).Value = companyobj;
-
                 currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Suppliers Intake Report";
+
+                currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
                 worksheet.Cell(currentRow, 2).Value = "Name";
                 worksheet.Cell(currentRow, 3).Value = "TransDate";
@@ -323,6 +323,9 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
                 currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Transporter Intake Report";
+
+                currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "TransCode";
                 worksheet.Cell(currentRow, 2).Value = "Name";
                 worksheet.Cell(currentRow, 3).Value = "TransDate";
@@ -377,10 +380,10 @@ namespace EasyPro.Controllers
                     currentRow++;
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
-                //var currentRow = 1;
-                //worksheet.Cell(currentRow, 2).Value = companyobj;
-
                 currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Suppliers Deductions Report";
+
+                currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
                 worksheet.Cell(currentRow, 2).Value = "Name";
                 worksheet.Cell(currentRow, 3).Value = "TransDate";
@@ -433,10 +436,10 @@ namespace EasyPro.Controllers
                     currentRow++;
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
-                //var currentRow = 1;
-                //worksheet.Cell(currentRow, 2).Value = companyobj;
-
                 currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Transporters Deductions Report";
+
+                currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "TCode";
                 worksheet.Cell(currentRow, 2).Value = "Name";
                 worksheet.Cell(currentRow, 3).Value = "TransDate";
