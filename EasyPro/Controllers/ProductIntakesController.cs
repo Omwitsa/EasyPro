@@ -235,6 +235,8 @@ namespace EasyPro.Controllers
                 productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
+                //var productIntakes = new List<ProductIntake>();
+                //productIntakes.Add(productIntake);
                 _context.ProductIntake.Add(productIntake);
                 
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active 
