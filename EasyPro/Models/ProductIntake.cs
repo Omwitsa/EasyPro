@@ -16,9 +16,10 @@ namespace EasyPro.Models
         public DateTime TransDate { get; set; }
         public TimeSpan TransTime { get; set; }
         public string ProductType { get; set; }
-        public decimal? Qsupplied { get; set; }
+        public decimal Qsupplied { get; set; }
         public decimal? Ppu { get; set; }
         public decimal? CR { get; set; }
+        [Display(Name ="Amount")]
         public decimal? DR { get; set; }
         public decimal? Balance { get; set; }
         public string Description { get; set; }

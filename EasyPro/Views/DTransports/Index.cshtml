@@ -6,32 +6,15 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
                     <h3 class="text-danger fa-bold">Transporters Assign To Farmers</h3>
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
                     <input id="gfg" type="text" class="form-control"
                            placeholder="Search here">
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <a asp-action="Create" class="btn btn-primary">Create New</a>
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Download Report</h3>
-                        </div>
-                        <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="DownloadReport" method="post">
-                            <div class="card-body register-card-body">
-                                <div class="form-row">
-                                    <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
-                                </div>
-
-                            </div>
-                            <div class="card-footer">
-                            </div>
-                        </form>
-                    </div>
                 </div>
             </div>
             <div class="bsc-tbl-hvr table-border-style">
