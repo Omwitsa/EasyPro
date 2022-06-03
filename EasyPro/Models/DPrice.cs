@@ -16,6 +16,10 @@ namespace EasyPro.Models
         public DateTime? Edate { get; set; }
         public decimal? Price { get; set; }
         public string SaccoCode { get; set; }
+        public string SubsidyQty { get; set; }
+        public decimal? SubsidyPrice { get; set; }
+        public string DrAccNo { get; set; }
+        public string CrAccNo { get; set; }
 
         // [NotMapped]
         //public List<DBranchProduct> Productcollection { get; set; }

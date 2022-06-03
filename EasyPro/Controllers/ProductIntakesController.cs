@@ -118,7 +118,7 @@ namespace EasyPro.Controllers
             {
                 DSuppliers = _context.DSuppliers,
                 ProductIntake= new ProductIntake { 
-                    TransDate = DateTime.Today
+                TransDate = DateTime.Today
                 }
             };
             //return Json(new { data = Farmersobj });

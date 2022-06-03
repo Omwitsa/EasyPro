@@ -53,19 +53,43 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
+            GetInitialValues2();
+            GetInitialValues3();
+            getvalues();
+            getvalues2();
             return View();
         }
         private void GetInitialValues()
         {
-            var products = _context.DBranchProducts.Select(b => b.Bname).ToList();
+            var products = _context.DPrices.Select(b => b.Products).ToList();
             ViewBag.products = new SelectList(products);          
+        }
+        private void GetInitialValues2()
+        {
+            var Accno = _context.Glsetups.Select(b => b.AccNo).ToList();
+            ViewBag.DrAccNo = new SelectList(Accno);
+        }
+        private void GetInitialValues3()
+        {
+            var AccNo = _context.Glsetups.Select(b => b.AccNo).ToList();
+            ViewBag.CrAccNo = new SelectList(AccNo);
+        }
+        private void getvalues()
+        {
+            var drACC = _context.Glsetups.ToList();
+            ViewBag.DR = drACC;
+        }
+        private void getvalues2()
+        {
+            var crACC = _context.Glsetups.ToList();
+            ViewBag.CR = crACC;
         }
         // POST: DPrices/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Edate,Price,Products")] DPrice dPrice)
+        public async Task<IActionResult> Create([Bind("Edate,Price,Products,SubsidyQty,SubsidyPrice,DrAccNo,CrAccNo")] DPrice dPrice)
         {
             utilities.SetUpPrivileges(this);
             var dpricer = _context.DPrices.Where(i => i.Products == dPrice.Products).Count();
@@ -91,7 +115,8 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dPrice = await _context.DPrices.FindAsync(id);
+            var dPrice = await _context.DPrices
+              .FirstOrDefaultAsync(m => m.Products == id);
             if (dPrice == null)
             {
                 return NotFound();
@@ -104,7 +129,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Edate,Price,Products")] DPrice dPrice)
+        public async Task<IActionResult> Edit(string id, [Bind("Edate,Price,Products,SubsidyQty,SubsidyPrice,DrAccNo,CrAccNo")] DPrice dPrice)
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();

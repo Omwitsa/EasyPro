@@ -14,7 +14,7 @@ namespace EasyPro.Models
         }
 
         public MORINGAContext(DbContextOptions<MORINGAContext> options)
-            : base(options)
+        : base(options)
         {
         }
 
@@ -5836,12 +5836,22 @@ namespace EasyPro.Models
                 entity.Property(e => e.Edate)
                     .HasColumnType("datetime")
                     .HasColumnName("EDate");
-
+                entity.Property(e => e.SaccoCode);
                 entity.Property(e => e.Price).HasColumnType("money");
 
                 entity.Property(e => e.Products)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+                entity.Property(e => e.SubsidyQty);
+                entity.Property(e => e.SubsidyPrice).HasColumnType("money");
+                entity.Property(e => e.DrAccNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("DrAccNo");
+                entity.Property(e => e.CrAccNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("CrAccNo");
             });
 
             modelBuilder.Entity<DPrice2>(entity =>
