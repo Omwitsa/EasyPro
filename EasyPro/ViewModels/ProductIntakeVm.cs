@@ -8,7 +8,7 @@ namespace EasyPro.ViewModels
 {
     public class ProductIntakeVm
     {
-        public long Sno { get; set; }
+        public string Sno { get; set; }
         public string SupName { get; set; }
         public DateTime? TransDate { get; set; }
         public string ProductType { get; set; }

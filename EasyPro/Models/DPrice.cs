@@ -10,7 +10,6 @@ namespace EasyPro.Models
 {
     public partial class DPrice
     {
-        [Key]
         public long Id { get; set; }
         public string Products { get; set; }
         public DateTime? Edate { get; set; }

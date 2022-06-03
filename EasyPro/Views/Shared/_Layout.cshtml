@@ -63,19 +63,19 @@
                 <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
                     <div class="header-top-menu">
                         <ul class="nav navbar-nav notika-top-nav">
-                            <li class="nav-item dropdown">
-                                <a asp-controller="Home" asp-action="Login">
-                                    <span><i class="notika-icon notika-logout"></i>Log Out</span>
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-
-                            </li>
                             <li class="nav-item nc-al">
 
                             </li>
                             <li class="nav-item">
 
+                            </li>
+                            <li class="nav-item dropdown">
+                                <span><i class="notika-icon notika-logout"></i>@ViewBag.sacco</span>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a asp-controller="Home" asp-action="Login">
+                                    <span><i class="notika-icon notika-logout"></i>Log Out</span>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -120,6 +120,9 @@
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <ul class="nav nav-tabs notika-menu-wrap menu-it-icon-pro">
+                        <li>
+                            <a data-toggle="tab" href="#home"><i class="notika-icon notika-form"></i>Home</a>
+                        </li>
                         @if (ViewBag.filesRole)
                         {
                             <li>
@@ -152,9 +155,16 @@
                             <li>
                                 <a data-toggle="tab" href="#Reports"><i class="notika-icon notika-form"></i>Reports</a>
                             </li>
-                            }
+                        }
                     </ul>
                     <div class="tab-content custom-menu-content">
+                        <div id="home" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="Home" asp-action="Index">Home</a>
+                                </li>
+                            </ul>
+                        </div>
                         @if (ViewBag.filesRole)
                         {
                             <div id="file" class="tab-pane notika-tab-menu-bg animated flipInX">
@@ -191,7 +201,7 @@
                                     <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DTransportDeducs" asp-action="Index">Transporter</a>
+                                    <a asp-controller="ProductIntakes" asp-action="TDeductionList">Transporter</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DTransports" asp-action="Index">Transporter Assignement</a>
@@ -251,7 +261,13 @@
                         <div id="Reports" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
-                                    <a asp-controller="Report" asp-action="DownloadReport">Farmers Register</a>
+                                    <a asp-controller="Report" asp-action="DownloadReport">Suppliers</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Report" asp-action="DownloadTReport">Transporters</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
                                 </li>
                             </ul>
                         </div>

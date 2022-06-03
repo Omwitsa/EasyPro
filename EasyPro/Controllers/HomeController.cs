@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,39 +33,30 @@ namespace EasyPro.Controllers
         public IActionResult Index()
         {
             utilities.SetUpPrivileges(this);
-            var intakes = _context.ProductIntake.Where(i => i.TransDate == DateTime.Today);
-            var seedsRate = 0;
-            var leavesRate = 0;
-            var powderRate = 0;
-            var moringaSeedsRate = 0;
-            var dryLeavesRate = 0;
-            var freshLeavesRate = 0;
-            if(intakes.Count() > 0)
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var intakes = _context.ProductIntake.Where(i => i.TransDate >= startDate && i.TransDate <= DateTime.Today);
+            var products = _context.DPrices.Select(p => p.Products.ToUpper()).Distinct().ToList();
+            var intakeStatistics = new List<PoductStatistics>();
+            products.ForEach(p =>
             {
-                var seeds = intakes.Where(i => i.ProductType.ToLower().Equals("seeds"));
-                seedsRate = (seeds.Count() * 100) / intakes.Count();
-                var leaves = intakes.Where(i => i.ProductType.ToLower().Equals("leaves"));
-                leavesRate = (leaves.Count() * 100) / intakes.Count();
-                var powder = intakes.Where(i => i.ProductType.ToLower().Equals("powder"));
-                powderRate = (powder.Count() * 100) / intakes.Count();
-                var moringaSeeds = intakes.Where(i => i.ProductType.ToLower().Equals("moringa seeds"));
-                moringaSeedsRate = (moringaSeeds.Count() * 100) / intakes.Count();
-                var dryLeaves = intakes.Where(i => i.ProductType.ToLower().Equals("dry leaves"));
-                dryLeavesRate = (dryLeaves.Count() * 100) / intakes.Count();
-                var freshLeaves = intakes.Where(i => i.ProductType.ToLower().Equals("fresh leaves"));
-                freshLeavesRate = (freshLeaves.Count() * 100) / intakes.Count();
-            }
+                var productIntakes = intakes.Where(i => i.ProductType.ToUpper().Equals(p));
+                var rate = 0;
+                if (intakes.Any())
+                    rate = (productIntakes.Count() * 100) / intakes.Count();
 
-            ViewBag.seeds = seedsRate;
-            ViewBag.leaves = leavesRate;
-            ViewBag.powder = powderRate;
-            ViewBag.moringaSeeds = moringaSeedsRate;
-            ViewBag.dryLeaves = dryLeavesRate;
-            ViewBag.freshLeaves = freshLeavesRate;
+                intakeStatistics.Add(new PoductStatistics
+                {
+                    Name = p,
+                    Rate = rate
+                });
+            });
 
-            //ViewBag.privileges = JsonConvert.SerializeObject(selectedSettings);
-
-            ViewBag.prices = _context.DPrices.Where(p => p.Edate >= DateTime.Today).ToList();
+            ViewBag.intakeStatistics = intakeStatistics;
+            var suppliers = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()));
+            ViewBag.suppliers = suppliers.Count();
+            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
+            ViewBag.transporters = transporters.Count();
             return View();
         }
 

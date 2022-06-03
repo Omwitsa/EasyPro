@@ -19,8 +19,9 @@ namespace EasyPro.Utils
 
         public void SetUpPrivileges(Controller controller)
         {
-            var group = controller.HttpContext.Session.GetString(StrValues.UserGroup);
+            var group = controller.HttpContext.Session.GetString(StrValues.UserGroup) ?? "";
             var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group));
+            controller.ViewBag.sacco = controller.HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             controller.ViewBag.filesRole = usergroup.Files;
             controller.ViewBag.accountsRole = usergroup.Accounts;
             controller.ViewBag.transactionsRole = usergroup.Transactions;

@@ -13,16 +13,16 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="GlAccName" class="control-label"></label>
-                            <input asp-for="GlAccName" class="form-control" />
-                            <span asp-validation-for="GlAccName" class="text-danger"></span>
+                            <label asp-for="AccNo" class="control-label"></label>
+                            <input asp-for="AccNo" class="form-control" />
+                            <span asp-validation-for="AccNo" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="AccNo" class="control-label"></label>
-                            <input asp-for="AccNo" class="form-control" />
-                            <span asp-validation-for="AccNo" class="text-danger"></span>
+                            <label asp-for="GlAccName" class="control-label"></label>
+                            <input asp-for="GlAccName" class="form-control" />
+                            <span asp-validation-for="GlAccName" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -31,15 +31,19 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="GlAccType" class="control-label"></label>
-                            <input asp-for="GlAccType" class="form-control" />
+                            <select asp-for="GlAccType" class="form-control" asp-items="@ViewBag.accTypes">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
                             <span asp-validation-for="GlAccType" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="GlAccGroup" class="control-label"></label>
-                            <input asp-for="GlAccGroup" class="form-control" />
-                            <span asp-validation-for="GlAccGroup" class="text-danger"></span>
+                            <label asp-for="GlAccMainGroup" class="control-label"></label>
+                            <select asp-for="GlAccMainGroup" class="form-control" asp-items="@ViewBag.accGroups">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="GlAccMainGroup" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -47,33 +51,20 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="GlAccMainGroup" class="control-label"></label>
-                            <input asp-for="GlAccMainGroup" class="form-control" />
-                            <span asp-validation-for="GlAccMainGroup" class="text-danger"></span>
+                            <label asp-for="GlAccGroup" class="control-label"></label>
+                            <select asp-for="GlAccGroup" class="form-control" asp-items="@ViewBag.subGroups">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="GlAccGroup" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="NormalBal" class="control-label"></label>
-                            <input asp-for="NormalBal" class="form-control" />
+                            <select asp-for="NormalBal" class="form-control" asp-items="@ViewBag.normalBal">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
                             <span asp-validation-for="NormalBal" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="GlAccStatus" class="control-label"></label>
-                            <input asp-for="GlAccStatus" class="form-control" />
-                            <span asp-validation-for="GlAccStatus" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="OpeningBal" class="control-label"></label>
-                            <input asp-for="OpeningBal" class="form-control" />
-                            <span asp-validation-for="OpeningBal" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -88,9 +79,9 @@
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="Bal" class="control-label"></label>
-                            <input asp-for="Bal" class="form-control" />
-                            <span asp-validation-for="Bal" class="text-danger"></span>
+                            <label asp-for="OpeningBal" class="control-label"></label>
+                            <input asp-for="OpeningBal" class="form-control" />
+                            <span asp-validation-for="OpeningBal" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -98,15 +89,19 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="CurrCode" class="control-label"></label>
-                            <input asp-for="CurrCode" class="form-control" />
-                            <span asp-validation-for="CurrCode" class="text-danger"></span>
+                            <label asp-for="AccCategory" class="control-label"></label>
+                            <select asp-for="AccCategory" class="form-control" asp-items="@ViewBag.categories">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="AccCategory" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Curr" class="control-label"></label>
-                            <input asp-for="Curr" class="form-control" />
+                            <select asp-for="Curr" class="form-control" asp-items="@ViewBag.currencies">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
                             <span asp-validation-for="Curr" class="text-danger"></span>
                         </div>
                     </div>
@@ -125,108 +120,6 @@
                             <label asp-for="Budgetted" class="control-label"></label>
                             <input asp-for="Budgetted" class="form-control" />
                             <span asp-validation-for="Budgetted" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="IsSubLedger" class="control-label"></label>
-                            <input asp-for="IsSubLedger" class="form-control" />
-                            <span asp-validation-for="IsSubLedger" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="AccCategory" class="control-label"></label>
-                            <input asp-for="AccCategory" class="form-control" />
-                            <span asp-validation-for="AccCategory" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="NewGlopeningBal" class="control-label"></label>
-                            <input asp-for="NewGlopeningBal" class="form-control" />
-                            <span asp-validation-for="NewGlopeningBal" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="NewGlopeningBalDate" class="control-label"></label>
-                            <input asp-for="NewGlopeningBalDate" class="form-control" />
-                            <span asp-validation-for="NewGlopeningBalDate" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Hcode" class="control-label"></label>
-                            <input asp-for="Hcode" class="form-control" />
-                            <span asp-validation-for="Hcode" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Mcode" class="control-label"></label>
-                            <input asp-for="Mcode" class="form-control" />
-                            <span asp-validation-for="Mcode" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Hname" class="control-label"></label>
-                            <input asp-for="Hname" class="form-control" />
-                            <span asp-validation-for="Hname" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Header" class="control-label"></label>
-                            <input asp-for="Header" class="form-control" />
-                            <span asp-validation-for="Header" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Mheader" class="control-label"></label>
-                            <input asp-for="Mheader" class="form-control" />
-                            <span asp-validation-for="Mheader" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Iorder" class="control-label"></label>
-                            <input asp-for="Iorder" class="form-control" />
-                            <span asp-validation-for="Iorder" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Border" class="control-label"></label>
-                            <input asp-for="Border" class="form-control" />
-                            <span asp-validation-for="Border" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Type" class="control-label"></label>
-                            <input asp-for="Type" class="form-control" />
-                            <span asp-validation-for="Type" class="text-danger"></span>
                         </div>
                     </div>
                 </div>

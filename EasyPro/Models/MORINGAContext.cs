@@ -5829,7 +5829,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DPrice>(entity =>
             {
-                entity.HasKey(e => e.Products);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Price");
 

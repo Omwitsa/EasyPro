@@ -1,0 +1,120 @@
+﻿@model EasyPro.ViewModels.FarmersVM.FarmersVM
+@{
+    ViewData["Title"] = "CreateTDeduction";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create Deduction</h2>
+            </div>
+            <hr />
+            <Form asp-action="CreateTDeduction">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Deduction Date</label>
+                                    <input required type="date" asp-for="ProductIntake.TransDate" class="form-control" />
+                                    <span asp-validation-for="ProductIntake.TransDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">TCode</label>
+                                    <input id="transCode" asp-for="ProductIntake.Sno" required class="form-control" />
+                                    <span asp-validation-for="ProductIntake.Sno" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transporter Name</label>
+                                    <input id="name" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="ProductIntake.ProductType" class="control-label"></label>
+                                    <select required asp-for="ProductIntake.ProductType" class="form-control" asp-items="@ViewBag.Description"></select>
+                                    <span asp-validation-for="ProductIntake.ProductType" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="ProductIntake.DR" class="control-label"></label>
+                                    <input id="code" required asp-for="ProductIntake.DR" class="form-control" />
+                                    <span asp-validation-for="ProductIntake.DR" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="nk-int-st">
+                            <div class="form-group">
+                                <label asp-for="ProductIntake.Remarks" class="control-label"></label>
+                                <textarea asp-for="ProductIntake.Remarks" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </Form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+                    $(function () {
+                        $('#transCode').on('change', function () {
+
+                            var products = @Html.Raw(Json.Serialize(Model.DTransporters));
+                            var selectVal = $("#transCode").val();
+                            var selectProducts = products.filter(p => p.TransCode === selectVal);
+                                if (selectProducts[0]) {
+                                    $("#name").val(selectProducts[0].TransName);
+                                }
+                        });
+                    });
+    </script>
+}
+
+
