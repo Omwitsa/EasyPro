@@ -234,16 +234,32 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-                productIntake.SaccoCode = sacco ?? "";
-                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
-                productIntake.AuditId = auditId ?? "";
-                productIntake.Description = "Intake";
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                productIntake.SaccoCode = sacco;
+                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 productIntake.TransactionType = TransactionType.Intake;
                 productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
-                _context.ProductIntake.Add(productIntake);
+                _context.ProductIntake.Add(new ProductIntake { 
+                    Sno = productIntake.Sno,
+                    TransDate = productIntake.TransDate,
+                    TransTime = productIntake.TransTime,
+                    ProductType = productIntake.ProductType,
+                    Qsupplied = productIntake.Qsupplied,
+                    Ppu = productIntake.Ppu,
+                    CR = productIntake.CR,
+                    DR = productIntake.DR,
+                    Balance = productIntake.Balance,
+                    Description = "Intake",
+                    TransactionType = productIntake.TransactionType,
+                    Paid = productIntake.Paid,
+                    Remarks = productIntake.Remarks,
+                    AuditId = auditId,
+                    Auditdatetime = productIntake.Auditdatetime,
+                    Branch = productIntake.Branch,
+                    SaccoCode = productIntake.SaccoCode
+                });
 
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
@@ -251,27 +267,58 @@ namespace EasyPro.Controllers
                 if (transport != null)
                 {
                     // Debit supplier transport amount
-                    productIntake.Ppu = transport.Rate;
                     productIntake.CR = 0;
                     productIntake.DR = productIntake.Qsupplied * transport.Rate;
                     productIntake.Balance = productIntake.Balance - productIntake.DR;
-                    productIntake.Description = "Transport";
-                    productIntake.TransactionType = TransactionType.Deduction;
-                    _context.ProductIntake.Add(productIntake);
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = productIntake.Sno,
+                        TransDate = productIntake.TransDate,
+                        TransTime = productIntake.TransTime,
+                        ProductType = productIntake.ProductType,
+                        Qsupplied = productIntake.Qsupplied,
+                        Ppu = transport.Rate,
+                        CR = productIntake.CR,
+                        DR = productIntake.DR,
+                        Balance = productIntake.Balance,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = productIntake.Paid,
+                        Remarks = productIntake.Remarks,
+                        AuditId = auditId,
+                        Auditdatetime = productIntake.Auditdatetime,
+                        Branch = productIntake.Branch,
+                        SaccoCode = productIntake.SaccoCode
+                    });
 
                     // Credit transpoter transport amount
-                    productIntake.Sno = transport.TransCode;
-                    productIntake.Ppu = transport.Rate;
                     productIntake.CR = productIntake.Qsupplied * transport.Rate;
                     productIntake.DR = 0;
                     productIntake.Balance = GetBalance(productIntake); ;
-                    productIntake.Description = "Transport";
-                    productIntake.TransactionType = TransactionType.Deduction;
-                    _context.ProductIntake.Add(productIntake);
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = transport.TransCode,
+                        TransDate = productIntake.TransDate,
+                        TransTime = productIntake.TransTime,
+                        ProductType = productIntake.ProductType,
+                        Qsupplied = productIntake.Qsupplied,
+                        Ppu = transport.Rate,
+                        CR = productIntake.CR,
+                        DR = productIntake.DR,
+                        Balance = productIntake.Balance,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = productIntake.Paid,
+                        Remarks = productIntake.Remarks,
+                        AuditId = auditId,
+                        Auditdatetime = productIntake.Auditdatetime,
+                        Branch = productIntake.Branch,
+                        SaccoCode = productIntake.SaccoCode
+                    });
                 }
                 _context.SaveChanges();
                 _notyf.Success("Intake saved successfully");
-                //return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = productIntake.Id });
+                return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = productIntake.Id });
             }
             return View(productIntake);
         }

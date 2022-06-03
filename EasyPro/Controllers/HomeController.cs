@@ -34,7 +34,8 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var intakes = _context.ProductIntake.Where(i => i.TransDate == DateTime.Today);
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var intakes = _context.ProductIntake.Where(i => i.TransDate >= startDate && i.TransDate <= DateTime.Today);
             var products = _context.DPrices.Select(p => p.Products.ToUpper()).Distinct().ToList();
             var intakeStatistics = new List<PoductStatistics>();
             products.ForEach(p =>

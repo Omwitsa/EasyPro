@@ -63,19 +63,19 @@
                 <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
                     <div class="header-top-menu">
                         <ul class="nav navbar-nav notika-top-nav">
-                            <li class="nav-item dropdown">
-                                <a asp-controller="Home" asp-action="Login">
-                                    <span><i class="notika-icon notika-logout"></i>Log Out</span>
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-
-                            </li>
                             <li class="nav-item nc-al">
 
                             </li>
                             <li class="nav-item">
 
+                            </li>
+                            <li class="nav-item dropdown">
+                                <span><i class="notika-icon notika-logout"></i>@ViewBag.sacco</span>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a asp-controller="Home" asp-action="Login">
+                                    <span><i class="notika-icon notika-logout"></i>Log Out</span>
+                                </a>
                             </li>
                         </ul>
                     </div>
