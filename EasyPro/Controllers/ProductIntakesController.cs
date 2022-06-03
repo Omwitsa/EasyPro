@@ -242,7 +242,7 @@ namespace EasyPro.Controllers
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
                 _context.ProductIntake.Add(new ProductIntake { 
-                    Sno = productIntake.Sno,
+                    Sno = productIntake.Sno.Trim(),
                     TransDate = productIntake.TransDate,
                     TransTime = productIntake.TransTime,
                     ProductType = productIntake.ProductType,
@@ -272,7 +272,7 @@ namespace EasyPro.Controllers
                     productIntake.Balance = productIntake.Balance - productIntake.DR;
                     _context.ProductIntake.Add(new ProductIntake
                     {
-                        Sno = productIntake.Sno,
+                        Sno = productIntake.Sno.Trim(),
                         TransDate = productIntake.TransDate,
                         TransTime = productIntake.TransTime,
                         ProductType = productIntake.ProductType,
@@ -297,7 +297,7 @@ namespace EasyPro.Controllers
                     productIntake.Balance = GetBalance(productIntake); ;
                     _context.ProductIntake.Add(new ProductIntake
                     {
-                        Sno = transport.TransCode,
+                        Sno = transport.TransCode.Trim(),
                         TransDate = productIntake.TransDate,
                         TransTime = productIntake.TransTime,
                         ProductType = productIntake.ProductType,

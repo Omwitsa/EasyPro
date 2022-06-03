@@ -7165,7 +7165,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DTransportersPayRoll>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_TransportersPayRoll");
 

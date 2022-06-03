@@ -100,6 +100,14 @@ namespace EasyPro.Controllers
                 _context.DPayrolls.RemoveRange(payrolls);
                 _context.SaveChanges();
             }
+            var payrolls1 = _context.DTransportersPayRolls
+                .Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month
+                && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+            if (payrolls1.Any())
+            {
+                _context.DTransportersPayRolls.RemoveRange(payrolls1);
+                _context.SaveChanges();
+            }
 
             var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()))
                 .Select(s => s.Sno.ToString());
@@ -115,7 +123,7 @@ namespace EasyPro.Controllers
                 });
 
                 var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
-                var transport = p.Where(k => k.ProductType.ToLower().Contains("transport"));
+                var transport = p.Where(k => k.Description.ToLower().Contains("transport"));
                 var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
                 var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
                 var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
@@ -128,6 +136,7 @@ namespace EasyPro.Controllers
                 if (supplier != null)
                 {
                     var debits = corrections.Sum(s => s.DR);
+                    var Tot = advance.Sum(s => s.DR)+ transport.Sum(s => s.DR)+ agrovet.Sum(s => s.DR)+ bonus.Sum(s => s.DR) + shares.Sum(s => s.DR);
                     _context.DPayrolls.Add(new DPayroll { 
                         Sno = (int?)supplier.Sno,
                         Gpay = p.Sum(s => s.CR),
@@ -138,10 +147,11 @@ namespace EasyPro.Controllers
                         Agrovet = agrovet.Sum(s => s.DR),
                         Bonus = bonus.Sum(s => s.DR),
                         Hshares = shares.Sum(s => s.DR),
-                        Tdeductions = payroll.Advance + payroll.Transport + payroll.Agrovet + payroll.Bonus + payroll.Hshares,
-                        Npay = payroll.Gpay - debits - payroll.Tdeductions,
+                        Tdeductions = Tot,
+                        Npay = p.Sum(s => s.CR) - debits - Tot,
                         Yyear = endDate.Year,
                         Mmonth = endDate.Month,
+                        Bank= supplier.Bcode,
                         AccountNumber = supplier.AccNo,
                         Bbranch = supplier.Bbranch,
                         IdNo = supplier.IdNo,
@@ -150,13 +160,39 @@ namespace EasyPro.Controllers
                         Auditid = loggedInUser
                     });
                 }
+            });
 
+            var transpoterCodes = _context.DTransporters
+                .Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()))
+                .Select(s => s.TransCode.ToUpper());
+            productIntakes = _context.ProductIntake
+                .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
+                && transpoterCodes.Contains(p.Sno.Trim().ToUpper()) && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            intakes = productIntakes.GroupBy(p => p.Sno).ToList();
+            intakes.ForEach(p =>
+            {
+                p.ToList().ForEach(i =>
+                {
+                    i.Paid = true;
+                });
+
+                var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
+                var transport = p.Where(k => k.ProductType.ToLower().Contains("transport"));
+                var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
+                var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
+                var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
+                var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
+
+                var payroll = new DTransportersPayRoll();
+                long.TryParse(p.Key, out long sno);
+                
                 var transporter = _context.DTransporters
                    .FirstOrDefault(s => s.TransCode.ToUpper().Equals(p.Key.ToUpper()) && s.ParentT.ToUpper().Equals(sacco.ToUpper()));
                 if (transporter != null)
                 {
                     var debits = corrections.Sum(s => s.DR);
-                    var amount = p.Sum(s => s.DR);
+                    var amount = p.Sum(s => s.CR);
+                    var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + shares.Sum(s => s.DR);
                     var subsidy = 0;
                     _context.DTransportersPayRolls.Add(new DTransportersPayRoll
                     {
@@ -169,8 +205,8 @@ namespace EasyPro.Controllers
                         Others = 0,
                         Agrovet = agrovet.Sum(s => s.DR),
                         Hshares = shares.Sum(s => s.DR),
-                        Totaldeductions = payroll.Advance + payroll.Agrovet + payroll.Bonus + payroll.Hshares,
-                        NetPay = payroll.Gpay - debits - payroll.Tdeductions,
+                        Totaldeductions= Tot,
+                        NetPay = (amount + subsidy) - debits - Tot,
                         BankName = transporter.Bcode,
                         Yyear = endDate.Year,
                         Mmonth = endDate.Month,
