@@ -205,6 +205,8 @@ namespace EasyPro.Controllers
                 }
                 currentRow = 5;
                 worksheet.Cell(currentRow, 2).Value = "Suppliers Payroll Report";
+                foreach (var emp in dpayrollobj)
+                    worksheet.Cell(currentRow, 4).Value = emp.EndofPeriod;
                 // SNo, Transport, Agrovet, Bonus,, HShares, Advance, TDeductions, KgsSupplied, GPay,
                 //Bank, AccountNumber, BBranch
                 currentRow = 6;
