@@ -222,7 +222,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly select product type");
                 return View(productIntake);
             }
-            if (productIntake.Qsupplied == null || productIntake.Qsupplied < 1)
+            if (productIntake.Qsupplied < 1)
             {
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return View(productIntake);

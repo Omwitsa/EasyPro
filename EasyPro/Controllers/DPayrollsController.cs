@@ -137,6 +137,7 @@ namespace EasyPro.Controllers
                         payroll.AccountNumber = supplier.AccNo;
                         payroll.Bbranch = supplier.Bbranch;
                         payroll.IdNo = supplier.IdNo;
+                        payroll.EndofPeriod = endDate;
                         _context.DPayrolls.Add(payroll);
                     }
                 }
