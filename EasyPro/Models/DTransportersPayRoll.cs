@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -33,5 +34,6 @@ namespace EasyPro.Models
         public double? Rate { get; set; }
         public int? Frate { get; set; }
         public string Isfrate { get; set; }
+        public string SaccoCode { get; set; }
     }
 }

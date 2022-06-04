@@ -48,5 +48,6 @@ namespace EasyPro.Models
         public decimal Midmonth { get; set; }
         public decimal? Deduct12 { get; set; }
         public decimal? Mpesa { get; set; }
+        public string SaccoCode { get; set; }
     }
 }

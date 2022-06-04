@@ -5686,6 +5686,8 @@ namespace EasyPro.Models
 
                 entity.Property(e => e.Yyear)
                     .HasColumnName("YYear");
+
+                entity.Property(e => e.SaccoCode).HasMaxLength(50);
             });
 
             modelBuilder.Entity<DPayrollCopy>(entity =>
@@ -7173,7 +7175,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DTransportersPayRoll>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_TransportersPayRoll");
 
@@ -7256,6 +7258,9 @@ namespace EasyPro.Models
                 entity.Property(e => e.Yyear)
                     .HasColumnName("YYear")
                     .HasComputedColumnSql("(datepart(year,[endperiod]))", false);
+
+                entity.Property(e => e.SaccoCode)
+                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<DType>(entity =>

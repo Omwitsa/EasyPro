@@ -223,7 +223,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly select product type");
                 return View(productIntake);
             }
-            if (productIntake.Qsupplied == null || productIntake.Qsupplied < 1)
+            if (productIntake.Qsupplied < 1)
             {
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return View(productIntake);
@@ -243,7 +243,7 @@ namespace EasyPro.Controllers
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
                 _context.ProductIntake.Add(new ProductIntake { 
-                    Sno = productIntake.Sno,
+                    Sno = productIntake.Sno.Trim(),
                     TransDate = productIntake.TransDate,
                     TransTime = productIntake.TransTime,
                     ProductType = productIntake.ProductType,
@@ -273,7 +273,7 @@ namespace EasyPro.Controllers
                     productIntake.Balance = productIntake.Balance - productIntake.DR;
                     _context.ProductIntake.Add(new ProductIntake
                     {
-                        Sno = productIntake.Sno,
+                        Sno = productIntake.Sno.Trim(),
                         TransDate = productIntake.TransDate,
                         TransTime = productIntake.TransTime,
                         ProductType = productIntake.ProductType,
@@ -298,7 +298,7 @@ namespace EasyPro.Controllers
                     productIntake.Balance = GetBalance(productIntake); ;
                     _context.ProductIntake.Add(new ProductIntake
                     {
-                        Sno = transport.TransCode,
+                        Sno = transport.TransCode.Trim(),
                         TransDate = productIntake.TransDate,
                         TransTime = productIntake.TransTime,
                         ProductType = productIntake.ProductType,
