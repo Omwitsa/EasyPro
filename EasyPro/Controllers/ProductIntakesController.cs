@@ -203,7 +203,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
+        public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo")] ProductIntake productIntake)
         {
             utilities.SetUpPrivileges(this);
             productIntake.Description = productIntake?.Description ?? "";
@@ -237,6 +237,11 @@ namespace EasyPro.Controllers
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 productIntake.SaccoCode = sacco;
+                var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
+                productIntake.Branch = branch.Bname;
+                var price = _context.DPrices
+                    .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
+                    && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 productIntake.TransactionType = TransactionType.Intake;
                 productIntake.TransDate = DateTime.Today;
@@ -259,7 +264,9 @@ namespace EasyPro.Controllers
                     AuditId = auditId,
                     Auditdatetime = productIntake.Auditdatetime,
                     Branch = productIntake.Branch,
-                    SaccoCode = productIntake.SaccoCode
+                    SaccoCode = productIntake.SaccoCode,
+                    DrAccNo = productIntake.DrAccNo,
+                    CrAccNo = productIntake.CrAccNo,
                 });
 
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
@@ -289,7 +296,9 @@ namespace EasyPro.Controllers
                         AuditId = auditId,
                         Auditdatetime = productIntake.Auditdatetime,
                         Branch = productIntake.Branch,
-                        SaccoCode = productIntake.SaccoCode
+                        SaccoCode = productIntake.SaccoCode,
+                        DrAccNo = productIntake.DrAccNo,
+                        CrAccNo = productIntake.CrAccNo
                     });
 
                     // Credit transpoter transport amount
@@ -314,7 +323,9 @@ namespace EasyPro.Controllers
                         AuditId = auditId,
                         Auditdatetime = productIntake.Auditdatetime,
                         Branch = productIntake.Branch,
-                        SaccoCode = productIntake.SaccoCode
+                        SaccoCode = productIntake.SaccoCode,
+                        DrAccNo = price.TransportDrAccNo,
+                        CrAccNo = price.TransportCrAccNo
                     });
                 }
                 _context.SaveChanges();

@@ -1,6 +1,7 @@
 ﻿using EasyPro.Constants;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,5 +26,9 @@ namespace EasyPro.ViewModels
         public DateTime? Auditdatetime { get; set; }
         public string Branch { get; set; }
         public string SaccoCode { get; set; }
+        [Display(Name = "Dr Account No")]
+        public string DrAccNo { get; set; }
+        [Display(Name = "Cr Account No")]
+        public string CrAccNo { get; set; }
     }
 }

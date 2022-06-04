@@ -15,10 +15,18 @@ namespace EasyPro.Models
         public DateTime? Edate { get; set; }
         public decimal? Price { get; set; }
         public string SaccoCode { get; set; }
-        public string SubsidyQty { get; set; }
+        [Display(Name = "Subsidy Quantity")]
+        public decimal? SubsidyQty { get; set; }
+        [Display(Name = "Subsidy Price")]
         public decimal? SubsidyPrice { get; set; }
+        [Display(Name = "Dr Account No")]
         public string DrAccNo { get; set; }
+        [Display(Name = "Cr Account No")]
         public string CrAccNo { get; set; }
+        [Display(Name = "Transport Dr Account No")]
+        public string TransportDrAccNo { get; set; }
+        [Display(Name = "Transport Cr Account No")]
+        public string TransportCrAccNo { get; set; }
 
         // [NotMapped]
         //public List<DBranchProduct> Productcollection { get; set; }
