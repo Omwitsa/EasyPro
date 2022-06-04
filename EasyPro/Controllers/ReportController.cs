@@ -7,6 +7,8 @@ using EasyPro.ViewModels;
 using EasyPro.ViewModels.Reports;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
 using System;
@@ -35,6 +37,7 @@ namespace EasyPro.Controllers
         public IEnumerable<DTransportersPayRoll> transporterpayrollobj { get; set; }
         public IEnumerable<DPayroll> dpayrollobj { get; set; }
         public IEnumerable<DCompany> companyobj { get; set; }
+        public IEnumerable<DBranch> branchobj { get; set; }
 
         [HttpGet]
         public IActionResult DownloadReport()
@@ -53,6 +56,19 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             return View();
+        }
+        [HttpGet]
+        public IActionResult DownloadActiveSuppliersPReport()
+        {
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            return View();
+        }
+        private void GetInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var brances = _context.DBranch.Where(i => i.Bcode == sacco).Select(b => b.Bname).ToList();
+            ViewBag.brances = new SelectList(brances);
         }
 
         [HttpPost]
@@ -82,6 +98,46 @@ namespace EasyPro.Controllers
             sacco = sacco ?? "";
             dpayrollobj = _context.DPayrolls; //.Where(u => u.ParentT == sacco);
             return suppliersPayrollExcel();
+        }
+        [HttpPost]
+        public IActionResult SuppliersActive([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            suppliersobj = _context.DSuppliers.Where(u => u.Scode == sacco); //.Where(u => u.ParentT == sacco);
+            return SuppliersActiveExcel(DateFrom, DateTo);
+        }
+        [HttpPost]
+        public IActionResult BranchIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var Branch = filter.Branch;
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            if (Branch == null)
+                branchobj = _context.DBranch.Where(u => u.Bcode == sacco);
+            else
+                branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == Branch);
+            return BranchIntakeExcel(DateFrom, DateTo, Branch);
+        }
+        [HttpPost]
+        public async Task<IActionResult> DSumarryIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var endDate = Convert.ToDateTime(filter.DateTo.ToString());
+            var DateFrom = new DateTime(endDate.Year, endDate.Month, 1);
+            var DateTo = DateFrom.AddMonths(1).AddDays(-1);
+            var Branch = filter.Branch;
+
+            if (Branch == null)
+                branchobj = await _context.DBranch.Where(u => u.Bcode == sacco).ToListAsync();
+            else
+                branchobj = await _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == Branch).ToListAsync();
+            return await DSumarryIntakeExcel(DateFrom, DateTo, Branch);
         }
         [HttpPost]
         public IActionResult TransportersPayrollExcel([Bind("DateFrom,DateTo")] FilterVm filter)
@@ -305,7 +361,6 @@ namespace EasyPro.Controllers
                 }
             }
         }
-
         public IActionResult suppliersPayrollExcel()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -418,7 +473,87 @@ namespace EasyPro.Controllers
                 }
             }
         }
+        public IActionResult SuppliersActiveExcel(DateTime DateFrom, DateTime DateTo)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var DateFro = Convert.ToDateTime(DateFrom.ToString());
+            var DateT = Convert.ToDateTime(DateTo.ToString());
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("suppliersobj");
+                var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Active Suppliers Register";
+                worksheet.Cell(currentRow, 3).Value = DateT;
 
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "RegDate";
+                worksheet.Cell(currentRow, 4).Value = "IDNo";
+                worksheet.Cell(currentRow, 5).Value = "Phone";
+                worksheet.Cell(currentRow, 6).Value = "Bank";
+                worksheet.Cell(currentRow, 7).Value = "AccNo";
+                worksheet.Cell(currentRow, 8).Value = "Branch";
+                worksheet.Cell(currentRow, 9).Value = "Gender";
+                worksheet.Cell(currentRow, 10).Value = "Village";
+                worksheet.Cell(currentRow, 11).Value = "Location";
+                worksheet.Cell(currentRow, 12).Value = "Division";
+                worksheet.Cell(currentRow, 13).Value = "District";
+                worksheet.Cell(currentRow, 14).Value = "County";
+                worksheet.Cell(currentRow, 15).Value = "Active";
+                worksheet.Cell(currentRow, 16).Value = "Address";
+                var Total = 0;
+                foreach (var emp in suppliersobj)
+                {
+                    var activesupplier = _context.ProductIntake.Where(i => i.Sno == (emp.Sno).ToString() && i.TransDate >= DateFro && i.TransDate <= DateT).Count();
+                    if (activesupplier > 0)
+                    {
+
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                        worksheet.Cell(currentRow, 2).Value = emp.Names;
+                        worksheet.Cell(currentRow, 3).Value = emp.Regdate;
+                        worksheet.Cell(currentRow, 4).Value = emp.IdNo;
+                        worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
+                        worksheet.Cell(currentRow, 6).Value = emp.Bcode;
+                        worksheet.Cell(currentRow, 7).Value = emp.AccNo;
+                        worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
+                        worksheet.Cell(currentRow, 9).Value = emp.Type;
+                        worksheet.Cell(currentRow, 10).Value = emp.Village;
+                        worksheet.Cell(currentRow, 11).Value = emp.Location;
+                        worksheet.Cell(currentRow, 12).Value = emp.Division;
+                        worksheet.Cell(currentRow, 13).Value = emp.District;
+                        worksheet.Cell(currentRow, 14).Value = emp.County;
+                        worksheet.Cell(currentRow, 15).Value = emp.Active;
+                        worksheet.Cell(currentRow, 16).Value = emp.Address;
+                        Total += 1;
+                    }
+                }
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "No Of Suppliers";
+                worksheet.Cell(currentRow, 2).Value = Total;
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Active Suppliers Register.xlsx");
+                }
+            }
+        }
         public IActionResult Excel()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -547,6 +682,262 @@ namespace EasyPro.Controllers
                 }
             }
         }
+        public async Task<IActionResult> DSumarryIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var DateFro = Convert.ToDateTime(DateFrom.ToString());
+                var DateT = Convert.ToDateTime(DateTo.ToString());
+                var Branchh = Branch;
+                var worksheet = workbook.Worksheets.Add("productIntakeobj");
+                var currentRow = 1;
+                companyobj = await _context.DCompanies.Where(u => u.Name == sacco).ToListAsync();
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Suppliers Summary Intake Report";
+
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "IDNo";
+                worksheet.Cell(currentRow, 4).Value = "1";
+                worksheet.Cell(currentRow, 5).Value = "2";
+                worksheet.Cell(currentRow, 6).Value = "3";
+                worksheet.Cell(currentRow, 7).Value = "4";
+                worksheet.Cell(currentRow, 8).Value = "5";
+                worksheet.Cell(currentRow, 9).Value = "6";
+                worksheet.Cell(currentRow, 10).Value = "7";
+                worksheet.Cell(currentRow, 11).Value = "8";
+                worksheet.Cell(currentRow, 12).Value = "9";
+                worksheet.Cell(currentRow, 13).Value = "10";
+                worksheet.Cell(currentRow, 14).Value = "11";
+                worksheet.Cell(currentRow, 15).Value = "12";
+                worksheet.Cell(currentRow, 16).Value = "13";
+                worksheet.Cell(currentRow, 17).Value = "14";
+                worksheet.Cell(currentRow, 18).Value = "15";
+                worksheet.Cell(currentRow, 19).Value = "16";
+                worksheet.Cell(currentRow, 20).Value = "17";
+                worksheet.Cell(currentRow, 21).Value = "18";
+                worksheet.Cell(currentRow, 22).Value = "19";
+                worksheet.Cell(currentRow, 23).Value = "20";
+                worksheet.Cell(currentRow, 24).Value = "21";
+                worksheet.Cell(currentRow, 25).Value = "22";
+                worksheet.Cell(currentRow, 26).Value = "23";
+                worksheet.Cell(currentRow, 27).Value = "24";
+                worksheet.Cell(currentRow, 28).Value = "25";
+                worksheet.Cell(currentRow, 29).Value = "26";
+                worksheet.Cell(currentRow, 30).Value = "27";
+                worksheet.Cell(currentRow, 31).Value = "28";
+                worksheet.Cell(currentRow, 32).Value = "29";
+                worksheet.Cell(currentRow, 33).Value = "30";
+                worksheet.Cell(currentRow, 34).Value = "31";
+                worksheet.Cell(currentRow, 35).Value = "Total";
+                worksheet.Cell(currentRow, 36).Value = "Branch";
+                decimal sum = 0, sum1 = 0;
+                foreach (var branch in branchobj)
+                {
+                    suppliersobj = await _context.DSuppliers.Where(u => u.Scode == sacco && u.Branch == branch.Bname).OrderBy(k => k.Sno).ToListAsync();
+                    foreach (var sup in suppliersobj)
+                    {
+                        var startdate = DateFro;
+                        //productIntakeobj = _context.ProductIntake
+                        //.Where(i => i.SaccoCode == sacco && i.Sno==sup.Sno.ToString() && i.TransDate >= DateFro && i.Qsupplied != 0 && i.TransDate <= DateT && i.Branch == branch.Bname);
+
+                        //long.TryParse(sup.Sno, out long sno);
+                        var TransporterExist = await _context.DSuppliers.AnyAsync(u => u.Scode == sacco && u.Sno == sup.Sno);
+                        if (TransporterExist)
+                        {
+
+                            currentRow++;
+                            worksheet.Cell(currentRow, 1).Value = sup.Sno;
+                            worksheet.Cell(currentRow, 2).Value = sup.Names;
+                            worksheet.Cell(currentRow, 3).Value = sup.IdNo;
+                            while (startdate <= DateT)
+                            {
+                                var datereceived = startdate;
+                                var sumkgs =  _context.ProductIntake
+                        .Where(i => i.SaccoCode == sacco && i.Sno == sup.Sno.ToString() && i.TransDate >= datereceived
+                        && i.Qsupplied != 0 && i.TransDate <= datereceived && i.Branch == branch.Bname).Sum(s => s.Qsupplied);
+                                var datereceive = startdate.Day;
+
+                                if (datereceive == 1)
+                                    worksheet.Cell(currentRow, 4).Value = sumkgs;
+                                if (datereceive == 2)
+                                    worksheet.Cell(currentRow, 5).Value = sumkgs;
+                                if (datereceive == 3)
+                                    worksheet.Cell(currentRow, 6).Value = sumkgs;
+                                if (datereceive == 4)
+                                    worksheet.Cell(currentRow, 7).Value = sumkgs;
+                                if (datereceive == 5)
+                                    worksheet.Cell(currentRow, 8).Value = sumkgs;
+                                if (datereceive == 6)
+                                    worksheet.Cell(currentRow, 9).Value = sumkgs;
+                                if (datereceive == 7)
+                                    worksheet.Cell(currentRow, 10).Value = sumkgs;
+                                if (datereceive == 8)
+                                    worksheet.Cell(currentRow, 11).Value = sumkgs;
+                                if (datereceive == 9)
+                                    worksheet.Cell(currentRow, 12).Value = sumkgs;
+                                if (datereceive == 10)
+                                    worksheet.Cell(currentRow, 13).Value = sumkgs;
+                                if (datereceive == 11)
+                                    worksheet.Cell(currentRow, 14).Value = sumkgs;
+                                if (datereceive == 12)
+                                    worksheet.Cell(currentRow, 15).Value = sumkgs;
+                                if (datereceive == 13)
+                                    worksheet.Cell(currentRow, 16).Value = sumkgs;
+                                if (datereceive == 14)
+                                    worksheet.Cell(currentRow, 17).Value = sumkgs;
+                                if (datereceive == 15)
+                                    worksheet.Cell(currentRow, 18).Value = sumkgs;
+                                if (datereceive == 16)
+                                    worksheet.Cell(currentRow, 19).Value = sumkgs;
+                                if (datereceive == 17)
+                                    worksheet.Cell(currentRow, 20).Value = sumkgs;
+                                if (datereceive == 18)
+                                    worksheet.Cell(currentRow, 21).Value = sumkgs;
+                                if (datereceive == 19)
+                                    worksheet.Cell(currentRow, 22).Value = sumkgs;
+                                if (datereceive == 20)
+                                    worksheet.Cell(currentRow, 23).Value = sumkgs;
+                                if (datereceive == 21)
+                                    worksheet.Cell(currentRow, 24).Value = sumkgs;
+                                if (datereceive == 22)
+                                    worksheet.Cell(currentRow, 25).Value = sumkgs;
+                                if (datereceive == 23)
+                                    worksheet.Cell(currentRow, 26).Value = sumkgs;
+                                if (datereceive == 24)
+                                    worksheet.Cell(currentRow, 27).Value = sumkgs;
+                                if (datereceive == 25)
+                                    worksheet.Cell(currentRow, 28).Value = sumkgs;
+                                if (datereceive == 26)
+                                    worksheet.Cell(currentRow, 29).Value = sumkgs;
+                                if (datereceive == 27)
+                                    worksheet.Cell(currentRow, 30).Value = sumkgs;
+                                if (datereceive == 28)
+                                    worksheet.Cell(currentRow, 31).Value = sumkgs;
+                                if (datereceive == 29)
+                                    worksheet.Cell(currentRow, 32).Value = sumkgs;
+                                if (datereceive == 30)
+                                    worksheet.Cell(currentRow, 33).Value = sumkgs;
+                                if (datereceive == 31)
+                                    worksheet.Cell(currentRow, 34).Value = sumkgs;
+                                sum += sumkgs;
+                                sum1 += sumkgs;
+                                startdate = startdate.AddDays(1);
+                            }
+                            worksheet.Cell(currentRow, 35).Value = sum1;
+                            worksheet.Cell(currentRow, 36).Value = sup.Branch;
+                            sum1 = 0;
+                        }
+                    }
+                    currentRow++;
+                    worksheet.Cell(currentRow, 4).Value = "Branch Kgs";
+                    worksheet.Cell(currentRow, 5).Value = sum1;
+                    
+                }
+                currentRow++;
+                worksheet.Cell(currentRow, 4).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 5).Value = sum;
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Suppliers Summary Intake.xlsx");
+                }
+            }
+        }
+        public IActionResult BranchIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var DateFro = Convert.ToDateTime(DateFrom.ToString());
+                var DateT = Convert.ToDateTime(DateTo.ToString());
+                var Branchh = Branch;
+                var worksheet = workbook.Worksheets.Add("productIntakeobj");
+                var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Suppliers Branch Intake Report";
+
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "TransDate";
+                worksheet.Cell(currentRow, 4).Value = "ProductType";
+                worksheet.Cell(currentRow, 5).Value = "Qsupplied";
+                worksheet.Cell(currentRow, 6).Value = "Price";
+                worksheet.Cell(currentRow, 7).Value = "Description";
+                worksheet.Cell(currentRow, 8).Value = "Branch";
+                decimal sum = 0, sum1 = 0;
+                foreach (var branch in branchobj)
+                {
+                    productIntakeobj = _context.ProductIntake
+                        .Where(i => i.SaccoCode == sacco && i.TransDate >= DateFro && i.Qsupplied != 0 && i.TransDate <= DateT && i.Branch == branch.Bname);
+                    foreach (var emp in productIntakeobj)
+                    {
+                        long.TryParse(emp.Sno, out long sno);
+                        var TransporterExist = _context.DSuppliers.Where(u => u.Sno == sno).Count();
+                        if (TransporterExist > 0)
+                        {
+                            currentRow++;
+                            worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                            var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                            foreach (var al in TName)
+                                worksheet.Cell(currentRow, 2).Value = al.Names;
+                            worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                            worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                            worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
+                            worksheet.Cell(currentRow, 6).Value = emp.Ppu;
+                            worksheet.Cell(currentRow, 7).Value = emp.Description;
+                            worksheet.Cell(currentRow, 8).Value = emp.Branch;
+                            sum += (emp.Qsupplied);
+                            sum1 += (emp.Qsupplied);
+                        }
+                    }
+                    currentRow++;
+                    worksheet.Cell(currentRow, 4).Value = "Branch Kgs";
+                    worksheet.Cell(currentRow, 5).Value = sum1;
+                    sum1 = 0;
+                }
+                currentRow++;
+                worksheet.Cell(currentRow, 4).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 5).Value = sum;
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Suppliers Branch Intake.xlsx");
+                }
+            }
+        }
         public IActionResult TIntakeExcel(DateTime DateFrom, DateTime DateTo)
         {
             var DateFro = Convert.ToDateTime(DateFrom.ToString());
@@ -578,7 +969,7 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 5).Value = "Qsupplied";
                 worksheet.Cell(currentRow, 6).Value = "Price";
                 worksheet.Cell(currentRow, 7).Value = "Description";
-                decimal sum = 0,totalkg=0;
+                decimal sum = 0, totalkg = 0;
                 var AllTransporters = _context.DTransporters;
                 foreach (var empt in AllTransporters)
                 {
@@ -588,7 +979,7 @@ namespace EasyPro.Controllers
                         var TransporterExist = _context.ProductIntake.Where(u => u.Sno == empt.TransCode && u.SaccoCode == sacco).Count();
                         if (TransporterExist > 0)
                         {
-                            productIntakeobj = _context.ProductIntake.Where(u => u.Sno== empt.TransCode && u.TransDate >= DateFro && u.TransDate <= DateT && u.Qsupplied != 0 && u.SaccoCode == sacco);
+                            productIntakeobj = _context.ProductIntake.Where(u => u.Sno == empt.TransCode && u.TransDate >= DateFro && u.TransDate <= DateT && u.Qsupplied != 0 && u.SaccoCode == sacco);
                             foreach (var empintake in productIntakeobj)
                             {
                                 currentRow++;
@@ -624,7 +1015,6 @@ namespace EasyPro.Controllers
                 }
             }
         }
-
         public IActionResult DeductionsExcel()
         {
             using (var workbook = new XLWorkbook())
@@ -662,7 +1052,6 @@ namespace EasyPro.Controllers
                     {
                         currentRow++;
                         worksheet.Cell(currentRow, 1).Value = emp.Sno;
-
                         var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
                         foreach (var ann in TName)
                             worksheet.Cell(currentRow, 2).Value = ann.Names;
