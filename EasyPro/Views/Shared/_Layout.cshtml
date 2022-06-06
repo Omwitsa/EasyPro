@@ -129,14 +129,12 @@
                                 <a data-toggle="tab" href="#file"><i class="notika-icon notika-form"></i>File</a>
                             </li>
                         }
-                        @if (ViewBag.accountsRole)
+                        @if (ViewBag.transactionsRole)
                         {
                             <li>
                                 <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
                             </li>
-                        }
-                        @if (ViewBag.transactionsRole)
-                        {
+
                             <li>
                                 <a data-toggle="tab" href="#deductions"><i class="notika-icon notika-house"></i>Deductions</a>
                             </li>
@@ -147,11 +145,20 @@
                                 <a data-toggle="tab" href="#activities"><i class="notika-icon notika-form"></i>Activities</a>
                             </li>
                         }
+                        @if (ViewBag.accountsRole)
+                        {
+                            <li>
+                                <a data-toggle="tab" href="#accounts"><i class="notika-icon notika-form"></i>Accounts</a>
+                            </li>
+                        }
                         @if (ViewBag.setupRole)
                         {
                             <li>
                                 <a data-toggle="tab" href="#setup"><i class="notika-icon notika-form"></i>Setup</a>
                             </li>
+                        }
+                        @if (ViewBag.reportsRole)
+                        {
                             <li>
                                 <a data-toggle="tab" href="#Reports"><i class="notika-icon notika-form"></i>Reports</a>
                             </li>
@@ -165,16 +172,16 @@
                                 </li>
                             </ul>
                         </div>
-                        @if (ViewBag.filesRole)
-                        {
-                            <div id="file" class="tab-pane notika-tab-menu-bg animated flipInX">
-                                <ul class="notika-main-menu-dropdown">
-                                    <li>
-                                        <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        }
+                        <div id="file" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div id="registration" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
@@ -221,40 +228,41 @@
                                 </li>
                             </ul>
                         </div>
+                        <div id="accounts" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="Glsetups" asp-action="Index">Charts of Accounts</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div id="setup" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
-                                    <a asp-controller="DBranchProducts" asp-action="Index">Add Product</a>
+                                    <a asp-controller="DBranchProducts" asp-action="Index">Products</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DPrices" asp-action="Index">Pricing</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DCompanies" asp-action="Index">Organization Setup</a>
+                                    <a asp-controller="DCompanies" asp-action="Index">Org Setup</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DBranches" asp-action="Index">Organization Branch</a>
+                                    <a asp-controller="DBranches" asp-action="Index">Org Branch</a>
                                 </li>
                                 <li>
                                     <a asp-controller="UserAccounts" asp-action="Index">Users</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="Usergroups" asp-action="Index">User Groups</a>
+                                    <a asp-controller="Usergroups" asp-action="Index">UserGroups</a>
                                 </li>
                                 <li>
                                     <a asp-controller="Counties" asp-action="Index">Counties</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="SubCounties" asp-action="Index">Sub Counties</a>
+                                    <a asp-controller="SubCounties" asp-action="Index">SubCounties</a>
                                 </li>
                                 <li>
                                     <a asp-controller="Wards" asp-action="Index">Wards</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="Glsetups" asp-action="Index">Charts of Accounts</a>
                                 </li>
                             </ul>
                         </div>

@@ -1,0 +1,223 @@
+﻿@model EasyPro.Models.Gltransaction
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Journal Posting</h2>
+            </div>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="DocumentNo" class="control-label"></label>
+                            <input id="documentNo" asp-for="DocumentNo" class="form-control" />
+                            <span asp-validation-for="DocumentNo" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="DrAccNo" class="control-label"></label>
+                            <select id="glAcc" asp-for="DrAccNo" class="form-control" asp-items="@ViewBag.glAccounts">
+                                <option value="" disabled selected hidden>Please select</option>
+                            </select>
+                            <span asp-validation-for="CrAccNo" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Dr</label>
+                            <input id="drAmt" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Cr</label>
+                            <input id="crAmt" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Total Dr</label>
+                            <input id="totalDrAmt" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Total Cr</label>
+                            <input id="totalCrAmt" class="form-control" readonly />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="TransDescript" class="control-label"></label>
+                            <input asp-for="TransDescript" class="form-control" />
+                            <span asp-validation-for="TransDescript" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
+                    </div>
+                </div>
+
+                <hr />
+                <div class="bsc-tbl-hvr table-border-style">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <tr>
+                                <th>Account No.</th>
+                                <th>DR</th>
+                                <th>CR</th>
+                            </tr>
+                            <tbody id="details">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button id="save" type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            let journalDetails = new Array();
+            $('#drAmt').on('keyup', function () {
+                pupulateDetailsTable();
+            });
+
+            $('#crAmt').on('keyup', function () {
+                pupulateDetailsTable();
+            });
+
+            $('#save').on('click', function () {
+                let crAccounts = journalDetails.filter(j => !j.isdebit);
+                let drAccounts = journalDetails.filter(j => j.isdebit);
+                let creditAmount = 0;
+                crAccounts.forEach(c => {
+                    creditAmount += c.amount;
+                });
+                let debitAmount = 0;
+                drAccounts.forEach(c => {
+                    debitAmount += c.amount;
+                });
+                if (creditAmount != debitAmount) {
+                    alert("Sorry, Debit amount must be equal to credit amount")
+                    return
+                }
+                if (debitAmount < 1) {
+                    alert("Sorry, No item debited")
+                    return
+                }
+                let docNo = $("#documentNo").val();
+                let transactions = new Array();
+                if (drAccounts.length > 1) {
+                    drAccounts.forEach(d => {
+                        transactions.push({
+                            amount: d.amount,
+                            drAccNo: d.glAcc,
+                            crAccNo: crAccounts[0].glAcc,
+                            documentNo: docNo,
+                            ChequeNo: docNo
+                        });
+                    });
+                }
+                else {
+                    crAccounts.forEach(d => {
+                        transactions.push({
+                            amount: d.amount,
+                            drAccNo: drAccounts[0].glAcc,
+                            crAccNo: d.glAcc,
+                            documentNo: docNo,
+                            ChequeNo: docNo
+                        });
+                    });
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: "postTransactions",
+                    contentType: 'application/json',
+                    data: JSON.stringify(transactions),
+                    success: function (response) {
+                        //if (response.Success) {
+
+                        //}
+                       // populateIntake(response)
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+
+            function pupulateDetailsTable() {
+                let glAcc = $("#glAcc").val();
+                let drAmt = parseFloat($("#drAmt").val());
+                let crAmt = parseFloat($("#crAmt").val());
+                if (!glAcc) {
+                    $("#drAmt").val(0);
+                    $("#crAmt").val(0);
+                    alert("Kindly provide GL Account")
+                    return
+                }
+
+                let isdebit = drAmt > 0;
+                let amount = isdebit ? drAmt : crAmt;
+                let drAccounts = journalDetails.filter(j => j.isdebit);
+                let crAccounts = journalDetails.filter(j => !j.isdebit);
+                let blockDrAcc = crAccounts.length > 1 && drAccounts.length > 0 && drAmt;
+                let blockCRAcc = drAccounts.length > 1 && crAccounts.length > 0 && crAmt;
+                if (blockDrAcc || blockCRAcc) {
+                    alert("Sorry, A journal must have a single entry in at least on side")
+                    return
+                }
+
+                journalDetails.push({
+                    glAcc: glAcc,
+                    amount: amount,
+                    isdebit: isdebit,
+                });
+
+                let itemTableRows = new Array();
+                journalDetails.forEach(j => {
+                    drAmt = j.isdebit ? j.amount : 0;
+                    crAmt = j.isdebit ? 0 : j.amount;
+                    itemTableRows.push(`<tr>
+				        <td>${j.glAcc}</td>
+                        <td>${drAmt}</td>
+                        <td>${crAmt}</td>
+			        </tr>`);
+                });
+
+                $('#details').html(itemTableRows);
+            }
+
+        });
+    </script>
+}

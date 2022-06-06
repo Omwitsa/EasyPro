@@ -27,6 +27,7 @@ namespace EasyPro.Utils
             controller.ViewBag.transactionsRole = usergroup.Transactions;
             controller.ViewBag.activityRole = usergroup.Activity;
             controller.ViewBag.setupRole = usergroup.Setup;
+            controller.ViewBag.reportsRole = usergroup.Reports;
         }
     }
 }
