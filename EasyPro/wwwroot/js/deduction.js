@@ -7,28 +7,16 @@ $(document).ready(function () {
 function loadList(url) {
     dataTable = $('#DT_lo').DataTable({
         "ajax": {
-            "url": "/api/expendituretrans" + url,
+            "url": "/api/amountbal" + url,
             "type": "GET",
             "datatype": "json"
         },
         "columns": [
-            { "data": "dateDed", "width": "15%" },
-            { "data": "expenditure.name", "width": "25%" },
-            { "data": "amount", "width": "10%" },
-            { "data": "remarks", "width": "15%" },
-            { "data": "branch.name", "width": "15%" },
-            {
-                "data": "id",
-                "render": function (data) {
-                    return `<div class="text-center">
-                                <a href="/Meat Activities/expenditure/Upsert?Id=${data}" class="btn btn-success text-white">
-                                 <i class="fa-solid fa-pen-to-square"></i></i> Edit</a>
-                                <a onClick=Delete('/api/expendituretrans/'+${data}) class="btn btn-danger text-white" style="cursor:pointer;width:100px;">
-                                 <i class="fa-solid fa-trash-can"></i> Delete</a>
-                         </div>`;
-                },
-                "width": "30%",
-            }
+            { "data": "date", "width": "8%" },
+            { "data": "sno", "width": "12%" },
+            { "data": "cr", "width": "12%" },
+            { "data": "dr", "width": "12%" },
+            { "data": "balance", "width": "12%" },
         ],
         "Language": {
             "emptyTable": "no data found."
@@ -64,4 +52,23 @@ function Delete(url) {
         }
     });
 
+}
+function lockunlock(id) {
+    $.ajax({
+        type: 'POST',
+        url: '/api/stock',
+        data: JSON.stringify(id),
+        contentType: "application/json",
+        success: function (data) {
+            if (data.success) {
+                //success notification
+                toastr.success(data.message);
+                dataTable.ajax.reload();
+            }
+            else {
+                //failsure notification
+                toastr.error(data.message);
+            }
+        }
+    });
 }

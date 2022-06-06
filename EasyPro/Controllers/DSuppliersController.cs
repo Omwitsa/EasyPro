@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
+using EasyPro.ViewModels;
 
 namespace EasyPro.Controllers
 {
@@ -25,7 +26,6 @@ namespace EasyPro.Controllers
             _notyf = notyf;
             utilities = new Utilities(context);
         }
-
         // GET: DSuppliers
         public async Task<IActionResult> Index()
         {
