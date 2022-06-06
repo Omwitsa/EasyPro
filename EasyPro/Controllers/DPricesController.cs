@@ -31,15 +31,15 @@ namespace EasyPro.Controllers
         }
        
         // GET: DPrices/Details/5
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(long Id)
         {
             utilities.SetUpPrivileges(this);
-            if (id == null)
+            if (Id < 1)
             {
                 return NotFound();
             }
             var dPrice = await _context.DPrices
-                .FirstOrDefaultAsync(m => m.Products == id);
+                .FirstOrDefaultAsync(m => m.Id == Id);
             if (dPrice == null)
             {
                 return NotFound();
@@ -58,18 +58,41 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var products = _context.DBranchProducts.Select(b => b.Bname).ToList();
-            ViewBag.products = new SelectList(products);          
+            ViewBag.products = new SelectList(products);
+            var glAccounts = _context.Glsetups.ToList();
+            ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
         }
+        
         // POST: DPrices/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Edate,Price,Products")] DPrice dPrice)
+        public async Task<IActionResult> Create([Bind("Id,Edate,Price,Products,SubsidyQty,SubsidyPrice,DrAccNo,CrAccNo,TransportDrAccNo,TransportCrAccNo")] DPrice dPrice)
         {
             utilities.SetUpPrivileges(this);
-            var dpricer = _context.DPrices.Where(i => i.Products == dPrice.Products).Count();
-            if (dpricer != 0)
+            GetInitialValues();
+            if (string.IsNullOrEmpty(dPrice.Products))
+            {
+                _notyf.Error("Sorry, Kindly provide product");
+                return View();
+            }
+            if(dPrice.Price < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide price");
+                return View();
+            }
+            if (string.IsNullOrEmpty(dPrice.DrAccNo))
+            {
+                _notyf.Error("Sorry, Kindly provide product Dr Acc");
+                return View();
+            }
+            if (string.IsNullOrEmpty(dPrice.CrAccNo))
+            {
+                _notyf.Error("Sorry, Kindly provide product Cr Acc");
+                return View();
+            }
+            if (_context.DPrices.Any(i => i.Products == dPrice.Products))
             {
                 _notyf.Error("Sorry, The product already exist");
                 return View();
@@ -83,15 +106,17 @@ namespace EasyPro.Controllers
             return View(dPrice);
         }
         // GET: DPrices/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(long Id)
         {
             utilities.SetUpPrivileges(this);
-            if (id == null)
+            GetInitialValues();
+            if (Id < 1)
             {
                 return NotFound();
             }
 
-            var dPrice = await _context.DPrices.FindAsync(id);
+            var dPrice = await _context.DPrices
+              .FirstOrDefaultAsync(m => m.Id == Id);
             if (dPrice == null)
             {
                 return NotFound();
@@ -104,16 +129,35 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Edate,Price,Products")] DPrice dPrice)
+        public async Task<IActionResult> Edit(long Id, [Bind("Id,Edate,Price,Products,SubsidyQty,SubsidyPrice,DrAccNo,CrAccNo,TransportDrAccNo,TransportCrAccNo")] DPrice dPrice)
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
-            if (id != dPrice.Products)
+            if (Id != dPrice.Id)
             {
                 return NotFound();
             }
-            var dpricer = _context.DPrices.Where(i => i.Products == dPrice.Products).Count();
-            if (dpricer != 0)
+            if (string.IsNullOrEmpty(dPrice.Products))
+            {
+                _notyf.Error("Sorry, Kindly provide product");
+                return View();
+            }
+            if (dPrice.Price < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide price");
+                return View();
+            }
+            if (string.IsNullOrEmpty(dPrice.DrAccNo))
+            {
+                _notyf.Error("Sorry, Kindly provide product Dr Acc");
+                return View();
+            }
+            if (string.IsNullOrEmpty(dPrice.CrAccNo))
+            {
+                _notyf.Error("Sorry, Kindly provide product Cr Acc");
+                return View();
+            }
+            if (_context.DPrices.Any(i => i.Products == dPrice.Products && i.Id != dPrice.Id))
             {
                 _notyf.Error("Sorry, The product already exist");
                 return View();
@@ -142,16 +186,16 @@ namespace EasyPro.Controllers
         }
 
         // GET: DPrices/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(long Id)
         {
             utilities.SetUpPrivileges(this);
-            if (id == null)
+            if (Id < 1)
             {
                 return NotFound();
             }
 
             var dPrice = await _context.DPrices
-                .FirstOrDefaultAsync(m => m.Products == id);
+                .FirstOrDefaultAsync(m => m.Id == Id);
             if (dPrice == null)
             {
                 return NotFound();
@@ -163,10 +207,10 @@ namespace EasyPro.Controllers
         // POST: DPrices/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string product)
+        public async Task<IActionResult> DeleteConfirmed(long id)
         {
             utilities.SetUpPrivileges(this);
-            var dPrice = await _context.DPrices.FindAsync(product);
+            var dPrice = await _context.DPrices.FindAsync(id);
             _context.DPrices.Remove(dPrice);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

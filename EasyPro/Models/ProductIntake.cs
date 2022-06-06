@@ -30,5 +30,9 @@ namespace EasyPro.Models
         public DateTime? Auditdatetime { get; set; }
         public string Branch { get; set; }
         public string SaccoCode { get; set; }
+        [Display(Name = "Dr Account No")]
+        public string DrAccNo { get; set; }
+        [Display(Name = "Cr Account No")]
+        public string CrAccNo { get; set; }
     }
 }
