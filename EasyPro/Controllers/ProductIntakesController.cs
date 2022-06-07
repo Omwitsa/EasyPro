@@ -279,13 +279,14 @@ namespace EasyPro.Controllers
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                 && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
+                var collection = new ProductIntake();
                 if (transport != null)
                 {
                     // Debit supplier transport amount
                     productIntake.CR = 0;
                     productIntake.DR = productIntake.Qsupplied * transport.Rate;
                     productIntake.Balance = productIntake.Balance - productIntake.DR;
-                    _context.ProductIntake.Add(new ProductIntake
+                    collection = new ProductIntake
                     {
                         Sno = productIntake.Sno.Trim(),
                         TransDate = productIntake.TransDate,
@@ -306,7 +307,8 @@ namespace EasyPro.Controllers
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = productIntake.DrAccNo,
                         CrAccNo = productIntake.CrAccNo
-                    });
+                    };
+                    _context.ProductIntake.Add(collection);
 
                     // Credit transpoter transport amount
                     productIntake.CR = productIntake.Qsupplied * transport.Rate;
@@ -337,7 +339,7 @@ namespace EasyPro.Controllers
                 }
                 _context.SaveChanges();
                 _notyf.Success("Intake saved successfully");
-                return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = productIntake.Id });
+                return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = collection.Id });
             }
             return View(productIntake);
         }
