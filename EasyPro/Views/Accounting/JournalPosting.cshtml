@@ -10,14 +10,14 @@
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label asp-for="DocumentNo" class="control-label"></label>
                             <input id="documentNo" asp-for="DocumentNo" class="form-control" />
                             <span asp-validation-for="DocumentNo" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label asp-for="DrAccNo" class="control-label"></label>
                             <select id="glAcc" asp-for="DrAccNo" class="form-control" asp-items="@ViewBag.glAccounts">
@@ -26,31 +26,28 @@
                             <span asp-validation-for="CrAccNo" class="text-danger"></span>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Dr</label>
-                            <input id="drAmt" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Cr</label>
-                            <input id="crAmt" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Total Dr</label>
                             <input id="totalDrAmt" class="form-control" readonly />
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Dr</label>
+                            <input id="drAmt" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Cr</label>
+                            <input id="crAmt" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Total Cr</label>
                             <input id="totalCrAmt" class="form-control" readonly />
@@ -62,7 +59,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="TransDescript" class="control-label"></label>
-                            <input asp-for="TransDescript" class="form-control" />
+                            <input id="transDescript" asp-for="TransDescript" class="form-control" />
                             <span asp-validation-for="TransDescript" class="text-danger"></span>
                         </div>
                     </div>
@@ -71,7 +68,6 @@
                     </div>
                 </div>
 
-                <hr />
                 <div class="bsc-tbl-hvr table-border-style">
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -79,6 +75,7 @@
                                 <th>Account No.</th>
                                 <th>DR</th>
                                 <th>CR</th>
+                                <th><a id="clearAll" class="btn btn-danger">CLEAR</a></th>
                             </tr>
                             <tbody id="details">
                             </tbody>
@@ -88,7 +85,7 @@
 
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button id="save" type="submit" class="btn btn-success">Save</button>
+                        <a id="save" class="btn btn-success">Save</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a asp-action="Index" class="btn btn-primary">Back to List</a>
@@ -106,34 +103,46 @@
     <script type="text/javascript">
         $(function () {
             let journalDetails = new Array();
-            $('#drAmt').on('keyup', function () {
-                pupulateDetailsTable();
+            $('#drAmt').on('blur', function () {
+                let drAmt = parseFloat($("#drAmt").val());
+                if (drAmt) {
+                    buildJournalDetails();
+                }
             });
 
-            $('#crAmt').on('keyup', function () {
-                pupulateDetailsTable();
+            $('#crAmt').on('blur', function () {
+                let crAmt = parseFloat($("#crAmt").val());
+                if (crAmt) {
+                    buildJournalDetails();
+                }
+            });
+
+            $('#clearAll').on('click', function () {
+                $("#totalDrAmt").val(0);
+                $("#totalCrAmt").val(0);
+                journalDetails = new Array();
+                populateDetailsTable();
             });
 
             $('#save').on('click', function () {
-                let crAccounts = journalDetails.filter(j => !j.isdebit);
-                let drAccounts = journalDetails.filter(j => j.isdebit);
-                let creditAmount = 0;
-                crAccounts.forEach(c => {
-                    creditAmount += c.amount;
-                });
-                let debitAmount = 0;
-                drAccounts.forEach(c => {
-                    debitAmount += c.amount;
-                });
-                if (creditAmount != debitAmount) {
+                let totalDrAmt = parseFloat($("#totalDrAmt").val());
+                let totalCrAmt = parseFloat($("#totalCrAmt").val());
+
+                if (totalDrAmt != totalCrAmt) {
                     alert("Sorry, Debit amount must be equal to credit amount")
                     return
                 }
-                if (debitAmount < 1) {
+                if (totalDrAmt < 1) {
                     alert("Sorry, No item debited")
                     return
                 }
+
+                let crAccounts = journalDetails.filter(j => !j.isdebit);
+                let drAccounts = journalDetails.filter(j => j.isdebit);
                 let docNo = $("#documentNo").val();
+                docNo = docNo ? docNo : "";
+                let transDescript = $("#transDescript").val();
+                transDescript = transDescript ? transDescript : "";
                 let transactions = new Array();
                 if (drAccounts.length > 1) {
                     drAccounts.forEach(d => {
@@ -142,7 +151,8 @@
                             drAccNo: d.glAcc,
                             crAccNo: crAccounts[0].glAcc,
                             documentNo: docNo,
-                            ChequeNo: docNo
+                            chequeNo: docNo,
+                            transDescript: transDescript
                         });
                     });
                 }
@@ -160,23 +170,28 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "postTransactions",
+                    url: "journalPosting",
                     contentType: 'application/json',
                     data: JSON.stringify(transactions),
                     success: function (response) {
                         //if (response.Success) {
 
                         //}
-                       // populateIntake(response)
+                        $("#totalDrAmt").val(0);
+                        $("#totalCrAmt").val(0);
+                        journalDetails = new Array();
+                        populateDetailsTable();
                     },
                     failure: function (response) {
                     }
                 }).then(function () {
                     // ...
                 });
+
+                
             });
 
-            function pupulateDetailsTable() {
+            function buildJournalDetails() {
                 let glAcc = $("#glAcc").val();
                 let drAmt = parseFloat($("#drAmt").val());
                 let crAmt = parseFloat($("#crAmt").val());
@@ -198,12 +213,33 @@
                     return
                 }
 
+                let creditAmount = 0;
+                crAccounts.forEach(c => {
+                    creditAmount += c.amount;
+                });
+                creditAmount = isdebit ? creditAmount : creditAmount + amount;
+                let debitAmount = 0;
+                drAccounts.forEach(c => {
+                    debitAmount += c.amount;
+                });
+                debitAmount = isdebit ? debitAmount + amount : debitAmount;
+                $("#totalDrAmt").val(debitAmount);
+                $("#totalCrAmt").val(creditAmount);
+
                 journalDetails.push({
                     glAcc: glAcc,
                     amount: amount,
                     isdebit: isdebit,
                 });
 
+                $("#glAcc").val("");
+                $("#drAmt").val(0);
+                $("#crAmt").val(0);
+
+                populateDetailsTable();
+            }
+
+            function populateDetailsTable() {
                 let itemTableRows = new Array();
                 journalDetails.forEach(j => {
                     drAmt = j.isdebit ? j.amount : 0;
@@ -217,7 +253,6 @@
 
                 $('#details').html(itemTableRows);
             }
-
         });
     </script>
 }

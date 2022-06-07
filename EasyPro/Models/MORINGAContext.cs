@@ -7807,7 +7807,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<Gltransaction>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => new { e.Id });
 
                 entity.ToTable("GLTRANSACTIONS");
 
