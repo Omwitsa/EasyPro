@@ -377,8 +377,8 @@ namespace EasyPro.Controllers
                 productIntake.SaccoCode = sacco;
                 productIntake.Qsupplied = 0;
                 productIntake.CR = 0;
-                productIntake.Description = "0";
-                productIntake.Balance = 0;
+                productIntake.Description = productIntake.Remarks;
+                productIntake.Balance = GetBalance(productIntake);
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
@@ -439,10 +439,10 @@ namespace EasyPro.Controllers
                 productIntake.AuditId = auditId ?? "";
                 productIntake.Qsupplied = 0;
                 productIntake.CR = 0;
-                productIntake.Description = "0";
+                productIntake.Description = productIntake.Remarks;
                 productIntake.TransactionType = TransactionType.Deduction;
-                productIntake.Balance = 0;
                 productIntake.SaccoCode = sacco;
+                productIntake.Balance = GetBalance(productIntake);
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
