@@ -76,7 +76,6 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
             return View(dTransport);
         }
         private void GetInitialValues()

@@ -72,6 +72,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (string.IsNullOrEmpty(dPrice.Products))
             {
                 _notyf.Error("Sorry, Kindly provide product");
@@ -99,6 +100,7 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                dPrice.SaccoCode = sacco;
                 _context.Add(dPrice);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -133,6 +135,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (Id != dPrice.Id)
             {
                 return NotFound();
@@ -166,6 +169,7 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    dPrice.SaccoCode = sacco;
                     _context.Update(dPrice);
                     await _context.SaveChangesAsync();
                 }

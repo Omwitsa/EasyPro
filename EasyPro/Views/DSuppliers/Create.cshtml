@@ -85,10 +85,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Active" class="control-label">
-                                        <input asp-for="Active" type="checkbox" required />@Html.DisplayNameFor(model => model.Active)
+                                        <input asp-for="Active" type="checkbox" />
+                                        <label asp-for="Active" class="control-label"></label>
                                         <span asp-validation-for="Active" class="text-danger"></span>
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -186,20 +185,6 @@
                                 <label asp-for="Email" class="control-label"></label>
                                 <input asp-for="Email" class="form-control" />
                                 <span asp-validation-for="Email" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <div class="form-group">
-                                    <label asp-for="Approval" class="control-label">
-                                        <input asp-for="Approval" type="checkbox" readonly />@Html.DisplayNameFor(model => model.Approval)
-                                        <span asp-validation-for="Approval" class="text-danger"></span>
-                                    </label>
-                                </div>
                             </div>
                         </div>
                     </div>

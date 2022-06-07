@@ -10,7 +10,7 @@
                 <h2>Edit Suppliers</h2>
             </div>
             <hr />
-            <form asp-action="Edit">
+            <form asp-action="Edit" autocomplete="off">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Id" />
                 <div class="row">
@@ -87,12 +87,9 @@
 
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Active" class="control-label">
-                                        <input asp-for="Active" type="checkbox" class="form-control" />@Html.DisplayNameFor(model => model.Active)
-                                        @*@Html.DisplayNameFor(model => model.Active)*@
-                                        @*<input type="checkbox"  required />*@
-                                        <span asp-validation-for="Active" class="text-danger"></span>
-                                    </label>
+                                    <input asp-for="Active" type="checkbox" />
+                                    <label asp-for="Active" class="control-label"></label>
+                                    <span asp-validation-for="Active" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>

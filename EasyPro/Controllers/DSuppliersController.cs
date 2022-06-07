@@ -36,6 +36,15 @@ namespace EasyPro.Controllers
                 .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
+        public async Task<IActionResult> UnApprovedList()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            return View(await _context.DSuppliers
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval).ToListAsync());
+        }
+
         // GET: DSuppliers/Details/5
         public async Task<IActionResult> Details(long? id)
         {
@@ -60,7 +69,10 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
-            return View();
+
+            return View(new DSupplier { 
+                Active = true
+            });
         }
         private void GetInitialValues()
         {
@@ -118,11 +130,6 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Supplier code cannot be empty");
                 return NotFound();
             }
-
-            //if (dSupplier.Approval.Value == 0)
-            //    dSupplier.Approval = false;
-            //else
-            //    dSupplier.Approval = true;
 
             var dSupplierExists = _context.DSuppliers.Any(i => (i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo) && i.Scode == sacco);
             if (dSupplierExists)

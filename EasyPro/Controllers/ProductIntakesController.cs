@@ -229,9 +229,15 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return View(productIntake);
             }
-            if (!_context.DSuppliers.Any(s => s.Sno == sno))
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
+            if (supplier == null)
             {
                 _notyf.Error("Sorry, Supplier does not exist");
+                return View(productIntake);
+            }
+            if (!supplier.Active || !supplier.Approval)
+            {
+                _notyf.Error("Sorry, Supplier must be approved and active");
                 return View(productIntake);
             }
             if (ModelState.IsValid)
@@ -456,6 +462,10 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CreateCorrection([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            productIntake.SaccoCode = sacco;
+            var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
+            productIntake.Branch = branch.Bname;
             long.TryParse(productIntake.Sno, out long sno);
             productIntake.Description = productIntake?.Description ?? "";
             if (sno < 1)
@@ -473,9 +483,20 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly select product type");
                 return View(productIntake);
             }
-            if (productIntake.Qsupplied == null)
+            if (productIntake.Qsupplied == 0)
             {
                 _notyf.Error("Sorry, Kindly provide quantity");
+                return View(productIntake);
+            }
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
+            if (supplier == null)
+            {
+                _notyf.Error("Sorry, Supplier does not exist");
+                return View(productIntake);
+            }
+            if (!supplier.Active || !supplier.Approval)
+            {
+                _notyf.Error("Sorry, Supplier must be approved and active");
                 return View(productIntake);
             }
             if (productIntake.CR < 0)
