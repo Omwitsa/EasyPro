@@ -71,7 +71,8 @@ namespace EasyPro.Controllers
             GetInitialValues();
 
             return View(new DSupplier { 
-                Active = true
+                Active = true,
+                Regdate=DateTime.Today
             });
         }
         private void GetInitialValues()

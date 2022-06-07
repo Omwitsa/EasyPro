@@ -24,7 +24,7 @@ namespace EasyPro.Controllers
             _notyf = notyf;
             utilities = new Utilities(context);
         }
-
+        public DTransporter dtransporterobj { get; set; }
         // GET: DTransporters
         public async Task<IActionResult> Index()
         {
@@ -32,6 +32,7 @@ namespace EasyPro.Controllers
             return View(await _context.DTransporters.Where(i => i.Active == true || i.Active == false).ToListAsync());
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
+            dtransporterobj.TregDate = System.DateTime.Today;
             return View(await _context.DTransporters
                 .Where(i => (i.Active == true || i.Active == false) && i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
