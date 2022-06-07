@@ -43,18 +43,21 @@ namespace EasyPro.Controllers
         public IActionResult DownloadReport()
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             return View();
         }
         [HttpGet]
         public IActionResult DownloadTReport()
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             return View();
         }
         [HttpGet]
         public IActionResult DownloadPReport()
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             return View();
         }
         [HttpGet]
@@ -749,102 +752,108 @@ namespace EasyPro.Controllers
                     suppliersobj = await _context.DSuppliers.Where(u => u.Scode == sacco && u.Branch == branch.Bname).OrderBy(k => k.Sno).ToListAsync();
                     foreach (var sup in suppliersobj)
                     {
-                        var startdate = DateFro;
-                        //productIntakeobj = _context.ProductIntake
-                        //.Where(i => i.SaccoCode == sacco && i.Sno==sup.Sno.ToString() && i.TransDate >= DateFro && i.Qsupplied != 0 && i.TransDate <= DateT && i.Branch == branch.Bname);
-
-                        //long.TryParse(sup.Sno, out long sno);
-                        var TransporterExist = await _context.DSuppliers.AnyAsync(u => u.Scode == sacco && u.Sno == sup.Sno);
-                        if (TransporterExist)
+                        var supExist = await _context.ProductIntake
+                        .AnyAsync(i => i.SaccoCode == sacco && i.Sno == sup.Sno.ToString() && i.TransDate >= DateFro
+                        && i.Qsupplied != 0 && i.TransDate <= DateT && i.Branch == branch.Bname);
+                        if (supExist)
                         {
+                            var startdate = DateFro;
+                            //productIntakeobj = _context.ProductIntake
+                            //.Where(i => i.SaccoCode == sacco && i.Sno==sup.Sno.ToString() && i.TransDate >= DateFro && i.Qsupplied != 0 && i.TransDate <= DateT && i.Branch == branch.Bname);
 
-                            currentRow++;
-                            worksheet.Cell(currentRow, 1).Value = sup.Sno;
-                            worksheet.Cell(currentRow, 2).Value = sup.Names;
-                            worksheet.Cell(currentRow, 3).Value = sup.IdNo;
-                            while (startdate <= DateT)
+                            //long.TryParse(sup.Sno, out long sno);
+                            var TransporterExist = await _context.DSuppliers.AnyAsync(u => u.Scode == sacco && u.Sno == sup.Sno);
+                            if (TransporterExist)
                             {
-                                var datereceived = startdate;
-                                var sumkgs =  _context.ProductIntake
-                        .Where(i => i.SaccoCode == sacco && i.Sno == sup.Sno.ToString() && i.TransDate >= datereceived
-                        && i.Qsupplied != 0 && i.TransDate <= datereceived && i.Branch == branch.Bname).Sum(s => s.Qsupplied);
-                                var datereceive = startdate.Day;
 
-                                if (datereceive == 1)
-                                    worksheet.Cell(currentRow, 4).Value = sumkgs;
-                                if (datereceive == 2)
-                                    worksheet.Cell(currentRow, 5).Value = sumkgs;
-                                if (datereceive == 3)
-                                    worksheet.Cell(currentRow, 6).Value = sumkgs;
-                                if (datereceive == 4)
-                                    worksheet.Cell(currentRow, 7).Value = sumkgs;
-                                if (datereceive == 5)
-                                    worksheet.Cell(currentRow, 8).Value = sumkgs;
-                                if (datereceive == 6)
-                                    worksheet.Cell(currentRow, 9).Value = sumkgs;
-                                if (datereceive == 7)
-                                    worksheet.Cell(currentRow, 10).Value = sumkgs;
-                                if (datereceive == 8)
-                                    worksheet.Cell(currentRow, 11).Value = sumkgs;
-                                if (datereceive == 9)
-                                    worksheet.Cell(currentRow, 12).Value = sumkgs;
-                                if (datereceive == 10)
-                                    worksheet.Cell(currentRow, 13).Value = sumkgs;
-                                if (datereceive == 11)
-                                    worksheet.Cell(currentRow, 14).Value = sumkgs;
-                                if (datereceive == 12)
-                                    worksheet.Cell(currentRow, 15).Value = sumkgs;
-                                if (datereceive == 13)
-                                    worksheet.Cell(currentRow, 16).Value = sumkgs;
-                                if (datereceive == 14)
-                                    worksheet.Cell(currentRow, 17).Value = sumkgs;
-                                if (datereceive == 15)
-                                    worksheet.Cell(currentRow, 18).Value = sumkgs;
-                                if (datereceive == 16)
-                                    worksheet.Cell(currentRow, 19).Value = sumkgs;
-                                if (datereceive == 17)
-                                    worksheet.Cell(currentRow, 20).Value = sumkgs;
-                                if (datereceive == 18)
-                                    worksheet.Cell(currentRow, 21).Value = sumkgs;
-                                if (datereceive == 19)
-                                    worksheet.Cell(currentRow, 22).Value = sumkgs;
-                                if (datereceive == 20)
-                                    worksheet.Cell(currentRow, 23).Value = sumkgs;
-                                if (datereceive == 21)
-                                    worksheet.Cell(currentRow, 24).Value = sumkgs;
-                                if (datereceive == 22)
-                                    worksheet.Cell(currentRow, 25).Value = sumkgs;
-                                if (datereceive == 23)
-                                    worksheet.Cell(currentRow, 26).Value = sumkgs;
-                                if (datereceive == 24)
-                                    worksheet.Cell(currentRow, 27).Value = sumkgs;
-                                if (datereceive == 25)
-                                    worksheet.Cell(currentRow, 28).Value = sumkgs;
-                                if (datereceive == 26)
-                                    worksheet.Cell(currentRow, 29).Value = sumkgs;
-                                if (datereceive == 27)
-                                    worksheet.Cell(currentRow, 30).Value = sumkgs;
-                                if (datereceive == 28)
-                                    worksheet.Cell(currentRow, 31).Value = sumkgs;
-                                if (datereceive == 29)
-                                    worksheet.Cell(currentRow, 32).Value = sumkgs;
-                                if (datereceive == 30)
-                                    worksheet.Cell(currentRow, 33).Value = sumkgs;
-                                if (datereceive == 31)
-                                    worksheet.Cell(currentRow, 34).Value = sumkgs;
-                                sum += sumkgs;
-                                sum1 += sumkgs;
-                                startdate = startdate.AddDays(1);
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Value = sup.Sno;
+                                worksheet.Cell(currentRow, 2).Value = sup.Names;
+                                worksheet.Cell(currentRow, 3).Value = sup.IdNo;
+                                while (startdate <= DateT)
+                                {
+                                    var datereceived = startdate;
+                                    var sumkgs = _context.ProductIntake
+                            .Where(i => i.SaccoCode == sacco && i.Sno == sup.Sno.ToString() && i.TransDate >= datereceived
+                            && i.Qsupplied != 0 && i.TransDate <= datereceived && i.Branch == branch.Bname).Sum(s => s.Qsupplied);
+                                    var datereceive = startdate.Day;
+
+                                    if (datereceive == 1)
+                                        worksheet.Cell(currentRow, 4).Value = sumkgs;
+                                    if (datereceive == 2)
+                                        worksheet.Cell(currentRow, 5).Value = sumkgs;
+                                    if (datereceive == 3)
+                                        worksheet.Cell(currentRow, 6).Value = sumkgs;
+                                    if (datereceive == 4)
+                                        worksheet.Cell(currentRow, 7).Value = sumkgs;
+                                    if (datereceive == 5)
+                                        worksheet.Cell(currentRow, 8).Value = sumkgs;
+                                    if (datereceive == 6)
+                                        worksheet.Cell(currentRow, 9).Value = sumkgs;
+                                    if (datereceive == 7)
+                                        worksheet.Cell(currentRow, 10).Value = sumkgs;
+                                    if (datereceive == 8)
+                                        worksheet.Cell(currentRow, 11).Value = sumkgs;
+                                    if (datereceive == 9)
+                                        worksheet.Cell(currentRow, 12).Value = sumkgs;
+                                    if (datereceive == 10)
+                                        worksheet.Cell(currentRow, 13).Value = sumkgs;
+                                    if (datereceive == 11)
+                                        worksheet.Cell(currentRow, 14).Value = sumkgs;
+                                    if (datereceive == 12)
+                                        worksheet.Cell(currentRow, 15).Value = sumkgs;
+                                    if (datereceive == 13)
+                                        worksheet.Cell(currentRow, 16).Value = sumkgs;
+                                    if (datereceive == 14)
+                                        worksheet.Cell(currentRow, 17).Value = sumkgs;
+                                    if (datereceive == 15)
+                                        worksheet.Cell(currentRow, 18).Value = sumkgs;
+                                    if (datereceive == 16)
+                                        worksheet.Cell(currentRow, 19).Value = sumkgs;
+                                    if (datereceive == 17)
+                                        worksheet.Cell(currentRow, 20).Value = sumkgs;
+                                    if (datereceive == 18)
+                                        worksheet.Cell(currentRow, 21).Value = sumkgs;
+                                    if (datereceive == 19)
+                                        worksheet.Cell(currentRow, 22).Value = sumkgs;
+                                    if (datereceive == 20)
+                                        worksheet.Cell(currentRow, 23).Value = sumkgs;
+                                    if (datereceive == 21)
+                                        worksheet.Cell(currentRow, 24).Value = sumkgs;
+                                    if (datereceive == 22)
+                                        worksheet.Cell(currentRow, 25).Value = sumkgs;
+                                    if (datereceive == 23)
+                                        worksheet.Cell(currentRow, 26).Value = sumkgs;
+                                    if (datereceive == 24)
+                                        worksheet.Cell(currentRow, 27).Value = sumkgs;
+                                    if (datereceive == 25)
+                                        worksheet.Cell(currentRow, 28).Value = sumkgs;
+                                    if (datereceive == 26)
+                                        worksheet.Cell(currentRow, 29).Value = sumkgs;
+                                    if (datereceive == 27)
+                                        worksheet.Cell(currentRow, 30).Value = sumkgs;
+                                    if (datereceive == 28)
+                                        worksheet.Cell(currentRow, 31).Value = sumkgs;
+                                    if (datereceive == 29)
+                                        worksheet.Cell(currentRow, 32).Value = sumkgs;
+                                    if (datereceive == 30)
+                                        worksheet.Cell(currentRow, 33).Value = sumkgs;
+                                    if (datereceive == 31)
+                                        worksheet.Cell(currentRow, 34).Value = sumkgs;
+                                    sum += sumkgs;
+                                    sum1 += sumkgs;
+                                    startdate = startdate.AddDays(1);
+                                }
+                                worksheet.Cell(currentRow, 35).Value = sum1;
+                                worksheet.Cell(currentRow, 36).Value = sup.Branch;
+                                sum1 = 0;
                             }
-                            worksheet.Cell(currentRow, 35).Value = sum1;
-                            worksheet.Cell(currentRow, 36).Value = sup.Branch;
-                            sum1 = 0;
                         }
                     }
                     currentRow++;
                     worksheet.Cell(currentRow, 4).Value = "Branch Kgs";
                     worksheet.Cell(currentRow, 5).Value = sum1;
-                    
+
                 }
                 currentRow++;
                 worksheet.Cell(currentRow, 4).Value = "Total Kgs";
