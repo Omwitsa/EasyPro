@@ -10,7 +10,7 @@
                 <h2>Edit Suppliers</h2>
             </div>
             <hr />
-            <form asp-action="Edit" autocomplete="off">
+            <form asp-action="Edit" >
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Id" />
                 <div class="row">
@@ -18,7 +18,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Sno" class="control-label"></label>
-                                <input asp-for="Sno" class="form-control" readonly />
+                                <input asp-for="Sno" autocomplete="off" class="form-control" readonly />
                                 <span asp-validation-for="Sno" class="text-danger"></span>
                             </div>
                         </div>
@@ -27,8 +27,8 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Regdate" class="control-label"></label>
-                                    <input type="date" asp-for="Regdate" class="form-control" required />
+                                    <label class="control-label">Registration Date</label>
+                                    <input type="date" autocomplete="off" asp-for="Regdate" class="form-control" required />
                                     <span asp-validation-for="Regdate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -39,7 +39,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="IdNo" class="control-label"></label>
-                                    <input asp-for="IdNo" class="form-control" required />
+                                    <input asp-for="IdNo" autocomplete="off" class="form-control" required />
                                     <span asp-validation-for="IdNo" class="text-danger"></span>
                                 </div>
                             </div>
@@ -51,7 +51,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Names" class="control-label"></label>
-                                <input asp-for="Names" class="form-control" required />
+                                <input asp-for="Names" autocomplete="off" class="form-control" required />
                                 <span asp-validation-for="Names" class="text-danger"></span>
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="PhoneNo" class="control-label"></label>
-                                    <input asp-for="PhoneNo" class="form-control" />
+                                    <input asp-for="PhoneNo" autocomplete="off" class="form-control" />
                                     <span asp-validation-for="PhoneNo" class="text-danger"></span>
                                 </div>
                             </div>
@@ -123,7 +123,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Location" class="control-label"></label>
-                                <input asp-for="Location" class="form-control" />
+                                <input asp-for="Location" autocomplete="off" class="form-control" />
                                 <span asp-validation-for="Location" class="text-danger"></span>
                             </div>
                         </div>
@@ -133,7 +133,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Division" class="control-label"></label>
-                                    <input asp-for="Division" class="form-control" />
+                                    <input asp-for="Division" autocomplete="off" class="form-control" />
                                     <span asp-validation-for="Division" class="text-danger"></span>
                                 </div>
                             </div>
@@ -144,7 +144,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="District" class="control-label"></label>
-                                    <input asp-for="District" class="form-control" />
+                                    <input asp-for="District" autocomplete="off" class="form-control" />
                                     <span asp-validation-for="District" class="text-danger"></span>
                                 </div>
                             </div>
@@ -181,7 +181,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Village" class="control-label"></label>
-                                    <input asp-for="Village" class="form-control" />
+                                    <input asp-for="Village" autocomplete="off" class="form-control" />
                                     <span asp-validation-for="Village" class="text-danger"></span>
                                 </div>
                             </div>
@@ -213,7 +213,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Email" class="control-label"></label>
-                                <input asp-for="Email" class="form-control" />
+                                <input asp-for="Email" autocomplete="off" class="form-control" />
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
                         </div>
@@ -252,7 +252,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="AccNo" class="control-label"></label>
-                                    <input asp-for="AccNo" class="form-control" />
+                                    <input asp-for="AccNo" autocomplete="off" class="form-control" />
                                     <span asp-validation-for="AccNo" class="text-danger"></span>
                                 </div>
                             </div>

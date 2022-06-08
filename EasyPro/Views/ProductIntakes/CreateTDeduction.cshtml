@@ -33,7 +33,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">TCode</label>
-                                    <input id="transCode" asp-for="ProductIntake.Sno" required class="form-control" />
+                                    <input id="transCode"autocomplete="off" asp-for="ProductIntake.Sno" required class="form-control" />
                                     <span asp-validation-for="ProductIntake.Sno" class="text-danger"></span>
                                 </div>
                             </div>
@@ -67,7 +67,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="ProductIntake.DR" class="control-label"></label>
-                                    <input id="code" required asp-for="ProductIntake.DR" class="form-control" />
+                                    <input id="code" autocomplete="off" required asp-for="ProductIntake.DR" class="form-control" />
                                     <span asp-validation-for="ProductIntake.DR" class="text-danger"></span>
                                 </div>
                             </div>
@@ -79,7 +79,7 @@
                         <div class="nk-int-st">
                             <div class="form-group">
                                 <label asp-for="ProductIntake.Remarks" class="control-label"></label>
-                                <textarea asp-for="ProductIntake.Remarks" class="form-control"></textarea>
+                                <textarea asp-for="ProductIntake.Remarks" autocomplete="off" class="form-control"></textarea>
                             </div>
                         </div>
                     </div>

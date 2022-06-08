@@ -28,7 +28,7 @@ namespace EasyPro.Controllers
         }
         public TransSuppliers TransSuppliersobj { get; private set; }
         public IEnumerable<DTransporter> DTransporter { get; private set; }
-
+        public DTransporter dtransporterobj { get; private set; }
         // GET: DTransports
         public async Task<IActionResult> Index()
         {
@@ -58,6 +58,7 @@ namespace EasyPro.Controllers
                     DateInactivate = intake.DateInactivate
                 });
             }
+            dtransporterobj.TregDate = DateTime.Now;
             return View(intakes);
         }
 
