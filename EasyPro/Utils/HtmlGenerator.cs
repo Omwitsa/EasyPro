@@ -49,6 +49,9 @@ namespace EasyPro.Utils
                                    <td>Served By:</td>
                                    <td>{7}</td>
                                 </tr>
+                                   <td>Powered By:</td>
+                                   <td>Amtech Technologies LTD</td>
+                                </tr>
                               </table>",
                               intake.SaccoCode, intake.Sno, intake.SupName,
                               intake.ProductType, intake.Qsupplied, intake.Cumlative, 
