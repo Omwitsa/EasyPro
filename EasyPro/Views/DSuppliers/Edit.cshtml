@@ -10,7 +10,7 @@
                 <h2>Edit Suppliers</h2>
             </div>
             <hr />
-            <form asp-action="Edit" >
+            <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Id" />
                 <div class="row">
@@ -122,42 +122,10 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Location" class="control-label"></label>
-                                <input asp-for="Location" autocomplete="off" class="form-control" />
-                                <span asp-validation-for="Location" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Division" class="control-label">Sub County</label>
-                                    <input asp-for="Division" autocomplete="off" class="form-control" />
-                                    <span asp-validation-for="Division" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <div class="form-group">
-                                    <label asp-for="District" class="control-label">Ward</label>
-                                    <input asp-for="District" autocomplete="off" class="form-control" />
-                                    <span asp-validation-for="District" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <div class="form-group">
-                                    <label asp-for="Division" class="control-label"></label>
+                                    <label asp-for="Division" class="control-label">Ward</label>
                                     <select asp-for="Division" class="form-control" asp-items="@ViewBag.WardSubCounty" required>
+                                        <option value="" disabled selected hidden>Please Choose...</option>
                                     </select>
                                     <span asp-validation-for="Division" class="text-danger"></span>
                                 </div>
@@ -168,8 +136,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Location" class="control-label">Ward</label>
+                                    <label asp-for="Location" class="control-label"></label>
                                     <select asp-for="Location" class="form-control" asp-items="@ViewBag.locations" required>
+                                        <option value="" disabled selected hidden>Please Choose...</option>
                                     </select>
                                     <span asp-validation-for="Location" class="text-danger"></span>
                                 </div>

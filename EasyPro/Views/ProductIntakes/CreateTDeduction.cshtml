@@ -104,7 +104,7 @@
     }
     <script type="text/javascript">
                     $(function () {
-                        $('#transCode').on('change', function () {
+                        $('#transCode').on('keyup', function () {
 
                             var products = @Html.Raw(Json.Serialize(Model.DTransporters));
                             var selectVal = $("#transCode").val();

@@ -122,7 +122,7 @@
     }
     <script type="text/javascript">
         $(function () {
-            $('#sno').on('change', function () {
+            $('#sno').on('keyup', function () {
                 var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
                 var selectVal = parseInt($("#sno").val());
                 var selectProducts = products.filter(p => p.Sno === selectVal);

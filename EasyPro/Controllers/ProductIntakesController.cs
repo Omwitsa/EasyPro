@@ -260,7 +260,7 @@ namespace EasyPro.Controllers
                     TransTime = productIntake.TransTime,
                     ProductType = productIntake.ProductType,
                     Qsupplied = productIntake.Qsupplied,
-                    Ppu = productIntake.Ppu,
+                    Ppu = price.Price,
                     CR = productIntake.CR,
                     DR = productIntake.DR,
                     Balance = productIntake.Balance,
@@ -350,11 +350,25 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             long.TryParse(productIntake.Sno, out long sno);
+            DateTime startdate = new DateTime(productIntake.TransDate.Year, productIntake.TransDate.Month, 1);
+            DateTime enddate = startdate.AddMonths(1).AddDays(-1);
             productIntake.Description = productIntake?.Description ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Scode == sacco && i.Active == true && i.Approval == true))
             {
-                _notyf.Error("Sorry, Farmer Number code does not exist");
+                _notyf.Error("Sorry, Supplier Number code does not exist");
+                GetInitialValues();
+                Farmersobj = new FarmersVM()
+                {
+                    DSuppliers = _context.DSuppliers,
+                    ProductIntake = new Models.ProductIntake()
+                };
+                //return Json(new { data = Farmersobj });
+                return View(Farmersobj);
+            }
+            if (!_context.ProductIntake.Any(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco && i.Qsupplied!= 0 && i.TransDate >= startdate && i.TransDate <= enddate))
+            {
+                _notyf.Error("Sorry, Supplier has not deliver any product for this month"+" "+ startdate+ "To " + " "+ enddate );
                 GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {

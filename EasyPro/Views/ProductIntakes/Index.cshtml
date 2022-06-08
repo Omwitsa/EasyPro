@@ -12,7 +12,8 @@
                     <h3 class="text-danger fa-bold">Today's Collection</h3>
                 </div>
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-
+                    <input id="gfg" type="text" class="form-control"
+                           placeholder="Search here">
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <a asp-action="Create" class="btn btn-primary">Create New</a>
@@ -51,38 +52,38 @@
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="geeks">
                             @foreach (var item in Model)
                             {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Sno)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TransDate)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.ProductType)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Qsupplied)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Ppu)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.CR)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Description)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Remarks)
-                                </td>
-                                <td class="col-4">
-                                    <a asp-controller="PdfReport" asp-action="GetIntakeReceipt" asp-route-id="@item.Id">Re-Print</a>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sno)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ProductType)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Qsupplied)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Ppu)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CR)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Description)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Remarks)
+                                    </td>
+                                    <td class="col-4">
+                                        <a asp-controller="PdfReport" asp-action="GetIntakeReceipt" asp-route-id="@item.Id">Re-Print</a>
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>
@@ -91,3 +92,16 @@
         </div>
     </div>
 </div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("#gfg").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#geeks tr").filter(function () {
+                    $(this).toggle($(this).text()
+                        .toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

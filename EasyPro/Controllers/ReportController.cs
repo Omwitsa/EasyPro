@@ -659,18 +659,25 @@ namespace EasyPro.Controllers
                 decimal sum = 0;
                 foreach (var emp in productIntakeobj)
                 {
-                    currentRow++;
-                    worksheet.Cell(currentRow, 1).Value = emp.Sno;
                     long.TryParse(emp.Sno, out long sno);
-                    var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
-                    foreach (var al in TName)
-                        worksheet.Cell(currentRow, 2).Value = al.Names;
-                    worksheet.Cell(currentRow, 3).Value = emp.TransDate;
-                    worksheet.Cell(currentRow, 4).Value = emp.ProductType;
-                    worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
-                    worksheet.Cell(currentRow, 6).Value = emp.Ppu;
-                    worksheet.Cell(currentRow, 7).Value = emp.Description;
-                    sum += (emp.Qsupplied);
+                    var checkifexist = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                    if (checkifexist.Any())
+                    {
+
+
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = emp.Sno;
+
+                        var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                        foreach (var al in TName)
+                            worksheet.Cell(currentRow, 2).Value = al.Names;
+                        worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                        worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                        worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
+                        worksheet.Cell(currentRow, 6).Value = emp.Ppu;
+                        worksheet.Cell(currentRow, 7).Value = emp.Description;
+                        sum += (emp.Qsupplied);
+                    }
                 }
                 currentRow++;
                 worksheet.Cell(currentRow, 4).Value = "Total Kgs";
