@@ -58,7 +58,7 @@ namespace EasyPro.Controllers
                     DateInactivate = intake.DateInactivate
                 });
             }
-            dtransporterobj.TregDate = DateTime.Now;
+            //dtransporterobj.TregDate = DateTime.Now;
             return View(intakes);
         }
 
@@ -123,13 +123,36 @@ namespace EasyPro.Controllers
             {
                 dTransport.saccocode = sacco;
                 _context.Add(dTransport);
+                if(dTransport.DateInactivate!=null)
+                    UpdateIntakeKgs(dTransport);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Assignment saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(dTransport);
         }
+        private void UpdateIntakeKgs(DTransport dTransport)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var transExisting = _context.DTransports
+                .Where(i => i.saccocode == sacco && i.Active && i.Startdate >= dTransport.Startdate && i.Sno == dTransport.Sno);
+            if (transExisting.Any())
+            {
+                var selectassigntrans = _context.ProductIntake
+                    .Where(i => i.SaccoCode == sacco && i.TransDate >= dTransport.Startdate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied!=0);
+                if (selectassigntrans.Any())
+                {
+                    _context.ProductIntake.RemoveRange(selectassigntrans);
+                }
+                foreach(var details in transExisting)
+                {
+                    details.Active = false;
+                    details.DateInactivate = dTransport.DateInactivate;
+                }
+                _context.SaveChanges();
+            }
 
+        }
         // GET: DTransports/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {

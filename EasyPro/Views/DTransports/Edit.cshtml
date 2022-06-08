@@ -26,13 +26,24 @@
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <div class="form-group">
+                                        <label class="control-label">Date Inactivate</label>
+                                        <input type="date" asp-for="DTransport.DateInactivate" class="form-control" />
+                                        <span asp-validation-for="DTransport.DateInactivate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Assignment Date</label>
-                                    <input type="date" asp-for="DTransport.Startdate" class="form-control" required />
+                                    <input type="date" asp-for="DTransport.Startdate" class="form-control" readonly required />
                                     <span asp-validation-for="DTransport.Startdate" class="text-danger"></span>
                                 </div>
                             </div>

@@ -314,7 +314,6 @@
 
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
-                debugger;
                 var selectVal = parseInt($("#sno").val());
                 var sno = $("#sno").val();
                 var idno = $("#idno").val();
