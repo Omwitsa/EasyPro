@@ -3469,10 +3469,10 @@ namespace EasyPro.Models
                     .IsUnicode(false)
                     .HasColumnName("auditid");
 
-                entity.Property(e => e.Bcode)
+                entity.Property(e => e.saccocode)
                     .HasMaxLength(10)
                     .IsUnicode(false)
-                    .HasColumnName("BCode")
+                    .HasColumnName("saccocode")
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Bname)
@@ -4504,7 +4504,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DLocation>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Location");
 

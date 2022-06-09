@@ -1,4 +1,4 @@
-﻿@model EasyPro.Models.DBranchProduct
+﻿@model EasyPro.Models.DLocation
 
 @{
     ViewData["Title"] = "Delete";
@@ -8,16 +8,15 @@
 
 <h3>Are you sure you want to delete this?</h3>
 <div>
-    <h4>DBranchProduct</h4>
+    <h4>DLocation</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Bname)
+            @Html.DisplayNameFor(model => model.Lname)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Bname)
+            @Html.DisplayFor(model => model.Lname)
         </dd>
-       
     </dl>
     
     <form asp-action="Delete">

@@ -5,6 +5,8 @@ using EasyPro.Models;
 using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
@@ -25,7 +27,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.DBranchProducts.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            return View(await _context.DBranchProducts
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
         // GET: DBranchProducts/Details/5
@@ -59,10 +63,11 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
+        public async Task<IActionResult> Create([Bind("Id,saccocode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
         {
             utilities.SetUpPrivileges(this);
-            var dbranchproduct = _context.DBranchProducts.Where(i => i.Bcode == dBranchProduct.Bcode || i.Bname == dBranchProduct.Bname).Count();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var dbranchproduct = _context.DBranchProducts.Where(i => i.saccocode == sacco && i.Bname == dBranchProduct.Bname).Count();
             if (dbranchproduct != 0)
             {
                 _notyf.Error("Sorry, The product already exist");
@@ -70,7 +75,9 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                dBranchProduct.saccocode = sacco;
                 _context.Add(dBranchProduct);
+                _notyf.Success("The product saved successfully");
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }           
@@ -99,14 +106,15 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Bcode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,saccocode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBranchProduct dBranchProduct)
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != dBranchProduct.Id)
             {
                 return NotFound();
             }
-            var dbranchproduct = _context.DBranchProducts.Where(i => i.Bcode == dBranchProduct.Bcode || i.Bname == dBranchProduct.Bname).Count();
+            var dbranchproduct = _context.DBranchProducts.Where(i => i.saccocode == sacco && i.Bname == dBranchProduct.Bname).Count();
             if (dbranchproduct != 0)
             {
                 _notyf.Error("Sorry, The product already exist");
@@ -116,7 +124,9 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    dBranchProduct.saccocode = sacco;
                     _context.Update(dBranchProduct);
+                    _notyf.Success("The product updated successfully");
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -163,6 +173,7 @@ namespace EasyPro.Controllers
             var dBranchProduct = await _context.DBranchProducts.FindAsync(id);
             _context.DBranchProducts.Remove(dBranchProduct);
             await _context.SaveChangesAsync();
+            _notyf.Error("The product Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EasyPro.Models.DBranchProduct>
+﻿@model IEnumerable<EasyPro.Models.DLocation>
 
 @{
     ViewData["Title"] = "Index";
@@ -8,7 +8,7 @@
         <div class="normal-table-list mg-t-30">
             <div class="row">
                 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-                    <h3 class="text-danger fa-bold">Products</h3>
+                    <h3 class="text-danger fa-bold">Locations</h3>
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
 
@@ -23,7 +23,7 @@
                         <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Bname)
+                                    @Html.DisplayNameFor(model => model.Lname)
                                 </th>
                                 <th></th>
                             </tr>
@@ -31,15 +31,16 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Bname)
-                                </td>
-                                <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Lname)
+                                    </td>
+                                    <td>
+                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                        @*<a asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
+                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                    </td>
+                                </tr>
 
                             }
                         </tbody>

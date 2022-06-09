@@ -27,7 +27,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.DPrices.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            return View(await _context.DPrices
+                .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
        
         // GET: DPrices/Details/5
@@ -57,7 +59,8 @@ namespace EasyPro.Controllers
         }
         private void GetInitialValues()
         {
-            var products = _context.DBranchProducts.Select(b => b.Bname).ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var products = _context.DBranchProducts.Where(a=>a.saccocode== sacco).Select(b => b.Bname).ToList();
             ViewBag.products = new SelectList(products);
             var glAccounts = _context.Glsetups.ToList();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
@@ -71,8 +74,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,Edate,Price,Products,SubsidyQty,SubsidyPrice,DrAccNo,CrAccNo,TransportDrAccNo,TransportCrAccNo")] DPrice dPrice)
         {
             utilities.SetUpPrivileges(this);
-            GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            GetInitialValues();
             if (string.IsNullOrEmpty(dPrice.Products))
             {
                 _notyf.Error("Sorry, Kindly provide product");
@@ -93,7 +96,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide product Cr Acc");
                 return View();
             }
-            if (_context.DPrices.Any(i => i.Products == dPrice.Products))
+            if (_context.DPrices.Any(i =>i.SaccoCode==sacco && i.Products == dPrice.Products))
             {
                 _notyf.Error("Sorry, The product already exist");
                 return View();

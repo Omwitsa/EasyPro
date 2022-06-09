@@ -67,7 +67,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,BankCode,BankName,BranchName,Address,Telephone,AuditId,AuditTime,BankAccNo,Accno,AccType")] DBank dBank)
         {
             utilities.SetUpPrivileges(this);
-            var dSupplier1 = _context.DBanks.Where(i => i.BankName == dBank.BankName).Count();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var dSupplier1 = _context.DBanks.Where(i => i.BankName == dBank.BankName && i.BankCode== sacco).Count();
             if (dSupplier1 != 0)
             {
                 _notyf.Error("Sorry, The Bank Name already exist");
@@ -75,8 +76,6 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-                sacco = sacco ?? "";
                 dBank.BankCode = sacco;
                 _context.Add(dBank);
                 await _context.SaveChangesAsync();
@@ -122,7 +121,6 @@ namespace EasyPro.Controllers
                 try
                 {
                     var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-                    sacco = sacco ?? "";
                     dBank.BankCode = sacco;
                     _context.Update(dBank);
                     _notyf.Success("Bank Edited successfully");
