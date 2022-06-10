@@ -34,8 +34,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.ProductIntake
-                .Where(i => i.TransactionType == TransactionType.Intake && i.TransDate == DateTime.Today)
+                .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate == DateTime.Today)
                 .ToListAsync());
 
 
@@ -99,8 +100,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CorrectionList()
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.ProductIntake
-                .Where(c => c.TransactionType == TransactionType.Correction && c.TransDate == DateTime.Today)
+                .Where(c => c.TransactionType == TransactionType.Correction && c.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && c.TransDate == DateTime.Today)
                 .ToListAsync());
         }
 
@@ -133,9 +135,11 @@ namespace EasyPro.Controllers
 
         private void SetIntakeInitialValues()
         {
-            var suppliers = _context.DSuppliers.ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var suppliers = _context.DSuppliers
+                .Where(s=>s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.suppliers = suppliers;
-            var products = _context.DPrices.ToList();
+            var products = _context.DPrices.Where(s=>s.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.products = new SelectList(products, "Products", "Products");
             ViewBag.productPrices = products;
         }
@@ -207,6 +211,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo")] ProductIntake productIntake)
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             productIntake.Description = productIntake?.Description ?? "";
             long.TryParse(productIntake.Sno, out long sno);
             if (sno < 1)
@@ -214,7 +219,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return View(productIntake);
             }
-            if (!_context.DSuppliers.Any(s => s.Sno == sno))
+            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper())))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
                 return View(productIntake);
@@ -229,7 +234,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return View(productIntake);
             }
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()));
             if (supplier == null)
             {
                 _notyf.Error("Sorry, Supplier does not exist");
@@ -242,7 +247,7 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                
                 productIntake.SaccoCode = sacco;
                 var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
                 productIntake.Branch = branch.Bname;
@@ -539,7 +544,8 @@ namespace EasyPro.Controllers
 
         private decimal? GetBalance(ProductIntake productIntake)
         {
-            var latestIntake = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno)
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var latestIntake = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()))
                     .OrderByDescending(i => i.Id).FirstOrDefault();
             if (latestIntake == null)
                 latestIntake = new ProductIntake();

@@ -39,16 +39,17 @@ namespace EasyPro.Controllers
         }
         private List<TransSuppliersVM> GetAssignedTransporters()
         {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var today = DateTime.Now;
             var month = new DateTime(today.Year, today.Month, 1);
             var startdate = month;
             var enddate = startdate.AddMonths(1).AddDays(-1);
-            var transdeduction = _context.DTransports.Where(i => i.Active).ToList();
+            var transdeduction = _context.DTransports.Where(i => i.Active && i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
             var intakes = new List<TransSuppliersVM>();
             foreach (var intake in transdeduction)
             {
-                var trans = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.TransCode);
-                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno);
+                var trans = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.TransCode && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
+                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno && i.Scode.ToUpper().Equals(sacco.ToUpper()));
                 intakes.Add(new TransSuppliersVM
                 {
                     Id = intake.Id,
@@ -84,19 +85,19 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            var producttypes = _context.DPrices.Where(i => i.SaccoCode == sacco).Select(b => b.Products).ToList();
+            var producttypes = _context.DPrices.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Products).ToList();
             ViewBag.producttypes = new SelectList(producttypes, "");
         }
         // GET: DTransports/Create
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             TransSuppliersobj = new TransSuppliers
             {
                 DTransport = new DTransport(),
-                //DTransport = _context.DTransports,
-                DTransporter = _context.DTransporters,
-                DSuppliers = _context.DSuppliers,
+                DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())),
+                DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
             };
             GetInitialValues();
             //return Json(new { data = Farmersobj });
@@ -112,7 +113,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var checkNonExistingTransporter = _context.DTransporters.Any(i => i.TransCode == dTransport.TransCode && i.Active && i.ParentT == sacco);
+            var checkNonExistingTransporter = _context.DTransporters.Any(i => i.TransCode == dTransport.TransCode && i.Active && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
             if (!checkNonExistingTransporter)
             {
                 _notyf.Error("TransCode not Exist or InActive");
@@ -120,22 +121,22 @@ namespace EasyPro.Controllers
                 {
                     DTransport = new DTransport(),
                     //DTransport = _context.DTransports,
-                    DTransporter = _context.DTransporters,
-                    DSuppliers = _context.DSuppliers,
+                    DTransporter = _context.DTransporters.Where(i=>i.ParentT.ToUpper().Equals(sacco.ToUpper())),
+                    DSuppliers = _context.DSuppliers.Where(i=>i.Scode.ToUpper().Equals(sacco.ToUpper())),
                 };
                 GetInitialValues();
                 return View(TransSuppliersobj);
             }
-            var dTransporterExists = _context.DTransports.Any(i => i.Sno == dTransport.Sno && i.Active == true && i.producttype == dTransport.producttype && i.saccocode == sacco);
+            var dTransporterExists = _context.DTransports
+                .Any(i => i.Sno == dTransport.Sno && i.Active == true && i.producttype == dTransport.producttype && i.saccocode.ToUpper().Equals(sacco.ToUpper()));
             if (dTransporterExists)
             {
                 _notyf.Error("Supplier has an active Assignment");
                 TransSuppliersobj = new TransSuppliers
                 {
                     DTransport = new DTransport(),
-                    //DTransport = _context.DTransports,
-                    DTransporter = _context.DTransporters,
-                    DSuppliers = _context.DSuppliers,
+                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())),
+                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
                 };
                 GetInitialValues();
                 return View(TransSuppliersobj);
@@ -157,15 +158,15 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var transExisting = _context.DTransports
-                .Where(i => i.saccocode == sacco && i.Active && i.producttype == dTransport.producttype && i.Sno == dTransport.Sno);
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Active && i.producttype == dTransport.producttype && i.Sno == dTransport.Sno);
             if (transExisting.Any())
             {
                 var selectintaketobeupdated = _context.ProductIntake
-                    .Where(i => i.SaccoCode == sacco && i.ProductType == dTransport.producttype && i.TransDate >= dTransport.Startdate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied != 0)
+                    .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.ProductType == dTransport.producttype && i.TransDate >= dTransport.Startdate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied != 0)
                     .Sum(a => a.Qsupplied);
                 if (selectintaketobeupdated > 0)
                 {
-                    var intakekgs = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.Qsupplied != 0);
+                    var intakekgs = _context.ProductIntake.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.Qsupplied != 0);
                     if (intakekgs.Any())
                     {
                         foreach (var details in intakekgs)
@@ -195,7 +196,7 @@ namespace EasyPro.Controllers
                         }
 
                     }
-                    var transport = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.Qsupplied != 0);
+                    var transport = _context.ProductIntake.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.Qsupplied != 0);
                     if (transport.Any())
                     {
                         foreach (var transdetails in transport)
@@ -248,11 +249,11 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var transExisting = _context.DTransports
-                .Where(i => i.saccocode == sacco && i.Active && i.producttype == dTransport.producttype && i.Startdate <= dTransport.DateInactivate && i.Sno == dTransport.Sno);
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Active && i.producttype == dTransport.producttype && i.Startdate <= dTransport.DateInactivate && i.Sno == dTransport.Sno);
             if (transExisting.Any())
             {
                 var selectassigntrans = _context.ProductIntake
-                    .Where(i => i.SaccoCode == sacco && i.ProductType == dTransport.producttype && i.TransDate >= dTransport.DateInactivate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied != 0);
+                    .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.ProductType == dTransport.producttype && i.TransDate >= dTransport.DateInactivate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied != 0);
                 if (selectassigntrans.Any())
                 {
                     _context.ProductIntake.RemoveRange(selectassigntrans);
@@ -270,6 +271,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long? id)
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             //return Json(new { data = Farmersobj });
 
             if (id == null)
@@ -285,13 +287,12 @@ namespace EasyPro.Controllers
             TransSuppliersobj = new TransSuppliers
             {
                 DTransport = await _context.DTransports.FindAsync(id),
-                //DTransport = _context.DTransports,
-                DTransporter = _context.DTransporters,
-                DSuppliers = _context.DSuppliers,
+                DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())),
+                DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
             };
             GetInitialValues();
-            TransSuppliersobj.DTransporter = TransSuppliersobj.DTransporter.Where(i => i.TransCode == dTransport.TransCode);
-            TransSuppliersobj.DSuppliers = TransSuppliersobj.DSuppliers.Where(i => i.Sno == dTransport.Sno);
+            TransSuppliersobj.DTransporter = TransSuppliersobj.DTransporter.Where(i => i.TransCode == dTransport.TransCode && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
+            TransSuppliersobj.DSuppliers = TransSuppliersobj.DSuppliers.Where(i => i.Sno == dTransport.Sno && i.Scode.ToUpper().Equals(sacco.ToUpper()));
             return View(TransSuppliersobj);
         }
 
@@ -316,9 +317,8 @@ namespace EasyPro.Controllers
                 TransSuppliersobj = new TransSuppliers
                 {
                     DTransport = new DTransport(),
-                    //DTransport = _context.DTransports,
-                    DTransporter = _context.DTransporters,
-                    DSuppliers = _context.DSuppliers,
+                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())),
+                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
                 };
                 GetInitialValues();
                 return View(TransSuppliersobj);

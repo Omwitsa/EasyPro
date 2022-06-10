@@ -30,8 +30,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            var payroll = await _context.DPayrolls.Join(
-                _context.DSuppliers,
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var payroll = await _context.DPayrolls.Where(i=>i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).Join(
+                _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
                 p => p.Sno.ToString(),
                 s => s.Sno.ToString(),
                 (p, s) => new PayrollVm
