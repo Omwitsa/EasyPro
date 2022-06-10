@@ -57,6 +57,18 @@ namespace EasyPro.Controllers
             ViewBag.suppliers = suppliers.Count();
             var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
             ViewBag.transporters = transporters.Count();
+            var intake = _context.ProductIntake;
+            var advance = intake.Where(i => i.ProductType.ToLower().Contains("advance")).Sum(i => i.DR);
+            ViewBag.advance = advance;
+            var transport = intake.Where(i => i.ProductType.ToLower().Contains("transport")).Sum(i => i.DR);
+            ViewBag.transport = transport;
+            var agrovet = intake.Where(i => i.ProductType.ToLower().Contains("agrovet")).Sum(i => i.DR);
+            ViewBag.agrovet = agrovet;
+            var bonus = intake.Where(i => i.ProductType.ToLower().Contains("bonus")).Sum(i => i.DR);
+            ViewBag.bonus = bonus;
+            var shares = intake.Where(i => i.ProductType.ToLower().Contains("shares")).Sum(i => i.DR);
+            ViewBag.shares = shares;
+
             return View();
         }
 

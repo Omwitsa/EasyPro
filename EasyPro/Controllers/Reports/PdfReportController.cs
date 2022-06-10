@@ -35,7 +35,8 @@ namespace EasyPro.Controllers.Reports
                 ProductType = productIntake.ProductType,
                 TransDate = productIntake.TransDate,
                 AuditId = productIntake.AuditId,
-                Cumlative = cumlativeIntake.Sum(c => c.Qsupplied)
+                Cumlative = cumlativeIntake.Sum(c => c.Qsupplied),
+                PhoneNo = supplier.PhoneNo
             };
 
             var pdfFile = _reportProvider.GetIntakeReport(intake);

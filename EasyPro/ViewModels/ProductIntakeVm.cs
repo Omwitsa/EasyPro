@@ -30,5 +30,6 @@ namespace EasyPro.ViewModels
         public string DrAccNo { get; set; }
         [Display(Name = "Cr Account No")]
         public string CrAccNo { get; set; }
+        public string PhoneNo { get; set; }
     }
 }

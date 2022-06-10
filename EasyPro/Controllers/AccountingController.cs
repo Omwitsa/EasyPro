@@ -33,15 +33,6 @@ namespace EasyPro.Controllers
             return View();
         }
 
-        /*
-         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> JournalPosting([Bind("Id,LocalId,TransDate,Amount,DrAccNo,CrAccNo,DocumentNo,Source,TransDescript,AuditTime,AuditId,Cash,DocPosted,ChequeNo,Dregard,TimeTrans,Transactionno,Module,Pmode,Refid,Recon,ReconId,Run")] Gltransaction transaction)
-        {
-
-        }
-         */
-
         [HttpPost]
         public JsonResult JournalPosting([FromBody] List<Gltransaction> transactions)
         {
@@ -59,6 +50,7 @@ namespace EasyPro.Controllers
                 });
                 _context.Gltransactions.AddRange(transactions);
                 _context.SaveChanges();
+                _notyf.Success("Journal posted successfully");
                 return Json("");
             }
             catch (Exception e)
