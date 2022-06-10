@@ -34,7 +34,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="ProductIntake.Sno" class="control-label"></label>
-                                    <input id="sno" asp-for="ProductIntake.Sno" class="form-control" required />
+                                    <input id="sno" autocomplete="off" asp-for="ProductIntake.Sno" class="form-control" required />
                                     <span asp-validation-for="ProductIntake.Sno" class="text-danger"></span>
                                 </div>
                             </div>
@@ -69,7 +69,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="ProductIntake.Remarks" class="control-label"></label>
-                                    <input asp-for="ProductIntake.Remarks" class="form-control" required />
+                                    <input asp-for="ProductIntake.Remarks" autocomplete="off" class="form-control" required />
                                     <span asp-validation-for="ProductIntake.Remarks" class="text-danger"></span>
                                 </div>
                             </div>
@@ -82,7 +82,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Amount</label>
-                                    <input asp-for="ProductIntake.DR" class="form-control" required />
+                                    <input asp-for="ProductIntake.DR" autocomplete="off" class="form-control" required />
                                     <span asp-validation-for="ProductIntake.DR" class="text-danger"></span>
                                 </div>
                             </div>
@@ -122,7 +122,7 @@
     }
     <script type="text/javascript">
         $(function () {
-            $('#sno').on('change', function () {
+            $('#sno').on('keyup', function () {
                 var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
                 var selectVal = parseInt($("#sno").val());
                 var selectProducts = products.filter(p => p.Sno === selectVal);

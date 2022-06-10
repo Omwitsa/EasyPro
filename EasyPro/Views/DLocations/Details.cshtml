@@ -1,0 +1,42 @@
+﻿@model EasyPro.Models.DLocation
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DLocation</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Lcode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Lcode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Lname)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Lname)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdatetime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdatetime)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

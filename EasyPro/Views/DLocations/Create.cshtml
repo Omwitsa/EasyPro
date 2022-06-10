@@ -1,25 +1,24 @@
-﻿@model EasyPro.Models.DBranchProduct
+﻿@model EasyPro.Models.DLocation
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Create";
 }
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
             <div class="cmp-tb-hd">
-                <h2>Edit Branch Product</h2>
+                <h2>Create Location</h2>
             </div>
             <hr />
-            <form asp-action="Edit">
+            <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="Id" />
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Bname" class="control-label"></label>
-                                <input asp-for="Bname" class="form-control" />
-                                <span asp-validation-for="Bname" class="text-danger"></span>
+                                <label asp-for="Lname" class="control-label">Name</label>
+                                <input asp-for="Lname" autocomplete="off" class="form-control" />
+                                <span asp-validation-for="Lname" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -40,4 +39,3 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-

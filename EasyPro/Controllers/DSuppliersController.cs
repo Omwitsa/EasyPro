@@ -71,7 +71,8 @@ namespace EasyPro.Controllers
             GetInitialValues();
 
             return View(new DSupplier { 
-                Active = true
+                Active = true,
+                Regdate=DateTime.Today
             });
         }
         private void GetInitialValues()
@@ -79,13 +80,13 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             var dScode = sacco; //bankbrances
-            var countyname = _context.DCompanies.Select(b => b.Province).ToList();
+            var countyname = _context.DCompanies.Where(i=>i.Name== sacco).Select(b => b.Province).ToList();
             ViewBag.countyname = new SelectList(countyname);
             var SubCountyName= _context.SubCounty.Select(b => b.Name).ToList();
             ViewBag.SubCountyName = new SelectList(SubCountyName);
             var WardSubCounty = _context.Ward.Select(b => b.Name).ToList();
             ViewBag.WardSubCounty = new SelectList(WardSubCounty);
-            var locations = _context.DLocations.Select(b => b.Lname).ToList();
+            var locations = _context.DLocations.Where(a => a.Lcode == dScode).Select(b => b.Lname).ToList();
             ViewBag.locations = new SelectList(locations);
             var banksname = _context.DBanks.Where(a=>a.BankCode == dScode).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
@@ -120,7 +121,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
+        public async Task<IActionResult> Create([Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,County,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -144,6 +145,7 @@ namespace EasyPro.Controllers
             if (ModelState.IsValid)
             {
                 dSupplier.Scode = sacco;
+
                 _context.Add(dSupplier);
                 await _context.SaveChangesAsync();
                 _notyf.Success("The Supplier saved successfully");
@@ -175,7 +177,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,County,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run")] DSupplier dSupplier)
         {
             utilities.SetUpPrivileges(this);
             if (id != dSupplier.Id)

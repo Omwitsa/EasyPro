@@ -1,39 +1,41 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
+using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 
 namespace EasyPro.Controllers
 {
-    public class DBankBranchesController : Controller
+    public class DLocationsController : Controller
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
         private Utilities utilities;
 
-        public DBankBranchesController(MORINGAContext context, INotyfService notyf)
+        public DLocationsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
             utilities = new Utilities(context);
         }
 
-        // GET: DBankBranches
+        // GET: DLocations
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            sacco = sacco ?? "";
-            return View(await _context.DBankBranch
-                .Where(i => i.BankCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
+            return View(await _context.DLocations
+                .Where(i => i.Lcode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
-        // GET: DBankBranches/Details/5
+        // GET: DLocations/Details/5
         public async Task<IActionResult> Details(long? id)
         {
             utilities.SetUpPrivileges(this);
@@ -42,51 +44,50 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dBankBranch = await _context.DBankBranch
+            var dLocation = await _context.DLocations
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dBankBranch == null)
+            if (dLocation == null)
             {
                 return NotFound();
             }
 
-            return View(dBankBranch);
+            return View(dLocation);
         }
 
-        // GET: DBankBranches/Create
+        // GET: DLocations/Create
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
             return View();
         }
 
-        // POST: DBankBranches/Create
+        // POST: DLocations/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,BankCode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBankBranch dBankBranch)
+        public async Task<IActionResult> Create([Bind("Id,Lcode,Lname,AuditId,Auditdatetime")] DLocation dLocation)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var dSupplier1 = _context.DBankBranch.Where(i => i.Bname == dBankBranch.Bname && i.BankCode == sacco).Count();
-            if (dSupplier1 != 0)
+            var locations = _context.DLocations.Where(i => i.Lname == dLocation.Lname && i.Lcode == sacco).Count();
+            if (locations != 0)
             {
-                _notyf.Error("Sorry, The Bank Branch Name already exist");
+                _notyf.Error("Sorry, The Location Name already exist");
                 return View();
             }
             if (ModelState.IsValid)
             {
-                
-                dBankBranch.BankCode = sacco;
-                _context.Add(dBankBranch);
+                dLocation.Lcode = sacco;
+                _context.Add(dLocation);
                 await _context.SaveChangesAsync();
-                _notyf.Success("Bank Branch saved successfully");
+                _notyf.Success("Location saved successfully");
                 return RedirectToAction(nameof(Index));
             }
-            return View(dBankBranch);
+            return View(dLocation);
         }
 
-        // GET: DBankBranches/Edit/5
+        // GET: DLocations/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
             utilities.SetUpPrivileges(this);
@@ -95,25 +96,25 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dBankBranch = await _context.DBankBranch.FindAsync(id);
-            if (dBankBranch == null)
+            var dLocation = await _context.DLocations.FindAsync(id);
+            if (dLocation == null)
             {
                 return NotFound();
             }
-            return View(dBankBranch);
+            return View(dLocation);
         }
 
-        // POST: DBankBranches/Edit/5
+        // POST: DLocations/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,BankCode,Bname,Auditid,Auditdatetime,LocalId,Run")] DBankBranch dBankBranch)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,Lcode,Lname,AuditId,Auditdatetime")] DLocation dLocation)
         {
             utilities.SetUpPrivileges(this);
-            if (id != dBankBranch.Id)
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            if (id != dLocation.Id)
             {
-                _notyf.Error("Sorry, an error occured while eidting");
                 return NotFound();
             }
 
@@ -121,15 +122,14 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-                    dBankBranch.BankCode = sacco;
-                    _context.Update(dBankBranch);
+                    dLocation.Lcode = sacco;
+                    _context.Update(dLocation);
+                    _notyf.Success("Location Edited successfully");
                     await _context.SaveChangesAsync();
-                    _notyf.Success("Bank Branch Edited successfully");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DBankBranchExists(dBankBranch.Id))
+                    if (!DLocationExists(dLocation.Id))
                     {
                         return NotFound();
                     }
@@ -140,10 +140,10 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(dBankBranch);
+            return View(dLocation);
         }
 
-        // GET: DBankBranches/Delete/5
+        // GET: DLocations/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
             utilities.SetUpPrivileges(this);
@@ -152,32 +152,33 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dBankBranch = await _context.DBankBranch
+            var dLocation = await _context.DLocations
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dBankBranch == null)
+            if (dLocation == null)
             {
                 return NotFound();
             }
 
-            return View(dBankBranch);
+            return View(dLocation);
         }
 
-        // POST: DBankBranches/Delete/5
+        // POST: DLocations/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
             utilities.SetUpPrivileges(this);
-            var dBankBranch = await _context.DBankBranch.FindAsync(id);
-            _context.DBankBranch.Remove(dBankBranch);
+            var dLocation = await _context.DLocations.FindAsync(id);
+            _context.DLocations.Remove(dLocation);
             await _context.SaveChangesAsync();
-            _notyf.Success("Bank Branch Deleted successfully");
+            _notyf.Error("Location Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DBankBranchExists(long id)
+        private bool DLocationExists(long id)
         {
-            return _context.DBankBranch.Any(e => e.Id == id);
+            utilities.SetUpPrivileges(this);
+            return _context.DLocations.Any(e => e.Id == id);
         }
     }
 }
