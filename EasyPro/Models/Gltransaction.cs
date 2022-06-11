@@ -25,6 +25,7 @@ namespace EasyPro.Models
         public string TimeTrans { get; set; }
         public string Transactionno { get; set; }
         public string Module { get; set; }
+        public string SaccoCode { get; set; }
         public string Pmode { get; set; }
         public string Refid { get; set; }
         public bool? Recon { get; set; }

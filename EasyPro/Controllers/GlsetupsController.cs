@@ -100,6 +100,11 @@ namespace EasyPro.Controllers
                         _notyf.Error("Sorry, Kindly provide account Name");
                         return View(glsetup);
                     }
+                    if (string.IsNullOrEmpty(glsetup.NormalBal))
+                    {
+                        _notyf.Error("Sorry, Kindly provide normal balance");
+                        return View(glsetup);
+                    }
                     if (_context.Glsetups.Any(u => u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper())))
                     {
                         _notyf.Error("Sorry, Account No. already exist");
@@ -168,6 +173,11 @@ namespace EasyPro.Controllers
                     if (string.IsNullOrEmpty(glsetup.GlAccName))
                     {
                         _notyf.Error("Sorry, Kindly provide account Name");
+                        return View(glsetup);
+                    }
+                    if (string.IsNullOrEmpty(glsetup.NormalBal))
+                    {
+                        _notyf.Error("Sorry, Kindly provide normal balance");
                         return View(glsetup);
                     }
                     if (_context.Glsetups.Any(u => u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper()) && u.Glid != glsetup.Glid))
