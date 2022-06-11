@@ -58,6 +58,7 @@ namespace EasyPro.Controllers
             var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
             ViewBag.transporters = transporters.Count();
             var intake = _context.ProductIntake;
+            ViewBag.grossItake = intake.Sum(i => i.CR);
             var advance = intake.Where(i => i.ProductType.ToLower().Contains("advance")).Sum(i => i.DR);
             ViewBag.advance = advance;
             var transport = intake.Where(i => i.ProductType.ToLower().Contains("transport")).Sum(i => i.DR);
