@@ -27,13 +27,16 @@ namespace EasyPro.Controllers
             utilities = new Utilities(context);
         }
         // GET: DSuppliers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pageNumber, int? pageSize)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            return View(await _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
+
+            var suppliers = _context.DSuppliers
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
+
+            return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.AsNoTracking(), pageNumber ?? 1, pageSize ?? 100));
         }
 
         public async Task<IActionResult> UnApprovedList()

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EasyPro.Models.DSupplier>
+﻿@model EasyPro.Utils.PaginatedList<EasyPro.Models.DSupplier>
 @{
     ViewData["Title"] = "Export Excel";
 }
@@ -29,31 +29,31 @@
                         <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Sno)
+                                    Supplier No.
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Regdate)
+                                    Reg date
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Names)
+                                    Names
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.IdNo)
+                                    Id No.
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.AccNo)
+                                    Account No.
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Location)
+                                    Location
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Branch)
+                                    Branch
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.PhoneNo)
+                                    Phone No.
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Active)
+                                    Active
                                 </th>
                                 <th></th>
                             </tr>
@@ -97,6 +97,22 @@
                             }
                         </tbody>
                     </table>
+
+                    @{
+                        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                    }
+
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       class="btn btn-default @prevDisabled">
+                        Previous
+                    </a>
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       class="btn btn-default @nextDisabled">
+                        Next
+                    </a>
                 </div>
             </div>
         </div>
