@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static EasyPro.ViewModels.AccountingVm;
 
 namespace EasyPro.Controllers
 {
@@ -55,6 +56,73 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
                 _notyf.Success("Journal posted successfully");
                 return Json("");
+            }
+            catch (Exception e)
+            {
+                return Json("");
+            }
+        }
+
+        public IActionResult Budget()
+        {
+            utilities.SetUpPrivileges(this);
+            var perMonth = new string[] { "Yes", "No" };
+            ViewBag.perMonth = new SelectList(perMonth);
+            var glAccounts = _context.Glsetups.ToList();
+            ViewBag.glAccounts = glAccounts;
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult Budget([FromBody] BudgetFilter filter)
+        {
+            try
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var budgets = _context.Budgets.Where(b => b.Accno.ToUpper().Equals(filter.AccNo.ToUpper())
+                && b.Yyear == filter.Period.Year && b.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+                if (budgets.Any())
+                {
+                    _context.Budgets.RemoveRange(budgets);
+                    _context.SaveChanges();
+                }
+
+                if (!filter.Fixed)
+                    filter.Amount = filter.Amount / 12;
+                var currentMonth = 1;
+                while (currentMonth <= 12)
+                {
+                    _context.Budgets.Add(new Budget
+                    {
+                        Accno = filter.AccNo,
+                        Mmonth = currentMonth,
+                        Yyear = filter.Period.Year,
+                        Budgetted = filter.Amount,
+                        SaccoCode = sacco,
+                        Actual = 0,
+                        Variance = 0,
+                    });
+
+                    ++currentMonth;
+                }
+
+                _context.SaveChanges();
+                _notyf.Success("Budget saved successfully");
+                budgets = _context.Budgets.Where(b => b.Accno.ToUpper().Equals(filter.AccNo.ToUpper())
+                && b.Yyear == filter.Period.Year && b.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+
+                DateTime lastDay = new DateTime(filter.Period.Year, filter.Period.Month, 1).AddMonths(1).AddDays(-1);
+                var budgetVms = new List<BudgetVm>();
+                foreach(var budget in budgets)
+                {
+                    budgetVms.Add(new BudgetVm
+                    {
+                        Period = budget.Mmonth,
+                        EndDate = lastDay,
+                        BudgettedAmount = budget.Budgetted
+                    });
+                }
+                return Json(budgetVms);
             }
             catch (Exception e)
             {

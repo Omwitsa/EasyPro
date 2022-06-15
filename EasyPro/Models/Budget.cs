@@ -15,5 +15,6 @@ namespace EasyPro.Models
         public decimal? Budgetted { get; set; }
         public decimal? Variance { get; set; }
         public DateTime? BudgetDate { get; set; }
+        public string SaccoCode { get; set; }
     }
 }

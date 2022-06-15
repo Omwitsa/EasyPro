@@ -2,8 +2,8 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-                    <h3 class="text-danger fa-bold">Gl Inquiry</h3>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <h3 class="text-danger fa-bold">Budget</h3>
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
 
@@ -26,8 +26,8 @@
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
-                            <label class="control-label">Balance</label>
-                            <input id="balance" class="form-control" readonly />
+                            <label class="control-label">Budget Year</label>
+                            <input id="period" class="form-control" type="date" />
                         </div>
                     </div>
                 </div>
@@ -35,44 +35,48 @@
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
-                            <label class="control-label">From Date</label>
-                            <input type="date" id="fromDate" class="form-control" />
+                            <label class="control-label">Spread Amount</label>
+                            <input id="spreadAmount" autocomplete="off" class="form-control" />
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
-                            <label class="control-label">To Date</label>
-                            <input type="date" id="toDate" class="form-control" />
+                            <label class="control-label">Budget per month?</label>
+                            <select id="perMonth" class="form-control" asp-items="@ViewBag.perMonth">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <input type="radio" id="spread" name="budgetMethod" value="spread">
+                            <label for="spread">Spread Amount</label><br>
+                            <input type="radio" id="fixed" name="budgetMethod" value="fixed">
+                            <label for="fixed">Fixed Amount</label>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a id="save" class="btn btn-success">Save</a>
                     </div>
                 </div>
             </form>
-            
+
             <div class="bsc-tbl-hvr table-border-style">
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>
-                                    Document No
+                                    Period
                                 </th>
                                 <th>
-                                    Trans Descript
+                                    End Date
                                 </th>
                                 <th>
-                                    Trans Date
-                                </th>
-                                <th>
-                                    Debits
-                                </th>
-                                <th>
-                                    Credits
-                                </th>
-                                <th>
-                                    Balance
+                                    Budgetted Amount
                                 </th>
                             </tr>
                         </thead>
@@ -92,6 +96,7 @@
     <script type="text/javascript">
             $(function () {
                 let journalDetails = new Array();
+                $("#period").val(new Date());
                 $('#accNo').on('keyup', function () {
                     var glAccounts = @Html.Raw(Json.Serialize(ViewBag.glAccounts));
                     var accNo = $("#accNo").val();
@@ -99,39 +104,34 @@
                     if (glAccount[0]) {
                         $("#accName").val(glAccount[0].GlAccName);
                     }
-
-                    buildJournalDetails();
                 });
 
-                $('#fromDate').on('change', function () {
-                    buildJournalDetails();
-                });
-
-                $('#toDate').on('change', function () {
-                    buildJournalDetails();
-                });
-
-                function buildJournalDetails() {
+                $('#save').on('click', function () {
                     var accNo = $("#accNo").val();
-                    var fromDate = $("#fromDate").val();
-                    var toDate = $("#toDate").val();
+                    var period = $("#period").val();
+                    var amount = $("#spreadAmount").val();
+                    var perMonth = $("#perMonth").val();
+                    var budgetMethod = $('input[name="budgetMethod"]:checked').val();
+                    var fixed = budgetMethod === 'fixed' ? true : false;
+                    
                     var filter = {
                         accNo: accNo,
-                        fromDate: fromDate,
-                        toDate: toDate
+                        period: period,
+                        amount: amount,
+                        fixed: fixed,
+                        monthly: perMonth
                     };
 
-                    if (accNo && fromDate && toDate) {
+                    if (accNo && period && amount) {
                         $.ajax({
                             type: 'POST',
-                            url: "glInquiry",
+                            url: "budget",
                             contentType: 'application/json',
                             data: JSON.stringify(filter),
                             success: function (response) {
-                                response = response ? response : {};
-                                response.bookBalance = response.bookBalance ? response.bookBalance : 0;
-                                $("#balance").val(response.bookBalance);
-                                journalDetails = response.journals ? response.journals : new Array();
+                                $("#accNo").val('');
+                                $("#spreadAmount").val(0);
+                                journalDetails = response ? response : [];
                                 populateDetailsTable();
                             },
                             failure: function (response) {
@@ -140,18 +140,15 @@
                             // ...
                         });
                     }
-                }
+                });
 
                 function populateDetailsTable() {
                     let itemTableRows = new Array();
                     journalDetails.forEach(j => {
                         itemTableRows.push(`<tr>
-				                <td>${j.DocumentNo}</td>
-                                <td>${j.TransDescript}</td>
-                                <td>${j.TransDate}</td>
-                                <td>${j.Dr}</td>
-                                <td>${j.Cr}</td>
-                                <td>${j.Bal}</td>
+				                <td>${j.Period}</td>
+                                <td>${j.EndDate}</td>
+                                <td>${j.BudgettedAmount}</td>
 			                </tr>`);
                     });
 

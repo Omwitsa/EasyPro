@@ -2287,7 +2287,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<Budget>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("BUDGETS");
 
