@@ -73,6 +73,37 @@ namespace EasyPro.Controllers
             return View();
         }
 
+        [HttpGet]
+        public JsonResult Comparison(DateTime period)
+        {
+            utilities.SetUpPrivileges(this);
+
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var budgets = _context.Budgets.Where(b => b.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && b.Mmonth == period.Month && b.Yyear == period.Year).ToList();
+            var comparisons = new List<ComparisonVm>();
+            budgets.ForEach(b =>
+            {
+                var glsetup = _context.Glsetups.FirstOrDefault(g => g.AccNo.ToUpper().Equals(b.Accno.ToUpper()));
+                var accName = glsetup?.GlAccName ?? "";
+                var customerBalances = _context.CustomerBalances.Where(c => c.AccNo.ToUpper().Equals(b.Accno.ToUpper())
+                && c.TransDate.GetValueOrDefault().Month == period.Month
+                && c.TransDate.GetValueOrDefault().Year == period.Year);
+                var actualAmount = customerBalances.Sum(b => b.Amount);
+                var variance = b.Budgetted - actualAmount;
+                comparisons.Add(new ComparisonVm
+                {
+                    AccNo = b.Accno,
+                    AccName = accName,
+                    BudgettedAmount = b.Budgetted,
+                    ActualAmount = actualAmount,
+                    Variance = variance,
+                    Percentage = variance / b.Budgetted * 100
+                });
+            });
+            return Json(comparisons);
+        }
+
         [HttpPost]
         public JsonResult Budget([FromBody] BudgetFilter filter)
         {

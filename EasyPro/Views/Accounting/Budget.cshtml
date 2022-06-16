@@ -1,88 +1,174 @@
 ﻿<div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="normal-table-list mg-t-30">
+    <div class="tabs-info-area">
+        <div class="container">
             <div class="row">
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                    <h3 class="text-danger fa-bold">Budget</h3>
-                </div>
-                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="widget-tabs-int">
+                        <div class="tab-hd">
+                            <h3 class="text-danger fa-bold">Budget</h3>
+                        </div>
+                        <div class="widget-tabs-list">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a data-toggle="tab" href="#budget">Budget</a></li>
+                                <li><a data-toggle="tab" href="#comparison">Comparison</a></li>
+                            </ul>
+                            <div class="tab-content tab-custom-st">
+                                <div id="budget" class="tab-pane fade in active">
+                                    <div class="tab-ctn">
+                                        <div class="normal-table-list mg-t-30">
+                                            <div class="row">
+                                                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                                                    <h3 class="text-danger fa-bold">Budget</h3>
+                                                </div>
+                                                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
 
-                </div>
-            </div>
+                                                </div>
+                                            </div>
 
-            <form asp-action="Create">
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Account No.</label>
-                            <input id="accNo" autocomplete="off" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Account Name</label>
-                            <input id="accName" class="form-control" readonly />
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Budget Year</label>
-                            <input id="period" class="form-control" type="date" />
-                        </div>
-                    </div>
-                </div>
+                                            <form asp-action="Create">
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label class="control-label">Account No.</label>
+                                                            <input id="accNo" autocomplete="off" class="form-control" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label class="control-label">Account Name</label>
+                                                            <input id="accName" class="form-control" readonly />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label class="control-label">Budget Year</label>
+                                                            <input id="period" class="form-control" type="date" />
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Spread Amount</label>
-                            <input id="spreadAmount" autocomplete="off" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Budget per month?</label>
-                            <select id="perMonth" class="form-control" asp-items="@ViewBag.perMonth">
-                                <option value="" disabled selected hidden>Please Choose...</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <input type="radio" id="spread" name="budgetMethod" value="spread">
-                            <label for="spread">Spread Amount</label><br>
-                            <input type="radio" id="fixed" name="budgetMethod" value="fixed">
-                            <label for="fixed">Fixed Amount</label>
-                        </div>
-                    </div>
-                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label class="control-label">Spread Amount</label>
+                                                            <input id="spreadAmount" autocomplete="off" class="form-control" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label class="control-label">Budget per month?</label>
+                                                            <select id="perMonth" class="form-control" asp-items="@ViewBag.perMonth">
+                                                                <option value="" disabled selected hidden>Please Choose...</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                        <div class="form-group">
+                                                            <input type="radio" id="spread" name="budgetMethod" value="spread">
+                                                            <label for="spread">Spread Amount</label><br>
+                                                            <input type="radio" id="fixed" name="budgetMethod" value="fixed">
+                                                            <label for="fixed">Fixed Amount</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a id="save" class="btn btn-success">Save</a>
-                    </div>
-                </div>
-            </form>
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                        <a id="save" class="btn btn-success">Save</a>
+                                                    </div>
+                                                </div>
+                                            </form>
 
-            <div class="bsc-tbl-hvr table-border-style">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>
-                                    Period
-                                </th>
-                                <th>
-                                    End Date
-                                </th>
-                                <th>
-                                    Budgetted Amount
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="details">
-                        </tbody>
-                    </table>
+                                            <div class="bsc-tbl-hvr table-border-style">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>
+                                                                    Period
+                                                                </th>
+                                                                <th>
+                                                                    End Date
+                                                                </th>
+                                                                <th>
+                                                                    Budgetted Amount
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="details">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="comparison" class="tab-pane fade">
+                                    <div class="tab-ctn">
+                                        <div class="normal-table-list mg-t-30">
+                                            <div class="row">
+                                                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                                                    <h3 class="text-danger fa-bold">Comparison</h3>
+                                                </div>
+                                                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
+
+                                                </div>
+                                            </div>
+
+                                            <form asp-action="Create">
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label class="control-label">Period</label>
+                                                            <input id="cPeriod" class="form-control" type="date" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                        <a id="load" class="btn btn-success">Load</a>
+                                                    </div>
+                                                </div>
+                                            </form>
+
+                                            <div class="bsc-tbl-hvr table-border-style">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>
+                                                                    Account No.
+                                                                </th>
+                                                                <th>
+                                                                    Account Name
+                                                                </th>
+                                                                <th>
+                                                                    Budgetted Amount
+                                                                </th>
+                                                                <th>
+                                                                    Actual Amount
+                                                                </th>
+                                                                <th>
+                                                                    Variance
+                                                                </th>
+                                                                <th>
+                                                                    Percentage
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="comparisons">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,9 +179,10 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
             $(function () {
                 let journalDetails = new Array();
+                let comparisons = new Array();
                 $("#period").val(new Date());
                 $('#accNo').on('keyup', function () {
                     var glAccounts = @Html.Raw(Json.Serialize(ViewBag.glAccounts));
@@ -106,6 +193,25 @@
                     }
                 });
 
+                $('#load').on('click', function () {
+                    var period = $("#cPeriod").val();
+                    if (period) {
+                        $.ajax({
+                            type: 'GET',
+                            url: "comparison?period=" + period,
+                            contentType: 'application/json',
+                            success: function (response) {
+                                comparisons = response ? response : [];
+                                populateComparisonTable();
+                            },
+                            failure: function (response) {
+                            }
+                        }).then(function () {
+                            // ...
+                        });
+                    }
+                });
+
                 $('#save').on('click', function () {
                     var accNo = $("#accNo").val();
                     var period = $("#period").val();
@@ -113,7 +219,7 @@
                     var perMonth = $("#perMonth").val();
                     var budgetMethod = $('input[name="budgetMethod"]:checked').val();
                     var fixed = budgetMethod === 'fixed' ? true : false;
-                    
+
                     var filter = {
                         accNo: accNo,
                         period: period,
@@ -142,6 +248,22 @@
                     }
                 });
 
+                function populateComparisonTable() {
+                    let itemTableRows = new Array();
+                    comparisons.forEach(j => {
+                        itemTableRows.push(`<tr>
+				                <td>${j.AccNo}</td>
+                                <td>${j.AccName}</td>
+                                <td>${j.BudgettedAmount}</td>
+                                <td>${j.ActualAmount}</td>
+                                <td>${j.Variance}</td>
+                                <td>${j.Percentage}</td>
+			                </tr>`);
+                    });
+
+                    $('#comparisons').html(itemTableRows);
+                }
+
                 function populateDetailsTable() {
                     let itemTableRows = new Array();
                     journalDetails.forEach(j => {
@@ -155,5 +277,5 @@
                     $('#details').html(itemTableRows);
                 }
             });
-    </script>
+</script>
 }

@@ -36,5 +36,15 @@ namespace EasyPro.ViewModels
             public bool Fixed { get; set; }
             public string Monthly { get; set; }
         }
+
+        public class ComparisonVm
+        {
+            public string AccNo { get; set; }
+            public string AccName { get; set; }
+            public decimal? BudgettedAmount { get; set; }
+            public decimal? ActualAmount { get; set; }
+            public decimal? Variance { get; set; }
+            public decimal? Percentage { get; set; }
+        }
     }
 }
