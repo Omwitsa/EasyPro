@@ -531,7 +531,6 @@ namespace EasyPro.Controllers
                 productIntake.AuditId = auditId ?? "";
                 productIntake.Description = "Correction";
                 productIntake.TransactionType = TransactionType.Correction;
-                productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 productIntake.Balance = GetBalance(productIntake);
                 _context.Add(productIntake);
