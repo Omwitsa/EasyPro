@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using EasyPro.Constants;
+using EasyPro.IProvider;
 using EasyPro.Models;
 using EasyPro.Repository;
 using EasyPro.Utils;
@@ -22,15 +23,19 @@ namespace EasyPro.Controllers
     public class ReportController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly IReportProvider _reportProvider;
         readonly IReporting _IReporting;
         private Utilities utilities;
 
-        public ReportController(IReporting iReporting, MORINGAContext context)
+        public ReportController(IReporting iReporting, IReportProvider reportProvider, 
+            MORINGAContext context)
         {
             _IReporting = iReporting;
+            _reportProvider = reportProvider;
             utilities = new Utilities(context);
             _context = context;
         }
+
         public IEnumerable<DSupplier> suppliersobj { get; set; }
         public IEnumerable<ProductIntake> productIntakeobj { get; set; }
         public IEnumerable<DTransporter> transporterobj { get; set; }
@@ -84,6 +89,19 @@ namespace EasyPro.Controllers
             suppliersobj = _context.DSuppliers.Where(u => u.Scode == sacco);
             return Excel();
         }
+
+        [HttpPost]
+        public IActionResult SuppliersPdf([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            suppliersobj = _context.DSuppliers.Where(u => u.Scode == sacco);
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = "Supplier";
+            var pdfFile = _reportProvider.GetSuppliersReport(suppliersobj, company, title);
+            return File(pdfFile, "application/pdf");
+        }
+
         [HttpPost]
         public IActionResult Transporter([Bind("DateFrom,DateTo")] FilterVm filter)
         {
@@ -94,38 +112,110 @@ namespace EasyPro.Controllers
             transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
             return TransporterExcel();
         }
+
+        [HttpPost]
+        public IActionResult TransporterPdf([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            //var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            //var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = "Transporters List";
+            var pdfFile = _reportProvider.GetTransporterReport(transporterobj, company, title);
+            return File(pdfFile, "application/pdf");
+        }
+
         [HttpPost]
         public IActionResult SuppliersPayrollExcel([Bind("DateFrom,DateTo")] FilterVm filter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            dpayrollobj = _context.DPayrolls; //.Where(u => u.ParentT == sacco);
+            dpayrollobj = _context.DPayrolls
+                .Where(p => p.EndofPeriod >= filter.DateFrom && p.EndofPeriod <= filter.DateTo && p.SaccoCode == sacco)
+                .OrderBy(s => s.Sno); 
             return suppliersPayrollExcel();
         }
+
+        [HttpPost]
+        public IActionResult SuppliersPayrollPdf([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            dpayrollobj = _context.DPayrolls
+                .Where(p => p.EndofPeriod >= filter.DateFrom && p.EndofPeriod <= filter.DateTo && p.SaccoCode == sacco)
+                .OrderBy(s => s.Sno);
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = $"Suppliers Payroll Reports ({filter.DateTo})";
+            var pdfFile = _reportProvider.GetSuppliersPayroll(dpayrollobj, company, title);
+            return File(pdfFile, "application/pdf");
+        }
+
         [HttpPost]
         public IActionResult SuppliersActive([Bind("DateFrom,DateTo")] FilterVm filter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-            suppliersobj = _context.DSuppliers.Where(u => u.Scode == sacco); //.Where(u => u.ParentT == sacco);
-            return SuppliersActiveExcel(DateFrom, DateTo);
+            var activeSuppliers = _context.ProductIntake.Where(i => i.TransDate >= filter.DateFrom && i.TransDate <= filter.DateTo)
+                .Select(i => i.Sno);
+            suppliersobj = _context.DSuppliers
+                .Where(u => u.Scode == sacco && activeSuppliers.Contains(u.Sno.ToString()))
+                .OrderBy(u => u.Sno);
+            return SuppliersActiveExcel(filter);
         }
+
+        [HttpPost]
+        public IActionResult SuppliersActivePdf([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var activeSuppliers = _context.ProductIntake.Where(i => i.TransDate >= filter.DateFrom && i.TransDate <= filter.DateTo)
+                .Select(i => i.Sno);
+            suppliersobj = _context.DSuppliers
+                .Where(u => u.Scode == sacco && activeSuppliers.Contains(u.Sno.ToString()))
+                .OrderBy(u => u.Sno);
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = "Active Supplier";
+            var pdfFile = _reportProvider.GetSuppliersReport(suppliersobj, company, title);
+            return File(pdfFile, "application/pdf");
+        }
+
         [HttpPost]
         public IActionResult BranchIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            var Branch = filter.Branch;
             var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
             var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-            if (Branch == null)
+            if (string.IsNullOrEmpty(filter.Branch))
                 branchobj = _context.DBranch.Where(u => u.Bcode == sacco);
             else
-                branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == Branch);
-            return BranchIntakeExcel(DateFrom, DateTo, Branch);
+                branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
+            return BranchIntakeExcel(DateFrom, DateTo, filter.Branch);
         }
+
+        [HttpPost]
+        public IActionResult BranchIntakePdf([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            if (string.IsNullOrEmpty(filter.Branch))
+                branchobj = _context.DBranch.Where(u => u.Bcode == sacco);
+            else
+                branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = "Branch Intake";
+            var pdfFile = _reportProvider.GetBranchIntakeReport(branchobj, company, title, filter);
+            return File(pdfFile, "application/pdf");
+        }
+
         [HttpPost]
         public async Task<IActionResult> DSumarryIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
         {
@@ -142,14 +232,33 @@ namespace EasyPro.Controllers
                 branchobj = await _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == Branch).ToListAsync();
             return await DSumarryIntakeExcel(DateFrom, DateTo, Branch);
         }
+
         [HttpPost]
         public IActionResult TransportersPayrollExcel([Bind("DateFrom,DateTo")] FilterVm filter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            transporterpayrollobj = _context.DTransportersPayRolls; //.Where(u => u.ParentT == sacco);
+            transporterpayrollobj = _context.DTransportersPayRolls
+                .Where(p => p.SaccoCode == sacco && p.EndPeriod >= filter.DateFrom && p.EndPeriod <= filter.DateTo)
+                .OrderBy(p => p.Code); 
             return TransportersPayrollExcel();
         }
+
+        [HttpPost]
+        public IActionResult TransportersPayrollPdf([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            transporterpayrollobj = _context.DTransportersPayRolls
+                .Where(p => p.SaccoCode == sacco && p.EndPeriod >= filter.DateFrom && p.EndPeriod <= filter.DateTo)
+                .OrderBy(p => p.Code);
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = $"Transporters Payroll Reports ({filter.DateTo})";
+            var pdfFile = _reportProvider.GetTransportersPayroll(transporterpayrollobj, company, title);
+            return File(pdfFile, "application/pdf");
+        }
+
         [HttpPost]
         public IActionResult Deductions([Bind("DateFrom,DateTo")] FilterVm filter)
         {
@@ -160,6 +269,22 @@ namespace EasyPro.Controllers
             productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
             return DeductionsExcel();
         }
+
+        [HttpPost]
+        public IActionResult DeductionsPdf([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = "Suppliers Deductions";
+            var pdfFile = _reportProvider.GetIntakesPdf(productIntakeobj, company, title, TransactionType.Deduction);
+            return File(pdfFile, "application/pdf");
+        }
+
         [HttpPost]
         public IActionResult TDeductions([Bind("DateFrom,DateTo")] FilterVm filter)
         {
@@ -171,6 +296,7 @@ namespace EasyPro.Controllers
             productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
             return TDeductionsExcel();
         }
+
         [HttpPost]
         public IActionResult Intake([Bind("DateFrom,DateTo")] FilterVm filter)
         {
@@ -183,8 +309,9 @@ namespace EasyPro.Controllers
             productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied != 0 && u.SaccoCode == sacco);
             return IntakeExcel();
         }
+
         [HttpPost]
-        public IActionResult TIntake([Bind("DateFrom,DateTo")] FilterVm filter)
+        public IActionResult IntakePdf([Bind("DateFrom,DateTo")] FilterVm filter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
@@ -192,9 +319,42 @@ namespace EasyPro.Controllers
 
             var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
             var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-            //productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied != 0 && u.SaccoCode == sacco);
+            productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied != 0 && u.SaccoCode == sacco);
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = "Intakes";
+            var pdfFile = _reportProvider.GetIntakesPdf(productIntakeobj, company, title, TransactionType.Intake);
+            return File(pdfFile, "application/pdf");
+        }
+
+        [HttpPost]
+        public IActionResult TIntake([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
             return TIntakeExcel(DateFrom, DateTo);
         }
+
+        [HttpPost]
+        public IActionResult TIntakePdf([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = "Transpoter Intakes";
+            var pdfFile = _reportProvider.GetTIntakePdf(transporterobj, company, title, filter);
+            return File(pdfFile, "application/pdf");
+        }
+
         public IActionResult TransporterExcel()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -364,6 +524,7 @@ namespace EasyPro.Controllers
                 }
             }
         }
+
         public IActionResult suppliersPayrollExcel()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -476,11 +637,12 @@ namespace EasyPro.Controllers
                 }
             }
         }
-        public IActionResult SuppliersActiveExcel(DateTime DateFrom, DateTime DateTo)
+
+        public IActionResult SuppliersActiveExcel(FilterVm filter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var DateFro = Convert.ToDateTime(DateFrom.ToString());
-            var DateT = Convert.ToDateTime(DateTo.ToString());
+            //var DateFro = Convert.ToDateTime(DateFrom.ToString());
+            //var DateT = Convert.ToDateTime(DateTo.ToString());
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("suppliersobj");
@@ -498,7 +660,7 @@ namespace EasyPro.Controllers
                 }
                 currentRow = 5;
                 worksheet.Cell(currentRow, 2).Value = "Active Suppliers Register";
-                worksheet.Cell(currentRow, 3).Value = DateT;
+                worksheet.Cell(currentRow, 3).Value = filter.DateTo;
 
                 currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
@@ -520,29 +682,24 @@ namespace EasyPro.Controllers
                 var Total = 0;
                 foreach (var emp in suppliersobj)
                 {
-                    var activesupplier = _context.ProductIntake.Where(i => i.Sno == (emp.Sno).ToString() && i.TransDate >= DateFro && i.TransDate <= DateT).Count();
-                    if (activesupplier > 0)
-                    {
-
-                        currentRow++;
-                        worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                        worksheet.Cell(currentRow, 2).Value = emp.Names;
-                        worksheet.Cell(currentRow, 3).Value = emp.Regdate;
-                        worksheet.Cell(currentRow, 4).Value = emp.IdNo;
-                        worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
-                        worksheet.Cell(currentRow, 6).Value = emp.Bcode;
-                        worksheet.Cell(currentRow, 7).Value = emp.AccNo;
-                        worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
-                        worksheet.Cell(currentRow, 9).Value = emp.Type;
-                        worksheet.Cell(currentRow, 10).Value = emp.Village;
-                        worksheet.Cell(currentRow, 11).Value = emp.Location;
-                        worksheet.Cell(currentRow, 12).Value = emp.Division;
-                        worksheet.Cell(currentRow, 13).Value = emp.District;
-                        worksheet.Cell(currentRow, 14).Value = emp.County;
-                        worksheet.Cell(currentRow, 15).Value = emp.Active;
-                        worksheet.Cell(currentRow, 16).Value = emp.Address;
-                        Total += 1;
-                    }
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                    worksheet.Cell(currentRow, 2).Value = emp.Names;
+                    worksheet.Cell(currentRow, 3).Value = emp.Regdate;
+                    worksheet.Cell(currentRow, 4).Value = emp.IdNo;
+                    worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
+                    worksheet.Cell(currentRow, 6).Value = emp.Bcode;
+                    worksheet.Cell(currentRow, 7).Value = emp.AccNo;
+                    worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
+                    worksheet.Cell(currentRow, 9).Value = emp.Type;
+                    worksheet.Cell(currentRow, 10).Value = emp.Village;
+                    worksheet.Cell(currentRow, 11).Value = emp.Location;
+                    worksheet.Cell(currentRow, 12).Value = emp.Division;
+                    worksheet.Cell(currentRow, 13).Value = emp.District;
+                    worksheet.Cell(currentRow, 14).Value = emp.County;
+                    worksheet.Cell(currentRow, 15).Value = emp.Active;
+                    worksheet.Cell(currentRow, 16).Value = emp.Address;
+                    Total += 1;
                 }
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "No Of Suppliers";
@@ -627,6 +784,7 @@ namespace EasyPro.Controllers
                 }
             }
         }
+
         public IActionResult IntakeExcel()
         {
             using (var workbook = new XLWorkbook())
@@ -692,6 +850,7 @@ namespace EasyPro.Controllers
                 }
             }
         }
+
         public async Task<IActionResult> DSumarryIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
         {
             using (var workbook = new XLWorkbook())
@@ -876,6 +1035,7 @@ namespace EasyPro.Controllers
                 }
             }
         }
+
         public IActionResult BranchIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
         {
             using (var workbook = new XLWorkbook())
@@ -913,7 +1073,9 @@ namespace EasyPro.Controllers
                 foreach (var branch in branchobj)
                 {
                     productIntakeobj = _context.ProductIntake
-                        .Where(i => i.SaccoCode == sacco && i.TransDate >= DateFro && i.Qsupplied != 0 && i.TransDate <= DateT && i.Branch == branch.Bname);
+                        .Where(i => i.SaccoCode == sacco && i.TransDate >= DateFro && i.Qsupplied != 0 
+                        && i.TransDate <= DateT && i.Branch == branch.Bname)
+                        .OrderBy(i => i.Sno);
                     foreach (var emp in productIntakeobj)
                     {
                         long.TryParse(emp.Sno, out long sno);
@@ -986,36 +1148,32 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 6).Value = "Price";
                 worksheet.Cell(currentRow, 7).Value = "Description";
                 decimal sum = 0, totalkg = 0;
-                var AllTransporters = _context.DTransporters;
-                foreach (var empt in AllTransporters)
+                
+                foreach (var emp in transporterobj)
                 {
-                    transporterobj = _context.DTransporters.Where(u => u.TransCode == empt.TransCode && u.ParentT == sacco);
-                    foreach (var emp in transporterobj)
+                    var TransporterExist = _context.ProductIntake.Any(u => u.Sno == emp.TransCode && u.TransDate >= DateFro && u.TransDate <= DateT && u.SaccoCode == sacco);
+                    if (TransporterExist)
                     {
-                        var TransporterExist = _context.ProductIntake.Where(u => u.Sno == empt.TransCode && u.SaccoCode == sacco).Count();
-                        if (TransporterExist > 0)
+                        productIntakeobj = _context.ProductIntake.Where(u => u.Sno == emp.TransCode && u.TransDate >= DateFro && u.TransDate <= DateT && u.Qsupplied != 0 && u.SaccoCode == sacco);
+                        foreach (var empintake in productIntakeobj)
                         {
-                            productIntakeobj = _context.ProductIntake.Where(u => u.Sno == empt.TransCode && u.TransDate >= DateFro && u.TransDate <= DateT && u.Qsupplied != 0 && u.SaccoCode == sacco);
-                            foreach (var empintake in productIntakeobj)
-                            {
-                                currentRow++;
-                                worksheet.Cell(currentRow, 1).Value = empintake.Sno;
-                                var TName = _context.DTransporters.Where(u => u.TransCode == empintake.Sno && u.ParentT == sacco);
-                                foreach (var ann in TName)
-                                    worksheet.Cell(currentRow, 2).Value = ann.TransName;
-                                worksheet.Cell(currentRow, 3).Value = empintake.TransDate;
-                                worksheet.Cell(currentRow, 4).Value = empintake.ProductType;
-                                worksheet.Cell(currentRow, 5).Value = empintake.Qsupplied;
-                                worksheet.Cell(currentRow, 6).Value = empintake.Ppu;
-                                worksheet.Cell(currentRow, 7).Value = empintake.Description;
-                                sum += (empintake.Qsupplied);
-                                totalkg += (empintake.Qsupplied);
-                            }
                             currentRow++;
-                            worksheet.Cell(currentRow, 4).Value = "Total Kgs";
-                            worksheet.Cell(currentRow, 5).Value = totalkg;
-                            totalkg = 0;
+                            worksheet.Cell(currentRow, 1).Value = empintake.Sno;
+                            var TName = _context.DTransporters.Where(u => u.TransCode == empintake.Sno && u.ParentT == sacco);
+                            foreach (var ann in TName)
+                                worksheet.Cell(currentRow, 2).Value = ann.TransName;
+                            worksheet.Cell(currentRow, 3).Value = empintake.TransDate;
+                            worksheet.Cell(currentRow, 4).Value = empintake.ProductType;
+                            worksheet.Cell(currentRow, 5).Value = empintake.Qsupplied;
+                            worksheet.Cell(currentRow, 6).Value = empintake.Ppu;
+                            worksheet.Cell(currentRow, 7).Value = empintake.Description;
+                            sum += (empintake.Qsupplied);
+                            totalkg += (empintake.Qsupplied);
                         }
+                        currentRow++;
+                        worksheet.Cell(currentRow, 4).Value = "Total Kgs";
+                        worksheet.Cell(currentRow, 5).Value = totalkg;
+                        totalkg = 0;
                     }
                 }
                 currentRow++;
