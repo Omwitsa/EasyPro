@@ -93,20 +93,160 @@
                         <nav id="dropdown">
                             <ul class="mobile-menu-nav">
                                 <li>
-                                    <a data-toggle="collapse" data-target="#Charts" href="#">Home</a>
-                                    <ul class="collapse dropdown-header-top">
-                                        <li><a href="index.html">Dashboard One</a></li>
-                                        <li><a href="widgets.html">Widgets</a></li>
-                                    </ul>
+                                    <a asp-controller="Home" asp-action="Index">Home</a>
                                 </li>
-                                <li>
-                                    <a data-toggle="collapse" data-target="#demo" href="#">Forms</a>
-                                    <ul id="demo" class="collapse dropdown-header-top">
-                                        <li><a href="form-elements.html">Form Elements</a></li>
-                                        <li><a href="form-components.html">Form Components</a></li>
-                                        <li><a href="form-examples.html">Form Examples</a></li>
-                                    </ul>
-                                </li>
+                                @if (ViewBag.filesRole)
+                                {
+                            <li>
+                                <a data-toggle="collapse" data-target="#mobile-file" href="#">File</a>
+                                <ul id="mobile-file" class="collapse dropdown-header-top">
+                                    <li>
+                                        <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="SupplierEnquiry" asp-action="Transporters">Transporters Enquiry</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
+                                    </li>
+                                </ul>
+                            </li>
+                                }
+
+                                @if (ViewBag.transactionsRole)
+                                {
+                                    <li>
+                                        <a data-toggle="collapse" data-target="#mobile-registration" href="#">Registration</a>
+                                        <ul id="mobile-registration" class="collapse dropdown-header-top">
+                                            <li>
+                                                <a asp-controller="DSuppliers" asp-action="Index">Farmer</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DDcodes" asp-action="Index">Deduction</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DBanks" asp-action="Index">Banks</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DBankBranches" asp-action="Index">Bank Branch</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <li>
+                                        <a data-toggle="collapse" data-target="#mobile-deductions" href="#">Deductions</a>
+                                        <ul id="mobile-deductions" class="collapse dropdown-header-top">
+                                            <li>
+                                                <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="ProductIntakes" asp-action="TDeductionList">Transporter</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DTransports" asp-action="Index">Transporter Assignement</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
+
+                                @if (ViewBag.activityRole)
+                                {
+                                    <li>
+                                        <a data-toggle="collapse" data-target="#mobile-activities" href="#">Activities</a>
+                                        <ul id="mobile-activities" class="collapse dropdown-header-top">
+                                            <li>
+                                                <a asp-controller="ProductIntakes" asp-action="Index">Product Intake</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
+
+                                @if (ViewBag.accountsRole)
+                                {
+                                    <li>
+                                        <a data-toggle="collapse" data-target="#mobile-accounts" href="#">Accounts</a>
+                                        <ul id="mobile-accounts" class="collapse dropdown-header-top">
+                                            <li>
+                                                <a asp-controller="Glsetups" asp-action="Index">Charts of Accounts</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Accounting" asp-action="JournalPosting">Journal Posting</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Accounting" asp-action="GLInquiry">GL Inquiry</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Accounting" asp-action="Budget">Budgettings</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
+
+                                @if (ViewBag.setupRole)
+                                {
+                                    <li>
+                                        <a data-toggle="collapse" data-target="#mobile-setup-role" href="#">Setup</a>
+                                        <ul id="mobile-setup-role" class="collapse dropdown-header-top">
+                                            <li>
+                                                <a asp-controller="DBranchProducts" asp-action="Index">Products</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DPrices" asp-action="Index">Pricing</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DCompanies" asp-action="Index">Org Setup</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DBranches" asp-action="Index">Org Branch</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="UserAccounts" asp-action="Index">Users</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Usergroups" asp-action="Index">UserGroups</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Counties" asp-action="Index">Counties</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="SubCounties" asp-action="Index">SubCounties</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Wards" asp-action="Index">Wards</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="DLocations" asp-action="Index">Locations</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
+
+                                @if (ViewBag.reportsRole)
+                                {
+                                    <li>
+                                        <a data-toggle="collapse" data-target="#mobile-reports" href="#">Reports</a>
+                                        <ul id="mobile-reports" class="collapse dropdown-header-top">
+                                            <li>
+                                                <a asp-controller="Report" asp-action="DownloadReport">Suppliers</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Report" asp-action="DownloadTReport">Transporters</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
                             </ul>
                         </nav>
                     </div>
@@ -202,7 +342,6 @@
                                 <li>
                                     <a asp-controller="DBankBranches" asp-action="Index">Bank Branch</a>
                                 </li>
-
                             </ul>
                         </div>
                         <div id="deductions" class="tab-pane notika-tab-menu-bg animated flipInX">

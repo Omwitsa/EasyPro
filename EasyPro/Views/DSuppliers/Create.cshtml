@@ -89,7 +89,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="County" class="control-label">County</label>
-                                    <select asp-for="County" class="form-control" asp-items="@ViewBag.countyname" required>
+                                    <select asp-for="County" class="form-control" asp-items="@ViewBag.counties" required>
                                         <option value="" disabled selected hidden>Please Choose...</option>
                                     </select>
                                     <span asp-validation-for="County" class="text-danger"></span>
@@ -129,7 +129,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Location" class="control-label"></label>
-                                    <select asp-for="Location" class="form-control" asp-items="@ViewBag.locations" required>
+                                    <select asp-for="Location" class="form-control" asp-items="@ViewBag.locations">
                                         <option value="" disabled selected hidden>Please Choose...</option>
                                     </select>
                                     <span asp-validation-for="Location" class="text-danger"></span>
