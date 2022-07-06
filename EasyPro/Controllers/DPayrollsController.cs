@@ -130,6 +130,7 @@ namespace EasyPro.Controllers
                 var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
                 var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
 
+                
                 var payroll = new DPayroll();
                 long.TryParse(p.Key, out long sno);
                 var supplier = _context.DSuppliers

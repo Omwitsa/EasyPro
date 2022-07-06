@@ -63,6 +63,13 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
+                            <label class="control-label">Intake Date</label>
+                            <input id="transDate" asp-for="TransDate" class="form-control" type="date" />
+                            <span asp-validation-for="TransDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
                             <label asp-for="Remarks" class="control-label"></label>
                             <input asp-for="Remarks" class="form-control" />
                             <span asp-validation-for="Remarks" class="text-danger"></span>
@@ -89,7 +96,9 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 <script type="text/javascript">
-        $(function () {
+    $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#transDate").val(today);
             $('#ProductType').on('change', function () {
                 var selectVal = $("#ProductType").val();
                 var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));

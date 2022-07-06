@@ -9,15 +9,23 @@
                 <div class="card-header">
                     <h3 class="card-title">Transporter Register Report</h3>
                 </div>
-                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="Transporter" method="post">
-                    <div class="card-body register-card-body">
-                        <div class="form-row">
-                            <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
+                
+                <div class="card-body register-card-body">
+                    <div class="form-row">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <form asp-controller="Report" asp-antiforgery="true" asp-action="Transporter" method="post">
+                                    <button type="submit" class="btn btn-success">Export to Excel</button>
+                                </form>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <form asp-controller="Report" asp-antiforgery="true" asp-action="TransporterPdf" method="post">
+                                    <button type="submit" class="btn btn-info">Export to PDF</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-footer">
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -30,31 +38,55 @@
                 <div class="card-header">
                     <h3 class="card-title">Transporters Intake Report</h3>
                 </div>
-                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="TIntake" method="post">
-                    <div class="row">
-                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-                            <div class="form-group">
-                                <label asp-for="DateFrom" class="control-label"></label>
-                                <input required asp-for="DateFrom" class="form-control" type="date" />
-                                <span asp-validation-for="DateFrom" class="text-danger"></span>
+                
+                <div class="card-body register-card-body">
+                    <div class="form-row">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <form asp-controller="Report" asp-antiforgery="true" asp-action="TIntake" method="post">
+                                    <div class="row">
+                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="DateFrom" class="control-label"></label>
+                                                <input required asp-for="DateFrom" class="form-control" type="date" />
+                                                <span asp-validation-for="DateFrom" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="DateTo" class="control-label"></label>
+                                                <input required asp-for="DateTo" class="form-control" type="date" />
+                                                <span asp-validation-for="DateTo" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Export to Excel</button>
+                                </form>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <form asp-controller="Report" asp-antiforgery="true" asp-action="TIntakePdf" method="post">
+                                    <div class="row">
+                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="DateFrom" class="control-label"></label>
+                                                <input required asp-for="DateFrom" class="form-control" type="date" />
+                                                <span asp-validation-for="DateFrom" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="DateTo" class="control-label"></label>
+                                                <input required asp-for="DateTo" class="form-control" type="date" />
+                                                <span asp-validation-for="DateTo" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-info">Export to PDF</button>
+                                </form>
                             </div>
                         </div>
-                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-                            <div class="form-group">
-                                <label asp-for="DateTo" class="control-label"></label>
-                                <input required asp-for="DateTo" class="form-control" type="date" />
-                                <span asp-validation-for="DateTo" class="text-danger"></span>
-                            </div>
-                        </div>
                     </div>
-                    <div class="card-body register-card-body">
-                        <div class="form-row">
-                            <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
