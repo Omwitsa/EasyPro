@@ -28,6 +28,7 @@ namespace EasyPro.Utils
             controller.ViewBag.activityRole = usergroup.Activity;
             controller.ViewBag.setupRole = usergroup.Setup;
             controller.ViewBag.reportsRole = usergroup.Reports;
+            controller.ViewBag.storeRole = usergroup.Setup;
         }
     }
 }

@@ -26,6 +26,7 @@ namespace EasyPro.Models
         public virtual DbSet<AgOpbal> AgOpbals { get; set; }
         public virtual DbSet<AgPaging> AgPagings { get; set; }
         public virtual DbSet<AgProduct> AgProducts { get; set; }
+        public virtual DbSet<Dispatch> Dispatch { get; set; }
         public virtual DbSet<AgProducts1> AgProducts1s { get; set; }
         public virtual DbSet<AgProducts3> AgProducts3s { get; set; }
         public virtual DbSet<AgProducts4> AgProducts4s { get; set; }
@@ -4129,7 +4130,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DDebtor>(entity =>
             {
-                entity.HasKey(e => e.Dcode);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Debtors");
 

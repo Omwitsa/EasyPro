@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -9,9 +10,12 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         public string Dcode { get; set; }
+        [Required]
         public string Dname { get; set; }
+        [Required]
         public string CertNo { get; set; }
         public string Locations { get; set; }
+        [Required]
         public DateTime? TregDate { get; set; }
         public string Email { get; set; }
         public string Phoneno { get; set; }
