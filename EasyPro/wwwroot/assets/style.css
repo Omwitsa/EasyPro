@@ -55,7 +55,7 @@
 /*  1.  Theme default CSS
 /*----------------------------------------*/
 html, body {font-family: 'Roboto', sans-serif;font-weight:400;}
-body {background:#F6F8FA;}
+body {background:#CEE5C5;}
 .floatleft {float:left}
 .floatright {float:right}
 .alignleft {float:left;margin-right:15px;margin-bottom: 15px}
@@ -184,7 +184,7 @@ body {}
 /*  2.  Header Top CSS
 /*----------------------------------------*/
 .header-top-area, .footer-copyright-area{
-	background: cadetblue;
+	background: #599343;
 }
 .logo-area{
 	padding:14px 0px;
@@ -253,7 +253,7 @@ body {}
 .header-top-menu .nav.notika-top-nav li .search-dd .search-input input[type="text"]{
     height: 40px;
     width: 100%;
-    background: #F6F8FA;
+    background: #CEE5C5;
     border: none;
 	outline:none;
 	padding: 5px 60px;
@@ -295,7 +295,7 @@ body {}
     margin-top: 5px;
 }
 .hd-message-info a:hover{
-	background:#F6F8FA;
+	background:#CEE5C5;
 }
 .header-top-menu .nav.notika-top-nav li .message-dd .hd-mg-va a{
 	font-size: 14px;
@@ -346,7 +346,7 @@ body {}
     outline: none;
     font-size: 14px;
     color: #333;
-    background: #F6F8FA;
+    background: #CEE5C5;
 }
 .hd-message-img.chat-img{
 	position:relative;
@@ -798,7 +798,8 @@ ul.notika-menu-wrap li a{
 /*  11.  Footer CSS
 /*----------------------------------------*/
 .footer-copyright-area {
-    margin-top:40px;
+    margin-top: 40px;
+    position:static;    
 }
 .footer-copyright-area p {
     margin: 0;
@@ -1152,7 +1153,7 @@ ul.notika-menu-wrap li a{
 	width: 100%;
     height: 35px;
     padding: 0px 10px;
-    border: 1px solid #F6F8FA;
+    border: 1px solid #CEE5C5;
     font-size: 14px;
     color: #333;
 	outline:none;
@@ -1166,7 +1167,7 @@ ul.notika-menu-wrap li a{
 	width: 100%;
     height: 140px;
     padding: 10px 10px;
-    border: 1px solid #F6F8FA;
+    border: 1px solid #CEE5C5;
 	font-size: 14px;
     color: #333;
 	outline:none;
@@ -3018,7 +3019,7 @@ textarea.auto-size {
 	border-radius: 0px;
 	box-shadow:none;
 	background-image:none !important;
-	background:#F6F8FA;
+	background:#CEE5C5;
 }
 .nk-int-mk.sl-dp-mn h2{
 	margin-left:10px;
@@ -3572,7 +3573,7 @@ textarea.auto-size {
 .login-content, .error-page-area{
     min-height:100vh;
     text-align:center;
-    background-color:cadetblue;
+    background-color:#B2DCA2;
 }
 .login-content:before, .error-page-area:before{
     content:'';
@@ -3725,7 +3726,7 @@ textarea.auto-size {
 	font-size: 14px;
 }
 .nk-block, .login-content:before, .error-page-wrap, .error-page-area:before{
-    vertical-align: middle;
+    vertical-align:middle;
     display: inline-block;
 }
 .nk-form p{
@@ -4475,7 +4476,7 @@ body.box-layout {
     background: #000000 !important;
 }
 .box-layout-wp-bg{
-    background: #F6F8FA;
+    background: #CEE5C5;
 }
 .logo-area.logo-left {
     position: relative;
@@ -4615,7 +4616,7 @@ body.box-layout {
 /*----------------------------------------*/
 .notika-icon-pro a{
 	text-align: center;
-    background: #F6F8FA;
+    background: #CEE5C5;
     padding: 10px 15px;
     border-radius: 3px;
     margin: 5px 5px;
