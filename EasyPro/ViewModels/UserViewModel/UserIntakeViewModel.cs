@@ -11,7 +11,7 @@ namespace EasyPro.ViewModels.Reports
         internal decimal? totalkgs;
 
         public string Sno { get; set; }
-        public DateTime TransDate { get; set; }
+        public DateTime? TransDate { get; set; }
         public string ProductType { get; set; }
         public decimal? Qsupplied { get; set; }
         public decimal? Ppu { get; set; }
