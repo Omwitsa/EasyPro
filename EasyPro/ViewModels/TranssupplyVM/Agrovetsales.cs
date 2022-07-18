@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace EasyPro.ViewModels.TranssupplyVM
 {
-    public class TransSuppliers
+    public class Agrovetsales
     {
-        public DTransport DTransport { get; set; }
         public AgReceipt AgReceipt { get; set; }
         public IEnumerable<DTransporter> DTransporter { get; set; }
         public IEnumerable<DSupplier> DSuppliers { get; set; }
+        public IEnumerable<AgProduct> AgProductobj { get; set; }
 
     }
 }

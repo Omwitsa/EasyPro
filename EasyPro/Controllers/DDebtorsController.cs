@@ -30,9 +30,28 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.DDebtors
                 .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
+        }
+        private void GetInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var suppliers = _context.Suppliers.Where(i => i.saccocode == sacco).Select(b => b.Names).ToList();
+            ViewBag.suppliers = new SelectList(suppliers);
+
+            var products = _context.DBranchProducts.Where(a => a.saccocode == sacco).Select(b => b.Bname).ToList();
+            ViewBag.products = new SelectList(products);
+            var glAccounts = _context.Glsetups.ToList();
+            ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
+
+            var banksname = _context.DBanks.Where(a => a.BankCode == sacco).Select(b => b.BankName).ToList();
+            ViewBag.banksname = new SelectList(banksname);
+
+
+            var bankbrances = _context.DBankBranch.Where(a => a.BankCode == sacco).Select(b => b.Bname).ToList();
+            ViewBag.bankbrances = new SelectList(bankbrances);
         }
 
         // GET: DDebtors/Details/5
@@ -58,6 +77,7 @@ namespace EasyPro.Controllers
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             return View();
         }
 
@@ -69,6 +89,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,Dcode,Dname,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Price,AccDr,AccCr,Crate,Drcess,Crcess,Capp")] DDebtor dDebtor)
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var locations = _context.DDebtors.Any(i => i.Dname == dDebtor.Dname && i.Dcode == sacco);
             if (locations)
@@ -95,6 +116,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long? id)
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             if (id == null)
             {
                 return NotFound();
@@ -116,10 +138,10 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long id, [Bind("Id,Dcode,Dname,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Price,AccDr,AccCr,Crate,Drcess,Crcess,Capp")] DDebtor dDebtor)
         {
             utilities.SetUpPrivileges(this);
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != dDebtor.Id)
             {
+                GetInitialValues();
                 return NotFound();
                 
             }
@@ -158,6 +180,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Delete(long? id)
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             if (id == null)
             {
                 return NotFound();

@@ -68,8 +68,8 @@ namespace EasyPro.Controllers
 
             var debtorsnames = _context.DDebtors.Where(a => a.Dcode == dScode).Select(b => b.Dname).ToList();
             ViewBag.debtorsnames = new SelectList(debtorsnames);
-
         }
+
         // POST: Dispatches/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -79,7 +79,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var locations = _context.DDebtors.Any(i => i.Dname == dispatch.DName && i.Dcode == sacco && i.TregDate== dispatch.Transdate);
+            var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco && i.Transdate== dispatch.Transdate);
             if (locations)
             {
                 _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");

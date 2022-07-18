@@ -1,0 +1,162 @@
+﻿@model EasyPro.Models.AgReceipt
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>AgReceipt</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.RNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Amount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Qua)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Qua)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SBal)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SBal)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Cash)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Cash)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Sno1)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sno1)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Transby)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Transby)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Idno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Idno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Mobile)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Mobile)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Remarks)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Remarks)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Branch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Branch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Sprice)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sprice)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Bprice)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bprice)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Ai)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Ai)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Run)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Run)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Paid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Paid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Completed)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Completed)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Salesrep)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Salesrep)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.saccocode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.saccocode)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.RId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -569,7 +569,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<AgProduct>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("ag_Products");
 
@@ -771,7 +771,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<AgProducts4>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("ag_Products4");
 
@@ -914,7 +914,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<AgReceipt>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.RId);
 
                 entity.ToTable("ag_Receipts");
 

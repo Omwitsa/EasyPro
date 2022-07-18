@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -7,6 +8,7 @@ namespace EasyPro.Models
 {
     public partial class AgProduct
     {
+        public long Id { get; set; }
         public string PCode { get; set; }
         public string PName { get; set; }
         public string SNo { get; set; }
@@ -32,5 +34,6 @@ namespace EasyPro.Models
         public int? Process1 { get; set; }
         public int? Process2 { get; set; }
         public string Remarks { get; set; }
+        public string saccocode { get; set; }
     }
 }

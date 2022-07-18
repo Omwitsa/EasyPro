@@ -7,6 +7,7 @@ namespace EasyPro.Models
 {
     public partial class AgProducts4
     {
+        public long Id { get; set; }
         public string PCode { get; set; }
         public string PName { get; set; }
         public double? SNo { get; set; }
@@ -27,5 +28,6 @@ namespace EasyPro.Models
         public string Draccno { get; set; }
         public string Craccno { get; set; }
         public int? Ai { get; set; }
+        public string saccocode { get; set; }
     }
 }

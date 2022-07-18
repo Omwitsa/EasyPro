@@ -1,4 +1,4 @@
-﻿@model EasyPro.Models.DDebtor
+﻿@model EasyPro.Models.AgProduct
 
 @{
     ViewData["Title"] = "Create";
@@ -7,66 +7,36 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
             <div class="cmp-tb-hd">
-                <h2>Create New Debtor</h2>
+                <h2>Add Product</h2>
             </div>
             <hr />
-
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Dname" class="control-label">Name</label>
-                                <input asp-for="Dname" class="form-control" />
-                                <span asp-validation-for="Dname" class="text-danger"></span>
+                                <label asp-for="DateEntered" class="control-label">Date</label>
+                                <input type="date" asp-for="DateEntered" class="form-control" />
+                                <span asp-validation-for="DateEntered" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="CertNo" class="control-label">IDNo</label>
-                                <input asp-for="CertNo" class="form-control" />
-                                <span asp-validation-for="CertNo" class="text-danger"></span>
+                                <label asp-for="PName" class="control-label">Name</label>
+                                <input asp-for="PName" required class="form-control" />
+                                <span asp-validation-for="PName" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="TregDate" class="control-label"></label>
-                                <input asp-for="TregDate" type="date" class="form-control" />
-                                <span asp-validation-for="TregDate" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="Phoneno" class="control-label">Phone No</label>
-                                <input asp-for="Phoneno" class="form-control" />
-                                <span asp-validation-for="Phoneno" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="Town" class="control-label"></label>
-                                <input asp-for="Town" class="form-control" />
-                                <span asp-validation-for="Town" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="Email" class="control-label"></label>
-                                <input asp-for="Email" class="form-control" />
-                                <span asp-validation-for="Email" class="text-danger"></span>
+                                <label asp-for="PCode" class="control-label"></label>
+                                <input readonly asp-for="PCode" class="form-control" />
+                                <span asp-validation-for="PCode" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -75,31 +45,27 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Bcode" class="control-label">Bank Name</label>
-                                <select id="draccno" asp-for="Bcode" class="form-control" asp-items="@ViewBag.banksname">
-                                    <option value="" disabled selected hidden>Please select</option>
-                                </select>
-                                <span asp-validation-for="Bcode" class="text-danger"></span>
+                                <label asp-for="SupplierId" class="control-label">Supplier</label>
+                                <select asp-for="SupplierId" class="form-control" asp-items="@ViewBag.suppliers" required></select>
+                                <span asp-validation-for="SupplierId" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Accno" class="control-label"></label>
-                                <input asp-for="Accno" class="form-control" />
-                                <span asp-validation-for="Accno" class="text-danger"></span>
+                                <label asp-for="Qin" class="control-label">Quantity</label>
+                                <input required asp-for="Qin" class="form-control" />
+                                <span asp-validation-for="Qin" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Bbranch" class="control-label">Branch</label>
-                                <select id="draccno" asp-for="Bbranch" class="form-control" asp-items="@ViewBag.bankbrances">
-                                    <option value="" disabled selected hidden>Please select</option>
-                                </select>
-                                <span asp-validation-for="Bbranch" class="text-danger"></span>
+                                <label asp-for="OBal" class="control-label">Balance</label>
+                                <input readonly asp-for="OBal" class="form-control" />
+                                <span asp-validation-for="OBal" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -108,31 +74,58 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="AccDr" class="control-label">Acc Dr</label>
-                                <select id="draccno" asp-for="AccDr" class="form-control" asp-items="@ViewBag.glAccounts">
-                                    <option value="" disabled selected hidden>Please select</option>
-                                </select>
-                                <span asp-validation-for="AccDr" class="text-danger"></span>
+                                <label asp-for="Pprice" class="control-label">Buying Price</label>
+                                <input required asp-for="Pprice" class="form-control" />
+                                <span asp-validation-for="Pprice" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="AccCr" class="control-label">Acc Cr</label>
-                                <select id="craccno" asp-for="AccCr" class="form-control" asp-items="@ViewBag.glAccounts">
-                                    <option value="" disabled selected hidden>Please select</option>
-                                </select>
-                                <span asp-validation-for="AccCr" class="text-danger"></span>
+                                <label asp-for="Sprice" class="control-label">Selling Price</label>
+                                <input required asp-for="Sprice" class="form-control" />
+                                <span asp-validation-for="Sprice" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Price" class="control-label">Price</label>
-                                <input asp-for="Price" class="form-control" />
-                                <span asp-validation-for="Price" class="text-danger"></span>
+                                <label asp-for="Expirydate" class="control-label"></label>
+                                <input type="date" asp-for="Expirydate" class="form-control" />
+                                <span asp-validation-for="Expirydate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Draccno" class="control-label"></label>
+                                <select id="draccno" asp-for="Draccno" class="form-control" asp-items="@ViewBag.glAccounts">
+                                    <option value="" disabled selected hidden>Please select</option>
+                                </select>
+                                <span asp-validation-for="Draccno" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Craccno" class="control-label"></label>
+                                <select id="craccno" asp-for="Craccno" class="form-control" asp-items="@ViewBag.glAccounts">
+                                    <option value="" disabled selected hidden>Please select</option>
+                                </select>
+                                <span asp-validation-for="Craccno" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -149,6 +142,7 @@
             </form>
         </div>
     </div>
-    </div>
-
-
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

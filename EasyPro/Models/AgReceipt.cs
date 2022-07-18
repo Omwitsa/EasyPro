@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -7,6 +8,7 @@ namespace EasyPro.Models
 {
     public partial class AgReceipt
     {
+        [Key]
         public long RId { get; set; }
         public string RNo { get; set; }
         public string PCode { get; set; }
@@ -31,5 +33,6 @@ namespace EasyPro.Models
         public decimal? Paid { get; set; }
         public int? Completed { get; set; }
         public string Salesrep { get; set; }
+        public string saccocode { get; set; }
     }
 }
