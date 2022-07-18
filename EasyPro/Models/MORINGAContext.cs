@@ -258,6 +258,9 @@ namespace EasyPro.Models
         public virtual DbSet<County> County { get; set; }
         public virtual DbSet<SubCounty> SubCounty { get; set; }
         public virtual DbSet<Ward> Ward { get; set; }
+        public virtual DbSet<FLMD> FLMD { get; set; }
+        public virtual DbSet<FLMDCrops> FLMDCrops { get; set; }
+        public virtual DbSet<FLMDLand> FLMDLand { get; set; }
         public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
