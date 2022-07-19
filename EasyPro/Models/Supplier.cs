@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -7,6 +8,7 @@ namespace EasyPro.Models
 {
     public partial class Supplier
     {
+        [Key]
         public short SupplierNumber { get; set; }
         public DateTime? DateBegan { get; set; }
         public string IdNumber { get; set; }
@@ -21,5 +23,6 @@ namespace EasyPro.Models
         public string Trader { get; set; }
         public string BranchSupplier { get; set; }
         public string Names { get; set; }
+        public string saccocode { get; set; }
     }
 }

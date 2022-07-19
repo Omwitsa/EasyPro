@@ -6,148 +6,174 @@
 <!DOCTYPE html>
 
 <html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Easy Pro</title>
-
-    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
-    <!-- Bootstrap CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/font-awesome.min.css">
-    <!-- owl.carousel CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/owl.carousel.css">
-    <link rel="stylesheet" href="~/assets/css/owl.theme.css">
-    <link rel="stylesheet" href="~/assets/css/owl.transitions.css">
-    <!-- meanmenu CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/meanmenu/meanmenu.min.css">
-    <!-- normalize CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/normalize.css">
-    <!-- mCustomScrollbar CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/scrollbar/jquery.mCustomScrollbar.min.css">
-    <!-- jvectormap CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/jvectormap/jquery-jvectormap-2.0.3.css">
-    <!-- notika icon CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/notika-custom-icon.css">
-    <!-- wave CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/wave/waves.min.css">
-    <!-- main CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/main.css">
-    <!-- style CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/style.css">
-    <!-- responsive CSS
-        ============================================ -->
-    <link rel="stylesheet" href="~/assets/css/responsive.css">
-    <!-- modernizr JS
-        ============================================ -->
-    <script src="~/assets/js/vendor/modernizr-2.8.3.min.js"></script>
-</head>
 <body>
-    <div class="login-content">
-        <div class="nk-block toggled" id="l-login">
-            <div class="nk-form">
-                <div>
-                    <h2 class="text-center text-primary">Login</h2>
-                </div>
-                <hr />
-                <form asp-action="Login">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="form-group">
-                        <label asp-for="Username" class="control-label"></label>
-                        <input asp-for="Username" class="form-control" />
-                        <span asp-validation-for="Username" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Password" class="control-label"></label>
-                        <input asp-for="Password" type="password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <button type="submit" class="btn form-control btn-success">Login</button>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <a asp-controller="Home" asp-action="ResetPassword">Forgot Password</a>
-                        </div>
-                    </div>
-                </form>
+    <div class="w3-top">
+        <div class="w3-bar w3-white w3-wide w3-padding w3-card">
+            <a href="#home" class="w3-bar-item w3-button"><b>EasyPro</b>MIS</a>
+            <!-- Float links to the right. Hide them on small screens -->
+            <div class="w3-right w3-hide-small">
+                <a href="#projects" class="w3-bar-item w3-button">Projects</a>
+                <a href="#about" class="w3-bar-item w3-button">About us</a>
+                <a href="#contact" class="w3-bar-item w3-button">Contact</a>
             </div>
         </div>
     </div>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Easy Pro</title>
 
-    <script src="~/assets/js/vendor/jquery-1.12.4.min.js"></script>
-    <!-- bootstrap JS
-        ============================================ -->
-    <script src="~/assets/js/bootstrap.min.js"></script>
-    <!-- wow JS
-        ============================================ -->
-    <script src="~/assets/js/wow.min.js"></script>
-    <!-- price-slider JS
-        ============================================ -->
-    <script src="~/assets/js/jquery-price-slider.js"></script>
-    <!-- owl.carousel JS
-        ============================================ -->
-    <script src="~/assets/js/owl.carousel.min.js"></script>
-    <!-- scrollUp JS
-        ============================================ -->
-    <script src="~/assets/js/jquery.scrollUp.min.js"></script>
-    <!-- meanmenu JS
-        ============================================ -->
-    <script src="~/assets/js/meanmenu/jquery.meanmenu.js"></script>
-    <!-- counterup JS
-        ============================================ -->
-    <script src="~/assets/js/counterup/jquery.counterup.min.js"></script>
-    <script src="~/assets/js/counterup/waypoints.min.js"></script>
-    <script src="~/assets/js/counterup/counterup-active.js"></script>
-    <!-- mCustomScrollbar JS
-        ============================================ -->
-    <script src="~/assets/js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
-    <!-- jvectormap JS
-        ============================================ -->
-    <script src="~/assets/js/jvectormap/jquery-jvectormap-2.0.2.min.js"></script>
-    <script src="~/assets/js/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-    <script src="~/assets/js/jvectormap/jvectormap-active.js"></script>
-    <!-- sparkline JS
-        ============================================ -->
-    <script src="~/assets/js/sparkline/jquery.sparkline.min.js"></script>
-    <script src="~/assets/js/sparkline/sparkline-active.js"></script>
-    <!-- sparkline JS
-        ============================================ -->
-    <script src="~/assets/js/flot/jquery.flot.js"></script>
-    <script src="~/assets/js/flot/jquery.flot.resize.js"></script>
-    <script src="~/assets/js/flot/curvedLines.js"></script>
-    <script src="~/assets/js/flot/flot-active.js"></script>
-    <!-- knob JS
-        ============================================ -->
-    <script src="~/assets/js/knob/jquery.knob.js"></script>
-    <script src="~/assets/js/knob/jquery.appear.js"></script>
-    <script src="~/assets/js/knob/knob-active.js"></script>
-    <!--  wave JS
-        ============================================ -->
-    <script src="~/assets/js/wave/waves.min.js"></script>
-    <script src="~/assets/js/wave/wave-active.js"></script>
-    <!--  todo JS
-        ============================================ -->
-    <script src="~/assets/js/todo/jquery.todo.js"></script>
-    <!-- plugins JS
-        ============================================ -->
-    <script src="~/assets/js/plugins.js"></script>
-    <!--  Chat JS
-        ============================================ -->
-    <script src="~/assets/js/chat/moment.min.js"></script>
-    <script src="~/assets/js/chat/jquery.chat.js"></script>
-    <!-- main JS
-        ============================================ -->
-    <script src="~/assets/js/main.js"></script>
+        <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+        <!-- Bootstrap CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/font-awesome.min.css">
+        <!-- owl.carousel CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/owl.carousel.css">
+        <link rel="stylesheet" href="~/assets/css/owl.theme.css">
+        <link rel="stylesheet" href="~/assets/css/owl.transitions.css">
+        <!-- meanmenu CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/meanmenu/meanmenu.min.css">
+        <!-- normalize CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/normalize.css">
+        <!-- mCustomScrollbar CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/scrollbar/jquery.mCustomScrollbar.min.css">
+        <!-- jvectormap CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/jvectormap/jquery-jvectormap-2.0.3.css">
+        <!-- notika icon CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/notika-custom-icon.css">
+        <!-- wave CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/wave/waves.min.css">
+        <!-- main CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/main.css">
+        <!-- style CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/style.css">
+        <!-- responsive CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/responsive.css">
+
+        <!-- w3 CSS
+            ============================================ -->
+        <link rel="stylesheet" href="~/assets/css/w3.css">
+
+        <!-- modernizr JS
+            ============================================ -->
+        <script src="~/assets/js/vendor/modernizr-2.8.3.min.js"></script>
+
+    </head>
+    <div class="login-content">
+            <div class="nk-block toggled" id="l-login">
+                <div class="nk-form">
+                    <div>
+                        <h2 class="text-center text-primary">Login</h2>
+                    </div>
+                    <hr />
+                    <form asp-action="Login">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="Username" class="control-label"></label>
+                            <input asp-for="Username" class="form-control" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Password" class="control-label"></label>
+                            <input asp-for="Password" type="password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <button type="submit" class="btn form-control btn-success">Login</button>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <a asp-controller="Home" asp-action="ResetPassword">Forgot Password</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <script src="~/assets/js/vendor/jquery-1.12.4.min.js"></script>
+        <!-- bootstrap JS
+    ============================================ -->
+        <script src="~/assets/js/bootstrap.min.js"></script>
+        <!-- wow JS
+    ============================================ -->
+        <script src="~/assets/js/wow.min.js"></script>
+        <!-- price-slider JS
+    ============================================ -->
+        <script src="~/assets/js/jquery-price-slider.js"></script>
+        <!-- owl.carousel JS
+    ============================================ -->
+        <script src="~/assets/js/owl.carousel.min.js"></script>
+        <!-- scrollUp JS
+    ============================================ -->
+        <script src="~/assets/js/jquery.scrollUp.min.js"></script>
+        <!-- meanmenu JS
+    ============================================ -->
+        <script src="~/assets/js/meanmenu/jquery.meanmenu.js"></script>
+        <!-- counterup JS
+    ============================================ -->
+        <script src="~/assets/js/counterup/jquery.counterup.min.js"></script>
+        <script src="~/assets/js/counterup/waypoints.min.js"></script>
+        <script src="~/assets/js/counterup/counterup-active.js"></script>
+        <!-- mCustomScrollbar JS
+    ============================================ -->
+        <script src="~/assets/js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
+        <!-- jvectormap JS
+    ============================================ -->
+        <script src="~/assets/js/jvectormap/jquery-jvectormap-2.0.2.min.js"></script>
+        <script src="~/assets/js/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+        <script src="~/assets/js/jvectormap/jvectormap-active.js"></script>
+        <!-- sparkline JS
+    ============================================ -->
+        <script src="~/assets/js/sparkline/jquery.sparkline.min.js"></script>
+        <script src="~/assets/js/sparkline/sparkline-active.js"></script>
+        <!-- sparkline JS
+    ============================================ -->
+        <script src="~/assets/js/flot/jquery.flot.js"></script>
+        <script src="~/assets/js/flot/jquery.flot.resize.js"></script>
+        <script src="~/assets/js/flot/curvedLines.js"></script>
+        <script src="~/assets/js/flot/flot-active.js"></script>
+        <!-- knob JS
+    ============================================ -->
+        <script src="~/assets/js/knob/jquery.knob.js"></script>
+        <script src="~/assets/js/knob/jquery.appear.js"></script>
+        <script src="~/assets/js/knob/knob-active.js"></script>
+        <!--  wave JS
+    ============================================ -->
+        <script src="~/assets/js/wave/waves.min.js"></script>
+        <script src="~/assets/js/wave/wave-active.js"></script>
+        <!--  todo JS
+    ============================================ -->
+        <script src="~/assets/js/todo/jquery.todo.js"></script>
+        <!-- plugins JS
+    ============================================ -->
+        <script src="~/assets/js/plugins.js"></script>
+        <!--  Chat JS
+    ============================================ -->
+        <script src="~/assets/js/chat/moment.min.js"></script>
+        <script src="~/assets/js/chat/jquery.chat.js"></script>
+        <!-- main JS
+    ============================================ -->
+        <script src="~/assets/js/main.js"></script>
+
+        <footer class="w3-center w3-black w3-padding-16">
+            <p>Powered by <a href="default.html" title="W3.CSS" target="_blank" class="w3-hover-text-green">EasyPro</a></p>
+        </footer>
+
 </body>
 </html>

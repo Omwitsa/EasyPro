@@ -34,7 +34,7 @@ namespace EasyPro.Controllers
             sacco = sacco ?? "";
 
             var suppliers = _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval==true);
 
             return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.AsNoTracking(), pageNumber ?? 1, pageSize ?? 100));
         }

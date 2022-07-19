@@ -319,7 +319,7 @@
                         $("#bbranch").val(selectsuppliers[0].Bbranch);
                         $.ajax({
                             type: 'POST',
-                            url: "SuppliedProductsTransporter?date1="+date1+"&date2="+date2+"",
+                            url: "SuppliedProductsTransporter?sno=" + sno +"&date1="+date1+"&date2="+date2+"",
                             contentType: 'application/json',
                             data: JSON.stringify(selectsuppliers[0]),
                             success: function (response) {

@@ -1,0 +1,162 @@
+﻿@model EasyPro.Models.AgProduct
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>AgProduct</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.PName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Qin)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Qin)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Qout)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Qout)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DateEntered)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DateEntered)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LastDUpdated)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LastDUpdated)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.OBal)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OBal)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SupplierId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SupplierId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Serialized)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Serialized)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Unserialized)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Unserialized)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Seria)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Seria)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Pprice)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Pprice)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Sprice)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sprice)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Branch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Branch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Draccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Draccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Craccno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Craccno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Ai)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Ai)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Expirydate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Expirydate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Run)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Run)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Process1)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Process1)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Process2)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Process2)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Remarks)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Remarks)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.PCode">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

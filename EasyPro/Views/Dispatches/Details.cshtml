@@ -1,0 +1,48 @@
+﻿@model EasyPro.Models.Dispatch
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Dispatch</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Dcode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Dcode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Transdate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Transdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Dispatchkgs)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Dispatchkgs)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TIntake)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TIntake)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.auditid)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
