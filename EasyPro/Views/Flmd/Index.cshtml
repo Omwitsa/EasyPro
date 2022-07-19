@@ -15,6 +15,13 @@
                                         <input id="sno" autocomplete="off" class="form-control" />
                                     </div>
                                 </div>
+
+                                <div class="col-sm-8 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Names</label>
+                                        <input id="names" autocomplete="off" class="form-control" readonly/>
+                                    </div>
+                                </div>
                             </div>
                             <ul class="nav nav-tabs">
                                 <li class="active"><a data-toggle="tab" href="#animals">Domestic Animals</a></li>
@@ -400,9 +407,24 @@
             $(function () {
                 let crops = new Array();
                 let lands = new Array();
-                let sno = $("#sno").val();
+                
+                $('#sno').on('keyup', function () {
+                    let sno = parseInt($("#sno").val());  
+                    var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
+                    var selectSupplier = suppliers.filter(p => p.Sno === sno);
+                    if (selectSupplier[0]) {
+                        $("#names").val(selectSupplier[0].Names);
+                    }
+                });
+
                 $('#save_animal').on('click', function () {
+                    let sno = $("#sno").val();
+                    if (!sno) {
+                        alert("Kindly provide supplier No.")
+                    }
+
                     var animal = {
+                        Sno: $("#sno").val(),
                         exoticCattle: $("#exotic_cattle").val(),
                         indigenousCattle: $("#indigenous_cattle").val(),
                         indigenousChicken: $("#indigenous_chicken").val(),
@@ -418,10 +440,11 @@
                     || animal.camels || animal.donkeys || animal.pigs || animal.beeHives) {
                         $.ajax({
                             type: 'POST',
-                            url: "updateAnimals?sno="+sno,
+                            url: "updateAnimals",
                             contentType: 'application/json',
                             data: JSON.stringify(animal),
                             success: function (response) {
+                                $("#sno").val(''),
                                 $("#exotic_cattle").val(0);
                                 $("#indigenous_cattle").val(0);
                                 $("#indigenous_chicken").val(0);
@@ -441,7 +464,13 @@
                 });
 
                 $('#save_crop').on('click', function () {
+                    let sno = $("#sno").val();
+                    if (!sno) {
+                        alert("Kindly provide supplier No.")
+                    }
+
                     var crop = {
+                        Sno: $("#sno").val(),
                         cashCrops: $("#cash_crops").val(),
                         consumerCrops: $("#consumer_crops").val(),
                         vegetables: $("#vegetables").val(),
@@ -451,10 +480,11 @@
                     if (crop.cashCrops || crop.consumerCrops || crop.vegetables || crop.animalFeeds) {
                         $.ajax({
                             type: 'POST',
-                            url: "updateCrops?sno="+sno,
+                            url: "updateCrops",
                             contentType: 'application/json',
                             data: JSON.stringify(crop),
                             success: function (response) {
+                                $("#sno").val(''),
                                 $("#cash_crops").val('');
                                 $("#consumer_crops").val('');
                                 $("#vegetables").val('');
@@ -472,7 +502,13 @@
                 });
 
                 $('#save_education').on('click', function () {
+                    let sno = $("#sno").val();
+                    if (!sno) {
+                        alert("Kindly provide supplier No.")
+                    }
+
                     var education = {
+                        Sno: $("#sno").val(),
                         boys: $("#boys").val(),
                         girls: $("#girls").val(),
                         deaths: $("#deaths").val(),
@@ -489,10 +525,11 @@
                     || education.graduates || education.underGraduates || education.secondary || education.primary || education.nursery) {
                         $.ajax({
                             type: 'POST',
-                            url: "updateEducation?sno="+sno,
+                            url: "updateEducation",
                             contentType: 'application/json',
                             data: JSON.stringify(education),
                             success: function (response) {
+                                $("#sno").val(''),
                                 $("#boys").val(0);
                                 $("#girls").val(0);
                                 $("#deaths").val(0);
@@ -514,7 +551,13 @@
                 });
 
                 $('#save_lands').on('click', function () {
+                    let sno = $("#sno").val();
+                    if (!sno) {
+                        alert("Kindly provide supplier No.")
+                    }
+
                     var land = {
+                        Sno: $("#sno").val(),
                         location: $("#location").val(),
                         plotNumber: $("#plot_number").val(),
                         totalAcres: $("#total_acres").val(),
@@ -524,13 +567,14 @@
                         acresUnusedLand: $("#acres_unused_land").val()
                     };
 
-                    if (crop.cashCrops || crop.consumerCrops || crop.vegetables || crop.animalFeeds) {
+                    if (land.location || land.totalAcres) {
                         $.ajax({
                             type: 'POST',
-                            url: "updateLand?sno="+sno,
+                            url: "updateLand",
                             contentType: 'application/json',
                             data: JSON.stringify(land),
                             success: function (response) {
+                                $("#sno").val(''),
                                 $("#location").val('');
                                 $("#plot_number").val('');
                                 $("#total_acres").val(0);

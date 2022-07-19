@@ -17,23 +17,31 @@ namespace EasyPro.Controllers
         public FlmdController(MORINGAContext context, INotyfService notyf)
         {
             utilities = new Utilities(context);
+            _context = context;
+            _notyf = notyf;
         }
 
         public IActionResult Index()
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var suppliers = _context.DSuppliers
+               .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            ViewBag.suppliers = suppliers;
             return View();
         }
 
         [HttpPost]
-        public JsonResult UpdateAnimals([FromBody] FLMD fMLD, string sno)
+        public JsonResult UpdateAnimals([FromBody] FLMD fMLD)
         {
             try
             {
-                sno = sno ?? "";
+                if (string.IsNullOrEmpty(fMLD.Sno))
+                    return Json("");
+                utilities.SetUpPrivileges(this);
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 fMLD.SaccoCode = sacco;
-                var savedFlmd = _context.FLMD.FirstOrDefault(f => f.Sno.ToUpper().Equals(sno.ToUpper()));
+                var savedFlmd = _context.FLMD.FirstOrDefault(f => f.Sno.ToUpper().Equals(fMLD.Sno.ToUpper()) && f.SaccoCode == sacco);
                 if (savedFlmd == null)
                     _context.FLMD.Add(fMLD);
                 else
@@ -60,14 +68,16 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateEducation([FromBody] FLMD fMLD, string sno)
+        public JsonResult UpdateEducation([FromBody] FLMD fMLD)
         {
             try
             {
-                sno = sno ?? "";
+                utilities.SetUpPrivileges(this);
+                if (string.IsNullOrEmpty(fMLD.Sno))
+                    return Json("");
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 fMLD.SaccoCode = sacco;
-                var savedFlmd = _context.FLMD.FirstOrDefault(f => f.Sno.ToUpper().Equals(sno.ToUpper()));
+                var savedFlmd = _context.FLMD.FirstOrDefault(f => f.Sno.ToUpper().Equals(fMLD.Sno.ToUpper()) && f.SaccoCode == sacco);
                 if (savedFlmd == null)
                     _context.FLMD.Add(fMLD);
                 else
@@ -95,18 +105,20 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateCrops([FromBody] FLMDCrops crops, string sno)
+        public JsonResult UpdateCrops([FromBody] FLMDCrops crops)
         {
             try
             {
-                sno = sno ?? "";
+                utilities.SetUpPrivileges(this);
+                if (string.IsNullOrEmpty(crops.Sno))
+                    return Json("");
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 crops.SaccoCode = sacco;
                 _context.FLMDCrops.Add(crops);
                 _context.SaveChanges();
                 _notyf.Success("Crops saved successfully");
 
-                var fLMDCrops = _context.FLMDCrops.Where(c => c.Sno == sno).ToList();
+                var fLMDCrops = _context.FLMDCrops.Where(c => c.Sno == crops.Sno && c.SaccoCode == sacco).ToList();
                 return Json(fLMDCrops);
             }
             catch (Exception e)
@@ -117,18 +129,20 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public JsonResult updateLand([FromBody] FLMDLand land, string sno)
+        public JsonResult updateLand([FromBody] FLMDLand land)
         {
             try
             {
-                sno = sno ?? "";
+                utilities.SetUpPrivileges(this);
+                if (string.IsNullOrEmpty(land.Sno))
+                    return Json("");
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 land.SaccoCode = sacco;
                 _context.FLMDLand.Add(land);
                 _context.SaveChanges();
                 _notyf.Success("Land saved successfully");
 
-                var fLMDLands = _context.FLMDLand.Where(c => c.Sno == sno).ToList();
+                var fLMDLands = _context.FLMDLand.Where(c => c.Sno == land.Sno && c.SaccoCode == sacco).ToList();
                 return Json(fLMDLands);
             }
             catch (Exception e)
