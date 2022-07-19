@@ -40,7 +40,37 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var agproducts = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.PName).ToList();
             ViewBag.agproductsall = new SelectList(agproducts, "");
+
+            var branches = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
+            ViewBag.branches = new SelectList(branches, "");
+
         }
+
+        [HttpPost]
+        public JsonResult Save([FromBody] List<ProductIntake> intakes)
+        {
+            try
+            {
+                var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                intakes.ForEach(t =>
+                {
+                    t.SaccoCode = sacco;
+                    t.TransactionType = TransactionType.Deduction;
+
+                });
+
+                _context.ProductIntake.AddRange(intakes);
+                _context.SaveChanges();
+                _notyf.Success("Saved successfully");
+                return Json("");
+            }
+            catch (Exception e)
+            {
+                return Json("");
+            }
+        }
+
         // GET: AgReceipts/Details/5
         public async Task<IActionResult> Details(long? id)
         {
@@ -91,12 +121,14 @@ namespace EasyPro.Controllers
             var transporters = _context.DTransporters.Where(s => s.ParentT == sacco).ToList();
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
             var products = _context.AgProducts.Where(p => p.saccocode == sacco).ToList();
+            var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
             var agrovetsales = new Agrovetsales
             {
                 AgReceipt = receipt,
                 DTransporter = transporters,
                 DSuppliers = suppliers,
-                AgProductobj = products
+                AgProductobj = products,
+                ProductIntake= intakes
             };
             return View(agrovetsales);
             //Agrovetsalesobj = new Agrovetsales

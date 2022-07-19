@@ -113,8 +113,6 @@
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group ic-cmp-int float-lb floating-lb">
                                             <div class="nk-int-st">
-                                                <label class="control-label">Kgs</label>
-                                                <input id="kgs" class="form-control" readonly />
                                             </div>
                                         </div>
                                     </div>
@@ -178,38 +176,6 @@
                         </div>
                     </div>
                 </div>
-                <hr />
-                <div class="row">
-                    <frameset>
-                        <div class="col-sm-4 col-xs-12">
-                            <div class="form-group ic-cmp-int float-lb floating-lb">
-                                <div class="nk-int-st">
-                                    <label asp-for="AgReceipt.Transby" class="control-label"></label>
-                                    <input asp-for="AgReceipt.Transby" class="form-control" />
-                                    <span asp-validation-for="AgReceipt.Transby" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <div class="form-group ic-cmp-int float-lb floating-lb">
-                                <div class="nk-int-st">
-                                    <label asp-for="AgReceipt.Idno" class="control-label"></label>
-                                    <input asp-for="AgReceipt.Idno" class="form-control" />
-                                    <span asp-validation-for="AgReceipt.Idno" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <div class="form-group ic-cmp-int float-lb floating-lb">
-                                <div class="nk-int-st">
-                                    <label asp-for="AgReceipt.Mobile" class="control-label"></label>
-                                    <input asp-for="AgReceipt.Mobile" class="form-control" />
-                                    <span asp-validation-for="AgReceipt.Mobile" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </frameset>
-                </div>
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
@@ -258,12 +224,47 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="AgReceipt.Branch" class="control-label"></label>
-                                <input asp-for="AgReceipt.Branch" class="form-control" />
+                                <select id="bname" asp-for="AgReceipt.Branch" class="form-control" asp-items="@ViewBag.branches">
+                                    <option value="" disabled selected hidden>Please select</option>
+                                </select>
                                 <span asp-validation-for="AgReceipt.Branch" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                 </div>
+                <hr />
+                <div class="row">
+                    <frameset>
+                        <div class="col-sm-4 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label asp-for="AgReceipt.Transby" class="control-label"></label>
+                                    <input asp-for="AgReceipt.Transby" class="form-control" />
+                                    <span asp-validation-for="AgReceipt.Transby" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label asp-for="AgReceipt.Idno" class="control-label"></label>
+                                    <input asp-for="AgReceipt.Idno" class="form-control" />
+                                    <span asp-validation-for="AgReceipt.Idno" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label asp-for="AgReceipt.Mobile" class="control-label"></label>
+                                    <input asp-for="AgReceipt.Mobile" class="form-control" />
+                                    <span asp-validation-for="AgReceipt.Mobile" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </frameset>
+                </div>
+
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
                         <a id="next" class="btn btn-success">Next</a>
@@ -287,9 +288,40 @@
                     </div>
                 </div>
                 <hr />
+                <h5 class="text-center text-danger">Make Payement</h5>
                 <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Save</button>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Total Amount</label>
+                                <input id="Amnttopay" class="form-control" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Receive Amount</label>
+                                <input id="ttolpaid" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Balance Amount</label>
+                                <input id="balance" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <a id="new" class="btn btn-success">New</a>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <a id="save1" class="btn btn-success">Save</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a asp-action="Index" class="btn btn-primary">Back to List</a>
@@ -304,8 +336,9 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
-        $(function () {
+<script type="text/javascript">
+    $(function () {
+            let saleItems = new Array();
             $('#cash').prop('checked', true);
             $('#checkOffDetails').hide();
             $('#transpoterDetails').hide();
@@ -334,138 +367,33 @@
                     }
                 });
 
-                $('#crAmt').on('blur', function () {
-                    let crAmt = parseFloat($("#crAmt").val());
-                    if (crAmt) {
-                        buildJournalDetails();
-                    }
-                });
-
                 $('#clearAll').on('click', function () {
-                    $("#totalDrAmt").val(0);
-                    $("#totalCrAmt").val(0);
-                    journalDetails = new Array();
+                    saleItems = new Array();
                     populateDetailsTable();
                 });
 
-                $('#save').on('click', function () {
-                    let totalDrAmt = parseFloat($("#totalDrAmt").val());
-                    let totalCrAmt = parseFloat($("#totalCrAmt").val());
+                //$('#save1').on('click', function () {
+                //    debugger
+                //    var val = saleItems;
+                //    debugger
+                //    $.ajax({
+                //        type: 'POST',
+                //        url: "save",
+                //        contentType: 'application/json',
+                //        data: JSON.stringify(saleItems),
+                //        success: function (response) {
+                //            saleItems = new Array();
+                //        },
+                //        failure: function (response) {
+                //        }
+                //    }).then(function () {
+                //        // ...
+                //    });
+                //});
 
-                    if (totalDrAmt != totalCrAmt) {
-                        alert("Sorry, Debit amount must be equal to credit amount")
-                        return
-                    }
-                    if (totalDrAmt < 1) {
-                        alert("Sorry, No item debited")
-                        return
-                    }
-
-                    let crAccounts = journalDetails.filter(j => !j.isdebit);
-                    let drAccounts = journalDetails.filter(j => j.isdebit);
-                    let docNo = $("#documentNo").val();
-                    docNo = docNo ? docNo : "";
-                    let transDescript = $("#transDescript").val();
-                    transDescript = transDescript ? transDescript : "";
-                    let transactions = new Array();
-                    if (drAccounts.length > 1) {
-                        drAccounts.forEach(d => {
-                            transactions.push({
-                                amount: d.amount,
-                                drAccNo: d.glAcc,
-                                crAccNo: crAccounts[0].glAcc,
-                                documentNo: docNo,
-                                chequeNo: docNo,
-                                transDescript: transDescript
-                            });
-                        });
-                    }
-                    else {
-                        crAccounts.forEach(d => {
-                            transactions.push({
-                                amount: d.amount,
-                                drAccNo: drAccounts[0].glAcc,
-                                crAccNo: d.glAcc,
-                                documentNo: docNo,
-                                ChequeNo: docNo
-                            });
-                        });
-                    }
-
-                    $.ajax({
-                        type: 'POST',
-                        url: "journalPosting",
-                        contentType: 'application/json',
-                        data: JSON.stringify(transactions),
-                        success: function (response) {
-                            //if (response.Success) {
-
-                            //}
-                            $("#totalDrAmt").val(0);
-                            $("#totalCrAmt").val(0);
-                            journalDetails = new Array();
-                            populateDetailsTable();
-                        },
-                        failure: function (response) {
-                        }
-                    }).then(function () {
-                        // ...
-                    });
-
-
-                });
-
-                function buildJournalDetails() {
-                    let glAcc = $("#glAcc").val();
-                    let drAmt = parseFloat($("#drAmt").val());
-                    let crAmt = parseFloat($("#crAmt").val());
-                    if (!glAcc) {
-                        $("#drAmt").val(0);
-                        $("#crAmt").val(0);
-                        alert("Kindly provide GL Account")
-                        return
-                    }
-
-                    let isdebit = drAmt > 0;
-                    let amount = isdebit ? drAmt : crAmt;
-                    let drAccounts = journalDetails.filter(j => j.isdebit);
-                    let crAccounts = journalDetails.filter(j => !j.isdebit);
-                    let blockDrAcc = crAccounts.length > 1 && drAccounts.length > 0 && drAmt;
-                    let blockCRAcc = drAccounts.length > 1 && crAccounts.length > 0 && crAmt;
-                    if (blockDrAcc || blockCRAcc) {
-                        alert("Sorry, A journal must have a single entry in at least on side")
-                        return
-                    }
-
-                    let creditAmount = 0;
-                    crAccounts.forEach(c => {
-                        creditAmount += c.amount;
-                    });
-                    creditAmount = isdebit ? creditAmount : creditAmount + amount;
-                    let debitAmount = 0;
-                    drAccounts.forEach(c => {
-                        debitAmount += c.amount;
-                    });
-                    debitAmount = isdebit ? debitAmount + amount : debitAmount;
-                    $("#totalDrAmt").val(debitAmount);
-                    $("#totalCrAmt").val(creditAmount);
-
-                    journalDetails.push({
-                        glAcc: glAcc,
-                        amount: amount,
-                        isdebit: isdebit,
-                    });
-
-                    $("#glAcc").val("");
-                    $("#drAmt").val(0);
-                    $("#crAmt").val(0);
-
-                    populateDetailsTable();
-                }
-
-                function populateDetailsTable() {
+               function populateDetailsTable() {
                     let itemTableRows = new Array();
-                    journalDetails.forEach(j => {
+                    saleItems.forEach(j => {
                         drAmt = j.isdebit ? j.amount : 0;
                         crAmt = j.isdebit ? 0 : j.amount;
                         itemTableRows.push(`<tr>
@@ -484,50 +412,154 @@
                  var selectProducts = products.filter(p => p.PName === selectVal);
                 if (selectProducts[0]) {
                     $("#pcode").val(selectProducts[0].PCode);
-                    $("#qnty").val(selectProducts[0].Qin);
+                    $("#qnty").val("1");
+                    $("#Amnttopay").val("0");
+                    $("#ttolpaid").val("0");
+                    $("#balance").val("0");
                     $("#sbal").val(selectProducts[0].OBal);
                     $("#bprice").val(selectProducts[0].Pprice);
                     $("#sprice").val(selectProducts[0].Sprice);
+                    var qty = parseFloat($("#qnty").val());
+                    var price = parseFloat($("#sprice").val());
+                    $("#totalamnt").val(qty * price);
+
                 }
+            });
+            $('#new').on('click', function () {
+                $("#pcode").val("");
+                $("#pname").val("");
+                $("#tsno").val("");
+                $("#tname").val("");
+                $("#sno").val("");
+                $("#names").val("");
+                    $("#qnty").val("0");
+                    $("#Amnttopay").val("0");
+                    $("#ttolpaid").val("0");
+                    $("#balance").val("0");
+                    $("#sbal").val("0");
+                    $("#bprice").val("0");
+                    $("#sprice").val("0");
+                    $("#totalamnt").val("0");
+
              });
 
-            @*$('#tsno').on('keyup', function () {
+            $('#tsno').on('keyup', function () {
                 var products = @Html.Raw(Json.Serialize(Model.DTransporter));
-                var selectVal = $("#tsno").val();
+                var selectVal = $("#tsno").val().toUpperCase();
                 var selectProducts = products.filter(p => p.TransCode === selectVal);
                 if (selectProducts[0]) {
                     $("#tname").val(selectProducts[0].TransName);
+                    sumtotalkgsT();
                 }
             });
-
+            function sumtotalkgsT() {
+                let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
+                let selectVal = $("#tsno").val().toUpperCase();
+                let selectProducts = products.filter(p => p.Sno === selectVal);
+                let sumqty = 0;
+                let sumDr = 0;
+                let sumCr = 0;
+                let totalsum = 0;
+                selectProducts.forEach(p => {
+                    sumDr += p.DR;
+                    sumCr += p.CR;
+                })
+                totalsum = sumCr-sumDr;
+                $("#TNet").val(totalsum);
+            }
             $('#sno').on('keyup', function () {
                 var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
                 var selectVal = parseInt($("#sno").val());
                 var selectProducts = products.filter(p => p.Sno === selectVal);
                 if (selectProducts[0]) {
                     $("#names").val(selectProducts[0].Names);
+                    sumtotalkgs();
                 }
-            });*@
+            });
+            function sumtotalkgs() {
+                let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
+                let selectVal = $("#sno").val().toUpperCase();
+                let selectProducts = products.filter(p => p.Sno === selectVal);
+                let sumqty = 0;
+                let sumDr = 0;
+                let sumCr = 0;
+                let sumtotal = 0;
+                selectProducts.forEach(p => {
+                    sumDr += p.DR;
+                    sumCr += p.CR;
+                })
+                $("#Gross").val(sumDr);
+                $("#Deductions").val(sumCr);
+                let gross = sumDr;
+                let deduction = sumCr;
+                sumtotal = gross - deduction;
+                $("#Net").val(sumtotal);
+            }
 
-            let saleItems = new Array();
             $('#next').on('click', function () {
                 var pcode = $("#pcode").val();
                 var pname = $("#pname").val();
                 var bprice = $("#bprice").val();
                 var sprice = $("#sprice").val();
                 var qnty = $("#qnty").val();
-                var totalamnt = $("#totalamnt").val();
+                var totalamnt = parseFloat($("#totalamnt").val());
+                var total = parseFloat($("#Amnttopay").val());
+                var tpay = parseFloat($("#ttolpaid").val());
+                saleItems.push({
+                    Sno: $("#sno").val(),
+                    sprice: sprice,
+                    totalamnt: totalamnt,
+                    pname: pname,
+                    pcode: pcode,
+                    Description: pname,
+                    DateTime: $("#date").val(),
+                    TransTime: $("#date").val(),
+                    ProductType: "AGROVET",
+                    Qsupplied: $("#qnty").val(),
+                    Ppu: $("#sprice").val(),
+                    CR: "0",
+                    DR: totalamnt,
+                    Balance: totalamnt,
+                    Paid: "true",
+                    Remarks: pname,
+                    Branch: $("#bname").val(),
 
-                saleItems.push(`<tr>
-				        <td>${pcode}</td>
-                        <td>${pname}</td>
-                        <td>${qnty}</td>
-                        <td>${sprice}</td>
-                        <td>${totalamnt}</td>
+                });
+                let itemTableRows = new Array();
+                saleItems.forEach(i => {
+                    itemTableRows.push(`<tr>
+				        <td>${i.pcode}</td>
+                        <td>${i.pname}</td>
+                        <td>${i.Qsupplied}</td>
+                        <td>${i.sprice}</td>
+                        <td>${i.totalamnt}</td>
 			        </tr>`);
-
-                $('#details').html(saleItems);
+                });
+                
+                $('#details').html(itemTableRows);
+                var final = totalamnt + total;
+                $("#Amnttopay").val(final);
+                $("#balance").val(final - tpay);
             });
+
+            $('#ttolpaid').on('keyup', function () {
+                var qty = parseFloat($("#Amnttopay").val());
+                var price = parseFloat($("#ttolpaid").val());
+                if (qty && price) {
+                    $("#balance").val(qty - price);
+                }
+            });
+            $('#qnty').on('keyup', function () {
+                calculatePrice();
+            });
+
+            function calculatePrice() {
+                var qty = parseFloat($("#qnty").val());
+                var price = parseFloat($("#sprice").val());
+                if (qty && price) {
+                    $("#totalamnt").val(qty * price);
+                }
+            }
         });
-    </script>
+</script>
 }
