@@ -180,7 +180,7 @@
         {
 
              $("#showtable").click(function () {
-                var sno = $("#sno").val();
+                 var sno = $("#sno").val().toUpperCase();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
                     $.ajax(
@@ -199,7 +199,7 @@
                         });
                 });
             function populateIntake3(intakes) {
-                var selectVal = $("#sno").val();
+                var selectVal = $("#sno").val().toUpperCase();
                 let itemTableRows = new Array();
                 intakes.forEach(i => {
                     //debugger;
@@ -240,7 +240,7 @@
 
             $("#bname").change(function () {
                 var producttype = $("#bname").val();
-                var sno = $("#sno").val();
+                var sno = $("#sno").val().toUpperCase();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
                     $.ajax(
@@ -264,7 +264,7 @@
                 });
             function populateIntake2(intakes) {
 
-                var selectVal = parseInt($("#sno").val());
+                var selectVal = parseInt($("#sno").val().toUpperCase());
                 let itemTableRows = new Array();
                 intakes.forEach(i => {
                     //debugger;
@@ -304,8 +304,8 @@
         $(function () {
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.transporters));
-                var selectVal = $("#sno").val();
-                var sno = $("#sno").val();
+                var selectVal = $("#sno").val().toUpperCase();
+                var sno = $("#sno").val().toUpperCase();
                 var idno = $("#idno").val();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
@@ -338,7 +338,7 @@
 
             function populateIntake(intakes) {
 
-                var selectVal = $("#sno").val();
+                var selectVal = $("#sno").val().toUpperCase();
                 let itemTableRows = new Array();
                 intakes.forEach(i => {
                     //debugger;
