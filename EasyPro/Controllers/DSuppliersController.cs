@@ -36,7 +36,7 @@ namespace EasyPro.Controllers
             var suppliers = _context.DSuppliers
                 .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval==true);
 
-            return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.AsNoTracking(), pageNumber ?? 1, pageSize ?? 100));
+            return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.AsNoTracking(), pageNumber ?? 1, pageSize ?? 1000));
         }
 
         public async Task<IActionResult> UnApprovedList()
