@@ -82,24 +82,20 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            var dScode = sacco; //bankbrances
-            var countyname = _context.DCompanies.Where(i=>i.Name== sacco).Select(b => b.Province).ToList();
-            ViewBag.countyname = new SelectList(countyname);
-            var SubCountyName = _context.SubCounty.Select(b => b.Name).ToList();
-            ViewBag.SubCountyName = new SelectList(SubCountyName);
-            var counties= _context.County.Select(b => b.Name).ToList();
+            ViewBag.sacco = sacco;
+            var counties = _context.County.Select(b => b.Name).ToList();
             ViewBag.counties = new SelectList(counties);
-            var WardSubCounty = _context.Ward.Select(b => b.Name).ToList();
-            ViewBag.WardSubCounty = new SelectList(WardSubCounty);
-            var locations = _context.DLocations.Where(a => a.Lcode == dScode).Select(b => b.Lname).ToList();
-            ViewBag.locations = new SelectList(locations);
-            var banksname = _context.DBanks.Where(a=>a.BankCode == dScode).Select(b => b.BankName).ToList();
+            ViewBag.SubCountyName = _context.SubCounty.ToList();
+            ViewBag.WardSubCounty = _context.Ward.ToList();
+            ViewBag.locations = _context.DLocations.Where(l => l.Lcode == sacco).ToList();
+
+            var banksname = _context.DBanks.Where(a=>a.BankCode == sacco).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
 
-            var brances = _context.DBranch.Where(a => a.Bcode == dScode).Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(a => a.Bcode == sacco).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
-            var bankbrances = _context.DBankBranch.Where(a => a.BankCode == dScode).Select(b => b.Bname).ToList();
+            var bankbrances = _context.DBankBranch.Where(a => a.BankCode == sacco).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
 
             List<SelectListItem> gender = new()
@@ -197,7 +193,7 @@ namespace EasyPro.Controllers
                     dSupplier.Sno = dSupplier.Sno;
                     dSupplier.Regdate = dSupplier.Regdate;
                     dSupplier.Trader = false;
-                    dSupplier.Approval = true;
+                    dSupplier.Approval = false;
                     dSupplier.Br = "A";
                     dSupplier.Freezed = "0";
                     dSupplier.Mass = "0";

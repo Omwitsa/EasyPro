@@ -35,8 +35,8 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            var intakes = _context.ProductIntake.Where(i => i.TransDate >= startDate && i.TransDate <= DateTime.Today);
-            var products = _context.DPrices.Select(p => p.Products.ToUpper()).Distinct().ToList();
+            var intakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= DateTime.Today);
+            var products = _context.DPrices.Where(p => p.SaccoCode == sacco).Select(p => p.Products.ToUpper()).Distinct().ToList();
             var intakeStatistics = new List<PoductStatistics>();
             products.ForEach(p =>
             {
@@ -57,18 +57,13 @@ namespace EasyPro.Controllers
             ViewBag.suppliers = suppliers.Count();
             var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
             ViewBag.transporters = transporters.Count();
-            var intake = _context.ProductIntake;
-            ViewBag.grossItake = intake.Sum(i => i.CR);
-            var advance = intake.Where(i => i.ProductType.ToLower().Contains("advance")).Sum(i => i.DR);
-            ViewBag.advance = advance;
-            var transport = intake.Where(i => i.ProductType.ToLower().Contains("transport")).Sum(i => i.DR);
-            ViewBag.transport = transport;
-            var agrovet = intake.Where(i => i.ProductType.ToLower().Contains("agrovet")).Sum(i => i.DR);
-            ViewBag.agrovet = agrovet;
-            var bonus = intake.Where(i => i.ProductType.ToLower().Contains("bonus")).Sum(i => i.DR);
-            ViewBag.bonus = bonus;
-            var shares = intake.Where(i => i.ProductType.ToLower().Contains("shares")).Sum(i => i.DR);
-            ViewBag.shares = shares;
+
+            ViewBag.grossItake = intakes.Sum(i => i.CR);
+            ViewBag.advance = intakes.Where(i => i.ProductType.ToLower().Contains("advance")).Sum(i => i.DR);
+            ViewBag.transport = intakes.Where(i => i.ProductType.ToLower().Contains("transport")).Sum(i => i.DR);
+            ViewBag.agrovet = intakes.Where(i => i.ProductType.ToLower().Contains("agrovet")).Sum(i => i.DR);
+            ViewBag.bonus = intakes.Where(i => i.ProductType.ToLower().Contains("bonus")).Sum(i => i.DR);
+            ViewBag.shares = intakes.Where(i => i.ProductType.ToLower().Contains("shares")).Sum(i => i.DR);
 
             return View();
         }
