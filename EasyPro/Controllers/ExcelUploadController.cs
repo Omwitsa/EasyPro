@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -41,14 +42,14 @@ namespace EasyPro.Controllers
         public ActionResult Import()
         {
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            sacco = sacco ?? "";
+            string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
             IFormFile file = Request.Form.Files[0];
             string folderName = "UploadExcel";
             string webRootPath = _hostingEnvironment.WebRootPath;
             string newPath = Path.Combine(webRootPath, folderName);
-            StringBuilder sb = new StringBuilder();
+            string str_excel_grid = "";
             if (!Directory.Exists(newPath))
             {
                 Directory.CreateDirectory(newPath);
@@ -72,46 +73,11 @@ namespace EasyPro.Controllers
                         XSSFWorkbook hssfwb = new XSSFWorkbook(stream); //This will read 2007 Excel format  
                         sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook   
                     }
-                    IRow headerRow = sheet.GetRow(0); //Get Header Row
-                    int cellCount = headerRow.LastCellNum;
-                    sb.Append("<table class='table table-bordered'><tr>");
-                    for (int j = 0; j < cellCount; j++)
-                    {
-                        NPOI.SS.UserModel.ICell cell = headerRow.GetCell(j);
-                        if (cell == null || string.IsNullOrWhiteSpace(cell.ToString())) continue;
-                        sb.Append("<th>" + cell.ToString() + "</th>");
-                    }
-                    sb.AppendLine("</tr>");
-                    sb.Append("<tr>");
-                    double totalAge = 0;
-                    for (int i = (sheet.FirstRowNum + 1); i <= sheet.LastRowNum; i++) //Read Excel File
-                    {
-                        IRow row = sheet.GetRow(i);
-                        if (row == null) continue;
-                        if (row.Cells.All(d => d.CellType == CellType.Blank)) continue;
-                        for (int j = row.FirstCellNum; j < cellCount; j++)
-                        {
-                            if (row.GetCell(j) != null)
-                                sb.Append("<td>" + row.GetCell(j).ToString() + "</td>");
-                        }
 
-                        var va = row.GetCell(2).ToString();
-                        double.TryParse(row.GetCell(2).ToString(), out double age);
-                        totalAge += age;
-                        sb.AppendLine("</tr>");
-                    }
-                    sb.Append("<tr>");
-                    sb.Append("<td>Total</td>");
-                    sb.Append("<td></td>");
-                    sb.Append("<td>" + totalAge + "</td>");
-                    sb.Append("<td></td>");
-                    sb.Append("<td></td>");
-                    sb.Append("<td></td>");
-                    sb.AppendLine("</tr>");
-                    sb.Append("</table>");
+                    str_excel_grid = utilities.GenerateExcelGrid(sheet, sacco, loggedInUser);
                 }
             }
-            return this.Content(sb.ToString());
+            return this.Content(str_excel_grid);
         }
 
         public ActionResult Download()
@@ -121,6 +87,54 @@ namespace EasyPro.Controllers
             System.IO.File.WriteAllBytes(Files, fileBytes);
             MemoryStream ms = new MemoryStream(fileBytes);
             return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, "employee.xlsx");
+        }
+
+        public IActionResult Approve()
+        {
+            utilities.SetUpPrivileges(this);
+            string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            var excelDumps = _context.ExcelDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
+            excelDumps.ForEach(e =>
+            {
+                var price = _context.DPrices.FirstOrDefault(p => p.Products.ToUpper().Equals(e.ProductType.ToUpper()) && p.SaccoCode == sacco);
+
+                var productIntake = new ProductIntake
+                {
+                    Sno = e.Sno,
+                    TransDate = e.TransDate,
+                    TransTime = e.TransDate.TimeOfDay,
+                    ProductType = e.ProductType,
+                    Qsupplied = e.Quantity,
+                    Ppu = price.Price,
+                    CR = e.Quantity * price.Price,
+                    DR = 0,
+                    Description = "Intake",
+                    TransactionType = TransactionType.Intake,
+                    Paid = false,
+                    Remarks = "",
+                    AuditId = loggedInUser,
+                    Auditdatetime = DateTime.Now,
+                    Branch = "",
+                    SaccoCode = sacco,
+                    CrAccNo = price.CrAccNo,
+                    DrAccNo = price.DrAccNo
+                };
+
+                var balance = utilities.GetBalance(productIntake, sacco);
+                productIntake.Balance = balance;
+
+                _context.ProductIntake.Add(productIntake);
+            });
+
+            if (excelDumps.Any())
+            {
+                _context.ExcelDump.RemoveRange(excelDumps);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

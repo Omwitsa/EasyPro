@@ -1,6 +1,16 @@
 USE [MORINGA]
 GO
 
+CREATE TABLE ExcelDump (
+	Id bigint IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[LoggedInUser] [varchar](50) NULL,
+	[SaccoCode] [varchar](50) NULL,
+	[Sno] [varchar](50) NULL,
+	[ProductType] [varchar](50) NULL,
+	[Quantity] [money] NULL,
+	[TransDate] datetime NULL
+);
+
 CREATE TABLE FLMD (
 	Id bigint IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
 	[Sno] [varchar](50) NULL,

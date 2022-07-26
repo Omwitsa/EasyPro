@@ -14,16 +14,23 @@
                     <div class="col-md-4">
                         <input type="file" id="fileupload" name="files" class="form-control" />
                     </div>
-
                     <div class="col-md-3">
                         <a name="Upload" id="btnupload" class="btn btn-primary">Upload</a>
-                        <a asp-action="Download" class="btn btn-primary">Download</a>
+                        
                     </div>
                 </div>
                 <div class="clearfix">&nbsp;</div>
 
                 <div class="row">
                     <div id="divPrint"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <a asp-action="Download" class="btn btn-info">Download</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a asp-action="Approve" class="btn btn-primary">Approve</a>
+                    </div>
                 </div>
             </form>
         </div>

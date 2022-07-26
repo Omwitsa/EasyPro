@@ -2,9 +2,11 @@
 using EasyPro.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace EasyPro.Utils
@@ -29,6 +31,86 @@ namespace EasyPro.Utils
             controller.ViewBag.setupRole = usergroup.Setup;
             controller.ViewBag.reportsRole = usergroup.Reports;
             //controller.ViewBag.setupRole = usergroup.Setup;
+        }
+
+        public string GenerateExcelGrid(ISheet sheet, string sacco, string loggedInUser)
+        {
+            StringBuilder sb = new StringBuilder();
+            IRow headerRow = sheet.GetRow(0); //Get Header Row
+            int cellCount = headerRow.LastCellNum;
+            sb.Append("<table class='table table-bordered'><tr>");
+            for (int j = 0; j < cellCount; j++)
+            {
+                NPOI.SS.UserModel.ICell cell = headerRow.GetCell(j);
+                if (cell == null || string.IsNullOrWhiteSpace(cell.ToString())) continue;
+                sb.Append("<th>" + cell.ToString() + "</th>");
+            }
+            sb.AppendLine("</tr>");
+            sb.Append("<tr>");
+            decimal totalQnty = 0;
+            var excelDumps = new List<ExcelDump>();
+            for (int i = (sheet.FirstRowNum + 1); i <= sheet.LastRowNum; i++) //Read Excel File
+            {
+                IRow row = sheet.GetRow(i);
+                if (row == null) continue;
+                if (row.Cells.All(d => d.CellType == CellType.Blank)) continue;
+                for (int j = row.FirstCellNum; j < cellCount; j++)
+                {
+                    if (row.GetCell(j) != null)
+                        sb.Append("<td>" + row.GetCell(j).ToString() + "</td>");
+                }
+
+                decimal.TryParse(row.GetCell(2).ToString(), out decimal qnty);
+                totalQnty += qnty;
+                var transDate = DateTime.Parse(row.GetCell(3).ToString());
+                excelDumps.Add(new ExcelDump
+                {
+                    LoggedInUser = loggedInUser,
+                    SaccoCode = sacco,
+                    Sno = row.GetCell(0).ToString(),
+                    ProductType = row.GetCell(1).ToString(),
+                    Quantity = qnty,
+                    TransDate = transDate
+                });
+                
+                sb.AppendLine("</tr>");
+            }
+
+            if (excelDumps.Any())
+            {
+                _context.ExcelDump.AddRange(excelDumps);
+                _context.SaveChanges();
+            }
+
+
+            sb.Append("<tr>");
+            for (int j = 0; j < cellCount; j++)
+            {
+                if(j == 0)
+                    sb.Append("<td>Total</td>");
+                else if(j == 2)
+                    sb.Append("<td>" + totalQnty + "</td>");
+                else
+                    sb.Append("<td></td>");
+            }
+            
+            sb.AppendLine("</tr>");
+            sb.Append("</table>");
+
+            return sb.ToString();
+        }
+
+        public decimal? GetBalance(ProductIntake productIntake, string sacco)
+        {
+            var latestIntake = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()))
+                    .OrderByDescending(i => i.Id).FirstOrDefault();
+            if (latestIntake == null)
+                latestIntake = new ProductIntake();
+            latestIntake.Balance = latestIntake?.Balance ?? 0;
+            productIntake.DR = productIntake?.DR ?? 0;
+            productIntake.CR = productIntake?.CR ?? 0;
+            var balance = latestIntake.Balance + productIntake.CR - productIntake.DR;
+            return balance;
         }
     }
 }
