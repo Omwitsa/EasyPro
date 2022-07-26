@@ -8294,7 +8294,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<Message>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.Property(e => e.Code)
                     .IsRequired()
