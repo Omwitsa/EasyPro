@@ -3,12 +3,19 @@ using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
 using EasyPro.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
@@ -16,12 +23,14 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
+        private IWebHostEnvironment _hostingEnvironment;
         private Utilities utilities;
 
-        public MessageController(MORINGAContext context, INotyfService notyf)
+        public MessageController(MORINGAContext context, INotyfService notyf, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
             _notyf = notyf;
+            _hostingEnvironment = hostingEnvironment;
             utilities = new Utilities(context);
         }
         public IActionResult Index()
@@ -40,6 +49,7 @@ namespace EasyPro.Controllers
         {
             try
             {
+                utilities.SetUpPrivileges(this);
                 sms.Location = sms?.Location ?? "";
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
