@@ -2,7 +2,7 @@
 {
     public class FLMDLand
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Sno { get; set; }
         public string Location { get; set; }
         public string PlotNumber { get; set; }

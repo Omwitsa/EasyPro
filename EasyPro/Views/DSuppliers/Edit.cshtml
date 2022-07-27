@@ -252,7 +252,7 @@
     </div>
 </div>
 
-
+                
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -262,14 +262,13 @@
                 let subcounties = @Html.Raw(Json.Serialize(ViewBag.SubCountyName));
                 let wards = @Html.Raw(Json.Serialize(ViewBag.WardSubCounty));
                 let locations = @Html.Raw(Json.Serialize(ViewBag.locations));
-                
+
                 $.each(locations, function() {
                     $('#location').append($("<option />").val(this.Lname).text(this.Lname));
                 });
                 $('#county').on('change', function () {
                     $('#sub-county').empty();
                     $('#sub-county').append($('<option>').val('').text(''))
-                    $('#ward').empty();
                     $('#sub-county').prop('disabled', false);
                     $('#ward').prop('disabled', true);
                     let county = $("#county").val();
@@ -281,7 +280,7 @@
                 });
 
                 $('#sub-county').on('change', function () {
-                    $('#ward').val('');
+                    $('#ward').empty();
                     $('#ward').prop('disabled', false);
                     let subCounty = $("#sub-county").val();
                     let curr_wards = wards.filter(p => p.SubCounty === subCounty);

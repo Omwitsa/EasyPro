@@ -44,5 +44,6 @@ namespace EasyPro.Models
         public bool IsRearning { get; set; }
         public bool Issuspense { get; set; }
         public long? Run { get; set; }
+        public string saccocode { get; set; }
     }
 }

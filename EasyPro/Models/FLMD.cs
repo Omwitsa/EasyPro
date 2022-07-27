@@ -4,7 +4,7 @@ namespace EasyPro.Models
 {
     public class FLMD
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Sno { get; set; }
         public int? ExoticCattle { get; set; }
         public int? IndigenousCattle { get; set; }

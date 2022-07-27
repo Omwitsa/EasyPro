@@ -2,7 +2,7 @@
 {
     public class FLMDCrops
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Sno { get; set; }
         public string CashCrops { get; set; }
         public string ConsumerCrops { get; set; }

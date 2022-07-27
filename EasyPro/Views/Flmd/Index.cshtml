@@ -403,227 +403,230 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-<script type="text/javascript">
-            $(function () {
-                let crops = new Array();
-                let lands = new Array();
-                
-                $('#sno').on('keyup', function () {
-                    let sno = parseInt($("#sno").val());  
-                    var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
-                    var selectSupplier = suppliers.filter(p => p.Sno === sno);
-                    if (selectSupplier[0]) {
-                        $("#names").val(selectSupplier[0].Names);
-                    }
-                });
-
-                $('#save_animal').on('click', function () {
-                    let sno = $("#sno").val();
-                    if (!sno) {
-                        alert("Kindly provide supplier No.")
-                    }
-
-                    var animal = {
-                        Sno: $("#sno").val(),
-                        exoticCattle: $("#exotic_cattle").val(),
-                        indigenousCattle: $("#indigenous_cattle").val(),
-                        indigenousChicken: $("#indigenous_chicken").val(),
-                        sheep: $("#sheep").val(),
-                        goats: $("#goats").val(),
-                        camels: $("#camels").val(),
-                        donkeys: $("#donkeys").val(),
-                        pigs: $("#pigs").val(),
-                        beeHives: $("#bee_hives").val()
-                    };
-
-                    if (animal.exoticCattle || animal.indigenousCattle || animal.indigenousChicken || animal.sheep || animal.goats
-                    || animal.camels || animal.donkeys || animal.pigs || animal.beeHives) {
-                        $.ajax({
-                            type: 'POST',
-                            url: "updateAnimals",
-                            contentType: 'application/json',
-                            data: JSON.stringify(animal),
-                            success: function (response) {
-                                $("#sno").val(''),
-                                $("#exotic_cattle").val(0);
-                                $("#indigenous_cattle").val(0);
-                                $("#indigenous_chicken").val(0);
-                                $("#sheep").val(0);
-                                $("#goats").val(0);
-                                $("#camels").val(0);
-                                $("#donkeys").val(0);
-                                $("#pigs").val(0);
-                                $("#bee_hives").val(0);
-                            },
-                            failure: function (response) {
-                            }
-                        }).then(function () {
-                            // ...
-                        });
-                    }
-                });
-
-                $('#save_crop').on('click', function () {
-                    let sno = $("#sno").val();
-                    if (!sno) {
-                        alert("Kindly provide supplier No.")
-                    }
-
-                    var crop = {
-                        Sno: $("#sno").val(),
-                        cashCrops: $("#cash_crops").val(),
-                        consumerCrops: $("#consumer_crops").val(),
-                        vegetables: $("#vegetables").val(),
-                        animalFeeds: $("#animal_feeds").val(),
-                    };
-
-                    if (crop.cashCrops || crop.consumerCrops || crop.vegetables || crop.animalFeeds) {
-                        $.ajax({
-                            type: 'POST',
-                            url: "updateCrops",
-                            contentType: 'application/json',
-                            data: JSON.stringify(crop),
-                            success: function (response) {
-                                $("#sno").val(''),
-                                $("#cash_crops").val('');
-                                $("#consumer_crops").val('');
-                                $("#vegetables").val('');
-                                $("#animal_feeds").val('');
-
-                                crops = response ? response : [];
-                                populateCropTable();
-                            },
-                            failure: function (response) {
-                            }
-                        }).then(function () {
-                            // ...
-                        });
-                    }
-                });
-
-                $('#save_education').on('click', function () {
-                    let sno = $("#sno").val();
-                    if (!sno) {
-                        alert("Kindly provide supplier No.")
-                    }
-
-                    var education = {
-                        Sno: $("#sno").val(),
-                        boys: $("#boys").val(),
-                        girls: $("#girls").val(),
-                        deaths: $("#deaths").val(),
-                        disabled: $("#disabled").val(),
-                        postGraduates: $("#post_graduates").val(),
-                        graduates: $("#graduates").val(),
-                        underGraduates: $("#under_graduates").val(),
-                        secondary: $("#secondary").val(),
-                        primary: $("#primary").val(),
-                        nursery: $("#nursery").val()
-                    };
-
-                    if (education.boys || education.girls || education.deaths || education.disabled, education.postGraduates
-                    || education.graduates || education.underGraduates || education.secondary || education.primary || education.nursery) {
-                        $.ajax({
-                            type: 'POST',
-                            url: "updateEducation",
-                            contentType: 'application/json',
-                            data: JSON.stringify(education),
-                            success: function (response) {
-                                $("#sno").val(''),
-                                $("#boys").val(0);
-                                $("#girls").val(0);
-                                $("#deaths").val(0);
-                                $("#disabled").val(0);
-                                $("#post_graduates").val(0);
-                                $("#graduates").val(0);
-                                $("#under_graduates").val(0);
-                                $("#secondary").val(0);
-                                $("#primary").val(0);
-                                $("#nursery").val(0);
-                            },
-                            failure: function (response) {
-                            }
-                        }).then(function () {
-                            // ...
-                        });
-                    }
-
-                });
-
-                $('#save_lands').on('click', function () {
-                    let sno = $("#sno").val();
-                    if (!sno) {
-                        alert("Kindly provide supplier No.")
-                    }
-
-                    var land = {
-                        Sno: $("#sno").val(),
-                        location: $("#location").val(),
-                        plotNumber: $("#plot_number").val(),
-                        totalAcres: $("#total_acres").val(),
-                        acresCrops: $("#acres_crops").val(),
-                        acresBuilding: $("#acres_building").val(),
-                        acresLivestock: $("#acres_livestock").val(),
-                        acresUnusedLand: $("#acres_unused_land").val()
-                    };
-
-                    if (land.location || land.totalAcres) {
-                        $.ajax({
-                            type: 'POST',
-                            url: "updateLand",
-                            contentType: 'application/json',
-                            data: JSON.stringify(land),
-                            success: function (response) {
-                                $("#sno").val(''),
-                                $("#location").val('');
-                                $("#plot_number").val('');
-                                $("#total_acres").val(0);
-                                $("#acres_crops").val(0);
-                                $("#acres_building").val(0);
-                                $("#acres_livestock").val(0);
-                                $("#acres_unused_land").val(0);
-
-                                lands = response ? response : [];
-                                populateLandTable();
-                            },
-                            failure: function (response) {
-                            }
-                        }).then(function () {
-                            // ...
-                        });
-                    }
-                });
-
-                function populateCropTable() {
-                    let itemTableRows = new Array();
-                    crops.forEach(j => {
-                        itemTableRows.push(`<tr>
-				            <td>${j.CashCrops}</td>
-				            <td>${j.ConsumerCrops}</td>
-				            <td>${j.Vegetables}</td>
-				            <td>${j.AnimalFeeds}</td>
-			            </tr>`);
-                    });
-
-                    $('#crop_details').html(itemTableRows);
-                }
-
-                function populateLandTable() {
-                    let itemTableRows = new Array();
-                    lands.forEach(j => {
-                        itemTableRows.push(`<tr>
-				            <td>${j.Location}</td>
-				            <td>${j.PlotNumber}</td>
-				            <td>${j.TotalAcres}</td>
-				            <td>${j.AcresCrops}</td>
-				            <td>${j.AcresBuilding}</td>
-				            <td>${j.AcresLivestock}</td>
-				            <td>${j.acresUnusedLand}</td>
-			            </tr>`);
-                    });
-
-                    $('#land_details').html(itemTableRows);
+    <script type="text/javascript">
+        $(function () {
+            let crops = new Array();
+            let lands = new Array();
+            $('#sno').on('keyup', function () {
+                let sno = parseInt($("#sno").val());  
+                var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
+                var selectSupplier = suppliers.filter(p => p.Sno === sno);
+                if (selectSupplier[0]) {
+                    $("#names").val(selectSupplier[0].Names);
                 }
             });
-</script>
+
+            $('#save_animal').on('click', function () {
+                let sno = $("#sno").val();
+                if (!sno) {
+                    alert("Kindly provide supplier No.")
+                }
+
+                var animal = {
+                    Sno: $("#sno").val(),
+                    exoticCattle: $("#exotic_cattle").val(),
+                    indigenousCattle: $("#indigenous_cattle").val(),
+                    indigenousChicken: $("#indigenous_chicken").val(),
+                    sheep: $("#sheep").val(),
+                    goats: $("#goats").val(),
+                    camels: $("#camels").val(),
+                    donkeys: $("#donkeys").val(),
+                    pigs: $("#pigs").val(),
+                    beeHives: $("#bee_hives").val()
+                };
+
+                if (animal.exoticCattle || animal.indigenousCattle || animal.indigenousChicken || animal.sheep || animal.goats
+                || animal.camels || animal.donkeys || animal.pigs || animal.beeHives) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "updateAnimals",
+                        contentType: 'application/json',
+                        data: JSON.stringify(animal),
+                        success: function (response) {
+                            $("#sno").val(''),
+                            $("#exotic_cattle").val(0);
+                            $("#indigenous_cattle").val(0);
+                            $("#indigenous_chicken").val(0);
+                            $("#sheep").val(0);
+                            $("#goats").val(0);
+                            $("#camels").val(0);
+                            $("#donkeys").val(0);
+                            $("#pigs").val(0);
+                            $("#bee_hives").val(0);
+
+                            location.reload();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            });
+
+            $('#save_crop').on('click', function () {
+                let sno = $("#sno").val();
+                if (!sno) {
+                    alert("Kindly provide supplier No.")
+                }
+
+                var crop = {
+                    Sno: $("#sno").val(),
+                    cashCrops: $("#cash_crops").val(),
+                    consumerCrops: $("#consumer_crops").val(),
+                    vegetables: $("#vegetables").val(),
+                    animalFeeds: $("#animal_feeds").val(),
+                };
+
+                if (crop.cashCrops || crop.consumerCrops || crop.vegetables || crop.animalFeeds) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "updateCrops",
+                        contentType: 'application/json',
+                        data: JSON.stringify(crop),
+                        success: function (response) {
+                            $("#sno").val(''),
+                            $("#cash_crops").val('');
+                            $("#consumer_crops").val('');
+                            $("#vegetables").val('');
+                            $("#animal_feeds").val('');
+
+                            crops = response ? response : [];
+                            populateCropTable();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            });
+
+            $('#save_education').on('click', function () {
+                let sno = $("#sno").val();
+                if (!sno) {
+                    alert("Kindly provide supplier No.")
+                }
+
+                var education = {
+                    Sno: $("#sno").val(),
+                    boys: $("#boys").val(),
+                    girls: $("#girls").val(),
+                    deaths: $("#deaths").val(),
+                    disabled: $("#disabled").val(),
+                    postGraduates: $("#post_graduates").val(),
+                    graduates: $("#graduates").val(),
+                    underGraduates: $("#under_graduates").val(),
+                    secondary: $("#secondary").val(),
+                    primary: $("#primary").val(),
+                    nursery: $("#nursery").val()
+                };
+
+                if (education.boys || education.girls || education.deaths || education.disabled, education.postGraduates
+                || education.graduates || education.underGraduates || education.secondary || education.primary || education.nursery) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "updateEducation",
+                        contentType: 'application/json',
+                        data: JSON.stringify(education),
+                        success: function (response) {
+                            $("#sno").val(''),
+                            $("#boys").val(0);
+                            $("#girls").val(0);
+                            $("#deaths").val(0);
+                            $("#disabled").val(0);
+                            $("#post_graduates").val(0);
+                            $("#graduates").val(0);
+                            $("#under_graduates").val(0);
+                            $("#secondary").val(0);
+                            $("#primary").val(0);
+                            $("#nursery").val(0);
+
+                            location.reload();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+
+            });
+
+            $('#save_lands').on('click', function () {
+                let sno = $("#sno").val();
+                if (!sno) {
+                    alert("Kindly provide supplier No.")
+                }
+
+                var land = {
+                    Sno: $("#sno").val(),
+                    location: $("#location").val(),
+                    plotNumber: $("#plot_number").val(),
+                    totalAcres: $("#total_acres").val(),
+                    acresCrops: $("#acres_crops").val(),
+                    acresBuilding: $("#acres_building").val(),
+                    acresLivestock: $("#acres_livestock").val(),
+                    acresUnusedLand: $("#acres_unused_land").val()
+                };
+
+                if (land.location || land.totalAcres) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "updateLand",
+                        contentType: 'application/json',
+                        data: JSON.stringify(land),
+                        success: function (response) {
+                            $("#sno").val(''),
+                            $("#location").val('');
+                            $("#plot_number").val('');
+                            $("#total_acres").val(0);
+                            $("#acres_crops").val(0);
+                            $("#acres_building").val(0);
+                            $("#acres_livestock").val(0);
+                            $("#acres_unused_land").val(0);
+
+                            lands = response ? response : [];
+                            populateLandTable();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            });
+
+            function populateCropTable() {
+                let itemTableRows = new Array();
+                crops.forEach(j => {
+                    itemTableRows.push(`<tr>
+				        <td>${j.CashCrops}</td>
+				        <td>${j.ConsumerCrops}</td>
+				        <td>${j.Vegetables}</td>
+				        <td>${j.AnimalFeeds}</td>
+			        </tr>`);
+                });
+
+                $('#crop_details').html(itemTableRows);
+            }
+
+            function populateLandTable() {
+                let itemTableRows = new Array();
+                lands.forEach(j => {
+                    itemTableRows.push(`<tr>
+				        <td>${j.Location}</td>
+				        <td>${j.PlotNumber}</td>
+				        <td>${j.TotalAcres}</td>
+				        <td>${j.AcresCrops}</td>
+				        <td>${j.AcresBuilding}</td>
+				        <td>${j.AcresLivestock}</td>
+				        <td>${j.acresUnusedLand}</td>
+			        </tr>`);
+                });
+
+                $('#land_details').html(itemTableRows);
+            }
+        });
+    </script>
 }

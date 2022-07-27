@@ -7,6 +7,8 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using System;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
@@ -82,7 +84,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run")] Glsetup glsetup)
+        public async Task<IActionResult> Create([Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run,saccocode")] Glsetup glsetup)
         {
             utilities.SetUpPrivileges(this);
             glsetup.NewGlopeningBalDate = DateTime.Now;
@@ -90,6 +92,7 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                     if (string.IsNullOrEmpty(glsetup.AccNo))
                     {
                         _notyf.Error("Sorry, Kindly provide account No.");
@@ -115,8 +118,10 @@ namespace EasyPro.Controllers
                         _notyf.Error("Sorry, Account Name already exist");
                         return View(glsetup);
                     }
+
                     glsetup.CurrCode = glsetup?.CurrCode ?? 0;
                     glsetup.IsSubLedger = glsetup?.IsSubLedger ?? false;
+                    glsetup.saccocode = sacco;
                     _context.Add(glsetup);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -153,9 +158,10 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run")] Glsetup glsetup)
+        public async Task<IActionResult> Edit(string id, [Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run,saccocode")] Glsetup glsetup)
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             if (id != glsetup.AccNo)
             {
                 return NotFound();

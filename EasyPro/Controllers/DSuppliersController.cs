@@ -159,11 +159,11 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long? id)
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             if (id == null)
             {
                 return NotFound();
             }
-            GetInitialValues();
             var dSupplier = await _context.DSuppliers.FindAsync(id);
             if (dSupplier == null)
             {

@@ -38,12 +38,12 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var suppliers = _context.Suppliers.Where(i => i.saccocode == sacco).Select(b => b.Names).ToList();
+            var suppliers = _context.Suppliers.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Names).ToList();
             ViewBag.suppliers = new SelectList(suppliers);
 
-            var products = _context.DBranchProducts.Where(a => a.saccocode == sacco).Select(b => b.Bname).ToList();
+            var products = _context.DBranchProducts.Where(a => a.saccocode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.products = new SelectList(products);
-            var glAccounts = _context.Glsetups.ToList();
+            var glAccounts = _context.Glsetups.Where(a => a.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
         }
         
