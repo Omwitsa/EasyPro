@@ -193,7 +193,7 @@ namespace EasyPro.Controllers
                     dSupplier.Sno = dSupplier.Sno;
                     dSupplier.Regdate = dSupplier.Regdate;
                     dSupplier.Trader = false;
-                    dSupplier.Approval = false;
+                    //dSupplier.Approval = false;
                     dSupplier.Br = "A";
                     dSupplier.Freezed = "0";
                     dSupplier.Mass = "0";

@@ -99,7 +99,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="County" class="control-label">County</label>
-                                    <select asp-for="County" id="county" class="form-control" asp-items="@ViewBag.countyname" required>
+                                    <select asp-for="County" id="county" class="form-control" asp-items="@ViewBag.counties" required>
                                     </select>
                                     <span asp-validation-for="County" class="text-danger"></span>
                                 </div>
@@ -252,7 +252,7 @@
     </div>
 </div>
 
-                
+ 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -272,7 +272,7 @@
                     $('#sub-county').prop('disabled', false);
                     $('#ward').prop('disabled', true);
                     let county = $("#county").val();
-                    let sub_counties = subcounties.filter(p => p.County === county);
+                    let sub_counties = subcounties.filter(p => p.County.trim() === county.trim());
 
                     $.each(sub_counties, function() {
                         $('#sub-county').append($("<option />").val(this.Name).text(this.Name));
@@ -283,7 +283,7 @@
                     $('#ward').empty();
                     $('#ward').prop('disabled', false);
                     let subCounty = $("#sub-county").val();
-                    let curr_wards = wards.filter(p => p.SubCounty === subCounty);
+                    let curr_wards = wards.filter(p => p.SubCounty.trim() === subCounty.trim());
 
                     $.each(curr_wards, function() {
                         $('#ward').append($("<option />").val(this.Name).text(this.Name));
