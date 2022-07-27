@@ -47,6 +47,10 @@ namespace EasyPro.Utils
             }
             sb.AppendLine("</tr>");
             sb.Append("<tr>");
+            var existingData = _context.ExcelDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
+            if(existingData.Any())
+                _context.ExcelDump.RemoveRange(existingData);
+
             decimal totalQnty = 0;
             var excelDumps = new List<ExcelDump>();
             for (int i = (sheet.FirstRowNum + 1); i <= sheet.LastRowNum; i++) //Read Excel File
