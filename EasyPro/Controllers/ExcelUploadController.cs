@@ -122,7 +122,7 @@ namespace EasyPro.Controllers
                     DrAccNo = price.DrAccNo
                 };
 
-                var balance = utilities.GetBalance(productIntake, sacco);
+                var balance = utilities.GetBalance(productIntake);
                 productIntake.Balance = balance;
 
                 _context.ProductIntake.Add(productIntake);

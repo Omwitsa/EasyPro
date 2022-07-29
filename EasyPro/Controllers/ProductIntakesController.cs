@@ -247,18 +247,17 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
-                
-                productIntake.SaccoCode = sacco;
+                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
                 productIntake.Branch = branch.Bname;
-                var price = _context.DPrices
-                    .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
-                    && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));
-                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                productIntake.SaccoCode = sacco;
                 productIntake.TransactionType = TransactionType.Intake;
                 productIntake.TransDate = DateTime.Today;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
-                productIntake.Balance = utilities.GetBalance(productIntake, sacco);
+                productIntake.Balance = utilities.GetBalance(productIntake);
+                var price = _context.DPrices
+                    .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                    && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));
                 _context.ProductIntake.Add(new ProductIntake { 
                     Sno = productIntake.Sno.Trim(),
                     TransDate = productIntake.TransDate,
@@ -318,7 +317,7 @@ namespace EasyPro.Controllers
                     // Credit transpoter transport amount
                     productIntake.CR = productIntake.Qsupplied * transport.Rate;
                     productIntake.DR = 0;
-                    productIntake.Balance = utilities.GetBalance(productIntake, sacco);
+                    productIntake.Balance = utilities.GetBalance(productIntake);
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = transport.TransCode.Trim(),
@@ -405,7 +404,7 @@ namespace EasyPro.Controllers
                 productIntake.Qsupplied = 0;
                 productIntake.CR = 0;
                 productIntake.Description = productIntake.Remarks;
-                productIntake.Balance = utilities.GetBalance(productIntake, sacco);
+                productIntake.Balance = utilities.GetBalance(productIntake);
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
@@ -469,7 +468,7 @@ namespace EasyPro.Controllers
                 productIntake.Description = productIntake.Remarks;
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.SaccoCode = sacco;
-                productIntake.Balance = utilities.GetBalance(productIntake, sacco);
+                productIntake.Balance = utilities.GetBalance(productIntake);
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
@@ -532,7 +531,7 @@ namespace EasyPro.Controllers
                 productIntake.Description = "Correction";
                 productIntake.TransactionType = TransactionType.Correction;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
-                productIntake.Balance = utilities.GetBalance(productIntake, sacco);
+                productIntake.Balance = utilities.GetBalance(productIntake);
                 _context.Add(productIntake);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Correction saved successfully");

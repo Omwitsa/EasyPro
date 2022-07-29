@@ -104,9 +104,9 @@ namespace EasyPro.Utils
             return sb.ToString();
         }
 
-        public decimal? GetBalance(ProductIntake productIntake, string sacco)
+        public decimal? GetBalance(ProductIntake productIntake)
         {
-            var latestIntake = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()))
+            var latestIntake = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno && i.SaccoCode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()))
                     .OrderByDescending(i => i.Id).FirstOrDefault();
             if (latestIntake == null)
                 latestIntake = new ProductIntake();
