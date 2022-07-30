@@ -31,7 +31,8 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.Dispatch
-                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
+                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()))
+                .OrderByDescending(s=>s.Transdate).ToListAsync());
         }
 
         // GET: Dispatches/Details/5

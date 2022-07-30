@@ -71,9 +71,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Branch" class="control-label"></label>
-                                    <select asp-for="Branch" class="form-control" required asp-items="@ViewBag.brances"></select>
-                                    <span asp-validation-for="Branch" class="text-danger"></span>
+                                    <label class="control-label">Date Of Birth</label>
+                                    <input type="date" asp-for="Dob" class="form-control" required />
+                                    <span asp-validation-for="Dob" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -189,6 +189,17 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="Branch" class="control-label"></label>
+                                    <select asp-for="Branch" class="form-control" asp-items="@ViewBag.brances" required></select>
+                                    <span asp-validation-for="Branch" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">

@@ -192,6 +192,7 @@ namespace EasyPro.Models
         public virtual DbSet<Matchedreport> Matchedreports { get; set; }
         public virtual DbSet<MaxShare> MaxShares { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
+        public virtual DbSet<TransportersBalancing> TransportersBalancings { get; set; }
         public virtual DbSet<Mpesab> Mpesabs { get; set; }
         public virtual DbSet<Param> Params { get; set; }
         public virtual DbSet<Passwordhistory> Passwordhistories { get; set; }

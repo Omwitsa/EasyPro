@@ -75,7 +75,8 @@ namespace EasyPro.Controllers
 
             return View(new DSupplier { 
                 Active = true,
-                Regdate=DateTime.Today
+                Regdate=DateTime.Today,
+                Dob = DateTime.Today
             });
         }
         private void GetInitialValues()
@@ -170,6 +171,11 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
             dSupplier.Regdate = Convert.ToDateTime(dSupplier.Regdate);
+            dSupplier.Dob = Convert.ToDateTime(dSupplier.Dob);
+            dSupplier.County = dSupplier.County;
+            dSupplier.District = dSupplier.District;
+            dSupplier.Division = dSupplier.Division;
+
             return View(dSupplier);
         }
 
