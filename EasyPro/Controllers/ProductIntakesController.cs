@@ -38,8 +38,6 @@ namespace EasyPro.Controllers
             return View(await _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate == DateTime.Today)
                 .ToListAsync());
-
-
         }
         public async Task<IActionResult> TDeductionList()
         {
@@ -341,6 +339,23 @@ namespace EasyPro.Controllers
                         CrAccNo = price.TransportCrAccNo
                     });
                 }
+
+                var startDate = new DateTime(productIntake.TransDate.Year, productIntake.TransDate.Month, 1);
+                var endDate = startDate.AddMonths(1).AddDays(-1);
+                var commulated = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
+                && s.TransDate >= startDate && s.TransDate <= endDate).Sum(s => s.Qsupplied);
+                _context.Messages.Add(new Message
+                {
+                    Telephone = supplier.PhoneNo,
+                    Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}",
+                    ProcessTime = DateTime.Now.ToString(),
+                    MsgType = "Outbox",
+                    Replied = false,
+                    DateReceived = DateTime.Now,
+                    Source = auditId,
+                    Code = sacco
+                });
+                
                 _context.SaveChanges();
                 _notyf.Success("Intake saved successfully");
                 return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = collection.Id });
