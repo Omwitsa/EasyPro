@@ -15,6 +15,9 @@ namespace EasyPro.ViewModels
         public DateTime? DateTo { get; set; }
         [Display(Name = "Branch Name")]
         public string? Branch { get; set; }
+        public string? Transporter { get; set; }
+
+
     }
 
     public class ProductBalancingFilterVm
