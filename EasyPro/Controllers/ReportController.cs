@@ -43,9 +43,17 @@ namespace EasyPro.Controllers
         public IEnumerable<DPayroll> dpayrollobj { get; set; }
         public IEnumerable<DCompany> companyobj { get; set; }
         public IEnumerable<DBranch> branchobj { get; set; }
+        public IEnumerable<TransportersBalancing> TransportersBalancingobj { get; set; }
 
         [HttpGet]
         public IActionResult DownloadReport()
+        {
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            return View();
+        }
+        [HttpGet]
+        public IActionResult DownloadTransportersBalReport()
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
@@ -77,6 +85,12 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var brances = _context.DBranch.Where(i => i.Bcode == sacco).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
+
+            var Transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
+            ViewBag.Transporters = new SelectList(Transporters, "TransName", "TransName");
+
+            var Transportersdetails = _context.DTransporters.Where(i => i.ParentT == sacco).ToList();
+            ViewBag.Transportersdetails = Transportersdetails;
         }
 
         [HttpPost]
@@ -231,6 +245,23 @@ namespace EasyPro.Controllers
             else
                 branchobj = await _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == Branch).ToListAsync();
             return await DSumarryIntakeExcel(DateFrom, DateTo, Branch);
+        }
+        [HttpPost]
+        public async Task<IActionResult> TransportersBalancing([Bind("DateFrom,DateTo,Branch,Transporter")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var endDate = Convert.ToDateTime(filter.DateTo.ToString());
+            var DateFrom = new DateTime(endDate.Year, endDate.Month, 1);
+            var DateTo = DateFrom.AddMonths(1).AddDays(-1);
+            var Branch = filter.Branch;
+            var Transporter = filter.Transporter;
+
+            if (Transporter == null)
+                transporterobj = await _context.DTransporters.Where(u => u.ParentT == sacco).ToListAsync();
+            else
+                transporterobj = await _context.DTransporters.Where(u => u.ParentT == sacco && u.TransCode == Transporter).ToListAsync();
+            return await TransportersBalancingExcel(DateFrom, DateTo, Transporter);
         }
 
         [HttpPost]
@@ -1032,6 +1063,76 @@ namespace EasyPro.Controllers
                     return File(content,
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         "Suppliers Summary Intake.xlsx");
+                }
+            }
+        }
+        public async Task<IActionResult> TransportersBalancingExcel(DateTime DateFrom, DateTime DateTo, string Transporter)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var DateFro = Convert.ToDateTime(DateFrom.ToString());
+                var DateT = Convert.ToDateTime(DateTo.ToString());
+                var Transporters = Transporter;
+                var worksheet = workbook.Worksheets.Add("TransportersBalancingobj");
+                var currentRow = 1;
+                companyobj = await _context.DCompanies.Where(u => u.Name == sacco).ToListAsync();
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Transporter Balancing Report";
+                
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "TCode";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "Date";
+                worksheet.Cell(currentRow, 4).Value = "Quantity";
+                worksheet.Cell(currentRow, 5).Value = "ActualBal";
+                worksheet.Cell(currentRow, 6).Value = "Rejects";
+                worksheet.Cell(currentRow, 7).Value = "Spillage";
+                worksheet.Cell(currentRow, 8).Value = "Varriance";
+                decimal sum = 0, sum1 = 0;
+                foreach (var transporters in transporterobj)
+                {
+                    TransportersBalancingobj = await _context.TransportersBalancings
+                    .Where(u => u.Code == sacco && u.Transporter == Transporters && u.Date>= DateFro && u.Date<= DateT)
+                    .OrderBy(k => k.Transporter).ToListAsync();
+                    foreach (var sup in TransportersBalancingobj)
+                    {
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Value = sup.Transporter;
+                                worksheet.Cell(currentRow, 2).Value = transporters.TransName;
+                                worksheet.Cell(currentRow, 3).Value = sup.Date;
+                                worksheet.Cell(currentRow, 4).Value = sup.Quantity;
+                                worksheet.Cell(currentRow, 5).Value = sup.ActualBal;
+                                worksheet.Cell(currentRow, 6).Value = sup.Rejects;
+                                worksheet.Cell(currentRow, 7).Value = sup.Spillage;
+                                worksheet.Cell(currentRow, 8).Value = sup.Varriance;
+                                sum1 += sum1+ Convert.ToDecimal(sup.Quantity);
+                    }
+                    currentRow++;
+                    worksheet.Cell(currentRow, 3).Value = "Total Kgs";
+                    worksheet.Cell(currentRow, 4).Value = sum1;
+                }
+                currentRow++;
+                worksheet.Cell(currentRow, 3).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 4).Value = sum;
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Transporter Balancing Report.xlsx");
                 }
             }
         }
