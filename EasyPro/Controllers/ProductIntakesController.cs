@@ -36,18 +36,20 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.ProductIntake
-                .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate == DateTime.Today)
+                .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
+                && i.TransDate == DateTime.Today)
                 .ToListAsync());
         }
         public async Task<IActionResult> TDeductionList()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
+            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction 
+            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach (var intake in productIntakes)
             {
-                var supplier = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.Sno);
+                var supplier = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.Sno && i.ParentT == sacco);
                 if (supplier != null)
                 {
                     intakes.Add(new ProductIntakeVm
@@ -68,7 +70,8 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
+            var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction 
+            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach (var intake in productIntakes)
             {
@@ -100,7 +103,8 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.ProductIntake
-                .Where(c => c.TransactionType == TransactionType.Correction && c.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && c.TransDate == DateTime.Today)
+                .Where(c => c.TransactionType == TransactionType.Correction && c.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
+                && c.TransDate == DateTime.Today)
                 .ToListAsync());
         }
 
@@ -146,10 +150,10 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             Farmersobj = new FarmersVM()
             {
-                DSuppliers = _context.DSuppliers,
-
+                DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco),
                 ProductIntake = new ProductIntake
                 {
                     TransDate = DateTime.Today
@@ -163,9 +167,10 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             Farmersobj = new FarmersVM()
             {
-                DTransporters = _context.DTransporters,
+                DTransporters = _context.DTransporters.Where(t => t.ParentT == sacco),
                 ProductIntake = new ProductIntake
                 {
                     TransDate = DateTime.Today
@@ -175,10 +180,11 @@ namespace EasyPro.Controllers
         }
         private void GetInitialValues()
         {
-            var Descriptionname = _context.DDcodes.Select(b => b.Description).ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var Descriptionname = _context.DDcodes.Where(d => d.Dcode == sacco).Select(b => b.Description).ToList();
             ViewBag.Description = new SelectList(Descriptionname);
 
-            var brances = _context.DBranch.Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(b => b.Bcode == sacco).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
             List<SelectListItem> gender = new()
@@ -355,6 +361,20 @@ namespace EasyPro.Controllers
                     Source = auditId,
                     Code = sacco
                 });
+
+                _context.Gltransactions.Add(new Gltransaction
+                {
+                    AuditId = auditId,
+                    TransDate = DateTime.Today,
+                    Amount = (decimal)productIntake.CR,
+                    AuditTime = DateTime.Now,
+                    Source = productIntake.Sno,
+                    TransDescript = "Intake",
+                    Transactionno = $"{auditId}{DateTime.Now}",
+                    SaccoCode = sacco,
+                    DrAccNo = price.DrAccNo,
+                    CrAccNo = price.CrAccNo,
+                });
                 
                 _context.SaveChanges();
                 _notyf.Success("Intake saved successfully");
@@ -385,13 +405,14 @@ namespace EasyPro.Controllers
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
             }
-            if (!_context.ProductIntake.Any(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco && i.Qsupplied!= 0 && i.TransDate >= startdate && i.TransDate <= enddate))
+            if (!_context.ProductIntake.Any(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco && i.Qsupplied!= 0 
+            && i.TransDate >= startdate && i.TransDate <= enddate))
             {
                 _notyf.Error("Sorry, Supplier has not deliver any product for this month"+" "+ startdate+ "To " + " "+ enddate );
                 GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = _context.DSuppliers,
+                    DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco),
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -403,7 +424,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Farmer code cannot be zero");
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = _context.DSuppliers,
+                    DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco),
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -436,13 +457,14 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             //long.TryParse(, out long sno);
             productIntake.Remarks = productIntake?.Remarks ?? "";
+            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco);
             if (!_context.DTransporters.Any(i => i.TransCode == productIntake.Sno && i.Active == true && i.ParentT == sacco))
             {
                 _notyf.Error("Sorry, Transporter code does not exist");
                 GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
-                    DTransporters = _context.DTransporters,
+                    DTransporters = transporters,
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -454,7 +476,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Amount cannot be zero");
                 Farmersobj = new FarmersVM()
                 {
-                    DTransporters = _context.DTransporters,
+                    DTransporters = transporters,
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -466,7 +488,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Transporter code cannot be zero");
                 Farmersobj = new FarmersVM()
                 {
-                    DTransporters = _context.DTransporters,
+                    DTransporters = transporters,
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -498,6 +520,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             productIntake.SaccoCode = sacco;
             var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
             productIntake.Branch = branch.Bname;
@@ -523,8 +546,8 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return View(productIntake);
             }
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
-            if (supplier == null)
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode == sacco);
+            if (supplier == null) 
             {
                 _notyf.Error("Sorry, Supplier does not exist");
                 return View(productIntake);
@@ -539,9 +562,21 @@ namespace EasyPro.Controllers
                 productIntake.DR = -productIntake.CR;
                 productIntake.CR = 0;
             }
-            if (ModelState.IsValid)
+            _context.Gltransactions.Add(new Gltransaction
             {
-                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                AuditId = auditId,
+                TransDate = DateTime.Today,
+                Amount = (decimal)productIntake.DR,
+                AuditTime = DateTime.Now,
+                Source = productIntake.Sno,
+                TransDescript = "Correction",
+                Transactionno = $"{auditId}{DateTime.Now}",
+                SaccoCode = sacco,
+                DrAccNo = productIntake.DrAccNo,
+                CrAccNo = productIntake.CrAccNo,
+            });
+            if (ModelState.IsValid)
+            { 
                 productIntake.AuditId = auditId ?? "";
                 productIntake.Description = "Correction";
                 productIntake.TransactionType = TransactionType.Correction;

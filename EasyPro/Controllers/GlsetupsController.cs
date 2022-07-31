@@ -29,7 +29,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.Glsetups.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            return View(await _context.Glsetups.Where(g => g.saccocode == sacco).ToListAsync());
         }
 
         // GET: Glsetups/Details/5

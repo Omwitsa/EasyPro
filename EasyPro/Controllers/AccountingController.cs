@@ -29,7 +29,8 @@ namespace EasyPro.Controllers
         public IActionResult JournalPosting()
         {
             utilities.SetUpPrivileges(this);
-            var glAccounts = _context.Glsetups.ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).ToList();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
 
             return View();
@@ -68,7 +69,8 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var perMonth = new string[] { "Yes", "No" };
             ViewBag.perMonth = new SelectList(perMonth);
-            var glAccounts = _context.Glsetups.ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).ToList();
             ViewBag.glAccounts = glAccounts;
             return View();
         }
@@ -164,7 +166,8 @@ namespace EasyPro.Controllers
         public IActionResult GLInquiry()
         {
             utilities.SetUpPrivileges(this);
-            var glAccounts = _context.Glsetups.ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).ToList();
             ViewBag.glAccounts = glAccounts;
 
             return View();
@@ -183,7 +186,7 @@ namespace EasyPro.Controllers
 
             var debit = gltransactions.Where(t => t.DrAccNo.ToUpper().Equals(filter.AccNo.ToUpper())).ToList();
             var credit = gltransactions.Where(t => t.CrAccNo.ToUpper().Equals(filter.AccNo.ToUpper())).ToList();
-            var glsetup = _context.Glsetups.FirstOrDefault(t => t.AccNo.Trim().ToUpper().Equals(filter.AccNo.ToUpper()));
+            var glsetup = _context.Glsetups.FirstOrDefault(t => t.AccNo.Trim().ToUpper().Equals(filter.AccNo.ToUpper()) && t.saccocode == sacco);
             var journals = new List<JournalVm>();
             var bookBalance = 0M;
             if (glsetup != null)

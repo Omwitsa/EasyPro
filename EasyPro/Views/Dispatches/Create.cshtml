@@ -69,33 +69,33 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-<script type="text/javascript">
-    $(function () {
-        var today = new Date().toISOString().split('T')[0];
-        $("#date").val(today);
-        var date = $('#date').val();
-        var total = 0;
-        getSelectedDateIntakes();
-        $('#date').change(function () {
-            $("#intake").val(total);
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            var total = 0;
             getSelectedDateIntakes();
+            $('#date').change(function () {
+                $("#intake").val(total);
+                getSelectedDateIntakes();
+            });
+
+            function getSelectedDateIntakes() {
+                var date = $('#date').val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "selectedDateIntake?date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#intake").val(response);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
         });
-
-        function getSelectedDateIntakes() {
-            $.ajax(
-                {
-                    type: 'GET',
-                    url: "selectedDateIntake?date=" + date,
-                    contentType: 'application/json',
-                    success: function (response) {
-                        $("#intake").val(response);
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
-
-                });
-        }
-    });
-</script>
-        }
+    </script>
+}

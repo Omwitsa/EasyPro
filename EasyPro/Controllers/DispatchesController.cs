@@ -87,6 +87,13 @@ namespace EasyPro.Controllers
                 GetInitialValues();
                 return View();
             }
+            if(dispatch.TIntake < dispatch.Dispatchkgs)
+            {
+                _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
+                GetInitialValues();
+                return View();
+            }
+
             if (ModelState.IsValid)
             {
                 var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
@@ -177,10 +184,18 @@ namespace EasyPro.Controllers
         public JsonResult SelectedDateIntake(DateTime date)
         {
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var intakes = _context.ProductIntake.Where(i => i.TransDate == date && i.SaccoCode== sacco && i.Description== "Intake");
-            var todaysIntake = intakes.Sum(i => i.Qsupplied);
+            var todaysIntake = GetTodaysIntake(date);
             return Json(todaysIntake);
+        }
+
+        private decimal GetTodaysIntake(DateTime date)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var intakes = _context.ProductIntake.Where(i => i.TransDate == date && i.SaccoCode == sacco && i.Description == "Intake");
+            var todaysIntake = intakes.Sum(i => i.Qsupplied);
+            var dispatchKgs = _context.Dispatch.Where(d => d.Dcode == sacco && d.Transdate == date).Sum(d => d.Dispatchkgs);
+            todaysIntake -= dispatchKgs;
+            return todaysIntake;
         }
 
         // POST: Dispatches/Delete/5
