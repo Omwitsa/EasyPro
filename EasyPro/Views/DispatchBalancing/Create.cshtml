@@ -1,0 +1,162 @@
+﻿<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Dispatch Balancing Form</h2>
+            </div>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-sm-8 col-xs-12">
+
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Date</label>
+                            <input id="date" class="form-control" type="date" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Intake</label>
+                            <input id="intake" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">BF</label>
+                            <input id="BF" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Actuals</label>
+                            <input id="actuals" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Dispatch</label>
+                            <input id="dispatch" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Spillage</label>
+                            <input id="spillage" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Rejects</label>
+                            <input id="rejects" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">CF</label>
+                            <input id="CF" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Varriance</label>
+                            <input id="varriance" class="form-control" readonly/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a id="save" class="btn btn-success">Save</a>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            $('#date').on('change', function () {
+                var date = $("#date").val();
+                $.ajax({
+                    type: 'GET',
+                    url: "getSuppliedItems?date="+date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        response = response ? response : {};
+                        $("#intake").val(response.Intake);
+                        $("#BF").val(response.BF);
+                        $("#actuals").val(response.Actuals);
+                        $("#dispatch").val(response.Dispatch);
+                        $("#spillage").val(response.Spillage);
+                        $("#rejects").val(response.Rejects);
+                        $("#CF").val(response.CF);
+                        $("#varriance").val(response.Varriance);
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+
+            $('#actual').on('keyup', function () {
+                populateFields();
+            });
+
+            $('#save').on('click', function () {
+                var variance = {
+                    date: $("#date").val(),
+                    intake: $("#intake").val(),
+                    BF: $("#BF").val(),
+                    actuals: $("#actuals").val(),
+                    dispatch: $("#dispatch").val(),
+                    spillage: $("#spillage").val(),
+                    rejects: $("#rejects").val(),
+                    CF: $("#CF").val(),
+                    varriance: $("#varriance").val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: "saveVariance",
+                    contentType: 'application/json',
+                    data: JSON.stringify(variance),
+                    success: function (response) {
+
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+
+            function populateFields() {
+                var variance = parseFloat($("#actuals").val()) - parseFloat($("#intake").val())
+                $("#varriance").val(variance);
+
+                var CF = parseFloat($("#actuals").val()) + parseFloat($("#BF").val()) - parseFloat($("#dispatch").val())
+                $("#CF").val(variance);
+            }
+        });
+    </script>
+}

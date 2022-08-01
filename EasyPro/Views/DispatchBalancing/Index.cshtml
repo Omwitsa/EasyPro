@@ -1,0 +1,97 @@
+﻿@model IEnumerable<EasyPro.Models.DispatchBalancing>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                    <h3 class="text-danger fa-bold">Dispatch Balancing List</h3>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                    <a asp-controller="Report" asp-action="DownloadTransportersBalReport" class="btn btn-info">Dispatch Report</a>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <a asp-action="Create" class="btn btn-primary">Add New</a>
+                </div>
+            </div>
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Date)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Intake)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Dispatch)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.CF)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.BF)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Actuals)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Spillage)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Rejects)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Varriance)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Date)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Intake)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Dispatch)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CF)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.BF)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Actuals)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Spillage)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Rejects)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Varriance)
+                                    </td>
+                                    <td>
+                                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

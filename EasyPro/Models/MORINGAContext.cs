@@ -264,6 +264,7 @@ namespace EasyPro.Models
         public virtual DbSet<FLMDCrops> FLMDCrops { get; set; }
         public virtual DbSet<FLMDLand> FLMDLand { get; set; }
         public virtual DbSet<ExcelDump> ExcelDump { get; set; }
+        public virtual DbSet<DispatchBalancing> DispatchBalancing { get; set; }
         public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

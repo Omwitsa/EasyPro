@@ -32,12 +32,14 @@ namespace EasyPro.Controllers
 
         public IActionResult Index()
         {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            sacco = sacco ?? "";
+            var date = DateTime.Now;
             GetInitialValues();
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var startDate = new DateTime(date.Year, date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             var suppliers = _context.TransportersBalancings
-                .Where(i => i.Code.ToUpper().Equals(sacco.ToUpper())).OrderByDescending(s=>s.Date).ToList();
+                .Where(i => i.Code.ToUpper().Equals(sacco.ToUpper()) && i.Date >= startDate && i.Date <= endDate).OrderByDescending(s=>s.Date).ToList();
             return View(suppliers);
         }
         public IActionResult Create()
