@@ -58,12 +58,6 @@
                                     @Html.DisplayNameFor(model => model.Budgetted)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.TransDate)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.IsSubLedger)
-                                </th>
-                                <th>
                                     @Html.DisplayNameFor(model => model.AccCategory)
                                 </th>
                                 <th>
@@ -71,9 +65,6 @@
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.NewGlopeningBalDate)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Branch)
                                 </th>
                                 <th></th>
                             </tr>
@@ -119,12 +110,6 @@
                                         @Html.DisplayFor(modelItem => item.Budgetted)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.TransDate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.IsSubLedger)
-                                    </td>
-                                    <td>
                                         @Html.DisplayFor(modelItem => item.AccCategory)
                                     </td>
                                     <td>
@@ -134,11 +119,10 @@
                                         @Html.DisplayFor(modelItem => item.NewGlopeningBalDate)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Branch)
-                                    </td>
-                                    <td>
-                                        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                                        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ })
+                                        @*@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ })*@
+                                        <a asp-action="Edit" asp-route-Glid="@item.Glid">Edit</a>|
+                                        <a asp-action="Delete" asp-route-Glid="@item.Glid">Delete</a>
+                                        @*@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ })*@
                                     </td>
                                 </tr>
                             }

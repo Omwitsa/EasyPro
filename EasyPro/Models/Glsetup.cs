@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -7,6 +8,7 @@ namespace EasyPro.Models
 {
     public partial class Glsetup
     {
+        [Key]
         public long Glid { get; set; }
         public string GlCode { get; set; }
         public string GlAccName { get; set; }

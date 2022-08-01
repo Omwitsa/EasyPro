@@ -7684,7 +7684,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<Glsetup>(entity =>
             {
-                entity.HasKey(e => new { e.AccNo, e.Glid });
+                entity.HasKey(e => new { e.Glid });
 
                 entity.ToTable("GLSETUP");
 

@@ -80,6 +80,12 @@ namespace EasyPro.Controllers
             GetInitialValues();
             return View();
         }
+        public IActionResult DownloadcorrectionIntakeReport()
+        {
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            return View();
+        }
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -210,6 +216,19 @@ namespace EasyPro.Controllers
             else
                 branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
             return BranchIntakeExcel(DateFrom, DateTo, filter.Branch);
+        }
+        [HttpPost]
+        public IActionResult correctionIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            //if (string.IsNullOrEmpty(filter.Branch))
+            //    branchobj = _context.DBranch.Where(u => u.Bcode == sacco);
+            //else
+            //    branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
+            return CorrectionIntakeExcel(DateFrom, DateTo, filter.Branch);
         }
 
         [HttpPost]
@@ -1136,7 +1155,85 @@ namespace EasyPro.Controllers
                 }
             }
         }
+        public IActionResult CorrectionIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var DateFro = Convert.ToDateTime(DateFrom.ToString());
+                var DateT = Convert.ToDateTime(DateTo.ToString());
+                var Branchh = Branch;
+                var worksheet = workbook.Worksheets.Add("productIntakeobj");
+                var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Suppliers Intake Correction Report";
 
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "TransDate";
+                worksheet.Cell(currentRow, 4).Value = "ProductType";
+                worksheet.Cell(currentRow, 5).Value = "Qsupplied";
+                worksheet.Cell(currentRow, 6).Value = "Price";
+                worksheet.Cell(currentRow, 7).Value = "Description";
+                worksheet.Cell(currentRow, 8).Value = "Branch";
+                decimal sum = 0, sum1 = 0;
+                
+                    productIntakeobj = _context.ProductIntake
+                        .Where(i => i.SaccoCode == sacco && i.TransDate >= DateFro && i.Qsupplied != 0
+                        && i.TransDate <= DateT && i.TransactionType == TransactionType.Correction)
+                        .OrderBy(i => i.Sno);
+                    foreach (var emp in productIntakeobj)
+                    {
+                        long.TryParse(emp.Sno, out long sno);
+                        var TransporterExist = _context.DSuppliers.Where(u => u.Sno == sno).Count();
+                        if (TransporterExist > 0)
+                        {
+                            currentRow++;
+                            worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                            var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                            foreach (var al in TName)
+                                worksheet.Cell(currentRow, 2).Value = al.Names;
+                            worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                            worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                            worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
+                            worksheet.Cell(currentRow, 6).Value = emp.Ppu;
+                            worksheet.Cell(currentRow, 7).Value = emp.Description;
+                            worksheet.Cell(currentRow, 8).Value = emp.Branch;
+                            sum += (emp.Qsupplied);
+                            sum1 += (emp.Qsupplied);
+                        }
+                    }
+                    currentRow++;
+                    worksheet.Cell(currentRow, 4).Value = "Branch Kgs";
+                    worksheet.Cell(currentRow, 5).Value = sum1;
+                    sum1 = 0;
+                
+                currentRow++;
+                worksheet.Cell(currentRow, 4).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 5).Value = sum;
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Suppliers Correction Intake.xlsx");
+                }
+            }
+        }
         public IActionResult BranchIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
         {
             using (var workbook = new XLWorkbook())

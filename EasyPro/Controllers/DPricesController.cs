@@ -163,7 +163,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide product Cr Acc");
                 return View();
             }
-            if (_context.DPrices.Any(i => i.Products == dPrice.Products && i.Id != dPrice.Id))
+            if (_context.DPrices.Any(i => i.Products == dPrice.Products && i.SaccoCode==sacco && i.Id != dPrice.Id))
             {
                 _notyf.Error("Sorry, The product already exist");
                 return View();

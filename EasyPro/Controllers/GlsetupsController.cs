@@ -9,6 +9,7 @@ using System;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace EasyPro.Controllers
 {
@@ -137,16 +138,15 @@ namespace EasyPro.Controllers
         }
 
         // GET: Glsetups/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(long Glid)
         {
             SetInitialValues();
             utilities.SetUpPrivileges(this);
-            if (id == null)
+            if (Glid == 0)
             {
                 return NotFound();
             }
-
-            var glsetup = await _context.Glsetups.FindAsync(id);
+            var glsetup = await _context.Glsetups.FindAsync(Glid);
             if (glsetup == null)
             {
                 return NotFound();
@@ -159,11 +159,12 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run,saccocode")] Glsetup glsetup)
+        public async Task<IActionResult> Edit(long Glid, [Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run,saccocode")] Glsetup glsetup)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            if (id != glsetup.AccNo)
+            var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (Glid != glsetup.Glid)
             {
                 return NotFound();
             }
@@ -192,11 +193,17 @@ namespace EasyPro.Controllers
                         _notyf.Error("Sorry, Account No. already exist");
                         return View(glsetup);
                     }
-                    if (_context.Glsetups.Any(u => u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper()) && u.Glid == glsetup.Glid))
+                    if (_context.Glsetups.Any(u => u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper()) && u.Glid != glsetup.Glid))
                     {
                         _notyf.Error("Sorry, Account Name already exist");
                         return View(glsetup);
                     }
+                        glsetup.TransDate = DateTime.Now;
+                        glsetup.NewGlopeningBalDate = DateTime.Now;
+                        glsetup.AuditDate = DateTime.Now;
+                        glsetup.Branch = "Null";
+                        glsetup.saccocode = sacco;
+                        glsetup.AuditId = LoggedInUser;
                     _context.Update(glsetup);
                     await _context.SaveChangesAsync();
                 }
@@ -217,16 +224,16 @@ namespace EasyPro.Controllers
         }
 
         // GET: Glsetups/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string Glid)
         {
             utilities.SetUpPrivileges(this);
-            if (id == null)
+            if (Glid == null)
             {
                 return NotFound();
             }
 
             var glsetup = await _context.Glsetups
-                .FirstOrDefaultAsync(m => m.AccNo == id);
+                .FirstOrDefaultAsync(m => m.AccNo == Glid);
             if (glsetup == null)
             {
                 return NotFound();
@@ -238,18 +245,18 @@ namespace EasyPro.Controllers
         // POST: Glsetups/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(string Glid)
         {
             utilities.SetUpPrivileges(this);
-            var glsetup = await _context.Glsetups.FindAsync(id);
+            var glsetup = await _context.Glsetups.FindAsync(Glid);
             _context.Glsetups.Remove(glsetup);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GlsetupExists(string id)
+        private bool GlsetupExists(string Glid)
         {
-            return _context.Glsetups.Any(e => e.AccNo == id);
+            return _context.Glsetups.Any(e => e.AccNo == Glid);
         }
     }
 }
