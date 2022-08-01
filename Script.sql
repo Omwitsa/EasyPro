@@ -1,5 +1,15 @@
 USE [MORINGA]
 GO
+CREATE TABLE [dbo].[DispatchBalancing](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[Date] [smalldatetime] NULL,
+	[Intake] [money] NULL,
+	[Dispatch] [money] NULL,
+	[CF] [money] NULL,
+	[BF] [money] NULL,
+	[Saccocode] [nvarchar](50) NULL
+) ON [PRIMARY]
+
 
 CREATE TABLE ExcelDump (
 	Id bigint IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
