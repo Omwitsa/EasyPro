@@ -524,6 +524,8 @@ namespace EasyPro.Controllers
             productIntake.SaccoCode = sacco;
             var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
             productIntake.Branch = branch.Bname;
+            productIntake.DR = productIntake?.DR ?? 0;
+            productIntake.CR = productIntake?.CR ?? 0;
             long.TryParse(productIntake.Sno, out long sno);
             productIntake.Description = productIntake?.Description ?? "";
             if (sno < 1)
@@ -570,11 +572,13 @@ namespace EasyPro.Controllers
             {
                 productIntake.CrAccNo = "0";
             }
+
+            var amount = productIntake.DR > 0 ? productIntake.DR : productIntake.DR;
             _context.Gltransactions.Add(new Gltransaction
             {
                 AuditId = auditId,
                 TransDate = DateTime.Today,
-                Amount = (decimal)productIntake.DR,
+                Amount = (decimal)amount,
                 AuditTime = DateTime.Now,
                 Source = productIntake.Sno,
                 TransDescript = "Correction",

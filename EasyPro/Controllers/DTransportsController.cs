@@ -50,16 +50,19 @@ namespace EasyPro.Controllers
             {
                 var trans = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.TransCode && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
                 var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno && i.Scode.ToUpper().Equals(sacco.ToUpper()));
-                intakes.Add(new TransSuppliersVM
+                if(supplier != null)
                 {
-                    Id = intake.Id,
-                    TransCode = trans.TransCode,
-                    TransName = trans.TransName,
-                    Sno = supplier.Sno,
-                    Names = supplier.Names,
-                    Rate = intake.Rate,
-                    Startdate = intake.Startdate,
-                });
+                    intakes.Add(new TransSuppliersVM
+                    {
+                        Id = intake.Id,
+                        TransCode = trans.TransCode,
+                        TransName = trans.TransName,
+                        Sno = supplier.Sno,
+                        Names = supplier.Names,
+                        Rate = intake.Rate,
+                        Startdate = intake.Startdate,
+                    });
+                }
             }
 
             return intakes;
