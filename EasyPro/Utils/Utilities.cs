@@ -30,7 +30,7 @@ namespace EasyPro.Utils
             controller.ViewBag.activityRole = usergroup.Activity;
             controller.ViewBag.setupRole = usergroup.Setup;
             controller.ViewBag.reportsRole = usergroup.Reports;
-            //controller.ViewBag.setupRole = usergroup.Setup;
+            controller.ViewBag.saccoReports = usergroup.SaccoReports;
         }
 
         public string GenerateExcelGrid(ISheet sheet, string sacco, string loggedInUser)

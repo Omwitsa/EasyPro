@@ -94,32 +94,13 @@
         $(function () {
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
+            populateFields();
             $('#date').on('change', function () {
-                var date = $("#date").val();
-                $.ajax({
-                    type: 'GET',
-                    url: "getSuppliedItems?date="+date,
-                    contentType: 'application/json',
-                    success: function (response) {
-                        response = response ? response : {};
-                        $("#intake").val(response.Intake);
-                        $("#BF").val(response.BF);
-                        $("#actuals").val(response.Actuals);
-                        $("#dispatch").val(response.Dispatch);
-                        $("#spillage").val(response.Spillage);
-                        $("#rejects").val(response.Rejects);
-                        $("#CF").val(response.CF);
-                        $("#varriance").val(response.Varriance);
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
-                    // ...
-                });
+                populateFields();
             });
 
-            $('#actual').on('keyup', function () {
-                populateFields();
+            $('#actuals').on('keyup', function () {
+                calculateVariance();
             });
 
             $('#save').on('click', function () {
@@ -151,6 +132,30 @@
             });
 
             function populateFields() {
+               var date = $("#date").val();
+                $.ajax({
+                    type: 'GET',
+                    url: "getSuppliedItems?date="+date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        response = response ? response : {};
+                        $("#intake").val(response.Intake);
+                        $("#BF").val(response.BF);
+                        $("#actuals").val(response.Actuals);
+                        $("#dispatch").val(response.Dispatch);
+                        $("#spillage").val(response.Spillage);
+                        $("#rejects").val(response.Rejects);
+                        $("#CF").val(response.CF);
+                        $("#varriance").val(response.Varriance);
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            }
+
+            function calculateVariance() {
                 var variance = parseFloat($("#actuals").val()) - parseFloat($("#intake").val())
                 $("#varriance").val(variance);
 

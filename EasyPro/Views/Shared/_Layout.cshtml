@@ -357,7 +357,7 @@
                             </li>
                         }
 
-                        @if (ViewBag.reportsRole)
+                        @if (ViewBag.reportsRole || ViewBag.saccoReports)
                         {
                             <li>
                                 <a data-toggle="tab" href="#Reports"><i class="notika-icon notika-form"></i>Reports</a>
@@ -517,6 +517,12 @@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadReport">Suppliers</a>
                                 </li>
+                                @if (ViewBag.saccoReports)
+                                {
+                                    <li>
+                                        <a asp-controller="DSuppliers" asp-action="SaccoSupplierSummery">Suppliers Summery</a>
+                                    </li>
+                                }
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTReport">Transporters</a>
                                 </li>

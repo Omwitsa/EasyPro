@@ -48,6 +48,31 @@ namespace EasyPro.Controllers
                 .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval).ToListAsync());
         }
 
+        public async Task<IActionResult> SaccoSupplierSummery()
+        {
+            utilities.SetUpPrivileges(this);
+            var groupedSuppliers = _context.DSuppliers.ToList().GroupBy(s => s.Scode).ToList();
+            var saccoSuppliers = new List<SuppliersVm>();
+            groupedSuppliers.ForEach(s =>
+            {
+                saccoSuppliers.Add(new SuppliersVm
+                {
+                    Sacco = s.Key,
+                    Suppliers = s.Count()
+                });
+            });
+            return View(saccoSuppliers);
+        }
+
+        public async Task<IActionResult> SaccoSuppliers(string id)
+        {
+
+            utilities.SetUpPrivileges(this);
+            ViewBag.sacco = id;
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(id.ToUpper()));
+            return View(suppliers);
+        }
+
         // GET: DSuppliers/Details/5
         public async Task<IActionResult> Details(long? id)
         {

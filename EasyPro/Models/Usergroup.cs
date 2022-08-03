@@ -18,5 +18,6 @@ namespace EasyPro.Models
         public bool Accounts { get; set; }
         public bool AccountsPay { get; set; }
         public bool FixedAssets { get; set; }
+        public bool SaccoReports { get; set; }
     }
 }

@@ -84,8 +84,8 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
 
-            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate)
-                .Where(i => i.Sno == supplier.Sno.ToString()&& i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate>=date1 && i.TransDate<=date2).ToList();
+            var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno.ToString() && i.SaccoCode.ToUpper()
+            .Equals(sacco.ToUpper()) && i.TransDate>=date1 && i.TransDate<=date2).OrderByDescending(i => i.TransDate).ToList();
             return Json(intakes);
         }
         [HttpPost]
