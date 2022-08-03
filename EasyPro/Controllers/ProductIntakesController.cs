@@ -559,8 +559,16 @@ namespace EasyPro.Controllers
             }
             if (productIntake.CR < 0)
             {
-                productIntake.DR = -productIntake.CR;
+                productIntake.DR = productIntake.CR;
                 productIntake.CR = 0;
+            }
+            if (productIntake.DrAccNo == null)
+            {
+                productIntake.DrAccNo = "0";
+            }
+            if (productIntake.CrAccNo == null)
+            {
+                productIntake.CrAccNo = "0";
             }
             _context.Gltransactions.Add(new Gltransaction
             {
@@ -575,6 +583,7 @@ namespace EasyPro.Controllers
                 DrAccNo = productIntake.DrAccNo,
                 CrAccNo = productIntake.CrAccNo,
             });
+
             if (ModelState.IsValid)
             { 
                 productIntake.AuditId = auditId ?? "";
@@ -587,6 +596,7 @@ namespace EasyPro.Controllers
                 _notyf.Success("Correction saved successfully");
                 return RedirectToAction(nameof(CorrectionList));
             }
+
             return View(productIntake);
         }
 

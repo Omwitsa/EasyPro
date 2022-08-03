@@ -44,6 +44,7 @@ namespace EasyPro.Controllers
         public IEnumerable<DCompany> companyobj { get; set; }
         public IEnumerable<DBranch> branchobj { get; set; }
         public IEnumerable<TransportersBalancing> TransportersBalancingobj { get; set; }
+        public IEnumerable<DispatchBalancing> DispatchBalancingobj { get; set; }
 
         [HttpGet]
         public IActionResult DownloadReport()
@@ -54,6 +55,13 @@ namespace EasyPro.Controllers
         }
         [HttpGet]
         public IActionResult DownloadTransportersBalReport()
+        {
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            return View();
+        }
+        [HttpGet]//DownloadDispatchBalReport
+        public IActionResult DownloadDispatchBalReport()
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
@@ -265,7 +273,7 @@ namespace EasyPro.Controllers
                 branchobj = await _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == Branch).ToListAsync();
             return await DSumarryIntakeExcel(DateFrom, DateTo, Branch);
         }
-        [HttpPost]
+        [HttpPost] //DownloadDispatchBalReport
         public async Task<IActionResult> TransportersBalancing([Bind("DateFrom,DateTo,Branch,Transporter")] FilterVm filter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -281,6 +289,20 @@ namespace EasyPro.Controllers
             else
                 transporterobj = await _context.DTransporters.Where(u => u.ParentT == sacco && u.TransCode == Transporter).ToListAsync();
             return await TransportersBalancingExcel(DateFrom, DateTo, Transporter);
+        }
+        [HttpPost] 
+        public async Task<IActionResult> DownloadDispatchBalReport([Bind("DateFrom,DateTo,Branch,Transporter")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            var endDate = Convert.ToDateTime(filter.DateTo.ToString());
+            var DateFrom = new DateTime(endDate.Year, endDate.Month, 1);
+            var DateTo = DateFrom.AddMonths(1).AddDays(-1);
+            var Branch = filter.Branch;
+            var Transporter = filter.Transporter;
+            DispatchBalancingobj = await _context.DispatchBalancing.Where(u => u.Saccocode == sacco).ToListAsync();
+            
+            return await DispatchBalancingExcel(DateFrom, DateTo, Transporter);
         }
 
         [HttpPost]
@@ -1155,6 +1177,78 @@ namespace EasyPro.Controllers
                 }
             }
         }
+        public async Task<IActionResult> DispatchBalancingExcel(DateTime DateFrom, DateTime DateTo, string Transporter)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var DateFro = Convert.ToDateTime(DateFrom.ToString());
+                var DateT = Convert.ToDateTime(DateTo.ToString());
+                var Transporters = Transporter;
+                var worksheet = workbook.Worksheets.Add("DispatchBalancingobj");
+                var currentRow = 1;
+                companyobj = await _context.DCompanies.Where(u => u.Name == sacco).ToListAsync();
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Dispatch Balancing Report";
+                
+                 currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "Date";
+                worksheet.Cell(currentRow, 2).Value = "Intake";
+                worksheet.Cell(currentRow, 3).Value = "BF";
+                worksheet.Cell(currentRow, 4).Value = "Actuals";
+                worksheet.Cell(currentRow, 5).Value = "Dispatch";
+                worksheet.Cell(currentRow, 6).Value = "Spillage";
+                worksheet.Cell(currentRow, 7).Value = "Rejects";
+                worksheet.Cell(currentRow, 8).Value = "CF";
+                worksheet.Cell(currentRow, 9).Value = "Varriance";
+                decimal sum = 0, sum1 = 0;
+                foreach (var transporters in DispatchBalancingobj)
+                {
+                    DispatchBalancingobj = await _context.DispatchBalancing
+                    .Where(u => u.Saccocode == sacco && u.Date >= DateFro && u.Date <= DateT)
+                    .OrderBy(k => k.Date).ToListAsync();
+                    foreach (var sup in DispatchBalancingobj)
+                    {// Date, Intake, Dispatch, CF, BF, Actuals, Spillage, Rejects, Varriance
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = sup.Date;
+                        worksheet.Cell(currentRow, 2).Value = sup.Intake;
+                        worksheet.Cell(currentRow, 3).Value = sup.BF;
+                        worksheet.Cell(currentRow, 4).Value = sup.Actuals;
+                        worksheet.Cell(currentRow, 5).Value = sup.Dispatch;
+                        worksheet.Cell(currentRow, 6).Value = sup.Spillage;
+                        worksheet.Cell(currentRow, 7).Value = sup.Rejects;
+                        worksheet.Cell(currentRow, 8).Value = sup.BF;
+                        worksheet.Cell(currentRow, 9).Value = sup.Varriance;
+                    }
+                    currentRow++;
+                    worksheet.Cell(currentRow, 3).Value = "Total Kgs";
+                    worksheet.Cell(currentRow, 4).Value = sum1;
+                }
+                currentRow++;
+                worksheet.Cell(currentRow, 3).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 4).Value = sum;
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Dispatch Balancing Report.xlsx");
+                }
+            }
+        }
+
         public IActionResult CorrectionIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
         {
             using (var workbook = new XLWorkbook())
