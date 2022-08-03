@@ -98,6 +98,52 @@
                 var date = $("#date").val();
                 $.ajax({
                     type: 'GET',
+                    url: "getSuppliedItems?date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        response = response ? response : {};
+                        $("#intake").val(response.Intake);
+                        $("#BF").val(response.BF);
+                        $("#actuals").val(response.Actuals);
+                        $("#dispatch").val(response.Dispatch);
+                        $("#spillage").val(response.Spillage);
+                        $("#rejects").val(response.Rejects);
+                        $("#CF").val(response.CF);
+                        $("#varriance").val(response.Varriance);
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+            $('#date').on('keyup', function () {
+                var date = $("#date").val();
+                $.ajax({
+                    type: 'GET',
+                    url: "getSuppliedItems?date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        response = response ? response : {};
+                        $("#intake").val(response.Intake);
+                        $("#BF").val(response.BF);
+                        $("#actuals").val(response.Actuals);
+                        $("#dispatch").val(response.Dispatch);
+                        $("#spillage").val(response.Spillage);
+                        $("#rejects").val(response.Rejects);
+                        $("#CF").val(response.CF);
+                        $("#varriance").val(response.Varriance);
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+            $('#date').on('click', function () {
+                var date = $("#date").val();
+                $.ajax({
+                    type: 'GET',
                     url: "getSuppliedItems?date="+date,
                     contentType: 'application/json',
                     success: function (response) {
@@ -118,7 +164,10 @@
                 });
             });
 
-            $('#actual').on('keyup', function () {
+            $('#actual').on('change', function () {
+                populateFields();
+            });
+            $('#dispatch').on('change', function () {
                 populateFields();
             });
 

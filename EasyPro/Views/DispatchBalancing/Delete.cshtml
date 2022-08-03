@@ -1,0 +1,80 @@
+﻿@model EasyPro.Models.DispatchBalancing
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Delete</h2>
+            </div>
+            <hr />
+
+            <div>
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Date)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Date)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Intake)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Intake)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.BF)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.BF)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Actuals)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Actuals)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Dispatch)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Dispatch)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.CF)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.CF)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Spillage)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Spillage)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Rejects)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Rejects)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Varriance)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Varriance)
+                    </dd>
+                </dl>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="submit" value="Delete" class="btn btn-default" /> |
+                    <a asp-action="Index">Back to List</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

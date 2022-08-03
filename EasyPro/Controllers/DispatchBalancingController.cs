@@ -5,8 +5,10 @@ using EasyPro.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
@@ -42,6 +44,42 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             return View();
         }
+        // GET: Glsetups/Delete/5
+        public async Task<IActionResult> Delete(long id)
+        {
+            utilities.SetUpPrivileges(this);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var dipatchbal = await _context.DispatchBalancing
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (dipatchbal == null)
+            {
+                return NotFound();
+            }
+
+            return View(dipatchbal);
+        }
+
+        // POST: ProductIntakes/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(long id)
+        {
+            utilities.SetUpPrivileges(this);
+            var productIntaketodelete = await _context.DispatchBalancing.FindAsync(id);
+            _context.DispatchBalancing.Remove(productIntaketodelete);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool ProductIntakeExists(long id)
+        {
+            return _context.ProductIntake.Any(e => e.Id == id);
+        }
+
 
         [HttpGet]
         public JsonResult GetSuppliedItems(DateTime? date)
