@@ -35,6 +35,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             var intakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= DateTime.Today);
             var products = _context.DPrices.Where(p => p.SaccoCode == sacco).Select(p => p.Products.ToUpper()).Distinct().ToList();
             var intakeStatistics = new List<PoductStatistics>();
@@ -55,6 +56,32 @@ namespace EasyPro.Controllers
             ViewBag.intakeStatistics = intakeStatistics;
             var suppliers = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()));
             ViewBag.suppliers = suppliers.Count();
+
+            var activeSupNos = _context.ProductIntake.Where(p => p.TransDate >= startDate && p.TransDate <= endDate)
+                .Select(p => p.Sno);
+            var activeSuppliers = suppliers.Where(s => activeSupNos.Contains(s.Sno.ToString()));
+            ViewBag.activeSuppliers = activeSuppliers.Count();
+
+            var todatysIntake = _context.ProductIntake.Where(p => p.TransDate == DateTime.Today);
+            var todaySupNos = todatysIntake.Select(p => p.Sno);
+            var failedSuppliers = suppliers.Where(s => !todaySupNos.Contains(s.Sno.ToString()));
+            ViewBag.failedSuppliers = failedSuppliers.Count();
+
+            var sales = _context.Dispatch.Where(d => d.Transdate == DateTime.Today).Sum(d => d.Dispatchkgs);
+            ViewBag.todaysales = sales;
+
+            var newFarmers = suppliers.Where(s => s.Regdate >= startDate && s.Regdate <= endDate);
+            ViewBag.newFarmers = newFarmers.Count();
+
+            var lastMonthStartDate = startDate.AddMonths(-1);
+            var lastMonthStartDateEndDate = lastMonthStartDate.AddMonths(1).AddDays(-1);
+
+            var lastMonthActiveSupNos = _context.ProductIntake.Where(p => p.TransDate >= lastMonthStartDate && p.TransDate <= lastMonthStartDateEndDate)
+                .Select(p => p.Sno);
+            var newSupNos = newFarmers.Select(s => s.Sno.ToString());
+            var lastMonthDomant = activeSuppliers.Where(s => !lastMonthActiveSupNos.Contains(s.Sno.ToString()) && newSupNos.Contains(s.Sno.ToString()));
+            ViewBag.lastMonthDomant = lastMonthDomant.Count();
+
             var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
             ViewBag.transporters = transporters.Count();
 

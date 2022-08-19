@@ -100,7 +100,7 @@ namespace EasyPro.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 _notyf.Error("Sorry, An error occurred");
                 return View(userAccount);

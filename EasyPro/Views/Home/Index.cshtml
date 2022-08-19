@@ -100,9 +100,34 @@
                                         <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
                                     </tr>
                                     <tr>
+                                        <td>Active Suppliers</td>
+                                        <td>@ViewBag.activeSuppliers</td>
+                                        <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>New Suppliers</td>
+                                        <td>@ViewBag.newFarmers</td>
+                                        <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Previously Dormant</td>
+                                        <td>@ViewBag.lastMonthDomant</td>
+                                        <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Farmers not delivered today</td>
+                                        <td>@ViewBag.failedSuppliers</td>
+                                        <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
+                                    </tr>
+                                    <tr>
                                         <td>Transporters</td>
                                         <td>@ViewBag.transporters</td>
                                         <td><a asp-controller="DTransporters" asp-action="Index">More</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Today`s Sales</td>
+                                        <td>@ViewBag.todaysales</td>
+                                        <td></td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -195,11 +195,6 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-            dSupplier.Regdate = Convert.ToDateTime(dSupplier.Regdate);
-            dSupplier.Dob = Convert.ToDateTime(dSupplier.Dob);
-            dSupplier.County = dSupplier.County;
-            dSupplier.District = dSupplier.District;
-            dSupplier.Division = dSupplier.Division;
 
             return View(dSupplier);
         }
