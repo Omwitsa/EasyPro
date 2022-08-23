@@ -43,7 +43,7 @@ namespace EasyPro.Controllers
 
             var products = _context.DBranchProducts.Where(a => a.saccocode == sacco).Select(b => b.Bname).ToList();
             ViewBag.products = new SelectList(products);
-            var glAccounts = _context.Glsetups.ToList();
+            var glAccounts = _context.Glsetups.Where(g => g.saccocode == sacco).ToList();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
 
             var banksname = _context.DBanks.Where(a => a.BankCode == sacco).Select(b => b.BankName).ToList();

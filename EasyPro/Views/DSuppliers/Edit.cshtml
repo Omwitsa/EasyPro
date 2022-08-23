@@ -110,7 +110,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="District" class="control-label">Sub County</label>
-                                <select asp-for="District" id="sub-county" class="form-control" required disabled>
+                                <select asp-for="District" id="sub-county" class="form-control" asp-items="@ViewBag.subCounties" required disabled>
                                 </select>
                                 <span asp-validation-for="District" class="text-danger"></span>
                             </div>
@@ -124,7 +124,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Division" class="control-label">Ward</label>
-                                    <select asp-for="Division" id="ward" class="form-control" required disabled>
+                                    <select asp-for="Division" id="ward" class="form-control" asp-items="@ViewBag.wards" required disabled>
                                         <option value="" disabled selected hidden>Please Choose...</option>
                                     </select>
                                     <span asp-validation-for="Division" class="text-danger"></span>
@@ -137,7 +137,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Location" class="control-label"></label>
-                                    <select asp-for="Location" id="location" class="form-control" required>
+                                    <select asp-for="Location" id="location" class="form-control" asp-items="@ViewBag.locs" required>
                                         <option value="" disabled selected hidden>Please Choose...</option>
                                     </select>
                                     <span asp-validation-for="Location" class="text-danger"></span>

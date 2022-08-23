@@ -14,8 +14,10 @@ namespace EasyPro.ViewModels
         [Display(Name = "Date To")]
         public DateTime? DateTo { get; set; }
         [Display(Name = "Branch Name")]
-        public string? Branch { get; set; }
-        public string? Transporter { get; set; }
+        public string Branch { get; set; }
+        [Display(Name = "Debtor")]
+        public string Debtor { get; set; }
+        public string Transporter { get; set; }
 
 
     }

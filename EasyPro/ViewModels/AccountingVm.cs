@@ -8,7 +8,8 @@ namespace EasyPro.ViewModels
         {
             public string DocumentNo { get; set; }
             public string TransDescript { get; set; }
-            public DateTime TransDate { get; set; }
+            public DateTime? TransDate { get; set; }
+            public string GlAcc { get; set; }
             public decimal Dr { get; set; }
             public decimal Cr { get; set; }
             public decimal Bal { get; set; }

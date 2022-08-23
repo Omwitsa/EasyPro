@@ -94,6 +94,16 @@ namespace EasyPro.Controllers
             GetInitialValues();
             return View();
         }
+
+        public IActionResult DownloadSalesReport()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var debtors = _context.DDebtors.Where(g => g.Dcode == sacco).ToList();
+            ViewBag.debtors = new SelectList(debtors, "Dname", "Dname");
+            return View();
+        }
+
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -237,6 +247,86 @@ namespace EasyPro.Controllers
             //else
             //    branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
             return CorrectionIntakeExcel(DateFrom, DateTo, filter.Branch);
+        }
+
+        [HttpPost]
+        public IActionResult SalesReport([Bind("DateFrom,DateTo,Debtor")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+
+            //if (string.IsNullOrEmpty(filter.Branch))
+            //    branchobj = _context.DBranch.Where(u => u.Bcode == sacco);
+            //else
+            //    branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
+            return SalesReportExcel(filter);
+        }
+
+        public IActionResult SalesReportExcel(FilterVm filter)
+        {
+            decimal totalAmount = 0, totalQuantity = 0;
+            using (var workbook = new XLWorkbook())
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var worksheet = workbook.Worksheets.Add("Gltransaction");
+                var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = $"{filter.Debtor} Sales Report";
+
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "TransDate";
+                worksheet.Cell(currentRow, 2).Value = "Qsupplied";
+                worksheet.Cell(currentRow, 3).Value = "Price";
+                worksheet.Cell(currentRow, 4).Value = "Amount";
+                
+                var sales = _context.Gltransactions.Where(u => u.SaccoCode == sacco 
+                && u.TransDescript == "Sales" && u.TransDate >= filter.DateFrom && u.TransDate <= filter.DateTo 
+                && (string.IsNullOrEmpty(filter.Debtor) || u.Source.ToUpper().Equals(filter.Debtor.ToUpper())))
+                    .OrderByDescending(u => u.Id);
+                foreach (var sale in sales)
+                {
+                    currentRow++;
+                    var dispatch = _context.Dispatch.FirstOrDefault(d => d.DName.ToUpper().Equals(sale.Source.ToUpper())
+                    && d.Dcode.ToUpper().Equals(sale.SaccoCode.ToUpper()) && d.Transdate >= filter.DateFrom 
+                    && d.Transdate <= filter.DateTo);
+
+                    var debtor = _context.DDebtors.FirstOrDefault(d => d.Dcode == sacco && d.Dname.ToUpper().Equals(sale.Source.ToUpper()));
+
+                    worksheet.Cell(currentRow, 1).Value = sale.TransDate;
+                    worksheet.Cell(currentRow, 2).Value = dispatch.Dispatchkgs;
+                    worksheet.Cell(currentRow, 3).Value = debtor.Price;
+                    worksheet.Cell(currentRow, 4).Value = sale.Amount;
+
+                    totalAmount += (dispatch.Dispatchkgs);
+                    totalQuantity += (sale.Amount);
+                }
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "Total";
+                worksheet.Cell(currentRow, 2).Value = totalAmount;
+                worksheet.Cell(currentRow, 4).Value = totalQuantity;
+                
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Sales.xlsx");
+                }
+            }
         }
 
         [HttpPost]
@@ -1328,6 +1418,7 @@ namespace EasyPro.Controllers
                 }
             }
         }
+
         public IActionResult BranchIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
         {
             using (var workbook = new XLWorkbook())

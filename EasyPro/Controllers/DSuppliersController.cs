@@ -111,9 +111,15 @@ namespace EasyPro.Controllers
             ViewBag.sacco = sacco;
             var counties = _context.County.Select(b => b.Name).ToList();
             ViewBag.counties = new SelectList(counties);
-            ViewBag.SubCountyName = _context.SubCounty.ToList();
-            ViewBag.WardSubCounty = _context.Ward.ToList();
-            ViewBag.locations = _context.DLocations.Where(l => l.Lcode == sacco).ToList();
+            var SubCountyName = _context.SubCounty.ToList();
+            ViewBag.SubCountyName = SubCountyName;
+            ViewBag.subCounties = new SelectList(SubCountyName, "Name", "Name");
+            var WardSubCounty = _context.Ward.ToList();
+            ViewBag.WardSubCounty = WardSubCounty;
+            ViewBag.wards = new SelectList(WardSubCounty, "Name", "Name");
+            var locations = _context.DLocations.Where(l => l.Lcode == sacco).ToList();
+            ViewBag.locations = locations;
+            ViewBag.locs = new SelectList(locations, "Lname", "Lname");
 
             var banksname = _context.DBanks.Where(a=>a.BankCode == sacco).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);

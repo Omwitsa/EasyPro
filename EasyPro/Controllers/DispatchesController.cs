@@ -99,6 +99,25 @@ namespace EasyPro.Controllers
                 var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
                 dispatch.auditid = user;
                 dispatch.Dcode = sacco;
+                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+                var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.ToUpper().Equals(dispatch.DName.ToUpper()));
+
+                _context.Gltransactions.Add(new Gltransaction
+                {
+                    AuditId = auditId,
+                    TransDate = DateTime.Today,
+                    Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
+                    AuditTime = DateTime.Now,
+                    DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
+                    Source = dispatch.DName,
+                    TransDescript = "Sales",
+                    Transactionno = $"{auditId}{DateTime.Now}",
+                    SaccoCode = sacco,
+                    DrAccNo = debtor.AccDr,
+                    CrAccNo = debtor.AccCr,
+                });
+
                 _context.Add(dispatch);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Dispatch saved successfully");
