@@ -4,8 +4,10 @@ using EasyPro.Models;
 using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
@@ -21,14 +23,32 @@ namespace EasyPro.Controllers
             _notyf = notyf;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            return View(await _context.FLMD.Where(s => s.SaccoCode== sacco).ToListAsync());
+        }
+
+        public IActionResult Create(string sno)
+        {
+            utilities.SetUpPrivileges(this);
+            ViewBag.sno = sno;
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var suppliers = _context.DSuppliers
+               .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            ViewBag.suppliers = suppliers;
+            return View();
+        }
+
+        public IActionResult Details(string id)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var suppliers = _context.DSuppliers
                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.suppliers = suppliers;
-            return View();
+            return RedirectToAction("Create", new { sno = id });
         }
 
         [HttpPost]
@@ -59,6 +79,32 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
                 _notyf.Success("Animals saved successfully");
                 return Json("");
+            }
+            catch (Exception e)
+            {
+                _notyf.Error("Sorry, An error occurred");
+                return Json("");
+            }
+        }
+
+        [HttpGet]
+        public JsonResult FlmdDetails(string sno)
+        {
+            try
+            {
+                utilities.SetUpPrivileges(this);
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+
+                var flmd = _context.FLMD.FirstOrDefault(f => f.Sno == sno && f.SaccoCode == sacco);
+                var crops = _context.FLMDCrops.Where(c => c.Sno == sno && c.SaccoCode == sacco).ToList();
+                var lands = _context.FLMDLand.Where(d => d.Sno == sno && d.SaccoCode == sacco).ToList();
+
+                return Json(new
+                {
+                    flmd,
+                    crops,
+                    lands
+                });
             }
             catch (Exception e)
             {

@@ -362,20 +362,6 @@ namespace EasyPro.Controllers
                     Code = sacco
                 });
 
-                _context.Gltransactions.Add(new Gltransaction
-                {
-                    AuditId = auditId,
-                    TransDate = DateTime.Today,
-                    Amount = (decimal)productIntake.CR,
-                    AuditTime = DateTime.Now,
-                    Source = productIntake.Sno,
-                    TransDescript = "Intake",
-                    Transactionno = $"{auditId}{DateTime.Now}",
-                    SaccoCode = sacco,
-                    DrAccNo = price.DrAccNo,
-                    CrAccNo = price.CrAccNo,
-                });
-                
                 _context.SaveChanges();
                 _notyf.Success("Intake saved successfully");
                 return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = collection.Id });

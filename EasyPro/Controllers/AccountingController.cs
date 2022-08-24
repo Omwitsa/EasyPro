@@ -255,10 +255,97 @@ namespace EasyPro.Controllers
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var journalListings = new List<JournalVm>();
-                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate).ToList();
+                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco 
+                && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                    .ToList();
                 gltransactions.ForEach(t =>
                 {
 
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = t.DrAccNo,
+                        TransDate = t.AuditTime,
+                        Dr = t.Amount,
+                        DocumentNo = t.DocumentNo,
+                        Cr = 0,
+                        TransDescript = t.TransDescript
+                    });
+
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = t.CrAccNo,
+                        TransDate = t.AuditTime,
+                        Cr = t.Amount,
+                        DocumentNo = t.DocumentNo,
+                        Dr = 0,
+                        TransDescript = t.TransDescript
+                    });
+                });
+
+                var totalCr = journalListings.Sum(j => j.Cr);
+                var totalDr = journalListings.Sum(j => j.Dr);
+                journalListings.Add(new JournalVm
+                {
+                    GlAcc = "",
+                    TransDate = null,
+                    Cr = totalCr,
+                    DocumentNo = "",
+                    Dr = totalDr,
+                    TransDescript = ""
+                });
+
+                return Json(journalListings);
+            }
+            catch (Exception e)
+            {
+                return Json("");
+            }
+        }
+
+        [HttpGet]
+        public JsonResult IntakeEndOfDay()
+        {
+            try
+            {
+                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var productIntakes = _context.ProductIntake
+                    .Where(i => i.TransDate == DateTime.Today && i.SaccoCode == sacco && !i.Paid).ToList();
+
+                var intakes = productIntakes.GroupBy(i => i.ProductType).ToList();
+                intakes.ForEach(i =>
+                {
+                    var firstIntake = i.FirstOrDefault();
+                    if(!string.IsNullOrEmpty(firstIntake.CrAccNo) && !string.IsNullOrEmpty(firstIntake.DrAccNo))
+                    {
+                        _context.Gltransactions.Add(new Gltransaction
+                        {
+                            AuditId = auditId,
+                            TransDate = DateTime.Today,
+                            Amount = (decimal)i.Sum(t => t.CR),
+                            AuditTime = DateTime.Now,
+                            Source = $"EOD {firstIntake.ProductType} Purchases",
+                            TransDescript = "Intake",
+                            Transactionno = $"{auditId}{DateTime.Now}",
+                            SaccoCode = sacco,
+                            DrAccNo = firstIntake.DrAccNo,
+                            CrAccNo = firstIntake.CrAccNo,
+                        });
+
+                        foreach (var intake in i)
+                        {
+                            intake.Posted = true;
+                        }
+
+                        _context.SaveChanges();
+                    }
+                });
+
+                var journalListings = new List<JournalVm>();
+                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                && t.TransDate >= DateTime.Today && t.TransDescript == "Intake").ToList();
+                gltransactions.ForEach(t =>
+                {
                     journalListings.Add(new JournalVm
                     {
                         GlAcc = t.DrAccNo,

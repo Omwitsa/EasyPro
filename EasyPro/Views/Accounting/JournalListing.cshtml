@@ -25,7 +25,7 @@
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
-
+                         <a id="endOfDay" class="btn btn-success">Intake End Of Day</a>
                     </div>
                 </div>
             </form>
@@ -37,6 +37,9 @@
                             <tr>
                                 <th>
                                     Date
+                                </th>
+                                <th>
+                                    Description
                                 </th>
                                 <th>
                                     Gl Acc
@@ -74,6 +77,23 @@
                     buildJournalDetails();
                 });
 
+                $('#endOfDay').on('click', function () {
+                    //buildJournalDetails();
+                    $.ajax({
+                        type: 'GET',
+                        url: "intakeEndOfDay",
+                        contentType: 'application/json',
+                        success: function (response) {
+                            journalDetails = response ? response : new Array();
+                            populateDetailsTable();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                });
+
                 function buildJournalDetails() {
                     var fromDate = $("#fromDate").val();
                     var toDate = $("#toDate").val();
@@ -106,6 +126,7 @@
                         j.TransDate = j.TransDate ? j.TransDate : "";
                         itemTableRows.push(`<tr>
                                 <td>${j.TransDate}</td>
+                                <td>${j.TransDescript}</td>
                                 <td>${j.GlAcc}</td>
                                 <td>${j.Dr}</td>
                                 <td>${j.Cr}</td>

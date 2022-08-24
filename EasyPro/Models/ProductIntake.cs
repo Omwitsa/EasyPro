@@ -34,5 +34,6 @@ namespace EasyPro.Models
         public string DrAccNo { get; set; }
         [Display(Name = "Cr Account No")]
         public string CrAccNo { get; set; }
+        public bool? Posted { get; set; }
     }
 }
