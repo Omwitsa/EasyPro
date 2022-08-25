@@ -386,5 +386,65 @@ namespace EasyPro.Controllers
                 return Json("");
             }
         }
+
+        public IActionResult TrialBalance()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult TrialBalance([FromBody] JournalFilter filter)
+        {
+            try
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var journalListings = new List<JournalVm>();
+                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                    .ToList();
+                gltransactions.ForEach(t =>
+                {
+
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = t.DrAccNo,
+                        TransDate = t.AuditTime,
+                        Dr = t.Amount,
+                        DocumentNo = t.DocumentNo,
+                        Cr = 0,
+                        TransDescript = t.TransDescript
+                    });
+
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = t.CrAccNo,
+                        TransDate = t.AuditTime,
+                        Cr = t.Amount,
+                        DocumentNo = t.DocumentNo,
+                        Dr = 0,
+                        TransDescript = t.TransDescript
+                    });
+                });
+
+                var totalCr = journalListings.Sum(j => j.Cr);
+                var totalDr = journalListings.Sum(j => j.Dr);
+                journalListings.Add(new JournalVm
+                {
+                    GlAcc = "",
+                    TransDate = null,
+                    Cr = totalCr,
+                    DocumentNo = "",
+                    Dr = totalDr,
+                    TransDescript = ""
+                });
+
+                return Json(journalListings);
+            }
+            catch (Exception e)
+            {
+                return Json("");
+            }
+        }
     }
 }
