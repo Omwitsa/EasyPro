@@ -1,0 +1,159 @@
+﻿@model EasyPro.Models.Refund
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create</h2>
+            </div>
+            <hr />
+            <form asp-action="CreateRefund">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Ref" class="control-label"></label>
+                            <input asp-for="Ref" class="form-control" />
+                            <span asp-validation-for="Ref" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Vendor" class="control-label"></label>
+                            <input asp-for="Vendor" class="form-control" />
+                            <span asp-validation-for="Vendor" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="BillDate" class="control-label"></label>
+                            <input asp-for="BillDate" class="form-control" />
+                            <span asp-validation-for="BillDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="DueDate" class="control-label"></label>
+                            <input asp-for="DueDate" class="form-control" />
+                            <span asp-validation-for="DueDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Journal" class="control-label"></label>
+                            <input asp-for="Journal" class="form-control" />
+                            <span asp-validation-for="Journal" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="PaymentReference" class="control-label"></label>
+                            <input asp-for="PaymentReference" class="form-control" />
+                            <span asp-validation-for="PaymentReference" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="PaymentTerms" class="control-label"></label>
+                            <input asp-for="PaymentTerms" class="form-control" />
+                            <span asp-validation-for="PaymentTerms" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="NetAmount" class="control-label"></label>
+                            <input asp-for="NetAmount" class="form-control" />
+                            <span asp-validation-for="NetAmount" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Tax" class="control-label"></label>
+                            <input asp-for="Tax" class="form-control" />
+                            <span asp-validation-for="Tax" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="TotalAmount" class="control-label"></label>
+                            <input asp-for="TotalAmount" class="form-control" />
+                            <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Arrears" class="control-label"></label>
+                            <input asp-for="Arrears" class="form-control" />
+                            <span asp-validation-for="Arrears" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Status" class="control-label"></label>
+                            <input asp-for="Status" class="form-control" />
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="ReceipientBank" class="control-label"></label>
+                            <input asp-for="ReceipientBank" class="form-control" />
+                            <span asp-validation-for="ReceipientBank" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="IncoTerm" class="control-label"></label>
+                            <input asp-for="IncoTerm" class="form-control" />
+                            <span asp-validation-for="IncoTerm" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="FiscalPosition" class="control-label"></label>
+                            <input asp-for="FiscalPosition" class="form-control" />
+                            <span asp-validation-for="FiscalPosition" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <a asp-action="GetRefunds" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

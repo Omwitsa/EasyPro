@@ -265,6 +265,18 @@ namespace EasyPro.Models
         public virtual DbSet<FLMDLand> FLMDLand { get; set; }
         public virtual DbSet<ExcelDump> ExcelDump { get; set; }
         public virtual DbSet<DispatchBalancing> DispatchBalancing { get; set; }
+        public virtual DbSet<Bill> Bills { get; set; }
+        public virtual DbSet<BillDetail> BillDetails { get; set; }
+        public virtual DbSet<BillJournal> BillJournals { get; set; }
+        public virtual DbSet<CInvoice> CInvoices { get; set; }
+        public virtual DbSet<CInvoiceDetail> CInvoiceDetails { get; set; }
+        public virtual DbSet<CInvoiceJournal> CInvoiceJournal { get; set; }
+        public virtual DbSet<CreditNote> CreditNotes { get; set; }
+        public virtual DbSet<CreditNoteDetail> CreditNoteDetails { get; set; }
+        public virtual DbSet<CreditNoteJournal> CreditNoteJournals { get; set; }
+        public virtual DbSet<Refund> Refunds { get; set; }
+        public virtual DbSet<RefundDetail> RefundDetails { get; set; }
+        public virtual DbSet<RefundJournal> RefundJournals { get; set; }
         public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

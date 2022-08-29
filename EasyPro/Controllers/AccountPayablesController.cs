@@ -1,88 +1,63 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Models;
+using EasyPro.Utils;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
     public class AccountPayablesController : Controller
     {
-        public IActionResult Index()
+        private readonly MORINGAContext _context;
+        private Utilities utilities;
+        private readonly INotyfService _notyf;
+
+        public AccountPayablesController(MORINGAContext context, INotyfService notyf)
         {
+            _context = context;
+            _notyf = notyf;
+            utilities = new Utilities(context);
+        }
+
+        public async Task<IActionResult> GetBills()
+        {
+            utilities.SetUpPrivileges(this);
+            return View(await _context.Bills.ToListAsync());
+        }
+
+        public IActionResult CreateBill()
+        {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
-        //public IActionResult OnGet()
-        //{
-        //    try
-        //    {
-        //        Venders = _dbContext.Venders.ToList();
-        //        return Page();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Success = false;
-        //        Message = "Sorry, An error occurred";
-        //        return Page();
-        //    }
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateBill(Bill bill)
+        {
+            utilities.SetUpPrivileges(this);
+            return View(bill);
+        }
 
-        //public IActionResult OnPost()
-        //{
-        //    try
-        //    {
-        //        Venders = _dbContext.Venders.Where(v =>
-        //       (string.IsNullOrEmpty(Vender.Name) || v.Name.ToUpper().Equals(Vender.Name.ToUpper()))
-        //       && (string.IsNullOrEmpty(Vender.Country) || v.Country.ToUpper().Equals(Vender.Country.ToUpper()))
-        //       && (string.IsNullOrEmpty(Vender.Industry) || v.Industry.ToUpper().Equals(Vender.Industry.ToUpper()))
-        //       && (string.IsNullOrEmpty(Vender.Bank) || v.Bank.ToUpper().Equals(Vender.Bank.ToUpper()))
-        //        ).ToList();
-        //        return Page();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Success = false;
-        //        Message = "Sorry, An error occurred";
-        //        return Page();
-        //    }
-        //}
+        public async Task<IActionResult> GetRefunds()
+        {
+            utilities.SetUpPrivileges(this);
+            return View(await _context.Refunds.ToListAsync());
+        }
 
-        //public IActionResult OnPostEdit(Guid id)
-        //{
+        public IActionResult CreateRefund()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
 
-        //    return RedirectToPage("./EditVendor", new { id = id });
-        //}
-
-        //public IActionResult OnPostDelete(Guid id)
-        //{
-        //    try
-        //    {
-        //        var vender = _dbContext.Venders.FirstOrDefault(v => v.Id == id);
-        //        if (vender == null)
-        //        {
-        //            Success = false;
-        //            Message = "Sorry, Vendor not found";
-        //            return Page();
-        //        }
-
-        //        vender.Name = vender?.Name ?? "";
-        //        if (_dbContext.Bills.Any(b => b.Vender.ToUpper().Equals(vender.Name.ToUpper())))
-        //        {
-        //            Success = false;
-        //            Message = "Sorry, Vendor already billed. Can't be deleted";
-        //            return Page();
-        //        }
-
-        //        _dbContext.Venders.Remove(vender);
-        //        _dbContext.SaveChanges();
-        //        Success = true;
-        //        Message = "Vendor deleted successfully";
-        //        return Page();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Success = false;
-        //        Message = "Sorry, An error occurred";
-        //        return Page();
-        //    }
-        //}
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateRefund(Refund refund)
+        {
+            utilities.SetUpPrivileges(this);
+            return View(refund);
+        }
     }
 }

@@ -1,87 +1,63 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Models;
+using EasyPro.Utils;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
     public class AccountReceivablesController : Controller
     {
-        public IActionResult Index()
+        private readonly MORINGAContext _context;
+        private Utilities utilities;
+        private readonly INotyfService _notyf;
+
+        public AccountReceivablesController(MORINGAContext context, INotyfService notyf)
         {
+            _context = context;
+            _notyf = notyf;
+            utilities = new Utilities(context);
+        }
+
+        public async Task<IActionResult> GetInvoices()
+        {
+            utilities.SetUpPrivileges(this);
+            return View(await _context.CInvoices.ToListAsync());
+        }
+
+        public IActionResult CreateInvoice()
+        {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
-        //public IActionResult OnGet()
-        //{
-        //    try
-        //    {
-        //        Customers = _dbContext.Customers.ToList();
-        //        return Page();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Success = false;
-        //        Message = "Sorry, An error occurred";
-        //        return Page();
-        //    }
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInvoice(CInvoice invoice)
+        {
+            utilities.SetUpPrivileges(this);
+            return View(invoice);
+        }
 
-        //public IActionResult OnPost()
-        //{
-        //    try
-        //    {
-        //        Customers = _dbContext.Customers.Where(v =>
-        //        (string.IsNullOrEmpty(Customer.Name) || v.Name.ToUpper().Equals(Customer.Name.ToUpper()))
-        //        && (string.IsNullOrEmpty(Customer.Country) || v.Country.ToUpper().Equals(Customer.Country.ToUpper()))
-        //        && (string.IsNullOrEmpty(Customer.Bank) || v.Bank.ToUpper().Equals(Customer.Bank.ToUpper()))
-        //        ).ToList();
-        //        return Page();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Success = false;
-        //        Message = "Sorry, An error occurred";
-        //        return Page();
-        //    }
-        //}
+        public async Task<IActionResult> GetCreditNotes()
+        {
+            utilities.SetUpPrivileges(this);
+            return View(await _context.CreditNotes.ToListAsync());
+        }
 
-        //public IActionResult OnPostEdit(Guid id)
-        //{
+        public IActionResult CreateCreditNote()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
 
-        //    return RedirectToPage("./EditCustomer2", new { id = id });
-        //}
-
-        //public IActionResult OnPostDelete(Guid id)
-        //{
-        //    try
-        //    {
-        //        var customer = _dbContext.Customers.FirstOrDefault(v => v.Id == id);
-        //        if (customer == null)
-        //        {
-        //            Success = false;
-        //            Message = "Sorry, Customer not found";
-        //            return Page();
-        //        }
-
-        //        customer.Name = customer?.Name ?? "";
-        //        if (_dbContext.CInvoices.Any(b => b.Customer.ToUpper().Equals(customer.Name.ToUpper())))
-        //        {
-        //            Success = false;
-        //            Message = "Sorry, Customer already invoiced. Can't be deleted";
-        //            return Page();
-        //        }
-
-        //        _dbContext.Customers.Remove(customer);
-        //        _dbContext.SaveChanges();
-        //        Success = true;
-        //        Message = "Customer deleted successfully";
-        //        return Page();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Success = false;
-        //        Message = "Sorry, An error occurred";
-        //        return Page();
-        //    }
-        //}
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCreditNote(CreditNote note)
+        {
+            utilities.SetUpPrivileges(this);
+            return View(note);
+        }
     }
 }
