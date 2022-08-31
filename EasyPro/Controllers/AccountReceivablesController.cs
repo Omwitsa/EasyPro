@@ -37,7 +37,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CreateInvoice(CInvoice invoice)
         {
             utilities.SetUpPrivileges(this);
-            return View(invoice);
+            _context.CInvoices.Add(invoice);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(GetInvoices));
         }
 
         public async Task<IActionResult> GetCreditNotes()
@@ -57,7 +59,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CreateCreditNote(CreditNote note)
         {
             utilities.SetUpPrivileges(this);
-            return View(note);
+            _context.CreditNotes.Add(note);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(GetCreditNotes));
         }
     }
 }

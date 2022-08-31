@@ -1,0 +1,187 @@
+﻿@model IEnumerable<EasyPro.Models.Customer>
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                    <h3 class="text-danger fa-bold">Customers</h3>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                    
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right">
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
+
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Name)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Address)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Street1)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Street2)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.City)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.State)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Zip)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Country)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.PhoneNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Mobile)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Email)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.WebSite)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SalesPerson)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.PurchasePaymentTerms)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SalesPaymentTerms)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.FiscalPosition)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ARGlAccount)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Bank)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Tags)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Notes)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Closed)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Reference)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.industry)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model) {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Address)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Street1)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Street2)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.City)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.State)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Zip)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Country)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PhoneNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Mobile)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Email)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.WebSite)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SalesPerson)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PurchasePaymentTerms)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SalesPaymentTerms)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.FiscalPosition)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ARGlAccount)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Bank)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Tags)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Notes)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Closed)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Reference)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.industry)
+                                    </td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+           
+        });
+    </script>
+}

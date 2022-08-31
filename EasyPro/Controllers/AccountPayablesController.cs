@@ -37,7 +37,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CreateBill(Bill bill)
         {
             utilities.SetUpPrivileges(this);
-            return View(bill);
+            _context.Bills.Add(bill);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(GetBills));
         }
 
         public async Task<IActionResult> GetRefunds()
@@ -57,7 +59,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CreateRefund(Refund refund)
         {
             utilities.SetUpPrivileges(this);
-            return View(refund);
+            _context.Refunds.Add(refund);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(GetRefunds));
         }
     }
 }

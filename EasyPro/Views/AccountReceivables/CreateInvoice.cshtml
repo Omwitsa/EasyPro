@@ -42,7 +42,7 @@
                     <div class="col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="DueDate" class="control-label"></label>
-                            <input asp-for="DueDate" class="form-control" />
+                            <input asp-for="DueDate" class="form-control" type="date"/>
                             <span asp-validation-for="DueDate" class="text-danger"></span>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                     </div>
                     <div class="col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="NetAmount" class="control-label"></label>
+                            <label class="control-label">Amount</label>
                             <input asp-for="NetAmount" class="form-control" />
                             <span asp-validation-for="NetAmount" class="text-danger"></span>
                         </div>
@@ -74,10 +74,10 @@
                         </div>
                     </div>
                     <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="TotalAmount" class="control-label"></label>
-                            <input asp-for="TotalAmount" class="form-control" />
-                            <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                       <div class="form-group">
+                            <label asp-for="FiscalPosition" class="control-label"></label>
+                            <input asp-for="FiscalPosition" class="form-control" />
+                            <span asp-validation-for="FiscalPosition" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -133,27 +133,6 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="FiscalPosition" class="control-label"></label>
-                            <input asp-for="FiscalPosition" class="form-control" />
-                            <span asp-validation-for="FiscalPosition" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-6 col-xs-12">
-                        
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-
-                    </div>
-                </div>
 
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
