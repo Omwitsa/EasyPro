@@ -34,6 +34,7 @@ namespace EasyPro.Controllers
         public IActionResult CreateInvoice()
         {
             utilities.SetUpPrivileges(this);
+            SetInitialValues();
             return View();
         }
 
@@ -55,16 +56,39 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             invoice.SaccoCode = sacco;
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            var product = _context.CProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(invoice.Ref.ToUpper()) && p.SaccoCode == sacco);
+            var customer = _context.Customers.FirstOrDefault(v => v.Name.ToUpper().Equals(invoice.Customer.ToUpper()) && v.SaccoCode == sacco);
+            var tax = _context.Taxes.FirstOrDefault(t => t.Name.ToUpper().Equals(product.CustomerTax.ToUpper())
+                     && t.SaccoCode == sacco && t.Type == "Sales");
             _context.Gltransactions.Add(new Gltransaction
             {
                 AuditId = loggedInUser,
                 TransDate = DateTime.Today,
+                Amount = (decimal)invoice.NetAmount,
                 AuditTime = DateTime.Now,
                 Source = "",
-                TransDescript = "Refunds",
+                TransDescript = "Invoice",
                 Transactionno = $"{loggedInUser}{DateTime.Now}",
-                SaccoCode = sacco
+                SaccoCode = sacco,
+                DrAccNo = customer.ARGlAccount,
+                CrAccNo = product.APGlAccount
             });
+
+            _context.Gltransactions.Add(new Gltransaction
+            {
+                AuditId = loggedInUser,
+                TransDate = DateTime.Today,
+                Amount = (decimal)invoice.Tax,
+                AuditTime = DateTime.Now,
+                Source = "",
+                TransDescript = "Tax",
+                Transactionno = $"{loggedInUser}{DateTime.Now}",
+                SaccoCode = sacco,
+                DrAccNo = tax.GlAccount,
+                CrAccNo = product.APGlAccount
+            });
+
             _context.CInvoices.Add(invoice);
             _context.SaveChanges();
             return RedirectToAction(nameof(GetInvoices));
@@ -79,9 +103,7 @@ namespace EasyPro.Controllers
         public IActionResult CreateCreditNote()
         {
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var customers = _context.Customers.Where(c => c.SaccoCode == sacco).ToList();
-            ViewBag.customers = new SelectList(customers, "Name", "Name");
+            SetInitialValues();
             return View();
         }
 
@@ -93,19 +115,66 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             note.SaccoCode = sacco;
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            var product = _context.CProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(note.Ref.ToUpper()) && p.SaccoCode == sacco);
+            var customer = _context.Customers.FirstOrDefault(v => v.Name.ToUpper().Equals(note.Customer.ToUpper()) && v.SaccoCode == sacco);
+            var tax = _context.Taxes.FirstOrDefault(t => t.Name.ToUpper().Equals(product.CustomerTax.ToUpper())
+                     && t.SaccoCode == sacco && t.Type == "Sales");
             _context.Gltransactions.Add(new Gltransaction
             {
                 AuditId = loggedInUser,
                 TransDate = DateTime.Today,
+                Amount = (decimal)note.NetAmount,
                 AuditTime = DateTime.Now,
                 Source = "",
-                TransDescript = "Refunds",
+                TransDescript = "Credit Note",
                 Transactionno = $"{loggedInUser}{DateTime.Now}",
-                SaccoCode = sacco
+                SaccoCode = sacco,
+                DrAccNo = product.APGlAccount,
+                CrAccNo = customer.ARGlAccount
             });
+
+            _context.Gltransactions.Add(new Gltransaction
+            {
+                AuditId = loggedInUser,
+                TransDate = DateTime.Today,
+                Amount = (decimal)note.NetAmount,
+                AuditTime = DateTime.Now,
+                Source = "",
+                TransDescript = "Credit Note",
+                Transactionno = $"{loggedInUser}{DateTime.Now}",
+                SaccoCode = sacco,
+                DrAccNo = product.APGlAccount,
+                CrAccNo = tax.GlAccount
+            });
+
             _context.CreditNotes.Add(note);
             _context.SaveChanges();
             return RedirectToAction(nameof(GetCreditNotes));
+        }
+
+        [HttpGet]
+        public JsonResult GetTaxRate(string product)
+        {
+            try
+            {
+                decimal? taxRate = 0;
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var product1 = _context.CProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(product.ToUpper()) && p.SaccoCode == sacco);
+                if (product1 != null)
+                {
+                    var tax = _context.Taxes.FirstOrDefault(t => t.Name.ToUpper().Equals(product1.CustomerTax.ToUpper())
+                    && t.SaccoCode == sacco && t.Type == "Sales");
+                    if (tax != null)
+                        taxRate = tax.Rate;
+                }
+
+                return Json(taxRate);
+            }
+            catch (Exception e)
+            {
+                return Json("");
+            }
         }
     }
 }

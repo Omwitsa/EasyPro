@@ -10,6 +10,7 @@ namespace EasyPro.ViewModels
             public string TransDescript { get; set; }
             public DateTime? TransDate { get; set; }
             public string GlAcc { get; set; }
+            public string AccName { get; set; }
             public decimal Dr { get; set; }
             public decimal Cr { get; set; }
             public decimal Bal { get; set; }

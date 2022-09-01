@@ -39,10 +39,13 @@
                                     Date
                                 </th>
                                 <th>
-                                    Description
+                                    Gl Acc
                                 </th>
                                 <th>
-                                    Gl Acc
+                                    Acc Name
+                                </th>
+                                <th>
+                                    Description
                                 </th>
                                 <th>
                                     Dr
@@ -126,8 +129,9 @@
                         j.TransDate = j.TransDate ? j.TransDate : "";
                         itemTableRows.push(`<tr>
                                 <td>${j.TransDate}</td>
-                                <td>${j.TransDescript}</td>
                                 <td>${j.GlAcc}</td>
+                                <td>${j.AccName}</td>
+                                <td>${j.TransDescript}</td>
                                 <td>${j.Dr}</td>
                                 <td>${j.Cr}</td>
 			                </tr>`);

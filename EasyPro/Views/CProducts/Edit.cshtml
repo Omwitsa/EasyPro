@@ -47,16 +47,16 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                        <div class="form-group">
-                            <label asp-for="ARGlAccount" class="control-label"></label>
-                            <select asp-for="ARGlAccount" class="form-control" asp-items="@ViewBag.glsetups"></select>
-                            <span asp-validation-for="ARGlAccount" class="text-danger"></span>
+                            <label asp-for="APGlAccount" class="control-label"></label>
+                            <select asp-for="APGlAccount" class="form-control" asp-items="@ViewBag.glsetups"></select>
+                            <span asp-validation-for="APGlAccount" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                          <div class="form-group">
-                            <label asp-for="APGlAccount" class="control-label"></label>
-                            <select asp-for="APGlAccount" class="form-control" asp-items="@ViewBag.glsetups"></select>
-                            <span asp-validation-for="APGlAccount" class="text-danger"></span>
+                            <label asp-for="CustomerTax" class="control-label"></label>
+                            <select asp-for="CustomerTax" class="form-control" asp-items="@ViewBag.taxes"></select>
+                            <span asp-validation-for="CustomerTax" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -70,11 +70,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="CustomerTax" class="control-label"></label>
-                            <select asp-for="CustomerTax" class="form-control" asp-items="@ViewBag.taxes"></select>
-                            <span asp-validation-for="CustomerTax" class="text-danger"></span>
-                        </div>
+                        
                     </div>
                 </div>
 

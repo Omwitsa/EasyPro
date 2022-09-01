@@ -28,5 +28,6 @@ namespace EasyPro.Models
 		public DateTime? ModifiedDate { get; set; }
 		public string SaccoCode { get; set; }
 		public decimal? Quantity { get; set; }
+		public decimal? Cost { get; set; }
 	}
 }

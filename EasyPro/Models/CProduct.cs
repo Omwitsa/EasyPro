@@ -14,7 +14,6 @@ namespace EasyPro.Models
 		public string CustomerTax { get; set; }
 		public decimal? Cost { get; set; }
 		public string Notes { get; set; }
-		public string ARGlAccount { get; set; }
 		public string APGlAccount { get; set; }
 		public bool Closed { get; set; }
 		public string Personnel { get; set; }

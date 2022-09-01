@@ -18,6 +18,7 @@ namespace EasyPro.Models
 		public decimal? Tax { get; set; }
 		public decimal? TotalAmount { get; set; }
 		public decimal? Quantity { get; set; }
+		public decimal? Cost { get; set; }
 		public decimal? Arrears { get; set; }
 		public string Status { get; set; }
 		public IEnumerable<BillDetail> BillDetails { get; set; }

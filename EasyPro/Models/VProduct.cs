@@ -15,7 +15,6 @@ namespace EasyPro.Models
 		public string Notes { get; set; }
 		public string VenderTax { get; set; }
 		public string ARGlAccount { get; set; }
-		public string APGlAccount { get; set; }
 		public bool Closed { get; set; }
 		public string Personnel { get; set; }
 		public DateTime? CreatedDate { get; set; }

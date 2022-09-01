@@ -258,28 +258,37 @@ namespace EasyPro.Controllers
                 var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco 
                 && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
                     .ToList();
+                
                 gltransactions.ForEach(t =>
                 {
-
-                    journalListings.Add(new JournalVm
+                    var debtorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo && a.saccocode == sacco);
+                    if(debtorsAcc != null)
                     {
-                        GlAcc = t.DrAccNo,
-                        TransDate = t.AuditTime,
-                        Dr = t.Amount,
-                        DocumentNo = t.DocumentNo,
-                        Cr = 0,
-                        TransDescript = t.TransDescript
-                    });
-
-                    journalListings.Add(new JournalVm
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.DrAccNo,
+                            TransDate = t.TransDate,
+                            AccName = debtorsAcc.GlAccName,
+                            Dr = t.Amount,
+                            DocumentNo = t.DocumentNo,
+                            Cr = 0,
+                            TransDescript = t.TransDescript
+                        });
+                    }
+                    var creditorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo && a.saccocode == sacco);
+                    if(creditorsAcc != null)
                     {
-                        GlAcc = t.CrAccNo,
-                        TransDate = t.AuditTime,
-                        Cr = t.Amount,
-                        DocumentNo = t.DocumentNo,
-                        Dr = 0,
-                        TransDescript = t.TransDescript
-                    });
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.CrAccNo,
+                            TransDate = t.TransDate,
+                            AccName = creditorsAcc.GlAccName,
+                            Cr = t.Amount,
+                            DocumentNo = t.DocumentNo,
+                            Dr = 0,
+                            TransDescript = t.TransDescript
+                        });
+                    }
                 });
 
                 var totalCr = journalListings.Sum(j => j.Cr);
@@ -310,7 +319,7 @@ namespace EasyPro.Controllers
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var productIntakes = _context.ProductIntake
-                    .Where(i => i.TransDate == DateTime.Today && i.SaccoCode == sacco && !i.Paid).ToList();
+                    .Where(i => i.TransDate == DateTime.Today && i.SaccoCode == sacco && (i.Posted == null || !(bool)i.Posted)).ToList();
 
                 var intakes = productIntakes.GroupBy(i => i.ProductType).ToList();
                 intakes.ForEach(i =>
@@ -346,25 +355,36 @@ namespace EasyPro.Controllers
                 && t.TransDate >= DateTime.Today && t.TransDescript == "Intake").ToList();
                 gltransactions.ForEach(t =>
                 {
-                    journalListings.Add(new JournalVm
+                    var debtorssAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo && a.saccocode == sacco);
+                    if (debtorssAcc != null)
                     {
-                        GlAcc = t.DrAccNo,
-                        TransDate = t.AuditTime,
-                        Dr = t.Amount,
-                        DocumentNo = t.DocumentNo,
-                        Cr = 0,
-                        TransDescript = t.TransDescript
-                    });
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.DrAccNo,
+                            TransDate = t.TransDate,
+                            AccName = debtorssAcc.GlAccName,
+                            Dr = t.Amount,
+                            DocumentNo = t.DocumentNo,
+                            Cr = 0,
+                            TransDescript = t.TransDescript
+                        });
+                    }
+                    
 
-                    journalListings.Add(new JournalVm
+                    var creditorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo && a.saccocode == sacco);
+                    if(creditorsAcc != null)
                     {
-                        GlAcc = t.CrAccNo,
-                        TransDate = t.AuditTime,
-                        Cr = t.Amount,
-                        DocumentNo = t.DocumentNo,
-                        Dr = 0,
-                        TransDescript = t.TransDescript
-                    });
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.CrAccNo,
+                            TransDate = t.TransDate,
+                            Cr = t.Amount,
+                            AccName = creditorsAcc.GlAccName,
+                            DocumentNo = t.DocumentNo,
+                            Dr = 0,
+                            TransDescript = t.TransDescript
+                        });
+                    }
                 });
 
                 var totalCr = journalListings.Sum(j => j.Cr);
@@ -405,26 +425,35 @@ namespace EasyPro.Controllers
                     .ToList();
                 gltransactions.ForEach(t =>
                 {
-
-                    journalListings.Add(new JournalVm
+                    var debtorssAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo && a.saccocode == sacco);
+                    if(debtorssAcc != null)
                     {
-                        GlAcc = t.DrAccNo,
-                        TransDate = t.AuditTime,
-                        Dr = t.Amount,
-                        DocumentNo = t.DocumentNo,
-                        Cr = 0,
-                        TransDescript = t.TransDescript
-                    });
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.DrAccNo,
+                            TransDate = t.TransDate,
+                            AccName = debtorssAcc.GlAccName,
+                            Dr = t.Amount,
+                            DocumentNo = t.DocumentNo,
+                            Cr = 0,
+                            TransDescript = t.TransDescript
+                        });
+                    }
 
-                    journalListings.Add(new JournalVm
+                    var creditorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo && a.saccocode == sacco);
+                    if(creditorsAcc != null)
                     {
-                        GlAcc = t.CrAccNo,
-                        TransDate = t.AuditTime,
-                        Cr = t.Amount,
-                        DocumentNo = t.DocumentNo,
-                        Dr = 0,
-                        TransDescript = t.TransDescript
-                    });
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.CrAccNo,
+                            TransDate = t.TransDate,
+                            AccName = creditorsAcc.GlAccName,
+                            Cr = t.Amount,
+                            DocumentNo = t.DocumentNo,
+                            Dr = 0,
+                            TransDescript = t.TransDescript
+                        });
+                    }
                 });
 
                 var totalCr = journalListings.Sum(j => j.Cr);

@@ -51,12 +51,29 @@
                     <div class="col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Quantity" class="control-label"></label>
-                            <input asp-for="Quantity" class="form-control" />
+                            <input id="quantity" asp-for="Quantity" class="form-control" />
                             <span asp-validation-for="Quantity" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-sm-6 col-xs-12">
-                       <div class="form-group">
+                        <div class="form-group">
+                           <label asp-for="Cost" class="control-label"></label>
+                            <input id="cost" asp-for="Cost" class="form-control"/>
+                            <span asp-validation-for="Cost" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="TotalAmount" class="control-label"></label>
+                            <input id="totalAmount" asp-for="TotalAmount" class="form-control" readonly/>
+                            <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
                            <label asp-for="NetAmount" class="control-label"></label>
                             <input id="netAmount" asp-for="NetAmount" class="form-control" readonly/>
                             <span asp-validation-for="NetAmount" class="text-danger"></span>
@@ -66,17 +83,17 @@
 
                 <div class="row">
                     <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="TotalAmount" class="control-label"></label>
-                            <input id="amount" asp-for="TotalAmount" class="form-control" readonly/>
-                            <span asp-validation-for="TotalAmount" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-                       <div class="form-group">
+                         <div class="form-group">
                             <label asp-for="Tax" class="control-label"></label>
                             <input id="tax" asp-for="Tax" class="form-control" readonly/>
                             <span asp-validation-for="Tax" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="PaymentReference" class="control-label"></label>
+                            <input asp-for="PaymentReference" class="form-control" />
+                            <span asp-validation-for="PaymentReference" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -107,11 +124,7 @@
                         </div>
                     </div>
                     <div class="col-sm-6 col-xs-12">
-                       <div class="form-group">
-                            <label asp-for="PaymentReference" class="control-label"></label>
-                            <input asp-for="PaymentReference" class="form-control" />
-                            <span asp-validation-for="PaymentReference" class="text-danger"></span>
-                        </div>
+                       
                     </div>
                 </div>
 
@@ -134,32 +147,46 @@
     }
 <script type="text/javascript">
         $(function () {
+            $("#cost").val(0);
             $('#product').on('change', function () {
                 var selectVal = $("#product").val();
                 var products = @Html.Raw(Json.Serialize(ViewBag.products));
                 var selectProducts = products.filter(p => p.Name === selectVal);
                 if (selectProducts[0]) {
-                    $("#amount").val(selectProducts[0].Price);
+                    $("#cost").val(selectProducts[0].Price);
                 }
                 calculateTax();
             });
 
             $('#quantity').on('keyup', function () {
+                if (!$("#quantity").val()) {
+                    $("#totalAmount").val(0);
+                    $("#tax").val(0);
+                    $("#netAmount").val(0);
+                }
+                calculateTax();
+            });
+
+            $('#cost').on('keyup', function () {
+                if (!$("#cost").val()) {
+                    $("#totalAmount").val(0);
+                    $("#tax").val(0);
+                    $("#netAmount").val(0);
+                }
                 calculateTax();
             });
 
             function calculateTax() {
                 var quantity = parseFloat($("#quantity").val());
-                var selectVal = $("#product").val();
-                if (selectVal && quantity) {
+                var product = $("#product").val();
+                var cost = $("#cost").val();
+                if (product && quantity && cost) {
                    $.ajax({
                         type: 'GET',
-                        url: "getTax?product=" + selectVal,
+                        url: "getTaxRate?product=" + product,
                         contentType: 'application/json',
                         success: function (response) {
-                            $("#tax").val(response);
-                            var netAmount = parseInt($("#amount").val()) - response;
-                            $("#netAmount").val(netAmount);
+                            calculateTotals(response);
                         },
                         failure: function (response) {
                         }
@@ -167,6 +194,18 @@
                         // ...
                     });
                 }
+            }
+
+            function calculateTotals(taxRate) {
+                var quantity = parseInt($("#quantity").val());
+                var cost = parseInt($("#cost").val());
+                var totalAmount = quantity * cost;
+                $("#totalAmount").val(totalAmount);
+                var unitTax = cost * taxRate * 0.01;
+                var totalTax = unitTax * quantity;
+                $("#tax").val(totalTax);
+                var netAmount = totalAmount - totalTax;
+                $("#netAmount").val(netAmount);
             }
         });
 </script>

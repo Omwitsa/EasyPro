@@ -9,7 +9,7 @@
             <hr />
             <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                 <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Id" />
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
@@ -54,9 +54,9 @@
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                        <div class="form-group">
-                            <label asp-for="APGlAccount" class="control-label"></label>
-                            <select asp-for="APGlAccount" class="form-control" asp-items="@ViewBag.glsetups"></select>
-                            <span asp-validation-for="APGlAccount" class="text-danger"></span>
+                            <label asp-for="VenderTax" class="control-label"></label>
+                            <select asp-for="VenderTax" class="form-control" asp-items="@ViewBag.taxes"></select>
+                            <span asp-validation-for="VenderTax" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -70,19 +70,15 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="VenderTax" class="control-label"></label>
-                            <select asp-for="VenderTax" class="form-control" asp-items="@ViewBag.taxes"></select>
-                            <span asp-validation-for="VenderTax" class="text-danger"></span>
-                        </div>
+                        
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
+                            <input asp-for="Closed" type="checkbox" />
                             <label asp-for="Closed" class="control-label"></label>
-                            <input asp-for="Closed" class="form-control" />
                             <span asp-validation-for="Closed" class="text-danger"></span>
                         </div>
                     </div>

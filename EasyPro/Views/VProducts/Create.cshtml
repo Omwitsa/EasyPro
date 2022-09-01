@@ -53,9 +53,9 @@
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                        <div class="form-group">
-                            <label asp-for="APGlAccount" class="control-label"></label>
-                            <select asp-for="APGlAccount" class="form-control" asp-items="@ViewBag.glsetups"></select>
-                            <span asp-validation-for="APGlAccount" class="text-danger"></span>
+                            <label asp-for="VenderTax" class="control-label"></label>
+                            <select asp-for="VenderTax" class="form-control" asp-items="@ViewBag.taxes"></select>
+                            <span asp-validation-for="VenderTax" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -69,11 +69,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="VenderTax" class="control-label"></label>
-                            <select asp-for="VenderTax" class="form-control" asp-items="@ViewBag.taxes"></select>
-                            <span asp-validation-for="VenderTax" class="text-danger"></span>
-                        </div>
+                        
                     </div>
                 </div>
 
