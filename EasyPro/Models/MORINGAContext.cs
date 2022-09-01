@@ -1433,10 +1433,10 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<AgSupplier1>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.id);
 
                 entity.ToTable("ag_Supplier1");
-
+                entity.Property(e => e.SupplierId).HasMaxLength(50);
                 entity.Property(e => e.Address).HasMaxLength(50);
 
                 entity.Property(e => e.CompanyName)
@@ -1452,10 +1452,11 @@ namespace EasyPro.Models
                 entity.Property(e => e.Fax).HasMaxLength(50);
 
                 entity.Property(e => e.Phone).HasMaxLength(50);
+                entity.Property(e => e.saccocode).HasMaxLength(50);
 
-                entity.Property(e => e.SupplierId)
+                entity.Property(e => e.id)
                     .HasMaxLength(50)
-                    .HasColumnName("SupplierID");
+                    .HasColumnName("id");
             });
 
             modelBuilder.Entity<Ap>(entity =>

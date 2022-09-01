@@ -38,7 +38,7 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var suppliers = _context.Suppliers.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Names).ToList();
+            var suppliers = _context.AgSupplier1s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.CompanyName).ToList();
             ViewBag.suppliers = new SelectList(suppliers);
 
             var products = _context.DBranchProducts.Where(a => a.saccocode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
@@ -106,6 +106,13 @@ namespace EasyPro.Controllers
                 _notyf.Error("Product Already exist");
                 return View();
             }
+            var checkproductExistCode = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode);
+            if (checkproductExistCode)
+            {
+                GetInitialValues();
+                _notyf.Error("Product Code Already exist");
+                return View();
+            }
             if (agProduct.Qin==0)
             {
                 GetInitialValues();
@@ -130,10 +137,28 @@ namespace EasyPro.Controllers
                 ////Serialized, unserialized, seria, pprice, sprice, Branch, DRACCNO, CRACCNO, AI, saccocode
                 
                 var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                //agProduct.Id = agProduct.Id;
                 agProduct.UserId = user;
                 agProduct.AuditDate = DateTime.Now;
                 agProduct.saccocode = sacco;
-                _context.AgProducts.Add(agProduct);
+
+                var checkproductifExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode);
+                if (!checkproductifExist)
+                {
+                    agProduct.Qin = agProduct.Qin;
+                    agProduct.Qout = agProduct.Qin;
+                    agProduct.OBal = agProduct.Qin;
+
+                    _context.AgProducts.Add(agProduct);
+                }
+                else
+                {
+                    var checkquantity = _context.AgProducts.Where(a => a.saccocode == sacco && a.PCode == agProduct.PCode).Sum(i => i.Qin);
+                    double? qnty = checkquantity;
+                    agProduct.Qin = qnty+checkquantity;
+                    _context.AgProducts.Update(agProduct);
+                }
+
                 _context.AgProducts4s.Add(new AgProducts4 {
                     PName = agProduct.PName,
                     PCode = agProduct.PCode,
@@ -164,6 +189,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
+
             if (id == null)
             {
                 return NotFound();
@@ -175,6 +201,8 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
+            agProduct.DateEntered = DateTime.Now;
+            agProduct.Qin = 0;
             return View(agProduct);
         }
 
@@ -183,11 +211,11 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,PCode,PName,SNo,Qin,Qout,DateEntered,LastDUpdated,UserId,AuditDate,OBal,SupplierId,Serialized,Unserialized,Seria,Pprice,Sprice,Branch,Draccno,Craccno,Ai,Expirydate,Run,Process1,Process2,Remarks,saccocode")] AgProduct agProduct)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,PCode,PName,SNo,Qin,Qout,DateEntered,LastDUpdated,UserId,AuditDate,OBal,SupplierId,Serialized,Unserialized,Seria,Pprice,Sprice,Branch,Draccno,Craccno,Ai,Expirydate,Run,Process1,Process2,Remarks,saccocode")] AgProduct agProduct)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            if (id != agProduct.PCode)
+            if (id != agProduct.Id)
             {
                 GetInitialValues();
                 return NotFound();
@@ -197,9 +225,26 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    var Quantity = _context.AgProducts.Where(u => u.saccocode == sacco && u.PCode == agProduct.PCode).Select(p => p.Qin);
-                    agProduct.Qin = (Convert.ToInt32(Quantity) + agProduct.Qin);
-                    _context.Update(agProduct);
+                    //var Quantity = _context.AgProducts.Where(u => u.saccocode == sacco && u.PCode == agProduct.PCode).Select(p => p.Qin);
+                    //agProduct.Qin = Quantity + agProduct.Qin;
+                    //_context.Update(agProduct);
+                    var checkproductifExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode);
+                    double? existingkgs = 0;
+                    var checkquantity = _context.AgProducts.Where(a => a.saccocode == sacco && a.PCode == agProduct.PCode).Sum(i => i.Qin);
+                    existingkgs = checkquantity;
+                    if (!checkproductifExist)
+                    {
+
+                        _context.AgProducts.Add(agProduct);
+                    }
+                    else
+                    {
+                        double? qnty = checkquantity;
+                        agProduct.Qin = qnty + agProduct.Qin;
+                        agProduct.Qout = agProduct.Qin;
+                        agProduct.OBal = agProduct.Qin;
+                        _context.AgProducts.Update(agProduct);
+                    }
                     var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
                     agProduct.UserId = user;
                     agProduct.AuditDate = DateTime.Now;
@@ -208,13 +253,13 @@ namespace EasyPro.Controllers
                     {
                         PName = agProduct.PName,
                         PCode = agProduct.PCode,
-                        Qin = agProduct.Qin,
-                        Qout = agProduct.Qin,
+                        Qin = existingkgs,
+                        Qout = existingkgs,
                         DateEntered = agProduct.DateEntered,
                         LastDUpdated = agProduct.LastDUpdated,
                         UserId = user,
                         AuditDate = DateTime.Now,
-                        OBal = agProduct.Qin,
+                        OBal = existingkgs,
                         SupplierId = agProduct.SupplierId,
                         Pprice = agProduct.Pprice,
                         Sprice = agProduct.Sprice,
@@ -228,7 +273,7 @@ namespace EasyPro.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AgProductExists(agProduct.PCode))
+                    if (!AgProductExists(agProduct.Id))
                     {
                         return NotFound();
                     }
@@ -243,7 +288,7 @@ namespace EasyPro.Controllers
         }
 
         // GET: AgProducts/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(long? id)
         {
             utilities.SetUpPrivileges(this);
             if (id == null)
@@ -253,7 +298,7 @@ namespace EasyPro.Controllers
             }
 
             var agProduct = await _context.AgProducts
-                .FirstOrDefaultAsync(m => m.PCode == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (agProduct == null)
             {
                 return NotFound();
@@ -265,7 +310,7 @@ namespace EasyPro.Controllers
         // POST: AgProducts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(long id)
         {
             utilities.SetUpPrivileges(this);
             var agProduct = await _context.AgProducts.FindAsync(id);
@@ -274,10 +319,10 @@ namespace EasyPro.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AgProductExists(string id)
+        private bool AgProductExists(long id)
         {
             utilities.SetUpPrivileges(this);
-            return _context.AgProducts.Any(e => e.PCode == id);
+            return _context.AgProducts.Any(e => e.Id == id);
         }
     }
 }

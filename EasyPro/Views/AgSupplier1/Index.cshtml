@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EasyPro.Models.AgProduct>
+﻿@model IEnumerable<EasyPro.Models.AgSupplier1>
 
 @{
     ViewData["Title"] = "Index";
@@ -7,10 +7,10 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-                    <h3 class="text-danger fa-bold">Products</h3>
-                </div>
                 <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                    <h3 class="text-danger fa-bold">Agrovet Suppliers</h3>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
 
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
@@ -23,22 +23,25 @@
                         <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.PName)
+                                    @Html.DisplayNameFor(model => model.CompanyName)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Qin)
+                                    @Html.DisplayNameFor(model => model.ContactPerson)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.DateEntered)
+                                    @Html.DisplayNameFor(model => model.ContactTitle)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.OBal)
+                                    @Html.DisplayNameFor(model => model.Address)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Pprice)
+                                    @Html.DisplayNameFor(model => model.Email)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Sprice)
+                                    @Html.DisplayNameFor(model => model.Phone)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Fax)
                                 </th>
                                 <th></th>
                             </tr>
@@ -48,26 +51,30 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.PName)
+                                        @Html.DisplayFor(modelItem => item.CompanyName)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Qin)
+                                        @Html.DisplayFor(modelItem => item.ContactPerson)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.DateEntered)
+                                        @Html.DisplayFor(modelItem => item.ContactTitle)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.OBal)
+                                        @Html.DisplayFor(modelItem => item.Address)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Pprice)
+                                        @Html.DisplayFor(modelItem => item.Email)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Sprice)
+                                        @Html.DisplayFor(modelItem => item.Phone)
                                     </td>
                                     <td>
-                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">TopUp Stock</a> |
-                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                        @Html.DisplayFor(modelItem => item.Fax)
+                                    </td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
+                                        @*<a asp-action="Details" asp-route-id="@item.SupplierId">Details</a> |*@
+                                        <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
                                     </td>
                                 </tr>
                             }
@@ -77,5 +84,4 @@
             </div>
             </div>
         </div>
-    </div>
-
+ </div>
