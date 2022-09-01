@@ -26,5 +26,7 @@ namespace EasyPro.Models
 		public string Personnel { get; set; }
 		public DateTime? CreatedDate { get; set; }
 		public DateTime? ModifiedDate { get; set; }
+		public string SaccoCode { get; set; }
+		public decimal? Quantity { get; set; }
 	}
 }

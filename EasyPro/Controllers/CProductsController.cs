@@ -6,34 +6,34 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
-using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
-    public class CustomersController : Controller
+    public class CProductsController : Controller
     {
         private readonly MORINGAContext _context;
-        private Utilities utilities;
         private readonly INotyfService _notyf;
-
-        public CustomersController(MORINGAContext context, INotyfService notyf)
+        private Utilities utilities;
+        public CProductsController(MORINGAContext context, INotyfService notyf)
         {
+            utilities = new Utilities(context);
             _context = context;
             _notyf = notyf;
-            utilities = new Utilities(context);
         }
 
-        // GET: Customers
+        // GET: CProducts
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.Customers.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            return View(await _context.CProducts.Where(p => p.SaccoCode == sacco).ToListAsync());
         }
 
-        // GET: Customers/Details/5
+        // GET: CProducts/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             utilities.SetUpPrivileges(this);
@@ -42,17 +42,17 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
+            var cProduct = await _context.CProducts
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (customer == null)
+            if (cProduct == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(cProduct);
         }
 
-        // GET: Customers/Create
+        // GET: CProducts/Create
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
@@ -62,58 +62,63 @@ namespace EasyPro.Controllers
 
         private void SetInitialValues()
         {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var glsetups = _context.Glsetups.Where(c => c.saccocode == sacco).ToList();
             ViewBag.glsetups = new SelectList(glsetups, "AccNo", "GlAccName");
+            var types = new string[] { "Consumable", "Service" };
+            ViewBag.types = new SelectList(types);
+            var taxes = _context.Taxes.Where(c => c.SaccoCode == sacco && c.Type == "Sales").ToList();
+            ViewBag.taxes = new SelectList(taxes, "Name", "Name");
         }
 
-        // POST: Customers/Create
+        // POST: CProducts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,Street1,Street2,City,State,Zip,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,ARGlAccount,Bank,Tags,Notes,Closed,Personnel,Reference,industry,CreatedDate,ModifiedDate,SaccoCode")] Customer customer)
+        public async Task<IActionResult> Create([Bind("Id,Name,Type,Category,Ref,BarCode,Price,CustomerTax,Cost,Notes,ARGlAccount,APGlAccount,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] CProduct cProduct)
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (ModelState.IsValid)
             {
-                customer.Id = Guid.NewGuid();
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                customer.SaccoCode = sacco;
-                _context.Add(customer);
+                cProduct.Id = Guid.NewGuid();
+                cProduct.SaccoCode = sacco;
+                _context.Add(cProduct);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            return View(cProduct);
         }
 
-        // GET: Customers/Edit/5
+        // GET: CProducts/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            utilities.SetUpPrivileges(this);
             SetInitialValues();
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
+            var cProduct = await _context.CProducts.FindAsync(id);
+            if (cProduct == null)
             {
                 return NotFound();
             }
-            return View(customer);
+            return View(cProduct);
         }
 
-        // POST: Customers/Edit/5
+        // POST: CProducts/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Address,Street1,Street2,City,State,Zip,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,ARGlAccount,Bank,Tags,Notes,Closed,Personnel,Reference,industry,CreatedDate,ModifiedDate,SaccoCode")] Customer customer)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Type,Category,Ref,BarCode,Price,CustomerTax,Cost,Notes,ARGlAccount,APGlAccount,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] CProduct cProduct)
         {
             utilities.SetUpPrivileges(this);
-            if (id != customer.Id)
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            if (id != cProduct.Id)
             {
                 return NotFound();
             }
@@ -122,14 +127,12 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                    customer.SaccoCode = sacco;
-                    _context.Update(customer);
+                    _context.Update(cProduct);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CustomerExists(customer.Id))
+                    if (!CProductExists(cProduct.Id))
                     {
                         return NotFound();
                     }
@@ -140,10 +143,10 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            return View(cProduct);
         }
 
-        // GET: Customers/Delete/5
+        // GET: CProducts/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             utilities.SetUpPrivileges(this);
@@ -152,31 +155,31 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
+            var cProduct = await _context.CProducts
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (customer == null)
+            if (cProduct == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(cProduct);
         }
 
-        // POST: Customers/Delete/5
+        // POST: CProducts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             utilities.SetUpPrivileges(this);
-            var customer = await _context.Customers.FindAsync(id);
-            _context.Customers.Remove(customer);
+            var cProduct = await _context.CProducts.FindAsync(id);
+            _context.CProducts.Remove(cProduct);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CustomerExists(Guid id)
+        private bool CProductExists(Guid id)
         {
-            return _context.Customers.Any(e => e.Id == id);
+            return _context.CProducts.Any(e => e.Id == id);
         }
     }
 }

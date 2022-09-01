@@ -279,6 +279,9 @@ namespace EasyPro.Models
         public virtual DbSet<RefundJournal> RefundJournals { get; set; }
         public virtual DbSet<Vender> Venders { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
+		public virtual DbSet<Tax> Taxes { get; set; }
+		public virtual DbSet<VProduct> VProducts { get; set; }
+		public virtual DbSet<CProduct> CProducts { get; set; }
         public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

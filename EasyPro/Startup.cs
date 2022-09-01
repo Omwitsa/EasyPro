@@ -63,6 +63,7 @@ namespace EasyPro
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+            app.UseFastReport();
             app.UseStaticFiles();
             app.UseSession();
             app.UseRouting();

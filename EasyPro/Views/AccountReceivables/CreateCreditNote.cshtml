@@ -13,14 +13,16 @@
                     <div class="col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Customer" class="control-label"></label>
-                            <input asp-for="Customer" class="form-control" />
+                            <select asp-for="Customer" class="form-control" asp-items="@ViewBag.customers"></select>
                             <span asp-validation-for="Customer" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Ref" class="control-label"></label>
-                            <input asp-for="Ref" class="form-control" />
+                         <div class="form-group">
+                            <label class="control-label">Product</label>
+                            <select id="product" asp-for="Ref" class="form-control" asp-items="@ViewBag.productNames">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
                             <span asp-validation-for="Ref" class="text-danger"></span>
                         </div>
                     </div>
@@ -46,9 +48,9 @@
                 <div class="row">
                     <div class="col-sm-6 col-xs-12">
                        <div class="form-group">
-                            <label asp-for="Journal" class="control-label"></label>
-                            <input asp-for="Journal" class="form-control" />
-                            <span asp-validation-for="Journal" class="text-danger"></span>
+                            <label asp-for="Quantity" class="control-label"></label>
+                            <input asp-for="Quantity" class="form-control" />
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-sm-6 col-xs-12">
@@ -86,24 +88,7 @@
                         </div>
                     </div>
                     <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Arrears" class="control-label"></label>
-                            <input asp-for="Arrears" class="form-control" />
-                            <span asp-validation-for="Arrears" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-6 col-xs-12">
                        <div class="form-group">
-                            <label asp-for="Status" class="control-label"></label>
-                            <input asp-for="Status" class="form-control" />
-                            <span asp-validation-for="Status" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
                             <label asp-for="SalesPerson" class="control-label"></label>
                             <input asp-for="SalesPerson" class="form-control" />
                             <span asp-validation-for="SalesPerson" class="text-danger"></span>
@@ -114,17 +99,13 @@
                 <div class="row">
                     <div class="col-sm-6 col-xs-12">
                        <div class="form-group">
-                            <label asp-for="ReceipientBank" class="control-label"></label>
-                            <input asp-for="ReceipientBank" class="form-control" />
-                            <span asp-validation-for="ReceipientBank" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
                             <label asp-for="IncoTerm" class="control-label"></label>
                             <input asp-for="IncoTerm" class="form-control" />
                             <span asp-validation-for="IncoTerm" class="text-danger"></span>
                         </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        
                     </div>
                 </div>
 

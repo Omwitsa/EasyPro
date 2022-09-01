@@ -140,25 +140,8 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="ARGlAccount" class="control-label"></label>
-                            <input asp-for="ARGlAccount" class="form-control" />
+                            <select asp-for="ARGlAccount" class="form-control" asp-items="@ViewBag.glsetups"></select>
                             <span asp-validation-for="ARGlAccount" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Bank" class="control-label"></label>
-                            <input asp-for="Bank" class="form-control" />
-                            <span asp-validation-for="Bank" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Tags" class="control-label"></label>
-                            <input asp-for="Tags" class="form-control" />
-                            <span asp-validation-for="Tags" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -173,9 +156,9 @@
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="industry" class="control-label"></label>
-                            <input asp-for="industry" class="form-control" />
-                            <span asp-validation-for="industry" class="text-danger"></span>
+                            <label asp-for="Tags" class="control-label"></label>
+                            <input asp-for="Tags" class="form-control" />
+                            <span asp-validation-for="Tags" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -189,15 +172,19 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        
+                        <div class="form-group">
+                            <label asp-for="industry" class="control-label"></label>
+                            <input asp-for="industry" class="form-control" />
+                            <span asp-validation-for="industry" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
+                            <input asp-for="Closed" type="checkbox" />
                             <label asp-for="Closed" class="control-label"></label>
-                            <input asp-for="Closed" class="form-control" />
                             <span asp-validation-for="Closed" class="text-danger"></span>
                         </div>
                     </div>

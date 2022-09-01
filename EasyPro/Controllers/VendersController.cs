@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
@@ -54,7 +56,15 @@ namespace EasyPro.Controllers
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
+            SetInitialValues();
             return View();
+        }
+
+        private void SetInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var glsetups = _context.Glsetups.Where(c => c.saccocode == sacco).ToList();
+            ViewBag.glsetups = new SelectList(glsetups, "AccNo", "GlAccName");
         }
 
         // POST: Venders/Create
@@ -62,12 +72,14 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Street1,Street2,City,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,Ref,Industry,APGlAccount,Bank,BankAccount,Notes,Closed,Personnel,CreatedDate,ModifiedDate")] Vender vender)
+        public async Task<IActionResult> Create([Bind("Id,Name,Street1,Street2,City,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,Ref,Industry,APGlAccount,Bank,BankAccount,Notes,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] Vender vender)
         {
             utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
                 vender.Id = Guid.NewGuid();
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                vender.SaccoCode = sacco;
                 _context.Add(vender);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -79,6 +91,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(Guid? id)
         {
             utilities.SetUpPrivileges(this);
+            SetInitialValues();
             if (id == null)
             {
                 return NotFound();
@@ -97,7 +110,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Street1,Street2,City,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,Ref,Industry,APGlAccount,Bank,BankAccount,Notes,Closed,Personnel,CreatedDate,ModifiedDate")] Vender vender)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Street1,Street2,City,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,Ref,Industry,APGlAccount,Bank,BankAccount,Notes,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] Vender vender)
         {
             utilities.SetUpPrivileges(this);
             if (id != vender.Id)
@@ -109,6 +122,8 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                    vender.SaccoCode = sacco;
                     _context.Update(vender);
                     await _context.SaveChangesAsync();
                 }

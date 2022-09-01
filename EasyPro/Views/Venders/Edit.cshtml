@@ -132,23 +132,6 @@
 
                  <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Bank" class="control-label"></label>
-                            <input asp-for="Bank" class="form-control" />
-                            <span asp-validation-for="Bank" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                         <div class="form-group">
-                            <label asp-for="BankAccount" class="control-label"></label>
-                            <input asp-for="BankAccount" class="form-control" />
-                            <span asp-validation-for="BankAccount" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                        <div class="form-group">
                             <label asp-for="Notes" class="control-label"></label>
                             <input asp-for="Notes" class="form-control" />
@@ -158,7 +141,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="APGlAccount" class="control-label"></label>
-                            <input asp-for="APGlAccount" class="form-control" />
+                            <select asp-for="APGlAccount" class="form-control" asp-items="@ViewBag.glsetups"></select>
                             <span asp-validation-for="APGlAccount" class="text-danger"></span>
                         </div>
                     </div>
@@ -168,7 +151,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                        <div class="form-group">
                             <label asp-for="Closed" class="control-label"></label>
-                            <input asp-for="Closed" class="form-control" />
+                            <input asp-for="Closed" type="checkbox" />
                             <span asp-validation-for="Closed" class="text-danger"></span>
                         </div>
                     </div>

@@ -6,6 +6,7 @@ using EasyPro.Repository;
 using EasyPro.Utils;
 using EasyPro.ViewModels;
 using EasyPro.ViewModels.Reports;
+using FastReport.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -60,6 +61,16 @@ namespace EasyPro.Controllers
             GetInitialValues();
             return View();
         }
+
+        public IActionResult TestReport()
+        {
+            utilities.SetUpPrivileges(this);
+            var webReport = new WebReport();
+            webReport.Report.Load(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "report.frx"));
+
+            return View(webReport);
+        }
+
         [HttpGet]//DownloadDispatchBalReport
         public IActionResult DownloadDispatchBalReport()
         {

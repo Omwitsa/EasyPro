@@ -13,27 +13,27 @@ using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
-    public class CustomersController : Controller
+    public class TaxesController : Controller
     {
         private readonly MORINGAContext _context;
-        private Utilities utilities;
         private readonly INotyfService _notyf;
-
-        public CustomersController(MORINGAContext context, INotyfService notyf)
+        private Utilities utilities;
+        public TaxesController(MORINGAContext context, INotyfService notyf)
         {
+            utilities = new Utilities(context);
             _context = context;
             _notyf = notyf;
-            utilities = new Utilities(context);
         }
 
-        // GET: Customers
+        // GET: Taxes
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.Customers.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            return View(await _context.Taxes.Where(t => t.SaccoCode == sacco).ToListAsync());
         }
 
-        // GET: Customers/Details/5
+        // GET: Taxes/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             utilities.SetUpPrivileges(this);
@@ -42,17 +42,17 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
+            var tax = await _context.Taxes
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (customer == null)
+            if (tax == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(tax);
         }
 
-        // GET: Customers/Create
+        // GET: Taxes/Create
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
@@ -62,58 +62,71 @@ namespace EasyPro.Controllers
 
         private void SetInitialValues()
         {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var glsetups = _context.Glsetups.Where(c => c.saccocode == sacco).ToList();
             ViewBag.glsetups = new SelectList(glsetups, "AccNo", "GlAccName");
+            var types = new string[] { "Sales", "Purchases" };
+            ViewBag.types = new SelectList(types);
         }
 
-        // POST: Customers/Create
+        // POST: Taxes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,Street1,Street2,City,State,Zip,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,ARGlAccount,Bank,Tags,Notes,Closed,Personnel,Reference,industry,CreatedDate,ModifiedDate,SaccoCode")] Customer customer)
+        public async Task<IActionResult> Create([Bind("Id,Name,Type,Computation,GlAccount,Rate,Scope,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] Tax tax)
         {
             utilities.SetUpPrivileges(this);
+            tax.Rate = tax?.Rate ?? 0;
+            if (tax.Rate < 1)
+            {
+                SetInitialValues();
+                _notyf.Error("Sorry, Kindly provide tax rate");
+                return View(tax);
+            }
+            
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (ModelState.IsValid)
             {
-                customer.Id = Guid.NewGuid();
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                customer.SaccoCode = sacco;
-                _context.Add(customer);
+                tax.Id = Guid.NewGuid();
+                tax.SaccoCode = sacco;
+                _context.Add(tax);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            return View(tax);
         }
 
-        // GET: Customers/Edit/5
+        // GET: Taxes/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
             {
+                SetInitialValues();
                 return NotFound();
             }
 
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
+            var tax = await _context.Taxes.FindAsync(id);
+            if (tax == null)
             {
+                SetInitialValues();
                 return NotFound();
             }
-            return View(customer);
+            return View(tax);
         }
 
-        // POST: Customers/Edit/5
+        // POST: Taxes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Address,Street1,Street2,City,State,Zip,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,ARGlAccount,Bank,Tags,Notes,Closed,Personnel,Reference,industry,CreatedDate,ModifiedDate,SaccoCode")] Customer customer)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Type,Computation,GlAccount,Rate,Scope,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] Tax tax)
         {
             utilities.SetUpPrivileges(this);
-            if (id != customer.Id)
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            if (id != tax.Id)
             {
                 return NotFound();
             }
@@ -122,14 +135,19 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                    customer.SaccoCode = sacco;
-                    _context.Update(customer);
+                    tax.Rate = tax?.Rate ?? 0;
+                    if (tax.Rate < 1)
+                    {
+                        SetInitialValues();
+                        _notyf.Error("Sorry, Kindly provide tax rate");
+                        return View(tax);
+                    }
+                    _context.Update(tax);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CustomerExists(customer.Id))
+                    if (!TaxExists(tax.Id))
                     {
                         return NotFound();
                     }
@@ -140,10 +158,10 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            return View(tax);
         }
 
-        // GET: Customers/Delete/5
+        // GET: Taxes/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             utilities.SetUpPrivileges(this);
@@ -152,31 +170,31 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
+            var tax = await _context.Taxes
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (customer == null)
+            if (tax == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(tax);
         }
 
-        // POST: Customers/Delete/5
+        // POST: Taxes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             utilities.SetUpPrivileges(this);
-            var customer = await _context.Customers.FindAsync(id);
-            _context.Customers.Remove(customer);
+            var tax = await _context.Taxes.FindAsync(id);
+            _context.Taxes.Remove(tax);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CustomerExists(Guid id)
+        private bool TaxExists(Guid id)
         {
-            return _context.Customers.Any(e => e.Id == id);
+            return _context.Taxes.Any(e => e.Id == id);
         }
     }
 }

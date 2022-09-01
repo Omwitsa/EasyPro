@@ -391,7 +391,7 @@
                                     <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="Venders" asp-action="Index">Venders</a>
+                                    <a asp-controller="Venders" asp-action="Index">Vendors</a>
                                 </li>
                                 <li>
                                     <a asp-controller="Customers" asp-action="Index">Customers</a>
@@ -481,6 +481,12 @@
                                 <li>
                                     <a asp-controller="AccountReceivables" asp-action="GetCreditNotes">Credit Notes</a>
                                 </li>
+                                 <li>
+                                    <a asp-controller="VProducts" asp-action="Index">Vendor Products</a>
+                                </li>
+                                 <li>
+                                    <a asp-controller="CProducts" asp-action="Index">Customer Products</a>
+                                </li>
                             </ul>
                         </div>
                         <div id="setup" class="tab-pane notika-tab-menu-bg animated flipInX">
@@ -527,6 +533,9 @@
                                 <li>
                                     <a asp-controller="DDebtors" asp-action="Index">Debtor</a>
                                 </li>
+                                <li>
+                                    <a asp-controller="Taxes" asp-action="Index">Taxes</a>
+                                </li>
                             </ul>
                         </div>
                         <div id="Reports" class="tab-pane notika-tab-menu-bg animated flipInX">
@@ -555,6 +564,9 @@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadSalesReport">Sales</a>
                                 </li>
+                               @* <li>
+                                    <a asp-controller="Report" asp-action="TestReport">Test Report</a>
+                                </li>*@
                             </ul>
                         </div>
                     </div>

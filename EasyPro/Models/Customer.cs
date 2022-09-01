@@ -25,11 +25,12 @@ namespace EasyPro.Models
 		public string Bank { get; set; }
 		public string Tags { get; set; }
 		public string Notes { get; set; }
-		public bool? Closed { get; set; }
+		public bool Closed { get; set; }
 		public string Personnel { get; set; }
 		public string Reference { get; set; }
 		public string industry { get; set; }
 		public DateTime? CreatedDate { get; set; }
 		public DateTime? ModifiedDate { get; set; }
+		public string SaccoCode { get; set; }
 	}
 }
