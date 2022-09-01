@@ -32,23 +32,15 @@
                                     Date
                                 </th>
                                 <th>
+                                    @Html.DisplayNameFor(model => model.Qua)
+                                </th>
+                                <th>
                                     @Html.DisplayNameFor(model => model.Amount)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.SNo)
                                 </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Qua)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Transby)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Idno)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Remarks)
-                                </th>
+
                                 <th></th>
                             </tr>
                         </thead>
@@ -66,23 +58,15 @@
                                         @Html.DisplayFor(modelItem => item.TDate)
                                     </td>
                                     <td>
+                                        @Html.DisplayFor(modelItem => item.Qua)
+                                    </td>
+                                    <td>
                                         @Html.DisplayFor(modelItem => item.Amount)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.SNo)
                                     </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Qua)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Transby)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Idno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Remarks)
-                                    </td>
+
                                     <td>
                                         @*<a asp-action="Edit" asp-route-id="@item.RId">Edit</a> |
             <a asp-action="Details" asp-route-id="@item.RId">Details</a> |

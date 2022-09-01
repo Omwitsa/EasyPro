@@ -177,7 +177,7 @@ namespace EasyPro.Controllers
                     t.TransactionType = TransactionType.Deduction;
                     t.AuditId = loggedInUser;
                     t.Qsupplied = t.Qsupplied * -1;
-                    t.CR = t.CR;
+                    t.CR = t.DR;
                     t.DR = 0;
                     if (t.Sno == "")
                     {
@@ -228,8 +228,8 @@ namespace EasyPro.Controllers
                             TransDescript = t.Remarks,
                             Transactionno = $"{loggedInUser}{DateTime.Now}",
                             SaccoCode = sacco,
-                            DrAccNo = product.Draccno,
-                            CrAccNo = product.Craccno,
+                            CrAccNo = product.Draccno,
+                            DrAccNo = product.Craccno,
                         });
 
                         product.Qin = bal;
