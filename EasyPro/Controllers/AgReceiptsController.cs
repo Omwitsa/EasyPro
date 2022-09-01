@@ -33,8 +33,8 @@ namespace EasyPro.Controllers
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.AgReceipts
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
-                .OrderByDescending(s => s.TDate).ToListAsync());
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate == DateTime.Today)
+                .OrderByDescending(s => s.AuditDate).ToListAsync());
         }
         private void GetInitialValues()
         {
@@ -57,7 +57,14 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly provide records");
                     return Json("");
                 }
+                var da = intakes;
+                var cash = "";
+                da.ForEach(d =>
+                {
+                    cash = d.Sno;
 
+                });
+                
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 intakes.ForEach(t =>
@@ -66,7 +73,10 @@ namespace EasyPro.Controllers
                     t.SaccoCode = sacco;
                     t.TransactionType = TransactionType.Deduction;
                     t.AuditId = loggedInUser;
-
+                    if (t.Sno == "")
+                    {
+                        t.Sno = "cash";
+                    }
                     var product = _context.AgProducts.FirstOrDefault(p => p.PName.ToUpper().Equals(t.Description.ToUpper())
                     && p.saccocode == sacco);
                     if(product != null)
@@ -99,14 +109,35 @@ namespace EasyPro.Controllers
                             Salesrep = "",
                             saccocode = sacco
                         });
+
+                        _context.Gltransactions.Add(new Gltransaction
+                        {
+                            AuditId = loggedInUser,
+                            TransDate = t.TransDate,
+                            Amount = (decimal)t.DR,
+                            AuditTime = DateTime.Now,
+                            DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
+                            Source = t.Sno,
+                            TransDescript = t.Remarks,
+                            Transactionno = $"{loggedInUser}{DateTime.Now}",
+                            SaccoCode = sacco,
+                            DrAccNo = product.Draccno,
+                            CrAccNo = product.Craccno,
+                        });
+
                         product.Qin = bal;
                         product.Qout = bal;
                         product.OBal = bal;
                     }
+                    
                 });
-
-                _context.ProductIntake.AddRange(intakes);
                 
+                if (cash != "")
+                {
+                    _context.ProductIntake.AddRange(intakes);
+                }
+
+
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");
                 return Json("");
@@ -129,7 +160,14 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly provide records");
                     return Json("");
                 }
-                
+
+                var da = intakes;
+                var cash = "";
+                da.ForEach(d =>
+                {
+                    cash = d.Sno;
+
+                });
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 intakes.ForEach(t =>
@@ -141,7 +179,11 @@ namespace EasyPro.Controllers
                     t.Qsupplied = t.Qsupplied * -1;
                     t.CR = t.DR;
                     t.DR = 0;
-                    
+                    if (t.Sno == "")
+                    {
+                        t.Sno = "cash";
+                    }
+
                     var product = _context.AgProducts.FirstOrDefault(p => p.PName.ToUpper().Equals(t.Description.ToUpper())
                     && p.saccocode == sacco);
                     if (product != null)
@@ -152,7 +194,7 @@ namespace EasyPro.Controllers
                             RNo = RNo,
                             PCode = product.PCode,
                             TDate = t.TransDate,
-                            Amount = t.DR * -1,
+                            Amount = t.CR * -1,
                             SNo = t.Sno,
                             Qua = (double?)t.Qsupplied,
                             SBal = bal,
@@ -174,13 +216,32 @@ namespace EasyPro.Controllers
                             Salesrep = "",
                             saccocode = sacco
                         });
+
+                        _context.Gltransactions.Add(new Gltransaction
+                        {
+                            AuditId = loggedInUser,
+                            TransDate = t.TransDate,
+                            Amount = (decimal)t.CR,
+                            AuditTime = DateTime.Now,
+                            DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
+                            Source = t.Sno,
+                            TransDescript = t.Remarks,
+                            Transactionno = $"{loggedInUser}{DateTime.Now}",
+                            SaccoCode = sacco,
+                            CrAccNo = product.Draccno,
+                            DrAccNo = product.Craccno,
+                        });
+
                         product.Qin = bal;
                         product.Qout = bal;
                         product.OBal = bal;
                     }
                 });
-
-                _context.ProductIntake.AddRange(intakes);
+                if (cash != "")
+                {
+                    _context.ProductIntake.AddRange(intakes);
+                }
+                   
 
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");
