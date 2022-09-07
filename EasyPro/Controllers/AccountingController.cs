@@ -475,5 +475,65 @@ namespace EasyPro.Controllers
                 return Json("");
             }
         }
+
+        public IActionResult IncomeStatement()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult IncomeStatement([FromBody] JournalFilter filter)
+        {
+            try
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var journalListings = new List<JournalVm>();
+                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                    .ToList();
+                gltransactions.ForEach(t =>
+                {
+                    var debtorssAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo && a.saccocode == sacco && a.GlAccType == "Income Statement");
+                    if (debtorssAcc != null)
+                    {
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.DrAccNo,
+                            TransDate = t.TransDate,
+                            AccName = debtorssAcc.GlAccName,
+                            Dr = t.Amount,
+                            DocumentNo = t.DocumentNo,
+                            Cr = 0,
+                            TransDescript = t.TransDescript,
+                            Group = debtorssAcc.GlAccMainGroup,
+                        });
+                    }
+
+                    var creditorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo && a.saccocode == sacco && a.GlAccType == "Income Statement");
+                    if (creditorsAcc != null)
+                    {
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.CrAccNo,
+                            TransDate = t.TransDate,
+                            AccName = creditorsAcc.GlAccName,
+                            Cr = t.Amount,
+                            DocumentNo = t.DocumentNo,
+                            Dr = 0,
+                            TransDescript = t.TransDescript,
+                            Group = creditorsAcc.GlAccMainGroup,
+                        });
+                    }
+                });
+
+                var incomeStatement = journalListings.GroupBy(j => j.Group).ToList();
+                return Json(incomeStatement);
+            }
+            catch (Exception ex)
+            {
+                return Json("");
+            }
+        }
     }
 }

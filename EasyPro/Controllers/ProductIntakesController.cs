@@ -547,7 +547,7 @@ namespace EasyPro.Controllers
             }
             if (productIntake.CR < 0)
             {
-                productIntake.DR = productIntake.CR;
+                productIntake.DR -= productIntake.CR;
                 productIntake.CR = 0;
             }
             if (productIntake.DrAccNo == null)

@@ -104,8 +104,17 @@ namespace EasyPro.Controllers
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
-            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate)
+            var intakes = _context.ProductIntake
                 .Where(i => i.Sno ==sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.ProductType==producttype && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+
+            decimal? bal = 0;
+            intakes.ForEach(i =>
+            {
+                bal += i.CR - i.DR;
+                i.Balance = bal;
+            });
+
+            intakes = intakes.OrderByDescending(i => i.Id).ToList();
             return Json(intakes);
         }
         [HttpPost]
@@ -116,8 +125,17 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
 
-            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate)
+            var intakes = _context.ProductIntake
                 .Where(i => i.Sno == sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+
+            decimal? bal = 0;
+            intakes.ForEach(i =>
+            {
+                bal += i.CR - i.DR;
+                i.Balance = bal;
+            });
+
+            intakes = intakes.OrderByDescending(i => i.Id).ToList();
             return Json(intakes);
         }
         [HttpPost]
