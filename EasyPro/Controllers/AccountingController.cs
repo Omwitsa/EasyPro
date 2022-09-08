@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Spreadsheet;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
@@ -6,6 +7,7 @@ using EasyPro.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -527,8 +529,68 @@ namespace EasyPro.Controllers
                     }
                 });
 
-                var incomeStatement = journalListings.GroupBy(j => j.Group).ToList();
-                return Json(incomeStatement);
+                var income = journalListings.Where(a => a.Group == "INCOME").ToList();
+                var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
+                return Json(new
+                {
+                    income,
+                    expenses
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json("");
+            }
+        }
+
+        public IActionResult BalanceSheet()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult BalanceSheet([FromBody] JournalFilter filter)
+        {
+            try
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var journalListings = new List<JournalVm>();
+                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                    .ToList();
+
+                var glsetups = _context.Glsetups.Where(a => a.GlAccType == "Balance Sheet" && a.saccocode == sacco).ToList();
+                glsetups.ForEach(s =>
+                {
+                    var transaction = gltransactions.FirstOrDefault();
+                    var debitAmount = gltransactions.Where(t => t.DrAccNo == s.AccNo).Sum(t => t.Amount);
+                    var creditAmount = gltransactions.Where(t => t.CrAccNo == s.AccNo).Sum(t => t.Amount);
+                    if (debitAmount != 0 || creditAmount != 0)
+                    {
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = s.AccNo,
+                            TransDate = transaction.TransDate,
+                            AccName = s.GlAccName,
+                            Dr = debitAmount,
+                            DocumentNo = transaction.DocumentNo,
+                            Cr = creditAmount,
+                            TransDescript = transaction.TransDescript,
+                            Group = s.GlAccMainGroup,
+                        });
+                    }
+                });
+
+                var assets = journalListings.Where(a => a.Group == "ASSETS").ToList();
+                var liabilities = journalListings.Where(a => a.Group == "LIABILITIES").ToList();
+                var capitals = journalListings.Where(a => a.Group == "CAPITAL").ToList();
+                return Json(new
+                {
+                    assets,
+                    liabilities,
+                    capitals
+                });
             }
             catch (Exception ex)
             {

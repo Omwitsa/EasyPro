@@ -3,7 +3,7 @@
         <div class="normal-table-list mg-t-30">
             <div class="row">
                 <div class="col-sm-3 col-xs-12">
-                    <h3 class="text-danger fa-bold">Income Statement</h3>
+                    <h3 class="text-danger fa-bold">Balance Sheet</h3>
                 </div>
                 <div class="col-sm-7 col-xs-12">
                 </div>
@@ -69,34 +69,36 @@
     }
     <script type="text/javascript">
         $(function () {
-            let incomes = new Array();
-            let expenses = new Array();
-            
+            let assets = new Array();
+            let liabilities = new Array();
+            let capitals = new Array();
+
             $('#fromDate').on('change', function () {
-                buildIncomeStatement();
+                buildBalanceSheet();
             });
 
             $('#toDate').on('change', function () {
-                buildIncomeStatement();
+                buildBalanceSheet();
             });
-            
-            function buildIncomeStatement() {
+
+            function buildBalanceSheet() {
                 var fromDate = $("#fromDate").val();
                 var toDate = $("#toDate").val();
                 var filter = {
                     fromDate: fromDate,
                     toDate: toDate,
                 };
-
+                
                 if (fromDate && toDate) {
                     $.ajax({
                         type: 'POST',
-                        url: "incomeStatement",
+                        url: "balanceSheet",
                         contentType: 'application/json',
                         data: JSON.stringify(filter),
                         success: function (response) {
-                            incomes = response.income ? response.income : new Array();
-                            expenses = response.expenses ? response.expenses : new Array();
+                            assets = response.assets ? response.assets : new Array();
+                            liabilities = response.liabilities ? response.liabilities : new Array();
+                            capitals = response.capitals ? response.capitals : new Array();
                             populateDetailsTable();
                         },
                         failure: function (response) {
@@ -109,15 +111,16 @@
 
             function populateDetailsTable() {
                 let itemTableRows = new Array();
-                var income = 0;
-                var expense = 0;
+                var liability = 0;
+                var capital = 0;
+                var asset = 0;
                 var dr = 0;
                 var cr = 0;
                 itemTableRows.push(`<tr>
-                    <td colspan="6"><h3>Income</h3></td>
+                    <td colspan="6"><h3>Assets</h3></td>
                 </tr>`);
 
-                incomes.forEach(j => {
+                assets.forEach(j => {
                     j.TransDate = j.TransDate ? j.TransDate : "";
                     itemTableRows.push(`<tr>
                         <td>${j.TransDate}</td>
@@ -137,19 +140,50 @@
                     <td>${cr}</td>
                 </tr>`);
 
-                income = income + (cr - dr);
+                asset = asset + (dr - cr);
                 itemTableRows.push(`<tr>
-                    <td colspan="5"><h3>Total Income</h3></td>
-                    <td>${income}</td>
+                    <td colspan="5"><h3>Total Assets</h3></td>
+                    <td>${asset}</td>
                 </tr>`);
 
                 dr = 0;
                 cr = 0;
                 itemTableRows.push(`<tr>
-                    <td colspan="6"><h3>Expense</h3></td>
+                    <td colspan="6"><h3>Liabilities</h3></td>
                 </tr>`);
 
-                expenses.forEach(j => {
+                liabilities.forEach(j => {
+                    j.TransDate = j.TransDate ? j.TransDate : "";
+                    itemTableRows.push(`<tr>
+                        <td>${j.TransDate}</td>
+                        <td>${j.GlAcc}</td>
+                        <td>${j.AccName}</td>
+                        <td>${j.TransDescript}</td>
+                        <td>${j.Dr}</td>
+                        <td>${j.Cr}</td>
+                    </tr>`);
+                    dr += j.Dr;
+                    cr += j.Cr;
+                });
+                itemTableRows.push(`<tr>
+                    <td colspan="4"><h3></h3></td>
+                    <td>${dr}</td>
+                    <td>${cr}</td>
+                </tr>`);
+
+                liability = liability + (cr - dr);
+                itemTableRows.push(`<tr>
+                    <td colspan="5"><h3>Total Liabilities</h3></td>
+                    <td>${liability}</td>
+                </tr>`);
+
+                dr = 0;
+                cr = 0;
+                itemTableRows.push(`<tr>
+                    <td colspan="6"><h3>Capital</h3></td>
+                </tr>`);
+
+                capitals.forEach(j => {
                     j.TransDate = j.TransDate ? j.TransDate : "";
                     itemTableRows.push(`<tr>
                         <td>${j.TransDate}</td>
@@ -169,16 +203,22 @@
                     <td>${cr}</td>
                 </tr>`);
 
-                expense = expense + (dr - cr);
+                capital = capital + (cr - dr);
                 itemTableRows.push(`<tr>
-                    <td colspan="5"><h3>Total Expenses</h3></td>
-                    <td>${expense}</td>
+                    <td colspan="5"><h3>Total Capital</h3></td>
+                    <td>${capital}</td>
                 </tr>`);
 
-                var profit = income - expense;
+                var capatalLiability = capital + liability;
                 itemTableRows.push(`<tr>
-                    <td colspan="5"><h3>Profit/Loss</h3></td>
-                    <td>${profit}</td>
+                    <td colspan="5"><h3>Capital And Liabilities</h3></td>
+                    <td>${capatalLiability}</td>
+                </tr>`);
+
+                var variance = asset - capatalLiability;
+                itemTableRows.push(`<tr>
+                    <td colspan="5"><h3>Variance</h3></td>
+                    <td>${variance}</td>
                 </tr>`);
 
                 $('#details').html(itemTableRows);

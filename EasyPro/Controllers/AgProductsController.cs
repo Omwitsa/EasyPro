@@ -72,14 +72,15 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var count = _context.AgProducts
+            var product = _context.AgProducts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
-                .OrderByDescending(u=>u.PCode)
-                .Select(b => b.PCode);
-            var selectedno = count.FirstOrDefault();
-            double num =Convert.ToInt32(selectedno);
+                .OrderByDescending(u => u.Id).FirstOrDefault();
+            var num = 0;
+            if (product != null)
+                num = Convert.ToInt32(product.PCode);
+
             return View(new AgProduct {
-                PCode = ""+ (num+1) ,
+                PCode = ""+ (num + 1) ,
                 OBal=0,
                 Qin=0,
                 Qout=0,
