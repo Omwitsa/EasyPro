@@ -16,12 +16,12 @@
                 </div>
                 <div class="col-sm-2 col-xs-12">
                     <div class="form-group">
-                        @*<label class="control-label">End Date</label>
-                        <input id="curryDate" class="form-control" type="date" />*@
+                        <label class="control-label">End Date</label>
+                        <input id="curryDate" class="form-control" type="date" />
                     </div>
                 </div>
                 <div class="col-sm-3 col-xs-12">
-                    <a id="curryForward" class="btn btn-success">Curry Forward</a>
+                    <a id="curryForward" class="btn btn-success">Carry Forward</a>
                 </div>
             </div>
 
@@ -148,7 +148,7 @@
                 var curryDate = $("#curryDate").val();
                 $.ajax({
                     type: 'GET',
-                    url: "curryForward?curryDate=" + curryDate,
+                    url: "curryForward?period=" + curryDate,
                     contentType: 'application/json',
                     success: function (response) {
                         

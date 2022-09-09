@@ -6228,7 +6228,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DShare>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Shares");
 

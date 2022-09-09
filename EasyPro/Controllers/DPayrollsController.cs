@@ -327,9 +327,10 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            var startDate = month.AddMonths(-1);
-            var endDate = month.AddDays(-1);
+            var startDate = new DateTime(period.Year, period.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            var nextMonth = startDate.AddMonths(1);
+            
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
             suppliers.ForEach(s =>
             {
@@ -337,23 +338,25 @@ namespace EasyPro.Controllers
                 && p.EndofPeriod == endDate && p.Sno == s.Sno).ToList();
 
                 var netPay = payrolls.Sum(p => p.Npay);
-                if(netPay < 0)
+                var debited = _context.ProductIntake.Any(i => i.SaccoCode == sacco && i.Sno == s.Sno.ToString()
+                && i.TransDate >= nextMonth && i.Description == "Carry Forward");
+                if(netPay < 0 && !debited)
                 {
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = s.Sno.ToString(),
-                        TransDate = DateTime.Today,
+                        TransDate = nextMonth,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                        ProductType = "Curry Forward",
+                        ProductType = "Carry Forward",
                         Qsupplied = 0,
                         Ppu = 0,
                         CR = 0,
                         DR = -netPay,
                         Balance = 0,
-                        Description = "Curry Forward",
+                        Description = "Carry Forward",
                         TransactionType = TransactionType.Deduction,
                         Paid = false,
-                        Remarks = "Curry Forward",
+                        Remarks = "Carry Forward",
                         AuditId = auditId,
                         Auditdatetime = DateTime.Now,
                         Branch = "",
@@ -365,6 +368,7 @@ namespace EasyPro.Controllers
                 }
             });
 
+            _context.SaveChanges();
             _notyf.Success("Curry Forward processed successfully");
             return Json("");
         }
