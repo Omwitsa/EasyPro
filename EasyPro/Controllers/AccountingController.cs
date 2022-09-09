@@ -81,7 +81,6 @@ namespace EasyPro.Controllers
         public JsonResult Comparison(DateTime period)
         {
             utilities.SetUpPrivileges(this);
-
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var budgets = _context.Budgets.Where(b => b.SaccoCode.ToUpper().Equals(sacco.ToUpper())
             && b.Mmonth == period.Month && b.Yyear == period.Year).ToList();

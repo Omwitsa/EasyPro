@@ -10,6 +10,7 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
+using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace EasyPro.Controllers
 {
@@ -29,9 +30,13 @@ namespace EasyPro.Controllers
         // GET: DPayrolls
         public async Task<IActionResult> Index()
         {
+            var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var startDate = month.AddMonths(-1);
+            var endDate = month.AddDays(-1);
+
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var payroll = await _context.DPayrolls.Where(i=>i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).Join(
+            var payroll = await _context.DPayrolls.Where(i=>i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndofPeriod == endDate).Join(
                 _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
                 p => p.Sno.ToString(),
                 s => s.Sno.ToString(),
@@ -223,6 +228,7 @@ namespace EasyPro.Controllers
             });
 
             await _context.SaveChangesAsync();
+            _notyf.Success("Payroll processed successfully");
             return RedirectToAction(nameof(Index));
         }
 
@@ -313,6 +319,54 @@ namespace EasyPro.Controllers
         private bool DPayrollExists(long id)
         {
             return _context.DPayrolls.Any(e => e.Id == id);
+        }
+
+        [HttpGet]
+        public JsonResult CurryForward(DateTime period)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var startDate = month.AddMonths(-1);
+            var endDate = month.AddDays(-1);
+            var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
+            suppliers.ForEach(s =>
+            {
+                var payrolls = _context.DPayrolls.Where(p => p.SaccoCode == sacco 
+                && p.EndofPeriod == endDate && p.Sno == s.Sno).ToList();
+
+                var netPay = payrolls.Sum(p => p.Npay);
+                if(netPay < 0)
+                {
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = s.Sno.ToString(),
+                        TransDate = DateTime.Today,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                        ProductType = "Curry Forward",
+                        Qsupplied = 0,
+                        Ppu = 0,
+                        CR = 0,
+                        DR = -netPay,
+                        Balance = 0,
+                        Description = "Curry Forward",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = false,
+                        Remarks = "Curry Forward",
+                        AuditId = auditId,
+                        Auditdatetime = DateTime.Now,
+                        Branch = "",
+                        SaccoCode = sacco,
+                        DrAccNo = "",
+                        CrAccNo = "",
+                        Posted = false
+                    });
+                }
+            });
+
+            _notyf.Success("Curry Forward processed successfully");
+            return Json("");
         }
     }
 }

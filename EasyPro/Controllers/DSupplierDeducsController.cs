@@ -224,7 +224,7 @@ namespace EasyPro.Controllers
                 return View(standingOrder);
             }
 
-            if(standingOrder.StartDate == null || standingOrder.StartDate < DateTime.Now)
+            if(standingOrder.StartDate == null || standingOrder.StartDate < DateTime.Today)
             {
                 _notyf.Error("Sorry, Start date must be greater than today");
                 return View(standingOrder);
