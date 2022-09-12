@@ -12,6 +12,7 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.ViewModels;
 using EasyPro.ViewModels.EnquiryVM;
 using System.Collections.Generic;
+using static EasyPro.ViewModels.AccountingVm;
 
 namespace EasyPro.Controllers
 {
@@ -184,5 +185,21 @@ namespace EasyPro.Controllers
             }
             return Json(resultsget);
         }
+
+        public IActionResult SharesInquiry()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult ShareInquiries(string sno)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var shares = _context.DShares.Where(s => s.Sno == sno && s.SaccoCode == sacco).ToList();
+            return Json(shares);
+        }
+
     }
 }
