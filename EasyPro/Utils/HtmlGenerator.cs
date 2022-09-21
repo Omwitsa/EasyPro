@@ -671,8 +671,8 @@ namespace EasyPro.Utils
                                                 <th>Gender</th>
                                                 <th>Village</th>
                                                 <th>Location</th>
-                                                <th>Division</th>
-                                                <th>District</th>
+                                                <th>Ward</th>
+                                                <th>Sub-County</th>
                                                 <th>County</th>
                                             </tr>
                                         </thead>
