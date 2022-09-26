@@ -144,6 +144,10 @@ namespace EasyPro.Controllers
             var products = _context.DPrices.Where(s=>s.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.products = new SelectList(products, "Products", "Products");
             ViewBag.productPrices = products;
+
+            var Branch = _context.DBranch.Where(i=>i.Bcode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            ViewBag.Branch = new SelectList(Branch, "BName", "BName");
+            ViewBag.Branch = Branch;
         }
 
         public IActionResult CreateDeduction()
