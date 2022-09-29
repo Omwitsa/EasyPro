@@ -7576,7 +7576,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<Drawnstock>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("DRAWNSTOCK");
 
