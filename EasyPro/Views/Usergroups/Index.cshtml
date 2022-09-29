@@ -50,6 +50,9 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.FixedAssets)
                                 </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SaccoReports)
+                                </th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -86,6 +89,9 @@
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.FixedAssets)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SaccoReports)
                                     </td>
                                     <td>
                                         <a asp-action="Edit" asp-route-id="@item.GroupId">Edit</a> |

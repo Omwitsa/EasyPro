@@ -1,16 +1,15 @@
-﻿@model IEnumerable<EasyPro.Models.SubCounty>
+﻿@model IEnumerable<EasyPro.Models.DShare>
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-sm-4 col-xs-12">
-                    <h3 class="text-danger fa-bold">Sub-Counties</h3>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                    <h3 class="text-danger fa-bold">Shares</h3>
                 </div>
-                <div class="col-sm-5 col-xs-12">
-
+                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
                 </div>
-                <div class="col-sm-3 col-xs-3">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <a asp-action="Create" class="btn btn-primary">Create New</a>
                 </div>
             </div>
@@ -21,24 +20,24 @@
                         <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Name)
+                                    @Html.DisplayNameFor(model => model.Sno)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.County)
+                                    @Html.DisplayNameFor(model => model.Type)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Contact)
+                                    @Html.DisplayNameFor(model => model.TransDate)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Closed)
+                                    @Html.DisplayNameFor(model => model.Pmode)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.CreatedOn)
+                                    @Html.DisplayNameFor(model => model.Period)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.CreatedBy)
+                                    @Html.DisplayNameFor(model => model.Amount)
                                 </th>
-                                <th></th>
+                                @*<th></th>*@
                             </tr>
                         </thead>
                         <tbody>
@@ -46,28 +45,28 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Name)
+                                        @Html.DisplayFor(modelItem => item.Sno)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.County)
+                                        @Html.DisplayFor(modelItem => item.Type)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Contact)
+                                        @Html.DisplayFor(modelItem => item.TransDate)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Closed)
+                                        @Html.DisplayFor(modelItem => item.Pmode)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.CreatedOn)
+                                        @Html.DisplayFor(modelItem => item.Period)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.CreatedBy)
+                                        @Html.DisplayFor(modelItem => item.Amount)
                                     </td>
-                                    <td>
+                                   @* <td>
                                         <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                                         <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                                         <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                    </td>
+                                    </td>*@
                                 </tr>
                             }
                         </tbody>
@@ -77,3 +76,4 @@
         </div>
     </div>
 </div>
+

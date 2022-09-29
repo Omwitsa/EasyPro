@@ -268,7 +268,7 @@
                                                 <a asp-controller="DLocations" asp-action="Index">Locations</a>
                                             </li>
                                             <li>
-                                                <a asp-controller="DDcodes" asp-action="Index">Deduction</a>
+                                                <a asp-controller="DDcodes" asp-action="Index">Deduction Types</a>
                                             </li>
                                             <li>
                                                 <a asp-controller="DBanks" asp-action="Index">Banks</a>
@@ -381,6 +381,9 @@
                                     <a asp-controller="SupplierEnquiry" asp-action="Transporters">Transporters Enquiry</a>
                                 </li>
                                 <li>
+                                    <a asp-controller="SupplierEnquiry" asp-action="SharesInquiry">Shares Enquiry</a>
+                                </li>
+                                <li>
                                     <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
                                 </li>
                             </ul>
@@ -426,10 +429,16 @@
                                     <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
                                 </li>
                                 <li>
+                                    <a asp-controller="DSupplierDeducs" asp-action="GetStandingOrder">Standing Order</a>
+                                </li>
+                                <li>
                                     <a asp-controller="ProductIntakes" asp-action="TDeductionList">Transporter</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DTransports" asp-action="Index">Transporter Assignement</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DShares" asp-action="Index">Shares</a>
                                 </li>
                             </ul>
                         </div>
@@ -480,6 +489,12 @@
                                 </li>
                                 <li>
                                     <a asp-controller="Accounting" asp-action="TrialBalance">Trial Balance</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Accounting" asp-action="IncomeStatement">Income Statement</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Accounting" asp-action="BalanceSheet">Balance Sheet</a>
                                 </li>
                                 <li>
                                     <a asp-controller="AccountPayables" asp-action="GetBills">Bills</a>
@@ -534,7 +549,7 @@
                                     <a asp-controller="DLocations" asp-action="Index">Locations</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DDcodes" asp-action="Index">Deduction</a>
+                                    <a asp-controller="DDcodes" asp-action="Index">Deduction Types</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DBanks" asp-action="Index">Banks</a>

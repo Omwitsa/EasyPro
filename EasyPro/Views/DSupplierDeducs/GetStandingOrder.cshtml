@@ -1,0 +1,92 @@
+﻿@model IEnumerable<EasyPro.Models.StandingOrder>
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <h3 class="text-danger fa-bold">Standing Orders</h3>
+                </div>
+                
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <a asp-action="ProcessStandingOrder" class="btn btn-primary">Process Standing Order</a>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <a asp-action="StandingOrder" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
+
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Sno)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TransDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.StartDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.EndDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Amount)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Description)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AuditId)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Auditdatetime)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SaccoCode)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sno)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.StartDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.EndDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Amount)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Description)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.AuditId)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Auditdatetime)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SaccoCode)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

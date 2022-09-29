@@ -57,17 +57,17 @@ namespace EasyPro.Controllers
             var suppliers = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()));
             ViewBag.suppliers = suppliers.Count();
 
-            var activeSupNos = _context.ProductIntake.Where(p => p.TransDate >= startDate && p.TransDate <= endDate)
+            var activeSupNos = _context.ProductIntake.Where(p => p.TransDate >= startDate && p.TransDate <= endDate && p.SaccoCode == sacco)
                 .Select(p => p.Sno);
             var activeSuppliers = suppliers.Where(s => activeSupNos.Contains(s.Sno.ToString()));
             ViewBag.activeSuppliers = activeSuppliers.Count();
 
-            var todatysIntake = _context.ProductIntake.Where(p => p.TransDate == DateTime.Today);
+            var todatysIntake = _context.ProductIntake.Where(p => p.TransDate == DateTime.Today && p.SaccoCode == sacco);
             var todaySupNos = todatysIntake.Select(p => p.Sno);
             var failedSuppliers = suppliers.Where(s => !todaySupNos.Contains(s.Sno.ToString()));
             ViewBag.failedSuppliers = failedSuppliers.Count();
 
-            var sales = _context.Dispatch.Where(d => d.Transdate == DateTime.Today).Sum(d => d.Dispatchkgs);
+            var sales = _context.Dispatch.Where(d => d.Transdate == DateTime.Today && d.Dcode == sacco).Sum(d => d.Dispatchkgs);
             ViewBag.todaysales = sales;
 
             var newFarmers = suppliers.Where(s => s.Regdate >= startDate && s.Regdate <= endDate);
@@ -76,8 +76,8 @@ namespace EasyPro.Controllers
             var lastMonthStartDate = startDate.AddMonths(-1);
             var lastMonthStartDateEndDate = lastMonthStartDate.AddMonths(1).AddDays(-1);
 
-            var lastMonthActiveSupNos = _context.ProductIntake.Where(p => p.TransDate >= lastMonthStartDate && p.TransDate <= lastMonthStartDateEndDate)
-                .Select(p => p.Sno);
+            var lastMonthActiveSupNos = _context.ProductIntake.Where(p => p.TransDate >= lastMonthStartDate && p.TransDate <= lastMonthStartDateEndDate 
+            && p.SaccoCode == sacco).Select(p => p.Sno);
             var newSupNos = newFarmers.Select(s => s.Sno.ToString());
             var lastMonthDomant = activeSuppliers.Where(s => !lastMonthActiveSupNos.Contains(s.Sno.ToString()) && newSupNos.Contains(s.Sno.ToString()));
             ViewBag.lastMonthDomant = lastMonthDomant.Count();
@@ -142,6 +142,7 @@ namespace EasyPro.Controllers
                     HttpContext.Session.SetString(StrValues.LoggedInUser, user.UserLoginIds);
                     HttpContext.Session.SetString(StrValues.UserSacco, user.Branchcode);
                     HttpContext.Session.SetString(StrValues.UserGroup, user.UserGroup);
+                    HttpContext.Session.SetString(StrValues.Branch, user.Branch);
                     _notyf.Success("Logged in successfully");
                     return RedirectToAction(nameof(Index));
                 }

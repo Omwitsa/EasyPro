@@ -4,15 +4,24 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <div class="col-sm-2 col-xs-12">
                     <h3 class="text-danger fa-bold">Payroll</h3>
                 </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <div class="col-sm-2 col-xs-12">
                     <input id="gfg" type="text" class="form-control"
                            placeholder="Search here">
                 </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <div class="col-sm-3 col-xs-12">
                     <a asp-action="Create" class="btn btn-primary">Process Payroll</a>
+                </div>
+                <div class="col-sm-2 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">End Date</label>
+                        <input id="curryDate" class="form-control" type="date" />
+                    </div>
+                </div>
+                <div class="col-sm-3 col-xs-12">
+                    <a id="curryForward" class="btn btn-success">Carry Forward</a>
                 </div>
             </div>
 
@@ -120,14 +129,34 @@
         </div>
     </div>
 </div>
-@section scripts{
-    <script>
-        $(document).ready(function () {
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
             $("#gfg").on("keyup", function () {
                 var value = $(this).val().toLowerCase();
                 $("#geeks tr").filter(function () {
                     $(this).toggle($(this).text()
                         .toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            $('#curryForward').on('click', function () {
+                var curryDate = $("#curryDate").val();
+                $.ajax({
+                    type: 'GET',
+                    url: "curryForward?period=" + curryDate,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
                 });
             });
         });

@@ -29,5 +29,6 @@ namespace EasyPro.Models
         public decimal Amount { get; set; }
         public decimal? Premium { get; set; }
         public decimal? Spu { get; set; }
+        public string SaccoCode { get; set; }
     }
 }

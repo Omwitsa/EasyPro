@@ -64,14 +64,25 @@ namespace EasyPro.Controllers
 
         private void SetInitialValues()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var userGroups = _context.Usergroups.ToList();
-            ViewBag.userGroups = new SelectList(userGroups, "GroupName", "GroupName");
             var branches = _context.DBranch.ToList();
+            var accounts = _context.Glsetups.ToList();
+            var saccos = _context.DCompanies.ToList();
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            if (!loggedInUser.ToLower().Equals("psigei"))
+            {
+                
+                branches = _context.DBranch.Where(p=>p.Bcode.ToUpper().Equals(sacco.ToUpper())).ToList();
+                accounts = _context.Glsetups.Where(p => p.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
+                saccos = _context.DCompanies.Where(p => p.Name.ToUpper().Equals(sacco.ToUpper())).ToList();
+            }
+
+            ViewBag.userGroups = new SelectList(userGroups, "GroupName", "GroupName");
             ViewBag.branches = new SelectList(branches, "Bname", "Bname");
             ViewBag.dBranches = branches;
-            var accounts = _context.Glsetups.ToList();
             ViewBag.accounts = new SelectList(accounts, "AccNo", "GlAccName"); 
-            var saccos = _context.DCompanies.ToList();
             ViewBag.saccos = new SelectList(saccos, "Name", "Name");
         }
 
@@ -85,6 +96,13 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             try
             {
+                if (userAccount.Branch == "")
+                {
+                     SetInitialValues();
+                    _notyf.Error("Select the branch");
+                    return View();
+                }
+
                 userAccount.Branchcode = userAccount?.Branchcode ?? "";
                 userAccount.UserLoginIds = userAccount?.UserLoginIds ?? "";
                 userAccount.DateCreated = DateTime.UtcNow.AddHours(3);

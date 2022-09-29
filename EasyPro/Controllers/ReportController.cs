@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NPOI.SS.Formula.Functions;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
 using System;
@@ -217,6 +218,21 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
+        public IActionResult SuppliersInActive([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            sacco = sacco ?? "";
+            var activeSuppliers = _context.ProductIntake.Where(i => i.TransDate >= filter.DateFrom && i.TransDate <= filter.DateTo 
+            && i.SaccoCode == sacco && i.Branch == saccoBranch)
+                .Select(i => i.Sno);
+            suppliersobj = _context.DSuppliers
+                .Where(u => u.Scode == sacco && !activeSuppliers.Contains(u.Sno.ToString()))
+                .OrderBy(u => u.Sno);
+            return SuppliersActiveExcel(filter);
+        }
+
+        [HttpPost]
         public IActionResult SuppliersActivePdf([Bind("DateFrom,DateTo")] FilterVm filter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -225,6 +241,24 @@ namespace EasyPro.Controllers
                 .Select(i => i.Sno);
             suppliersobj = _context.DSuppliers
                 .Where(u => u.Scode == sacco && activeSuppliers.Contains(u.Sno.ToString()))
+                .OrderBy(u => u.Sno);
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = "Active Supplier";
+            var pdfFile = _reportProvider.GetSuppliersReport(suppliersobj, company, title);
+            return File(pdfFile, "application/pdf");
+        }
+
+        [HttpPost]
+        public IActionResult SuppliersInActivePdf([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            sacco = sacco ?? "";
+            var activeSuppliers = _context.ProductIntake.Where(i => i.TransDate >= filter.DateFrom 
+            && i.TransDate <= filter.DateTo && i.SaccoCode == sacco && i.Branch == saccoBranch).Select(i => i.Sno);
+            suppliersobj = _context.DSuppliers
+                .Where(u => u.Scode == sacco && !activeSuppliers.Contains(u.Sno.ToString()))
                 .OrderBy(u => u.Sno);
 
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
@@ -920,8 +954,8 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 9).Value = "Gender";
                 worksheet.Cell(currentRow, 10).Value = "Village";
                 worksheet.Cell(currentRow, 11).Value = "Location";
-                worksheet.Cell(currentRow, 12).Value = "Division";
-                worksheet.Cell(currentRow, 13).Value = "District";
+                worksheet.Cell(currentRow, 12).Value = "Ward";
+                worksheet.Cell(currentRow, 13).Value = "Sub-County";
                 worksheet.Cell(currentRow, 14).Value = "County";
                 worksheet.Cell(currentRow, 15).Value = "Active";
                 worksheet.Cell(currentRow, 16).Value = "Address";
@@ -1515,6 +1549,7 @@ namespace EasyPro.Controllers
             var DateFro = Convert.ToDateTime(DateFrom.ToString());
             var DateT = Convert.ToDateTime(DateTo.ToString());
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("productIntakeobj");
@@ -1538,9 +1573,10 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 2).Value = "Name";
                 worksheet.Cell(currentRow, 3).Value = "TransDate";
                 worksheet.Cell(currentRow, 4).Value = "ProductType";
-                worksheet.Cell(currentRow, 5).Value = "Qsupplied";
-                worksheet.Cell(currentRow, 6).Value = "Price";
-                worksheet.Cell(currentRow, 7).Value = "Description";
+                worksheet.Cell(currentRow, 5).Value = "SNO";
+                worksheet.Cell(currentRow, 6).Value = "Qsupplied";
+                worksheet.Cell(currentRow, 7).Value = "Price";
+                worksheet.Cell(currentRow, 8).Value = "Description";
                 decimal sum = 0, totalkg = 0;
                 
                 foreach (var emp in transporterobj)
@@ -1553,26 +1589,29 @@ namespace EasyPro.Controllers
                         {
                             currentRow++;
                             worksheet.Cell(currentRow, 1).Value = empintake.Sno;
-                            var TName = _context.DTransporters.Where(u => u.TransCode == empintake.Sno && u.ParentT == sacco);
-                            foreach (var ann in TName)
-                                worksheet.Cell(currentRow, 2).Value = ann.TransName;
+                            var transporters = _context.DTransporters.FirstOrDefault(u => u.TransCode == empintake.Sno && u.ParentT == sacco && u.Tbranch == saccoBranch);
+                            var intake = _context.ProductIntake.FirstOrDefault(i => i.TransDate == empintake.TransDate
+                            && i.TransTime == empintake.TransTime && i.SaccoCode == sacco && i.Branch == saccoBranch
+                            && i.Sno != empintake.Sno);
+                            worksheet.Cell(currentRow, 2).Value = transporters?.TransName ?? "";
                             worksheet.Cell(currentRow, 3).Value = empintake.TransDate;
                             worksheet.Cell(currentRow, 4).Value = empintake.ProductType;
-                            worksheet.Cell(currentRow, 5).Value = empintake.Qsupplied;
-                            worksheet.Cell(currentRow, 6).Value = empintake.Ppu;
-                            worksheet.Cell(currentRow, 7).Value = empintake.Description;
+                            worksheet.Cell(currentRow, 5).Value = intake.Sno;
+                            worksheet.Cell(currentRow, 6).Value = empintake.Qsupplied;
+                            worksheet.Cell(currentRow, 7).Value = empintake.Ppu;
+                            worksheet.Cell(currentRow, 8).Value = empintake.Description;
                             sum += (empintake.Qsupplied);
                             totalkg += (empintake.Qsupplied);
                         }
                         currentRow++;
-                        worksheet.Cell(currentRow, 4).Value = "Total Kgs";
-                        worksheet.Cell(currentRow, 5).Value = totalkg;
+                        worksheet.Cell(currentRow, 5).Value = "Total Kgs";
+                        worksheet.Cell(currentRow, 6).Value = totalkg;
                         totalkg = 0;
                     }
                 }
                 currentRow++;
-                worksheet.Cell(currentRow, 4).Value = "Total Kgs";
-                worksheet.Cell(currentRow, 5).Value = sum;
+                worksheet.Cell(currentRow, 5).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 6).Value = sum;
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
@@ -1699,6 +1738,87 @@ namespace EasyPro.Controllers
                     return File(content,
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         "Transporters Deductions.xlsx");
+                }
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ExportAllSuppliers()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("suppliersobj");
+                var currentRow = 1;
+                worksheet.Cell(currentRow, 2).Value = "Coperative Suppliers List";
+               
+                currentRow = 2;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "RegDate";
+                worksheet.Cell(currentRow, 4).Value = "IDNo";
+                worksheet.Cell(currentRow, 5).Value = "Phone";
+                worksheet.Cell(currentRow, 6).Value = "Bank";
+                worksheet.Cell(currentRow, 7).Value = "AccNo";
+                worksheet.Cell(currentRow, 8).Value = "Branch";
+                worksheet.Cell(currentRow, 9).Value = "Gender";
+                worksheet.Cell(currentRow, 10).Value = "Village";
+                worksheet.Cell(currentRow, 11).Value = "Location";
+                worksheet.Cell(currentRow, 12).Value = "Ward";
+                worksheet.Cell(currentRow, 13).Value = "Sub-County";
+                worksheet.Cell(currentRow, 14).Value = "County";
+                worksheet.Cell(currentRow, 15).Value = "Active";
+                worksheet.Cell(currentRow, 16).Value = "Address";
+                worksheet.Cell(currentRow, 17).Value = "Corperatives";
+
+                var suppliers = _context.DSuppliers.ToList().GroupBy(s => s.Scode).ToList();
+                suppliers.ForEach(s =>
+                {
+                    var company = _context.DCompanies.FirstOrDefault(c => c.Name == s.Key);
+                    if(company != null)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = company.Name;
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = company.Adress;
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = company.Town;
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = company.Email;
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = company.PhoneNo;
+                    }
+                    foreach (var emp in s)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                        worksheet.Cell(currentRow, 2).Value = emp.Names;
+                        worksheet.Cell(currentRow, 3).Value = emp.Regdate;
+                        worksheet.Cell(currentRow, 4).Value = emp.IdNo;
+                        worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
+                        worksheet.Cell(currentRow, 6).Value = emp.Bcode;
+                        worksheet.Cell(currentRow, 7).Value = emp.AccNo;
+                        worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
+                        worksheet.Cell(currentRow, 9).Value = emp.Type;
+                        worksheet.Cell(currentRow, 10).Value = emp.Village;
+                        worksheet.Cell(currentRow, 11).Value = emp.Location;
+                        worksheet.Cell(currentRow, 12).Value = emp.Division;
+                        worksheet.Cell(currentRow, 13).Value = emp.District;
+                        worksheet.Cell(currentRow, 14).Value = emp.County;
+                        worksheet.Cell(currentRow, 15).Value = emp.Active;
+                        worksheet.Cell(currentRow, 16).Value = emp.Address;
+                        worksheet.Cell(currentRow, 17).Value = emp.Scode;
+                    }
+                });
+                
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Suppliers Register.xlsx");
                 }
             }
         }

@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace EasyPro.Controllers
 {
@@ -190,6 +193,109 @@ namespace EasyPro.Controllers
         private bool DSupplierDeducExists(long id)
         {
             return _context.DSupplierDeducs.Any(e => e.Id == id);
+        }
+
+        public async Task<IActionResult> GetStandingOrder()
+        {
+            utilities.SetUpPrivileges(this);
+            return View(await _context.StandingOrder.ToListAsync());
+        }
+
+        public IActionResult StandingOrder()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var suppliers = _context.DSuppliers
+                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            ViewBag.suppliers = suppliers;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StandingOrder([Bind("Id,Sno,TransDate,StartDate,EndDate,Duration,Amount,Description,AuditId,Auditdatetime,SaccoCode")] StandingOrder standingOrder)
+        {
+            utilities.SetUpPrivileges(this);
+            if (string.IsNullOrEmpty(standingOrder.Sno))
+            {
+                _notyf.Error("Sorry, Kindly provide supplier No");
+                return View(standingOrder);
+            }
+
+            if(standingOrder.Amount == null || standingOrder.Amount < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide standing order amount");
+                return View(standingOrder);
+            }
+
+            if(standingOrder.StartDate == null || standingOrder.StartDate < DateTime.Today)
+            {
+                _notyf.Error("Sorry, Start date must be greater than today");
+                return View(standingOrder);
+            }
+
+            if(standingOrder.Duration == null || standingOrder.Duration < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide duration");
+                return View(standingOrder);
+            }
+
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            standingOrder.TransDate = DateTime.Today;
+            standingOrder.EndDate = standingOrder.StartDate.GetValueOrDefault().AddMonths((int)standingOrder.Duration);
+            standingOrder.SaccoCode = sacco;
+            standingOrder.AuditId = auditId;
+
+            _context.StandingOrder.Add(standingOrder);
+            _context.SaveChanges();
+
+            _notyf.Success("Standing order saved successfully");
+            return RedirectToAction(nameof(GetStandingOrder));
+        }
+
+        public IActionResult ProcessStandingOrder()
+        {
+            utilities.SetUpPrivileges(this);
+            var activeorders = _context.StandingOrder.Where(o => o.StartDate <= DateTime.Today && o.EndDate >= DateTime.Today).ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            activeorders.ForEach(o =>
+            {
+                var exists = _context.ProductIntake.Any(i => i.Sno == o.Sno && i.TransDate <= DateTime.Today 
+                && o.EndDate >= DateTime.Today && i.Remarks == "Standing Order" 
+                && i.Description == o.Description && i.SaccoCode == sacco);
+                if (!exists)
+                {
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = o.Sno,
+                        TransDate = DateTime.Today,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                        ProductType = o.Description,
+                        Qsupplied = 0,
+                        Ppu = 0,
+                        CR = 0,
+                        DR = o.Amount,
+                        Balance = 0,
+                        Description = o.Description,
+                        TransactionType = TransactionType.Deduction,
+                        Paid = false,
+                        Remarks = "Standing Order",
+                        AuditId = auditId,
+                        Auditdatetime = DateTime.Now,
+                        Branch = "",
+                        SaccoCode = sacco,
+                        DrAccNo = "",
+                        CrAccNo = "",
+                        Posted = false
+                    });
+                }
+            });
+
+            _context.SaveChanges();
+            _notyf.Success("Standing order processed successfully");
+            return RedirectToAction(nameof(GetStandingOrder));
         }
     }
 }

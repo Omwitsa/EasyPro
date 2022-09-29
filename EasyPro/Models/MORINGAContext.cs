@@ -282,6 +282,7 @@ namespace EasyPro.Models
 		public virtual DbSet<Tax> Taxes { get; set; }
 		public virtual DbSet<VProduct> VProducts { get; set; }
 		public virtual DbSet<CProduct> CProducts { get; set; }
+		public virtual DbSet<StandingOrder> StandingOrder { get; set; }
         public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -6227,7 +6228,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DShare>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Shares");
 
@@ -7575,7 +7576,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<Drawnstock>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("DRAWNSTOCK");
 

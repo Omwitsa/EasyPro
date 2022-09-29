@@ -23,5 +23,6 @@ namespace EasyPro.Models
         public string Buying { get; set; }
         public int? Ai { get; set; }
         public string Commission { get; set; }
+        public string saccocode { get; set; }
     }
 }

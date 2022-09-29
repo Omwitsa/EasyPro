@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Spreadsheet;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
@@ -6,6 +7,7 @@ using EasyPro.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,7 +81,6 @@ namespace EasyPro.Controllers
         public JsonResult Comparison(DateTime period)
         {
             utilities.SetUpPrivileges(this);
-
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var budgets = _context.Budgets.Where(b => b.SaccoCode.ToUpper().Equals(sacco.ToUpper())
             && b.Mmonth == period.Month && b.Yyear == period.Year).ToList();
@@ -471,6 +472,126 @@ namespace EasyPro.Controllers
                 return Json(journalListings);
             }
             catch (Exception e)
+            {
+                return Json("");
+            }
+        }
+
+        public IActionResult IncomeStatement()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult IncomeStatement([FromBody] JournalFilter filter)
+        {
+            try
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var journalListings = new List<JournalVm>();
+                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                    .ToList();
+                gltransactions.ForEach(t =>
+                {
+                    var debtorssAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo && a.saccocode == sacco && a.GlAccType == "Income Statement");
+                    if (debtorssAcc != null)
+                    {
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.DrAccNo,
+                            TransDate = t.TransDate,
+                            AccName = debtorssAcc.GlAccName,
+                            Dr = t.Amount,
+                            DocumentNo = t.DocumentNo,
+                            Cr = 0,
+                            TransDescript = t.TransDescript,
+                            Group = debtorssAcc.GlAccMainGroup,
+                        });
+                    }
+
+                    var creditorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo && a.saccocode == sacco && a.GlAccType == "Income Statement");
+                    if (creditorsAcc != null)
+                    {
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = t.CrAccNo,
+                            TransDate = t.TransDate,
+                            AccName = creditorsAcc.GlAccName,
+                            Cr = t.Amount,
+                            DocumentNo = t.DocumentNo,
+                            Dr = 0,
+                            TransDescript = t.TransDescript,
+                            Group = creditorsAcc.GlAccMainGroup,
+                        });
+                    }
+                });
+
+                var income = journalListings.Where(a => a.Group == "INCOME").ToList();
+                var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
+                return Json(new
+                {
+                    income,
+                    expenses
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json("");
+            }
+        }
+
+        public IActionResult BalanceSheet()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult BalanceSheet([FromBody] JournalFilter filter)
+        {
+            try
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var journalListings = new List<JournalVm>();
+                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                    .ToList();
+
+                var glsetups = _context.Glsetups.Where(a => a.GlAccType == "Balance Sheet" && a.saccocode == sacco).ToList();
+                glsetups.ForEach(s =>
+                {
+                    var transaction = gltransactions.FirstOrDefault();
+                    var debitAmount = gltransactions.Where(t => t.DrAccNo == s.AccNo).Sum(t => t.Amount);
+                    var creditAmount = gltransactions.Where(t => t.CrAccNo == s.AccNo).Sum(t => t.Amount);
+                    if (debitAmount != 0 || creditAmount != 0)
+                    {
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = s.AccNo,
+                            TransDate = transaction.TransDate,
+                            AccName = s.GlAccName,
+                            Dr = debitAmount,
+                            DocumentNo = transaction.DocumentNo,
+                            Cr = creditAmount,
+                            TransDescript = transaction.TransDescript,
+                            Group = s.GlAccMainGroup,
+                        });
+                    }
+                });
+
+                var assets = journalListings.Where(a => a.Group == "ASSETS").ToList();
+                var liabilities = journalListings.Where(a => a.Group == "LIABILITIES").ToList();
+                var capitals = journalListings.Where(a => a.Group == "CAPITAL").ToList();
+                return Json(new
+                {
+                    assets,
+                    liabilities,
+                    capitals
+                });
+            }
+            catch (Exception ex)
             {
                 return Json("");
             }

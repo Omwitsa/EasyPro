@@ -80,9 +80,9 @@
                                         @Html.DisplayFor(modelItem => item.Active)
                                     </td>
                                     <td class="col-4">
-                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                        @*<input type="button" class="btn-danger btn-danger" id="delete" onClick="Delete('@item.Id')" value="Delete"/>*@
+                                        <a class="btn-warning" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                        <a class="btn-info" asp-action="ExportFamers" asp-route-id="@item.Id">Export Farmers</a>
+                                        <a class="btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                                     </td>
                                 </tr>
                             }

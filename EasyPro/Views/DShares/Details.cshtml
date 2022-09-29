@@ -1,0 +1,144 @@
+﻿@model EasyPro.Models.DShare
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DShare</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Sno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Bal)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bal)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IdNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IdNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Code)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Code)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Sex)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sex)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Loc)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Loc)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Type)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TransDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TransDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Pmode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Pmode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Cash)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Cash)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Period)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Period)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Amnt)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amnt)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditDateTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditDateTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Shares)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Shares)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Regdate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Regdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Mno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Mno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Amount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Premium)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Premium)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Spu)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Spu)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

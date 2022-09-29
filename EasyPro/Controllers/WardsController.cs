@@ -29,6 +29,8 @@ namespace EasyPro.Controllers
         // GET: Wards
         public async Task<IActionResult> Index()
         {
+            var myIp = utilities.GetLocalIPAddress();
+            var ClientIPAddr = HttpContext.Connection.RemoteIpAddress?.ToString();
             utilities.SetUpPrivileges(this);
             return View(await _context.Ward.ToListAsync());
         }

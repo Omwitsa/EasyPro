@@ -25,6 +25,12 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.Description)
                                 </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Dedaccno)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Contraacc)
+                                </th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -34,6 +40,12 @@
                                 <tr>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.Description)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Dedaccno)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Contraacc)
                                     </td>
                                     <td>
                                         <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

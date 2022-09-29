@@ -273,6 +273,7 @@ namespace EasyPro.Utils
                                                 <th>Name</th>
                                                 <th>Date</th>
                                                 <th>Product Type</th>
+                                                <th>SNO</th>
                                                 <th>Qsupplied</th>
                                                 <th>Price</th>
                                                 <th>Description</th>
@@ -288,6 +289,7 @@ namespace EasyPro.Utils
                     var transpoterIntakes = intakes.Where(i => i.Sno == transporter.TransCode);
                     foreach(var intake in transpoterIntakes)
                     {
+                        var intake1 = intakes.FirstOrDefault(i => i.TransDate == intake.TransDate && i.TransTime == intake.TransTime && i.Sno != intake.Sno);
                         sb.AppendFormat(@"
                             <tr>
                                 <td>{0}</td>
@@ -297,10 +299,11 @@ namespace EasyPro.Utils
                                 <td>{4}</td>
                                 <td>{5}</td>
                                 <td>{6}</td>
+                                <td>{7}</td>
                             </tr>
                             ",
                               transporter.TransCode, transporter.TransName, intake.TransDate, intake.ProductType,
-                              intake.Qsupplied, intake.Ppu, intake.Description);
+                              intake1.Sno, intake.Qsupplied, intake.Ppu, intake.Description);
                     }
                 }
             }
@@ -671,8 +674,8 @@ namespace EasyPro.Utils
                                                 <th>Gender</th>
                                                 <th>Village</th>
                                                 <th>Location</th>
-                                                <th>Division</th>
-                                                <th>District</th>
+                                                <th>Ward</th>
+                                                <th>Sub-County</th>
                                                 <th>County</th>
                                             </tr>
                                         </thead>
