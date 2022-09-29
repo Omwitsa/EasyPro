@@ -35,21 +35,24 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             return View(await _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
-                && i.TransDate == DateTime.Today)
+                && i.TransDate == DateTime.Today && i.Branch == saccoBranch)
                 .ToListAsync());
         }
         public async Task<IActionResult> TDeductionList()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction 
-            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
+            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today
+            && c.Branch == saccoBranch).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach (var intake in productIntakes)
             {
-                var supplier = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.Sno && i.ParentT == sacco);
+                var supplier = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.Sno && i.ParentT == sacco && i.Tbranch == saccoBranch);
                 if (supplier != null)
                 {
                     intakes.Add(new ProductIntakeVm
@@ -70,13 +73,15 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction 
-            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
+            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today
+            && c.Branch == saccoBranch).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach (var intake in productIntakes)
             {
                 long.TryParse(intake.Sno, out long sno);
-                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == sno && i.Scode == sacco);
+                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == sno && i.Scode == sacco && i.Branch == saccoBranch);
                 if (supplier != null)
                 {
                     intakes.Add(new ProductIntakeVm
@@ -101,10 +106,11 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CorrectionList()
         {
             utilities.SetUpPrivileges(this);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.ProductIntake
                 .Where(c => c.TransactionType == TransactionType.Correction && c.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
-                && c.TransDate == DateTime.Today)
+                && c.TransDate == DateTime.Today && c.Branch == saccoBranch)
                 .ToListAsync());
         }
 
@@ -138,8 +144,9 @@ namespace EasyPro.Controllers
         private void SetIntakeInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var suppliers = _context.DSuppliers
-                .Where(s=>s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+                .Where(s=>s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch).ToList();
             ViewBag.suppliers = suppliers;
             var products = _context.DPrices.Where(s=>s.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.products = new SelectList(products, "Products", "Products");
@@ -151,9 +158,10 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             Farmersobj = new FarmersVM()
             {
-                DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco),
+                DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch == saccoBranch),
                 ProductIntake = new ProductIntake
                 {
                     TransDate = DateTime.Today
@@ -168,9 +176,10 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             Farmersobj = new FarmersVM()
             {
-                DTransporters = _context.DTransporters.Where(t => t.ParentT == sacco),
+                DTransporters = _context.DTransporters.Where(t => t.ParentT == sacco && t.Tbranch == saccoBranch),
                 ProductIntake = new ProductIntake
                 {
                     TransDate = DateTime.Today
@@ -180,6 +189,7 @@ namespace EasyPro.Controllers
         }
         private void GetInitialValues()
         {
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var Descriptionname = _context.DDcodes.Where(d => d.Dcode == sacco).Select(b => b.Description).ToList();
             ViewBag.Description = new SelectList(Descriptionname);
@@ -216,6 +226,8 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            productIntake.Branch = saccoBranch;
             productIntake.Description = productIntake?.Description ?? "";
             long.TryParse(productIntake.Sno, out long sno);
             if (sno < 1)
@@ -223,7 +235,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return View(productIntake);
             }
-            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper())))
+            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
                 return View(productIntake);
@@ -238,7 +250,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return View(productIntake);
             }
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()));
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch);
             if (supplier == null)
             {
                 _notyf.Error("Sorry, Supplier does not exist");
@@ -252,8 +264,6 @@ namespace EasyPro.Controllers
             if (ModelState.IsValid)
             {
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-                var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
-                productIntake.Branch = branch.Bname;
                 productIntake.SaccoCode = sacco;
                 productIntake.TransactionType = TransactionType.Intake;
                 productIntake.TransDate = DateTime.Today;
@@ -262,7 +272,8 @@ namespace EasyPro.Controllers
                 var price = _context.DPrices
                     .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                     && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));
-                _context.ProductIntake.Add(new ProductIntake { 
+                var collection = new ProductIntake
+                {
                     Sno = productIntake.Sno.Trim(),
                     TransDate = productIntake.TransDate,
                     TransTime = productIntake.TransTime,
@@ -282,12 +293,13 @@ namespace EasyPro.Controllers
                     SaccoCode = productIntake.SaccoCode,
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
-                });
+                };
+                _context.ProductIntake.Add(collection);
 
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                 && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
-                var collection = new ProductIntake();
+               
                 if (transport != null)
                 {
                     // Debit supplier transport amount
@@ -349,7 +361,7 @@ namespace EasyPro.Controllers
                 var startDate = new DateTime(productIntake.TransDate.Year, productIntake.TransDate.Month, 1);
                 var endDate = startDate.AddMonths(1).AddDays(-1);
                 var commulated = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
-                && s.TransDate >= startDate && s.TransDate <= endDate).Sum(s => s.Qsupplied);
+                && s.TransDate >= startDate && s.TransDate <= endDate && s.Branch == saccoBranch).Sum(s => s.Qsupplied);
                 _context.Messages.Add(new Message
                 {
                     Telephone = supplier.PhoneNo,
@@ -375,11 +387,12 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             long.TryParse(productIntake.Sno, out long sno);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             DateTime startdate = new DateTime(productIntake.TransDate.Year, productIntake.TransDate.Month, 1);
             DateTime enddate = startdate.AddMonths(1).AddDays(-1);
             productIntake.Description = productIntake?.Description ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Scode == sacco && i.Active == true && i.Approval == true))
+            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Scode == sacco && i.Active == true && i.Approval == true && i.Branch == saccoBranch))
             {
                 _notyf.Error("Sorry, Supplier Number code does not exist");
                 GetInitialValues();
@@ -392,13 +405,13 @@ namespace EasyPro.Controllers
                 return View(Farmersobj);
             }
             if (!_context.ProductIntake.Any(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco && i.Qsupplied!= 0 
-            && i.TransDate >= startdate && i.TransDate <= enddate))
+            && i.TransDate >= startdate && i.TransDate <= enddate && i.Branch == saccoBranch))
             {
                 _notyf.Error("Sorry, Supplier has not deliver any product for this month"+" "+ startdate+ "To " + " "+ enddate );
                 GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco),
+                    DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch ==saccoBranch),
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -410,7 +423,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Farmer code cannot be zero");
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco),
+                    DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch == saccoBranch),
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -441,10 +454,11 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             //long.TryParse(, out long sno);
             productIntake.Remarks = productIntake?.Remarks ?? "";
-            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco);
-            if (!_context.DTransporters.Any(i => i.TransCode == productIntake.Sno && i.Active == true && i.ParentT == sacco))
+            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco && t.Tbranch == saccoBranch);
+            if (!_context.DTransporters.Any(i => i.TransCode == productIntake.Sno && i.Active == true && i.ParentT == sacco && i.Tbranch == saccoBranch))
             {
                 _notyf.Error("Sorry, Transporter code does not exist");
                 GetInitialValues();
@@ -507,6 +521,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             productIntake.SaccoCode = sacco;
             var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
             productIntake.Branch = branch.Bname;
@@ -519,7 +534,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return View(productIntake);
             }
-            if (!_context.DSuppliers.Any(s => s.Sno == sno))
+            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode == sacco && s.Branch == saccoBranch))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
                 return View(productIntake);
@@ -534,7 +549,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return View(productIntake);
             }
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode == sacco);
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode == sacco && s.Branch == saccoBranch);
             if (supplier == null) 
             {
                 _notyf.Error("Sorry, Supplier does not exist");

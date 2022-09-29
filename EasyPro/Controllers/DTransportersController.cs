@@ -9,6 +9,7 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
+using System;
 
 namespace EasyPro.Controllers
 {
@@ -97,31 +98,41 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode")] DTransporter dTransporter)
         {
-            utilities.SetUpPrivileges(this);
-            if (dTransporter == null)
+            try
             {
-                _notyf.Error("Transporter cannot be empty");
-                return NotFound();
+                utilities.SetUpPrivileges(this);
+                if (dTransporter == null)
+                {
+                    _notyf.Error("Transporter cannot be empty");
+                    return NotFound();
+                }
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+                sacco = sacco ?? "";
+                var dTransporterExists = _context.DTransporters
+                    .Any(i => (i.TransCode == dTransporter.TransCode || i.CertNo == dTransporter.CertNo) && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
+                if (dTransporterExists)
+                {
+                    GetInitialValues();
+                    _notyf.Error("Transporter entered already exist");
+                    return View();
+                }
+                if (ModelState.IsValid)
+                {
+                    dTransporter.ParentT = sacco;
+                    dTransporter.Tbranch = saccoBranch;
+                    _context.Add(dTransporter);
+                    await _context.SaveChangesAsync();
+                    _notyf.Success("Transporter saved successfully");
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(dTransporter);
             }
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            sacco = sacco ?? "";
-            var dTransporterExists = _context.DTransporters
-                .Any(i=>(i.TransCode == dTransporter.TransCode || i.CertNo == dTransporter.CertNo) && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
-            if (dTransporterExists)
+            catch (Exception ex)
             {
-                GetInitialValues();
-                _notyf.Error("Transporter entered already exist");
-                return View();
+                _notyf.Error("Sorry, An error occurred");
+                return View(dTransporter);
             }
-            if (ModelState.IsValid)
-            {
-                dTransporter.ParentT = sacco;
-                _context.Add(dTransporter);
-                await _context.SaveChangesAsync();
-                _notyf.Success("Transporter saved successfully");
-                return RedirectToAction(nameof(Index));
-            }
-            return View(dTransporter);
         }
 
         // GET: DTransporters/Edit/5

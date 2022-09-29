@@ -31,10 +31,11 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             sacco = sacco ?? "";
 
             var suppliers = _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval==true);
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval==true && i.Branch == saccoBranch);
 
             return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.AsNoTracking(), pageNumber ?? 1, pageSize ?? 1000));
         }
@@ -44,8 +45,9 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             return View(await _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval).ToListAsync());
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval && i.Branch == saccoBranch).ToListAsync());
         }
 
         public async Task<IActionResult> SaccoSupplierSummery()
@@ -200,6 +202,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             sacco = sacco ?? "";
             if (dSupplier == null)
             {
@@ -207,7 +210,7 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dSupplierExists = _context.DSuppliers.Any(i => (i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo) && i.Scode == sacco);
+            var dSupplierExists = _context.DSuppliers.Any(i => (i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo) && i.Scode == sacco && i.Branch == saccoBranch);
             if (dSupplierExists)
             {
                 //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)

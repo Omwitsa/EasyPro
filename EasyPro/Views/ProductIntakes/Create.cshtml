@@ -103,17 +103,17 @@
     }
 <script type="text/javascript">
         $(function () {
+            var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
+            products = products ? products : [];
+            $("#Sno").val("");
+            $("#Qsupplied").val("");
+            if (products.length === 1){
+                $("#ProductType").val(products[0].Products);
+                populateFields(products[0].Products);
+            }
             $('#ProductType').on('change', function () {
                 var selectVal = $("#ProductType").val();
-                var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
-                var selectProducts = products.filter(p => p.Products === selectVal);
-                if (selectProducts[0]) {
-                    $("#CR").val();
-                    $("#Qsupplied").val();
-                    $("#Ppu").val(selectProducts[0].Price);
-                    $("#DrAccNo").val(selectProducts[0].DrAccNo);
-                    $("#CrAccNo").val(selectProducts[0].CrAccNo);
-                }
+                populateFields(selectVal);
             });
 
             $('#Sno').on('keyup', function () {
@@ -128,6 +128,18 @@
             $('#Qsupplied').on('keyup', function () {
                 calculatePrice();
             });
+
+            function populateFields(product) {
+                var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
+                var selectProducts = products.filter(p => p.Products === product);
+                if (selectProducts[0]) {
+                    $("#CR").val();
+                    $("#Qsupplied").val();
+                    $("#Ppu").val(selectProducts[0].Price);
+                    $("#DrAccNo").val(selectProducts[0].DrAccNo);
+                    $("#CrAccNo").val(selectProducts[0].CrAccNo);
+                }
+            }
 
             function calculatePrice() {
                 var qty = parseFloat($("#Qsupplied").val());
