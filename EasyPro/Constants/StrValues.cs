@@ -5,5 +5,6 @@
         static public string LoggedInUser = "LoggedInUser";
         static public string UserSacco = "UserSacco";
         static public string UserGroup = "UserGroup";
+        static public string Branch = "Branch";
     }
 }

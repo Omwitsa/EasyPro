@@ -204,6 +204,10 @@ namespace EasyPro.Controllers
         public IActionResult StandingOrder()
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var suppliers = _context.DSuppliers
+                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            ViewBag.suppliers = suppliers;
             return View();
         }
 

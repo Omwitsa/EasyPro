@@ -51,17 +51,59 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> SaccoSupplierSummery()
         {
             utilities.SetUpPrivileges(this);
-            var groupedSuppliers = _context.DSuppliers.ToList().GroupBy(s => s.Scode).ToList();
-            var saccoSuppliers = new List<SuppliersVm>();
-            groupedSuppliers.ForEach(s =>
+            var countySuppliers = _context.DSuppliers.ToList().GroupBy(s => s.County).ToList();
+            var countySaccos = new List<CountySupplierSummery>();
+            var totalSuppliers = 0;
+            var totalMale = 0;
+            var totalFemale = 0;
+
+            countySuppliers.ForEach(c =>
             {
-                saccoSuppliers.Add(new SuppliersVm
+                var saccoSuppliers = new List<SaccoSupplierSummery>();
+                var totalCountySuppliers = 0;
+                var totalCountyMale = 0;
+                var totalCountyFemale = 0;
+               
+                var groupedSuppliers = c.ToList().GroupBy(s => s.Scode).ToList();
+                groupedSuppliers.ForEach(s =>
                 {
-                    Sacco = s.Key,
-                    Suppliers = s.Count()
+                    var total = s.Count();
+                    var male = s.Where(g => g.Type.ToLower().Equals("male")).Count();
+                    var female = s.Where(g => g.Type.ToLower().Equals("female")).Count();
+                    totalCountySuppliers += total;
+                    totalCountyMale += male;
+                    totalCountyFemale += female;
+                    saccoSuppliers.Add(new SaccoSupplierSummery
+                    {
+                        Sacco = s.Key,
+                        Suppliers = total,
+                        Male = male,
+                        Female = female
+                    });
                 });
+
+                countySaccos.Add(new CountySupplierSummery
+                {
+                    County = c.Key,
+                    suppliers = saccoSuppliers,
+                    TotalSupplies = totalCountySuppliers,
+                    TotalMale = totalCountyMale,
+                    TotalFemale = totalCountyFemale
+                });
+
+                totalSuppliers += totalCountySuppliers;
+                totalMale += totalCountyMale;
+                totalFemale += totalCountyFemale;
             });
-            return View(saccoSuppliers);
+
+            var supplierSummery = new SupplierSummeryVm
+            {
+                countySuppliers = countySaccos,
+                TotalSupplies = totalSuppliers,
+                TotalMale = totalMale,
+                TotalFemale = totalFemale
+            };
+            return View(supplierSummery);
         }
 
         public async Task<IActionResult> SaccoSuppliers(string id)

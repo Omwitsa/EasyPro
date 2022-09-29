@@ -31,9 +31,10 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             GetInitialValues();
             return View(await _context.AgProducts
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).ToListAsync());
         }
         private void GetInitialValues()
         {
@@ -45,6 +46,9 @@ namespace EasyPro.Controllers
             ViewBag.products = new SelectList(products);
             var glAccounts = _context.Glsetups.Where(a => a.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
+
+           
+
         }
         
         // GET: AgProducts/Details/5
@@ -72,8 +76,9 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var product = _context.AgProducts
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch)
                 .OrderByDescending(u => u.Id).FirstOrDefault();
             var num = 0;
             if (product != null)
@@ -100,14 +105,15 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var checkproductExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PName== agProduct.PName);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var checkproductExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PName== agProduct.PName && a.Branch == saccobranch);
             if (checkproductExist)
             {
                 GetInitialValues();
                 _notyf.Error("Product Already exist");
                 return View();
             }
-            var checkproductExistCode = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode);
+            var checkproductExistCode = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch == saccobranch);
             if (checkproductExistCode)
             {
                 GetInitialValues();
@@ -134,16 +140,13 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
-                // S_No, , , , , user_id, audit_date, o_bal, SupplierID,
-                ////Serialized, unserialized, seria, pprice, sprice, Branch, DRACCNO, CRACCNO, AI, saccocode
-                
                 var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
-                //agProduct.Id = agProduct.Id;
                 agProduct.UserId = user;
                 agProduct.AuditDate = DateTime.Now;
                 agProduct.saccocode = sacco;
+                agProduct.Branch = saccobranch;
 
-                var checkproductifExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode);
+                var checkproductifExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch == saccobranch);
                 if (!checkproductifExist)
                 {
                     agProduct.Qin = agProduct.Qin;
@@ -154,7 +157,7 @@ namespace EasyPro.Controllers
                 }
                 else
                 {
-                    var checkquantity = _context.AgProducts.Where(a => a.saccocode == sacco && a.PCode == agProduct.PCode).Sum(i => i.Qin);
+                    var checkquantity = _context.AgProducts.Where(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch == saccobranch).Sum(i => i.Qin);
                     double? qnty = checkquantity;
                     agProduct.Qin = qnty+checkquantity;
                     _context.AgProducts.Update(agProduct);
@@ -216,6 +219,8 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+
             if (id != agProduct.Id)
             {
                 GetInitialValues();
@@ -229,9 +234,10 @@ namespace EasyPro.Controllers
                     //var Quantity = _context.AgProducts.Where(u => u.saccocode == sacco && u.PCode == agProduct.PCode).Select(p => p.Qin);
                     //agProduct.Qin = Quantity + agProduct.Qin;
                     //_context.Update(agProduct);
-                    var checkproductifExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode);
+            
+                    var checkproductifExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch== saccobranch);
                     double? existingkgs = 0;
-                    var checkquantity = _context.AgProducts.Where(a => a.saccocode == sacco && a.PCode == agProduct.PCode).Sum(i => i.Qin);
+                    var checkquantity = _context.AgProducts.Where(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch == saccobranch).Sum(i => i.Qin);
                     existingkgs = checkquantity;
                     if (!checkproductifExist)
                     {
@@ -241,12 +247,14 @@ namespace EasyPro.Controllers
                     else
                     {
                         double? qnty = checkquantity;
-                        agProduct.Qin = qnty + agProduct.Qin;
+                        agProduct.Qin = agProduct.Qin;
                         agProduct.Qout = agProduct.Qin;
-                        agProduct.OBal = agProduct.Qin;
+                        agProduct.OBal = qnty + agProduct.Qin;
                         _context.AgProducts.Update(agProduct);
                     }
                     var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                    //var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                    //&& a.Branch== saccobranch
                     agProduct.UserId = user;
                     agProduct.AuditDate = DateTime.Now;
                     agProduct.saccocode = sacco;
@@ -254,13 +262,13 @@ namespace EasyPro.Controllers
                     {
                         PName = agProduct.PName,
                         PCode = agProduct.PCode,
-                        Qin = existingkgs,
-                        Qout = existingkgs,
+                        Qin = agProduct.Qin,
+                        Qout = agProduct.Qin,
                         DateEntered = agProduct.DateEntered,
                         LastDUpdated = agProduct.LastDUpdated,
                         UserId = user,
                         AuditDate = DateTime.Now,
-                        OBal = existingkgs,
+                        OBal = agProduct.OBal,
                         SupplierId = agProduct.SupplierId,
                         Pprice = agProduct.Pprice,
                         Sprice = agProduct.Sprice,

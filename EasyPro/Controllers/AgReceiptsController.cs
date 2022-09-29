@@ -32,14 +32,16 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             return View(await _context.AgReceipts
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate == DateTime.Today)
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate == DateTime.Today && i.Branch == saccobranch)
                 .OrderByDescending(s => s.AuditDate).ToListAsync());
         }
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var agproducts = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.PName).ToList();
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var agproducts = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).Select(b => b.PName).ToList();
             ViewBag.agproductsall = new SelectList(agproducts, "");
 
             var branches = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
@@ -67,10 +69,12 @@ namespace EasyPro.Controllers
                 
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
                 intakes.ForEach(t =>
                 {
                     t.Description = t?.Description ?? "";
                     t.SaccoCode = sacco;
+                    t.Branch = saccobranch;
                     t.TransactionType = TransactionType.Deduction;
                     t.AuditId = loggedInUser;
                     if (t.Sno == "")
@@ -78,7 +82,7 @@ namespace EasyPro.Controllers
                         t.Sno = "cash";
                     }
                     var product = _context.AgProducts.FirstOrDefault(p => p.PName.ToUpper().Equals(t.Description.ToUpper())
-                    && p.saccocode == sacco);
+                    && p.saccocode == sacco && p.Branch== saccobranch);
                     if(product != null)
                     {
                         var bal = product.OBal - (double?)t.Qsupplied;
@@ -170,10 +174,12 @@ namespace EasyPro.Controllers
                 });
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
                 intakes.ForEach(t =>
                 {
                     t.Description = t?.Description ?? "";
                     t.SaccoCode = sacco;
+                    t.Branch = saccobranch;
                     t.TransactionType = TransactionType.Deduction;
                     t.AuditId = loggedInUser;
                     t.Qsupplied = t.Qsupplied * -1;
@@ -185,10 +191,10 @@ namespace EasyPro.Controllers
                     }
 
                     var product = _context.AgProducts.FirstOrDefault(p => p.PName.ToUpper().Equals(t.Description.ToUpper())
-                    && p.saccocode == sacco);
+                    && p.saccocode == sacco && p.Branch== saccobranch);
                     if (product != null)
                     {
-                        var bal = product.OBal - (double?)t.Qsupplied;
+                        var bal = product.OBal + (double?)t.Qsupplied;
                         _context.AgReceipts.Add(new AgReceipt
                         {
                             RNo = RNo,
@@ -278,8 +284,9 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var count = _context.AgReceipts
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== saccobranch)
                 .OrderByDescending(u => u.RNo)
                 .Select(b => b.RNo);
             var selectedno = count.FirstOrDefault();
@@ -300,10 +307,10 @@ namespace EasyPro.Controllers
                 TDate = DateTime.Today,
             };
 
-            var transporters = _context.DTransporters.Where(s => s.ParentT == sacco).ToList();
-            var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
-            var products = _context.AgProducts.Where(p => p.saccocode == sacco).ToList();
-            var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+            var transporters = _context.DTransporters.Where(s => s.ParentT == sacco && s.Tbranch == saccobranch).ToList();
+            var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch== saccobranch).ToList();
+            var products = _context.AgProducts.Where(p => p.saccocode == sacco && p.Branch== saccobranch).ToList();
+            var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && u.Branch== saccobranch);
             var agrovetsales = new Agrovetsales
             {
                 AgReceipt = receipt,
@@ -343,8 +350,9 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var count = _context.AgReceipts
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch)
                 .OrderByDescending(u => u.RNo)
                 .Select(b => b.RNo);
             var selectedno = count.FirstOrDefault();
@@ -362,10 +370,10 @@ namespace EasyPro.Controllers
                 TDate = DateTime.Today,
             };
 
-            var transporters = _context.DTransporters.Where(s => s.ParentT == sacco).ToList();
-            var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
-            var products = _context.AgProducts.Where(p => p.saccocode == sacco).ToList();
-            var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+            var transporters = _context.DTransporters.Where(s => s.ParentT == sacco && s.Tbranch== saccobranch).ToList();
+            var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch== saccobranch).ToList();
+            var products = _context.AgProducts.Where(p => p.saccocode == sacco && p.Branch== saccobranch).ToList();
+            var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && u.Branch== saccobranch);
             var agrovetsales = new Agrovetsales
             {
                 AgReceipt = receipt,
@@ -403,8 +411,9 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var count = _context.AgReceipts
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== saccobranch)
                 .OrderByDescending(u => u.RNo)
                 .Select(b => b.RNo);
             var selectedno = count.FirstOrDefault();

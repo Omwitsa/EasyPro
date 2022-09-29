@@ -142,6 +142,7 @@ namespace EasyPro.Controllers
                     HttpContext.Session.SetString(StrValues.LoggedInUser, user.UserLoginIds);
                     HttpContext.Session.SetString(StrValues.UserSacco, user.Branchcode);
                     HttpContext.Session.SetString(StrValues.UserGroup, user.UserGroup);
+                    HttpContext.Session.SetString(StrValues.Branch, user.Branch);
                     _notyf.Success("Logged in successfully");
                     return RedirectToAction(nameof(Index));
                 }

@@ -57,6 +57,9 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var suppliers = _context.DSuppliers
+                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            ViewBag.suppliers = suppliers;
             var codes = _context.DDcodes.Where(a => a.Dcode == sacco).ToList();
             ViewBag.codes = new SelectList(codes, "Description", "Description");
             var modes = new string[] { "Cash", "Checkoff", "Mpesa" };
@@ -81,6 +84,22 @@ namespace EasyPro.Controllers
             dShare.AuditId = auditId;
 
             var dDcode = _context.DDcodes.FirstOrDefault(c => c.Description == dShare.Type && c.Dcode == sacco);
+            if(dDcode == null)
+            {
+                _notyf.Error("Sorry, Deduction not set");
+                return View(dShare);
+            }
+            if (string.IsNullOrEmpty(dDcode.Contraacc))
+            {
+                _notyf.Error("Sorry, Contra acc not set");
+                return View(dShare);
+            }
+            if (string.IsNullOrEmpty(dDcode.Dedaccno))
+            {
+                _notyf.Error("Sorry, Deduction acc not set");
+                return View(dShare);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(dShare);
