@@ -10,6 +10,9 @@ using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using System;
+using ClosedXML.Excel;
+using System.IO;
+using NPOI.SS.Formula.Functions;
 
 namespace EasyPro.Controllers
 {
@@ -150,6 +153,80 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
             return View(dTransporter);
+        }
+        
+        public async Task<IActionResult> ExportFamers(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            if (id == null)
+            {
+                _notyf.Error("Sorry, Transpoter not found");
+                return NotFound();
+            }
+            var dTransporter = await _context.DTransporters.FindAsync(id);
+            if (dTransporter == null)
+            {
+                _notyf.Error("Sorry, Transpoter not found");
+                return NotFound();
+            }
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var company = _context.DCompanies.FirstOrDefault(u => u.Name == sacco);
+            using (var workbook = new XLWorkbook())
+            {
+                
+                var worksheet = workbook.Worksheets.Add("Farmers");
+                var currentRow = 1;
+                if(company != null)
+                {
+                    worksheet.Cell(currentRow, 2).Value = company.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = company.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = company.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = company.Email;
+                }
+               
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Transporters farmers";
+                worksheet.Cell(currentRow, 3).Value = dTransporter.TransCode;
+                worksheet.Cell(currentRow, 4).Value = dTransporter.TransName;
+
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "Phone No";
+                worksheet.Cell(currentRow, 4).Value = "IDNo";
+                worksheet.Cell(currentRow, 5).Value = "Branch";
+                decimal sum = 0;
+
+                var supplierNos = _context.DTransports.Where(s => s.TransCode == dTransporter.TransCode
+                && s.saccocode == sacco).Select(s => s.Sno).ToList();
+                var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch == saccoBranch
+                && supplierNos.Contains(s.Sno)).ToList();
+                foreach (var supplier in suppliers)
+                {
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = supplier.Sno;
+                    worksheet.Cell(currentRow, 2).Value = supplier.Names;
+                    worksheet.Cell(currentRow, 3).Value = supplier.PhoneNo;
+                    worksheet.Cell(currentRow, 4).Value = supplier.IdNo;
+                    worksheet.Cell(currentRow, 5).Value = supplier.Branch;
+                    sum = sum + 1;
+                }
+                currentRow++;
+                worksheet.Cell(currentRow, 4).Value = "No of Farmers";
+                worksheet.Cell(currentRow, 5).Value = sum;
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Transporters Farmers.xlsx");
+                }
+            }
         }
 
         // POST: DTransporters/Edit/5
