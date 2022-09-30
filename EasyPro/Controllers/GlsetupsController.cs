@@ -98,27 +98,27 @@ namespace EasyPro.Controllers
                     if (string.IsNullOrEmpty(glsetup.AccNo))
                     {
                         _notyf.Error("Sorry, Kindly provide account No.");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
                     if (string.IsNullOrEmpty(glsetup.GlAccName))
                     {
                         _notyf.Error("Sorry, Kindly provide account Name");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
                     if (string.IsNullOrEmpty(glsetup.NormalBal))
                     {
                         _notyf.Error("Sorry, Kindly provide normal balance");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
-                    if (_context.Glsetups.Any(u => u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper())))
+                    if (_context.Glsetups.Any(u => u.saccocode == sacco && u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper())))
                     {
                         _notyf.Error("Sorry, Account No. already exist");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
-                    if (_context.Glsetups.Any(u => u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper())))
+                    if (_context.Glsetups.Any(u =>u.saccocode==sacco && u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper())))
                     {
                         _notyf.Error("Sorry, Account Name already exist");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
 
                     glsetup.CurrCode = glsetup?.CurrCode ?? 0;
@@ -134,7 +134,7 @@ namespace EasyPro.Controllers
                 }
             }
             _notyf.Error("Sorry, An error occurred");
-            return View(glsetup);
+            return RedirectToAction(nameof(Create));
         }
 
         // GET: Glsetups/Edit/5
@@ -188,12 +188,12 @@ namespace EasyPro.Controllers
                         _notyf.Error("Sorry, Kindly provide normal balance");
                         return View(glsetup);
                     }
-                    if (_context.Glsetups.Any(u => u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper()) && u.Glid != glsetup.Glid))
+                    if (_context.Glsetups.Any(u => u.saccocode == sacco && u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper()) && u.Glid != glsetup.Glid))
                     {
                         _notyf.Error("Sorry, Account No. already exist");
                         return View(glsetup);
                     }
-                    if (_context.Glsetups.Any(u => u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper()) && u.Glid != glsetup.Glid))
+                    if (_context.Glsetups.Any(u =>u.saccocode==sacco && u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper()) && u.Glid != glsetup.Glid))
                     {
                         _notyf.Error("Sorry, Account Name already exist");
                         return View(glsetup);

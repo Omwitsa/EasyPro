@@ -10,6 +10,7 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
+using EasyPro.ViewModels.TranssupplyVM;
 
 namespace EasyPro.Controllers
 {
@@ -18,7 +19,6 @@ namespace EasyPro.Controllers
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
         private Utilities utilities;
-        private object agProduct;
 
         public DrawnstocksController(MORINGAContext context, INotyfService notyf)
         {
@@ -35,7 +35,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             return View(await _context.Drawnstocks
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Date == DateTime.Today && i.Branch == saccobranch)
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Date == DateTime.Today)
                 .OrderByDescending(s => s.Id).ToListAsync());
         }
         private void GetInitialValues()
@@ -47,7 +47,7 @@ namespace EasyPro.Controllers
             var agproducts = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).Select(b => b.PName).ToList();
             ViewBag.agproductsall = new SelectList(agproducts, "");
 
-            var brances = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper()) && i.Bname!= saccobranch).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
         }
@@ -73,12 +73,22 @@ namespace EasyPro.Controllers
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             GetInitialValues();
-            
-            return View(new Drawnstock
+
+            var receipt = (new Drawnstock
             {
                 Date = DateTime.Today
             });
+            var products = _context.AgProducts.Where(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) && u.Branch == saccobranch);
+            var val = _context.Drawnstocks.Where(p => p.saccocode == sacco && p.Branch == saccobranch);
+            var agrovetsales = new Agrovetsales
+            {
+                Drawnstock = receipt,
+                AgProductobj= products
+            };
+            return View(agrovetsales);
         }
 
         // POST: Drawnstocks/Create
@@ -93,33 +103,33 @@ namespace EasyPro.Controllers
             var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
 
-            var checkproductExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PName == drawnstock.Productname && a.Branch == saccobranch);
-            if (!checkproductExist)
+            var checkproductExist = _context.AgProducts.FirstOrDefault(a => a.saccocode == sacco && a.PName == drawnstock.Productname && a.Branch == saccobranch);
+            if (checkproductExist==null)
             {
                 GetInitialValues();
                 _notyf.Error("Product not exist");
-                return View();
+                return RedirectToAction(nameof(Create));
             }
             if (drawnstock.Quantity == "0")
             {
                 GetInitialValues();
                 _notyf.Error("Quantity should be Greater Than Zero");
-                return View();
+                return RedirectToAction(nameof(Create));
             }
             if (drawnstock.Branch == saccobranch)
             {
                 GetInitialValues();
                 _notyf.Error("You cannot dispatch to your Branch");
-                return View();
+                return RedirectToAction(nameof(Create));
             }
             var selectstockbal = _context.AgProducts.Where(a => a.saccocode == sacco && a.PName == drawnstock.Productname 
             && a.Branch == saccobranch).Sum(q=>q.OBal);
             double? selectstockdispatch = Convert.ToDouble(drawnstock.Quantity);
-            if ((double)selectstockbal > selectstockdispatch)
+            if ((double)selectstockbal < selectstockdispatch)
             {
                 GetInitialValues();
                 _notyf.Error("You cannot dispatch to More than Stock Balance on Branch");
-                return View();
+                return RedirectToAction(nameof(Create));
             }
 
             if (ModelState.IsValid)
@@ -146,6 +156,10 @@ namespace EasyPro.Controllers
                             Serialized = "0",
                             Pprice = product.Pprice,
                             Sprice = product.Sprice,
+                            Draccno= product.Draccno,
+                            Craccno= product.Craccno,
+                            AuditDate=DateTime.Now,
+                            Expirydate= product.Expirydate,
                             Branch = drawnstock.Branch,
                             saccocode = sacco,
                         });
@@ -162,6 +176,9 @@ namespace EasyPro.Controllers
                 }
 
                 drawnstock.saccocode = sacco;
+                drawnstock.Month = drawnstock.Date.GetValueOrDefault().Month + ""; 
+                drawnstock.Year = drawnstock.Date.GetValueOrDefault().Year + "";
+                drawnstock.Description = drawnstock.Description;
                 _context.Add(drawnstock);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Product Save successfully");
