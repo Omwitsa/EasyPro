@@ -1,27 +1,28 @@
-﻿@model IEnumerable<EasyPro.Models.AgProduct>
+﻿@model IEnumerable<EasyPro.Models.AgProducts4>
 
-@{
-    ViewData["Title"] = "Index";
-}
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-                    <h3 class="text-danger fa-bold">Products</h3>
+                <div class="col-sm-4 col-xs-12">
+                    <h3 class="text-danger fa-bold">UnApproved Products</h3>
                 </div>
-                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
-                    <a asp-action="UnApprovedProducts" class="btn btn-primary">UnApproved Products</a>
+                <div class="col-sm-5 col-xs-12">
+
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                    <a asp-action="Create" class="btn btn-primary">Add New</a>
+                <div class="col-sm-3 col-xs-3">
+                   
                 </div>
             </div>
+
             <div class="bsc-tbl-hvr table-border-style">
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.PCode)
+                                </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.PName)
                                 </th>
@@ -32,13 +33,16 @@
                                     @Html.DisplayNameFor(model => model.DateEntered)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.OBal)
+                                    @Html.DisplayNameFor(model => model.SupplierId)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.Pprice)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.Sprice)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Branch)
                                 </th>
                                 <th></th>
                             </tr>
@@ -47,6 +51,9 @@
                             @foreach (var item in Model)
                             {
                                 <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PCode)
+                                    </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.PName)
                                     </td>
@@ -57,7 +64,7 @@
                                         @Html.DisplayFor(modelItem => item.DateEntered)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.OBal)
+                                        @Html.DisplayFor(modelItem => item.SupplierId)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.Pprice)
@@ -66,8 +73,10 @@
                                         @Html.DisplayFor(modelItem => item.Sprice)
                                     </td>
                                     <td>
-                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">TopUp Stock</a> |
-                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                        @Html.DisplayFor(modelItem => item.Branch)
+                                    </td>
+                                    <td>
+                                        <a asp-action="ApproveProduct" asp-route-id="@item.Id">Approve</a> |
                                     </td>
                                 </tr>
                             }
@@ -75,7 +84,6 @@
                     </table>
                 </div>
             </div>
-            </div>
         </div>
     </div>
-
+</div>

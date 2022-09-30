@@ -18,6 +18,7 @@ namespace EasyPro.Controllers
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
         private Utilities utilities;
+        private object agProduct;
 
         public DrawnstocksController(MORINGAContext context, INotyfService notyf)
         {
@@ -42,9 +43,6 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            var banksname = _context.DBanks.Where(i => i.BankCode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.BankName).ToList();
-            ViewBag.banksname = new SelectList(banksname);
-
             
             var agproducts = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).Select(b => b.PName).ToList();
             ViewBag.agproductsall = new SelectList(agproducts, "");
@@ -74,7 +72,13 @@ namespace EasyPro.Controllers
         // GET: Drawnstocks/Create
         public IActionResult Create()
         {
-            return View();
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            
+            return View(new Drawnstock
+            {
+                Date = DateTime.Today
+            });
         }
 
         // POST: Drawnstocks/Create
@@ -84,10 +88,83 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Date,Description,Quantity,Totalamount,Productid,Productname,Username,Priceeach,Month,Year,Branch,Updated,Buying,Ai,Commission")] Drawnstock drawnstock)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+
+            var checkproductExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PName == drawnstock.Productname && a.Branch == saccobranch);
+            if (!checkproductExist)
+            {
+                GetInitialValues();
+                _notyf.Error("Product not exist");
+                return View();
+            }
+            if (drawnstock.Quantity == "0")
+            {
+                GetInitialValues();
+                _notyf.Error("Quantity should be Greater Than Zero");
+                return View();
+            }
+            if (drawnstock.Branch == saccobranch)
+            {
+                GetInitialValues();
+                _notyf.Error("You cannot dispatch to your Branch");
+                return View();
+            }
+            var selectstockbal = _context.AgProducts.Where(a => a.saccocode == sacco && a.PName == drawnstock.Productname 
+            && a.Branch == saccobranch).Sum(q=>q.OBal);
+            double? selectstockdispatch = Convert.ToDouble(drawnstock.Quantity);
+            if ((double)selectstockbal > selectstockdispatch)
+            {
+                GetInitialValues();
+                _notyf.Error("You cannot dispatch to More than Stock Balance on Branch");
+                return View();
+            }
+
             if (ModelState.IsValid)
             {
+                var product = _context.AgProducts.FirstOrDefault(a => a.saccocode == sacco && a.PCode == drawnstock.Productid && a.Branch == drawnstock.Branch);
+                if (product == null)
+                {
+                    product = _context.AgProducts.FirstOrDefault(a => a.saccocode == sacco && a.PCode == drawnstock.Productid && a.Branch == saccobranch);
+                    if(product != null)
+                    {
+                        _context.AgProducts.Add(new AgProduct
+                        {
+
+                            PCode = drawnstock.Productid,
+                            PName = drawnstock.Productname,
+                            SNo = "",
+                            Qin = selectstockdispatch,
+                            Qout = selectstockdispatch,
+                            DateEntered = drawnstock.Date,
+                            LastDUpdated = drawnstock.Date,
+                            UserId = LoggedInUser,
+                            OBal = selectstockdispatch,
+                            SupplierId = "Dispatch",
+                            Serialized = "0",
+                            Pprice = product.Pprice,
+                            Sprice = product.Sprice,
+                            Branch = drawnstock.Branch,
+                            saccocode = sacco,
+                        });
+
+                        product.OBal -= selectstockdispatch;
+                    }
+                   
+                }
+                else
+                {
+                    product.OBal += selectstockdispatch;
+                    product = _context.AgProducts.FirstOrDefault(a => a.saccocode == sacco && a.PCode == drawnstock.Productid && a.Branch == saccobranch);
+                    product.OBal -= selectstockdispatch;
+                }
+
+                drawnstock.saccocode = sacco;
                 _context.Add(drawnstock);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Product Save successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(drawnstock);

@@ -146,23 +146,6 @@ namespace EasyPro.Controllers
                 agProduct.saccocode = sacco;
                 agProduct.Branch = saccobranch;
 
-                var checkproductifExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch == saccobranch);
-                if (!checkproductifExist)
-                {
-                    agProduct.Qin = agProduct.Qin;
-                    agProduct.Qout = agProduct.Qin;
-                    agProduct.OBal = agProduct.Qin;
-
-                    _context.AgProducts.Add(agProduct);
-                }
-                else
-                {
-                    var checkquantity = _context.AgProducts.Where(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch == saccobranch).Sum(i => i.Qin);
-                    double? qnty = checkquantity;
-                    agProduct.Qin = qnty+checkquantity;
-                    _context.AgProducts.Update(agProduct);
-                }
-
                 _context.AgProducts4s.Add(new AgProducts4 {
                     PName = agProduct.PName,
                     PCode = agProduct.PCode,
@@ -179,6 +162,7 @@ namespace EasyPro.Controllers
                     Branch= agProduct.Branch,
                     Draccno= agProduct.Draccno,
                     Craccno = agProduct.Craccno,
+                    Approved = false,
                     saccocode = sacco
                 });
                 await _context.SaveChangesAsync();
@@ -186,6 +170,62 @@ namespace EasyPro.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(agProduct);
+        }
+
+        public IActionResult UnApprovedProducts()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var products4s = _context.AgProducts4s.Where(p => p.saccocode == sacco && !p.Approved).ToList();
+            return View(products4s);
+        }
+
+        public IActionResult ApproveProduct(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            if (id == null)
+            {
+                _notyf.Error("Sorry, Product not found");
+                return NotFound();
+            }
+            var agProduct = _context.AgProducts4s.FirstOrDefault(p => p.Id == id);
+            if (agProduct == null)
+            {
+                _notyf.Error("Sorry, Product not found");
+                return NotFound();
+            }
+            var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var product = _context.AgProducts.FirstOrDefault(a => a.saccocode == agProduct.saccocode && a.PCode == agProduct.PCode && a.Branch == agProduct.Branch);
+            if (product == null)
+            {
+                _context.AgProducts.Add(new AgProduct {
+                    PCode = agProduct.PCode,
+                    PName = agProduct.PName,
+                    Qin = agProduct.Qin,
+                    Qout = agProduct.Qout,
+                    DateEntered = agProduct.DateEntered,
+                    LastDUpdated = agProduct.LastDUpdated,
+                    UserId = user,
+                    AuditDate = DateTime.Now,
+                    OBal = agProduct.OBal,
+                    SupplierId = agProduct.SupplierId,
+                    Pprice = agProduct.Pprice,
+                    Sprice = agProduct.Sprice,
+                    Branch = agProduct.Branch,
+                    Draccno = agProduct.Draccno,
+                    Craccno = agProduct.Craccno,
+                    saccocode = agProduct.saccocode
+                });
+            }
+            else
+            {
+                product.Qin = agProduct.Qin;
+                product.OBal = agProduct.Qin + product.OBal;
+            }
+
+            agProduct.Approved = true;
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: AgProducts/Edit/5
@@ -220,44 +260,24 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-
+            GetInitialValues();
             if (id != agProduct.Id)
             {
-                GetInitialValues();
-                return NotFound();
+                _notyf.Error("Sorry, Product not found");
+                return View(agProduct);
+            }
+
+            if (agProduct.Qin < 1)
+            {
+                _notyf.Error("Sorry, Product should be more than Zero");
+                return View(agProduct);
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    //var Quantity = _context.AgProducts.Where(u => u.saccocode == sacco && u.PCode == agProduct.PCode).Select(p => p.Qin);
-                    //agProduct.Qin = Quantity + agProduct.Qin;
-                    //_context.Update(agProduct);
-            
-                    var checkproductifExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch== saccobranch);
-                    double? existingkgs = 0;
-                    var checkquantity = _context.AgProducts.Where(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch == saccobranch).Sum(i => i.Qin);
-                    existingkgs = checkquantity;
-                    if (!checkproductifExist)
-                    {
-
-                        _context.AgProducts.Add(agProduct);
-                    }
-                    else
-                    {
-                        double? qnty = checkquantity;
-                        agProduct.Qin = agProduct.Qin;
-                        agProduct.Qout = agProduct.Qin;
-                        agProduct.OBal = qnty + agProduct.Qin;
-                        _context.AgProducts.Update(agProduct);
-                    }
                     var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
-                    //var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
-                    //&& a.Branch== saccobranch
-                    agProduct.UserId = user;
-                    agProduct.AuditDate = DateTime.Now;
-                    agProduct.saccocode = sacco;
                     _context.AgProducts4s.Add(new AgProducts4
                     {
                         PName = agProduct.PName,

@@ -1,4 +1,4 @@
-﻿@model EasyPro.Models.ProductIntake
+﻿@model EasyPro.ViewModels.ProductIntakeVm
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -46,7 +46,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Qsupplied" class="control-label"></label>
-                            <input id="Qsupplied" asp-for="Qsupplied" class="form-control" type="number" min="0"/>
+                            <input id="Qsupplied" asp-for="Qsupplied" class="form-control" type="number" min="0" />
                             <span asp-validation-for="Qsupplied" class="text-danger"></span>
                         </div>
                     </div>
@@ -62,7 +62,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="DrAccNo" class="control-label"></label>
-                            <input id="DrAccNo" asp-for="DrAccNo" class="form-control" readonly/>
+                            <input id="DrAccNo" asp-for="DrAccNo" class="form-control" readonly />
                             <span asp-validation-for="DrAccNo" class="text-danger"></span>
                         </div>
                     </div>
@@ -83,13 +83,25 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="Branch" class="control-label"></label>
-                            <select asp-for="Branch" class="form-control" asp-items="@ViewBag.Branch">
-                                <option value="" disabled selected hidden>Please Choose...</option>
-                            </select>
-                            <span asp-validation-for="Branch" class="text-danger"></span>
+                            <input asp-for="Print" type="checkbox" />
+                            <label asp-for="Print" class="control-label"></label>
+                            <span asp-validation-for="Print" class="text-danger"></span>
                         </div>
+                        <div class="form-group">
+                            <input asp-for="SMS" type="checkbox" />
+                            <label asp-for="SMS" class="control-label"></label>
+                            <span asp-validation-for="SMS" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                       
                     </div>
                 </div>
 

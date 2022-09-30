@@ -226,70 +226,67 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo")] ProductIntake productIntake)
+        public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo,Print,SMS")] ProductIntakeVm productIntake)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             productIntake.Branch = saccoBranch;
+            productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
             productIntake.Description = productIntake?.Description ?? "";
             long.TryParse(productIntake.Sno, out long sno);
             if (sno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
-                return View(productIntake);
+                return RedirectToAction(nameof(Create));
             }
             if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
-                return View(productIntake);
+                return RedirectToAction(nameof(Create));
             }
             if (string.IsNullOrEmpty(productIntake.ProductType))
             {
                 _notyf.Error("Sorry, Kindly select product type");
-                return View(productIntake);
+                return RedirectToAction(nameof(Create));
             }
             if (productIntake.Qsupplied < 1)
             {
                 _notyf.Error("Sorry, Kindly provide quantity");
-                return View(productIntake);
+                return RedirectToAction(nameof(Create));
             }
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch);
             if (supplier == null)
             {
                 _notyf.Error("Sorry, Supplier does not exist");
-                return View(productIntake);
+                return RedirectToAction(nameof(Create));
             }
             if (!supplier.Active || !supplier.Approval)
             {
                 _notyf.Error("Sorry, Supplier must be approved and active");
-                return View(productIntake);
+                return RedirectToAction(nameof(Create));
             }
             if (ModelState.IsValid)
             {
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 productIntake.SaccoCode = sacco;
                 productIntake.TransactionType = TransactionType.Intake;
-                productIntake.TransDate = DateTime.Today;
-                productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
-                productIntake.Balance = utilities.GetBalance(productIntake);
                 var price = _context.DPrices
                     .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                     && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));
                 var collection = new ProductIntake
                 {
                     Sno = productIntake.Sno.Trim(),
-                    TransDate = productIntake.TransDate,
-                    TransTime = productIntake.TransTime,
+                    TransDate = DateTime.Today,
+                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                     ProductType = productIntake.ProductType,
-                    Qsupplied = productIntake.Qsupplied,
+                    Qsupplied = (decimal)productIntake.Qsupplied,
                     Ppu = price.Price,
                     CR = productIntake.CR,
                     DR = productIntake.DR,
                     Balance = productIntake.Balance,
                     Description = "Intake",
                     TransactionType = productIntake.TransactionType,
-                    Paid = productIntake.Paid,
                     Remarks = productIntake.Remarks,
                     AuditId = auditId,
                     Auditdatetime = productIntake.Auditdatetime,
@@ -313,17 +310,16 @@ namespace EasyPro.Controllers
                     collection = new ProductIntake
                     {
                         Sno = productIntake.Sno.Trim(),
-                        TransDate = productIntake.TransDate,
-                        TransTime = productIntake.TransTime,
+                        TransDate = DateTime.Today,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                         ProductType = productIntake.ProductType,
-                        Qsupplied = productIntake.Qsupplied,
+                        Qsupplied = (decimal)productIntake.Qsupplied,
                         Ppu = transport.Rate,
                         CR = productIntake.CR,
                         DR = productIntake.DR,
                         Balance = productIntake.Balance,
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
-                        Paid = productIntake.Paid,
                         Remarks = productIntake.Remarks,
                         AuditId = auditId,
                         Auditdatetime = productIntake.Auditdatetime,
@@ -337,21 +333,19 @@ namespace EasyPro.Controllers
                     // Credit transpoter transport amount
                     productIntake.CR = productIntake.Qsupplied * transport.Rate;
                     productIntake.DR = 0;
-                    productIntake.Balance = utilities.GetBalance(productIntake);
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = transport.TransCode.Trim(),
-                        TransDate = productIntake.TransDate,
-                        TransTime = productIntake.TransTime,
+                        TransDate = DateTime.Today,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                         ProductType = productIntake.ProductType,
-                        Qsupplied = productIntake.Qsupplied,
+                        Qsupplied = (decimal)productIntake.Qsupplied,
                         Ppu = transport.Rate,
                         CR = productIntake.CR,
                         DR = productIntake.DR,
                         Balance = productIntake.Balance,
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
-                        Paid = productIntake.Paid,
                         Remarks = productIntake.Remarks,
                         AuditId = auditId,
                         Auditdatetime = productIntake.Auditdatetime,
@@ -362,27 +356,32 @@ namespace EasyPro.Controllers
                     });
                 }
 
-                var startDate = new DateTime(productIntake.TransDate.Year, productIntake.TransDate.Month, 1);
-                var endDate = startDate.AddMonths(1).AddDays(-1);
-                var commulated = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
-                && s.TransDate >= startDate && s.TransDate <= endDate && s.Branch == saccoBranch).Sum(s => s.Qsupplied);
-                _context.Messages.Add(new Message
+                if (productIntake.SMS)
                 {
-                    Telephone = supplier.PhoneNo,
-                    Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}",
-                    ProcessTime = DateTime.Now.ToString(),
-                    MsgType = "Outbox",
-                    Replied = false,
-                    DateReceived = DateTime.Now,
-                    Source = auditId,
-                    Code = sacco
-                });
+                    var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                    var endDate = startDate.AddMonths(1).AddDays(-1);
+                    var commulated = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
+                    && s.TransDate >= startDate && s.TransDate <= endDate && s.Branch == saccoBranch).Sum(s => s.Qsupplied);
+                    _context.Messages.Add(new Message
+                    {
+                        Telephone = supplier.PhoneNo,
+                        Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}",
+                        ProcessTime = DateTime.Now.ToString(),
+                        MsgType = "Outbox",
+                        Replied = false,
+                        DateReceived = DateTime.Now,
+                        Source = auditId,
+                        Code = sacco
+                    });
+                }
 
                 _context.SaveChanges();
                 _notyf.Success("Intake saved successfully");
-                return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = collection.Id });
+                if (productIntake.Print)
+                    return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = collection.Id });
             }
-            return View(productIntake);
+
+            return RedirectToAction(nameof(Create));
         }
         
         [HttpPost]

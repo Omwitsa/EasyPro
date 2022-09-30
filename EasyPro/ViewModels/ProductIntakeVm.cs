@@ -31,5 +31,7 @@ namespace EasyPro.ViewModels
         [Display(Name = "Cr Account No")]
         public string CrAccNo { get; set; }
         public string PhoneNo { get; set; }
+        public bool Print { get; set; }
+        public bool SMS { get; set; }
     }
 }
