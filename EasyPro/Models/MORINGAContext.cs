@@ -288,6 +288,7 @@ namespace EasyPro.Models
 		public virtual DbSet<Deduction> Deductions { get; set; }
 		public virtual DbSet<Departments> Departments { get; set; }
 		public virtual DbSet<PaySlip> PaySlip { get; set; }
+		public virtual DbSet<SharesCategory> SharesCategories { get; set; }
         public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

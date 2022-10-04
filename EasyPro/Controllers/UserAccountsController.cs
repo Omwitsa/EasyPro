@@ -223,8 +223,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> ResetPasswordList()
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.UserAccounts
-                .Where(u => (bool)u.Reset).ToListAsync());
+                .Where(u => (bool)u.Reset && u.Branchcode == sacco).ToListAsync());
         }
 
         public async Task<IActionResult> ResetPassword(long? id)

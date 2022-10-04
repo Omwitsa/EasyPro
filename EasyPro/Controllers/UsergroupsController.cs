@@ -63,7 +63,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets")] Usergroup usergroup)
+        public async Task<IActionResult> Create([Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets,Staff,Stock,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             try
@@ -124,7 +124,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets")] Usergroup usergroup)
+        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets,Staff,Stock,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             if (id != usergroup.GroupId)
