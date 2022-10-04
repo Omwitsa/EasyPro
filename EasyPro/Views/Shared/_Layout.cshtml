@@ -359,13 +359,19 @@
                                 <a data-toggle="tab" href="#setup"><i class="notika-icon notika-form"></i>Setup</a>
                             </li>
                         }
-
+                        @if (ViewBag.staff)
+                        {
+                            <li>
+                                <a data-toggle="tab" href="#staff"><i class="notika-icon notika-form"></i>Staff</a>
+                            </li>
+                        }
                         @if (ViewBag.reportsRole || ViewBag.saccoReports)
                         {
                             <li>
                                 <a data-toggle="tab" href="#Reports"><i class="notika-icon notika-form"></i>Reports</a>
                             </li>
                         }
+
                     </ul>
                     <div class="tab-content custom-menu-content">
                         <div id="home" class="tab-pane notika-tab-menu-bg animated flipInX">
@@ -514,10 +520,10 @@
                                 <li>
                                     <a asp-controller="AccountReceivables" asp-action="GetCreditNotes">Credit Notes</a>
                                 </li>
-                                 <li>
+                                <li>
                                     <a asp-controller="VProducts" asp-action="Index">Vendor Products</a>
                                 </li>
-                                 <li>
+                                <li>
                                     <a asp-controller="CProducts" asp-action="Index">Customer Products</a>
                                 </li>
                             </ul>
@@ -571,6 +577,22 @@
                                 </li>
                             </ul>
                         </div>
+                        <div id="staff" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="Departments" asp-action="Index">Departments</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Deductions" asp-action="Index">Deductions</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Dranges" asp-action="Index">Ranges</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Employees" asp-action="Index">Employees</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div id="Reports" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
@@ -597,9 +619,9 @@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadSalesReport">Sales</a>
                                 </li>
-                               @* <li>
-                                    <a asp-controller="Report" asp-action="TestReport">Test Report</a>
-                                </li>*@
+                                @* <li>
+                    <a asp-controller="Report" asp-action="TestReport">Test Report</a>
+                </li>*@
                             </ul>
                         </div>
                     </div>

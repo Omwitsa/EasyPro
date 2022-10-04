@@ -51,6 +51,9 @@
                                     @Html.DisplayNameFor(model => model.FixedAssets)
                                 </th>
                                 <th>
+                                    @Html.DisplayNameFor(model => model.Staff)
+                                </th>
+                                <th>
                                     @Html.DisplayNameFor(model => model.SaccoReports)
                                 </th>
                                 <th></th>
@@ -59,46 +62,49 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.GroupName)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.CashBook)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Transactions)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Activity)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Reports)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Setup)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Files)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Accounts)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.AccountsPay)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.FixedAssets)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.SaccoReports)
-                                    </td>
-                                    <td>
-                                        <a asp-action="Edit" asp-route-id="@item.GroupId">Edit</a> |
-                                        <a asp-action="Details" asp-route-id="@item.GroupId">Details</a> |
-                                        <a asp-action="Delete" asp-route-id="@item.GroupId">Delete</a>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.GroupName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CashBook)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Transactions)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Activity)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Reports)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Setup)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Files)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Accounts)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.AccountsPay)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.FixedAssets)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Staff)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SaccoReports)
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.GroupId">Edit</a> |
+                                    <a asp-action="Details" asp-route-id="@item.GroupId">Details</a> |
+                                    <a asp-action="Delete" asp-route-id="@item.GroupId">Delete</a>
+                                </td>
+                            </tr>
                             }
                         </tbody>
                     </table>

@@ -1,0 +1,63 @@
+﻿@model EasyPro.Models.Drange
+
+@{
+    ViewData["Title"] = "Create";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create Deduction Range</h2>
+            </div>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Deduction" class="control-label"></label>
+                            <select id="glAcc" asp-for="Deduction" class="form-control" asp-items="@ViewBag.deductionname">
+                                <option value="" disabled selected hidden>Please select</option>
+                            </select>
+                            <span asp-validation-for="Deduction" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="From" class="control-label"></label>
+                            <input asp-for="From" class="form-control" />
+                            <span asp-validation-for="From" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="To" class="control-label"></label>
+                            <input asp-for="To" class="form-control" />
+                            <span asp-validation-for="To" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Rate" class="control-label"></label>
+                                <input asp-for="Rate" class="form-control" />
+                                <span asp-validation-for="Rate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                        </div>
+                    </div>
+            </form>
+        </div>
+    </div>
+    </div>
