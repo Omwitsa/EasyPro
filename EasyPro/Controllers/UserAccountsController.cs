@@ -65,12 +65,12 @@ namespace EasyPro.Controllers
         private void SetInitialValues()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
-            var userGroups = _context.Usergroups.ToList();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var userGroups = _context.Usergroups.Where(g => g.SaccoCode == sacco).ToList();
             var branches = _context.DBranch.ToList();
             var accounts = _context.Glsetups.ToList();
             var saccos = _context.DCompanies.ToList();
-            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (!loggedInUser.ToLower().Equals("psigei"))
             {
                 
