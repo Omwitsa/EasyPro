@@ -178,6 +178,7 @@ namespace EasyPro.Controllers
                 drawnstock.saccocode = sacco;
                 drawnstock.Month = drawnstock.Date.GetValueOrDefault().Month + ""; 
                 drawnstock.Year = drawnstock.Date.GetValueOrDefault().Year + "";
+                drawnstock.Username = LoggedInUser;
                 drawnstock.Description = drawnstock.Description;
                 _context.Add(drawnstock);
                 await _context.SaveChangesAsync();

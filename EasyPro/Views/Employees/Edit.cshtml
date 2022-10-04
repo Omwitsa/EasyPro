@@ -1,0 +1,200 @@
+﻿@model EasyPro.Models.Employee
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Edit</h2>
+            </div>
+            <hr />
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="EmpNo" class="control-label"></label>
+                            <input asp-for="EmpNo" class="form-control" />
+                            <span asp-validation-for="EmpNo" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Surname" class="control-label"></label>
+                            <input asp-for="Surname" class="form-control" />
+                            <span asp-validation-for="Surname" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Othernames" class="control-label"></label>
+                            <input asp-for="Othernames" class="form-control" />
+                            <span asp-validation-for="Othernames" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="IDNO" class="control-label"></label>
+                            <input asp-for="IDNO" class="form-control" />
+                            <span asp-validation-for="IDNO" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Department" class="control-label"></label>
+                            <select id="Department" asp-for="Department" class="form-control" asp-items="@ViewBag.departments">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="EmpStatus" class="control-label"></label>
+                            <select id="Department" asp-for="EmpStatus" class="form-control" asp-items="@ViewBag.empStatus">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="EmpStatus" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="nationality" class="control-label"></label>
+                            <input asp-for="nationality" value="Kenyan" class="form-control" readonly />
+                            <span asp-validation-for="nationality" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="gender" class="control-label"></label>
+                            <select id="Department" asp-for="gender" class="form-control" asp-items="@ViewBag.gender">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="gender" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="DOB" class="control-label"></label>
+                            <input asp-for="DOB" class="form-control" type="date" />
+                            <span asp-validation-for="DOB" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="maritalstatus" class="control-label"></label>
+                            <select id="Department" asp-for="maritalstatus" class="form-control" asp-items="@ViewBag.maritalStatus">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="maritalstatus" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="RELIGION" class="control-label"></label>
+                            <input asp-for="RELIGION" class="form-control" />
+                            <span asp-validation-for="RELIGION" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="EMAIL" class="control-label"></label>
+                            <input asp-for="EMAIL" class="form-control" />
+                            <span asp-validation-for="EMAIL" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="MOBILE" class="control-label"></label>
+                            <input asp-for="MOBILE" class="form-control" />
+                            <span asp-validation-for="MOBILE" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="NSSFCode" class="control-label"></label>
+                            <input asp-for="NSSFCode" class="form-control" />
+                            <span asp-validation-for="NSSFCode" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="NHIFCode" class="control-label"></label>
+                            <input asp-for="NHIFCode" class="form-control" />
+                            <span asp-validation-for="NHIFCode" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="PinNo" class="control-label"></label>
+                            <input asp-for="PinNo" class="form-control" />
+                            <span asp-validation-for="PinNo" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="eposition" class="control-label"></label>
+                            <input asp-for="eposition" class="form-control" />
+                            <span asp-validation-for="eposition" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="BankAccNo" class="control-label"></label>
+                            <input asp-for="BankAccNo" class="form-control" />
+                            <span asp-validation-for="BankAccNo" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Bank" class="control-label"></label>
+                            <select id="Department" asp-for="Bank" class="form-control" asp-items="@ViewBag.banks">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="Bank" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="EmpDate" class="control-label"></label>
+                            <input asp-for="EmpDate" class="form-control" type="date" />
+                            <span asp-validation-for="EmpDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

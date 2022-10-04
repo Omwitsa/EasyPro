@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -283,6 +284,10 @@ namespace EasyPro.Models
 		public virtual DbSet<VProduct> VProducts { get; set; }
 		public virtual DbSet<CProduct> CProducts { get; set; }
 		public virtual DbSet<StandingOrder> StandingOrder { get; set; }
+		public virtual DbSet<Employee> Employees { get; set; }
+		public virtual DbSet<Deduction> Deductions { get; set; }
+		public virtual DbSet<Departments> Departments { get; set; }
+		public virtual DbSet<PaySlip> PaySlip { get; set; }
         public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -7540,38 +7545,6 @@ namespace EasyPro.Models
                 entity.Property(e => e.Type)
                     .HasMaxLength(150)
                     .IsUnicode(false);
-            });
-
-            modelBuilder.Entity<Drange>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToTable("DRanges");
-
-                entity.Property(e => e.Auditid)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnName("auditid")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.Audittime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Dcode)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("DCode")
-                    .IsFixedLength(true);
-
-                entity.Property(e => e.From).HasColumnType("money");
-
-                entity.Property(e => e.Rate)
-                    .HasColumnType("money")
-                    .HasColumnName("rate");
-
-                entity.Property(e => e.To).HasColumnType("money");
             });
 
             modelBuilder.Entity<Drawnstock>(entity =>
