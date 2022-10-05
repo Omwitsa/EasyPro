@@ -24,8 +24,16 @@
                             <label class="control-label" for="specific-location">Specific Location</label>
                         </div>
                         <div class="form-group">
+                            <input name="farmers" type="radio" id="specific-transporter" />
+                            <label class="control-label" for="specific-transporter">Specific Transporter</label>
+                        </div>
+                        <div class="form-group">
                             <input name="farmers" type="radio" id="individual" />
                             <label class="control-label" for="individual">Phone No.</label>
+                        </div>
+                        <div class="form-group">
+                            <input name="farmers" type="radio" id="share-category" />
+                            <label class="control-label" for="share-category">Share Category</label>
                         </div>
                     </div>
                     
@@ -42,13 +50,34 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row" id="specific-location-details">
                             <div class="row">
                                 <div class="col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label class="control-label">Locations</label>
                                         <select id="location" class="form-control" asp-items="@ViewBag.locations">
+                                            <option value="" disabled selected hidden>Please Choose...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row" id="specific-transporter-details">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Branch</label>
+                                        <select id="branch" class="form-control" asp-items="@ViewBag.branches">
+                                            <option value="" disabled selected hidden>Please Choose...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Transporters</label>
+                                        <select id="transporter" class="form-control" asp-items="@ViewBag.transporters">
                                             <option value="" disabled selected hidden>Please Choose...</option>
                                         </select>
                                     </div>
@@ -62,6 +91,19 @@
                                     <div class="form-group">
                                         <label class="control-label">Phone No.</label>
                                         <input id="phone" autocomplete="off" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" id="share-category-details">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Shares Categories</label>
+                                        <select id="sharesCategory" class="form-control" asp-items="@ViewBag.sharesCategories">
+                                            <option value="" disabled selected hidden>Please Choose...</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -102,6 +144,8 @@
         $('#active-farmers-details').hide();
         $('#specific-location-details').hide();
         $('#individual-details').hide();
+        $('#specific-transporter-details').hide();
+        $('#share-category-details').hide();
         $('input[type="radio"]').click(function () {
             if ($(this).prop("checked") && $(this).attr('id') == 'all-farmers') {
                 recipient = 1;
@@ -109,6 +153,8 @@
                 $('#active-farmers-details').hide();
                 $('#specific-location-details').hide();
                 $('#individual-details').hide();
+                $('#specific-transporter-details').hide();
+                $('#share-category-details').hide();
             }
             if ($(this).prop("checked") && $(this).attr('id') == 'active-farmers') {
                 recipient = 2;
@@ -116,6 +162,8 @@
                 $('#active-farmers-details').show();
                 $('#specific-location-details').hide();
                 $('#individual-details').hide();
+                $('#specific-transporter-details').hide();
+                $('#share-category-details').hide();
             }
             if ($(this).prop("checked") && $(this).attr('id') == 'specific-location') {
                 recipient = 3;
@@ -123,13 +171,35 @@
                 $('#active-farmers-details').hide();
                 $('#specific-location-details').show();
                 $('#individual-details').hide();
+                $('#specific-transporter-details').hide();
+                $('#share-category-details').hide();
             }
-            if ($(this).prop("checked") && $(this).attr('id') == 'individual') {
+             if ($(this).prop("checked") && $(this).attr('id') == 'specific-transporter') {
                 recipient = 4;
                 $('#all-farmers-details').hide();
                 $('#active-farmers-details').hide();
                 $('#specific-location-details').hide();
+                $('#individual-details').hide();
+                $('#specific-transporter-details').show();
+                $('#share-category-details').hide();
+            }
+            if ($(this).prop("checked") && $(this).attr('id') == 'individual') {
+                recipient = 5;
+                $('#all-farmers-details').hide();
+                $('#active-farmers-details').hide();
+                $('#specific-location-details').hide();
                 $('#individual-details').show();
+                $('#specific-transporter-details').hide();
+                $('#share-category-details').hide();
+            }
+            if ($(this).prop("checked") && $(this).attr('id') == 'share-category') {
+                recipient = 6;
+                $('#all-farmers-details').hide();
+                $('#active-farmers-details').hide();
+                $('#specific-location-details').hide();
+                $('#individual-details').hide();
+                $('#specific-transporter-details').hide();
+                $('#share-category-details').show();
             }
         });
 
@@ -143,12 +213,17 @@
                     telNo: $("#phone").val(),
                     periodEnding: $("#processTime").val(),
                     location: $("#location").val(),
+                    branch: $("#branch").val(),
+                    transporter: $("#transporter").val(), 
+                    sharesCategory: $("#sharesCategory").val(),
                     recipient: recipient
                 }),
                 success: function (response) {
                     $("#message").val('');
                     $("#phone").val('');
                     $("#location").val('');
+                    $("#branch").val('');
+                    $("#transporter").val('');
                     $("#processTime").val(today);
                 },
                 failure: function (response) {

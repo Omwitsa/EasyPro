@@ -127,9 +127,6 @@
                                             <li>
                                                 <a asp-controller="SupplierEnquiry" asp-action="Transporters">Transporters Enquiry</a>
                                             </li>
-                                            <li>
-                                                <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
-                                            </li>
                                         </ul>
                                     </li>
                                 }
@@ -164,7 +161,7 @@
                                         </ul>
                                     </li>
                                 }
-                                @if (ViewBag.setupRole)
+                                @if (ViewBag.stockRole)
                                 {
                                     <li>
                                         <a data-toggle="collapse" data-target="#mobile-reports" href="#">Store</a>
@@ -282,6 +279,9 @@
                                             <li>
                                                 <a asp-controller="DDebtors" asp-action="Index">Debtor</a>
                                             </li>
+                                            <li>
+                                                <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 }
@@ -335,7 +335,7 @@
                                 <a data-toggle="tab" href="#deductions"><i class="notika-icon notika-house"></i>Deductions</a>
                             </li>
                         }
-                        @if (ViewBag.setupRole)
+                        @if (ViewBag.stockRole)
                         {
                             <li>
                                 <a data-toggle="tab" href="#store"><i class="notika-icon notika-form"></i>Store</a>
@@ -359,13 +359,13 @@
                                 <a data-toggle="tab" href="#setup"><i class="notika-icon notika-form"></i>Setup</a>
                             </li>
                         }
-                        @if (ViewBag.staff)
+                        @if (ViewBag.staffRole)
                         {
                             <li>
                                 <a data-toggle="tab" href="#staff"><i class="notika-icon notika-form"></i>Staff</a>
                             </li>
                         }
-                        @if (ViewBag.reportsRole || ViewBag.saccoReports)
+                        @if (ViewBag.reportsRole || ViewBag.saccoReportsRole)
                         {
                             <li>
                                 <a data-toggle="tab" href="#Reports"><i class="notika-icon notika-form"></i>Reports</a>
@@ -391,9 +391,6 @@
                                 </li>
                                 <li>
                                     <a asp-controller="SupplierEnquiry" asp-action="SharesInquiry">Shares Enquiry</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
                                 </li>
                             </ul>
                         </div>
@@ -463,9 +460,6 @@
                                     <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
-                                </li>
-                                <li>
                                     <a asp-controller="Dispatches" asp-action="Index">Dispatch</a>
                                 </li>
                                 <li>
@@ -507,6 +501,9 @@
                                 </li>
                                 <li>
                                     <a asp-controller="Accounting" asp-action="BalanceSheet">Balance Sheet</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
                                 </li>
                                 <li>
                                     <a asp-controller="AccountPayables" asp-action="GetBills">Bills</a>
@@ -561,7 +558,7 @@
                                     <a asp-controller="DLocations" asp-action="Index">Locations</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="DDcodes" asp-action="Index">Deduction Types</a>
+                                    <a asp-controller="DDcodes" asp-action="Index">Ded Types</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DBanks" asp-action="Index">Banks</a>
@@ -574,6 +571,12 @@
                                 </li>
                                 <li>
                                     <a asp-controller="Taxes" asp-action="Index">Taxes</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="SharesCategories" asp-action="Index">Shares Cat</a>
                                 </li>
                             </ul>
                         </div>
@@ -598,7 +601,7 @@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadReport">Suppliers</a>
                                 </li>
-                                @if (ViewBag.saccoReports)
+                                @if (ViewBag.saccoReportsRole)
                                 {
                                     <li>
                                         <a asp-controller="DSuppliers" asp-action="SaccoSupplierSummery">Suppliers Summery</a>

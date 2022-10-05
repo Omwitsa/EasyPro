@@ -41,6 +41,12 @@ namespace EasyPro.Controllers
 
             var locations = _context.DLocations.Where(s => s.Lcode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.locations = new SelectList(locations, "Lname", "Lname");
+            var branches = _context.DBranch.Where(t => t.Bcode == sacco).ToList();
+            ViewBag.branches = new SelectList(branches, "Bname", "Bname");
+            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco).ToList();
+            ViewBag.transporters = new SelectList(transporters, "TransCode", "TransName");
+            var sharesCategories = _context.SharesCategories.Where(t => t.SaccoCode == sacco).ToList();
+            ViewBag.sharesCategories = new SelectList(sharesCategories, "Name", "Name");
             return View();
         }
 
@@ -74,6 +80,43 @@ namespace EasyPro.Controllers
 
                 if (sms.Recipient == SMSRecipient.SpecificLocation)
                     suppliers = suppliers.Where(s => s.Location.ToUpper().Equals(sms.Location.ToUpper()));
+
+                if (sms.Recipient == SMSRecipient.SpecificTransporter)
+                {
+                    sms.Transporter = sms?.Transporter ?? "";
+                    sms.Branch = sms?.Branch ?? "";
+                    if (string.IsNullOrEmpty(sms.Transporter) && string.IsNullOrEmpty(sms.Branch))
+                    {
+                        _notyf.Error("Sorry, Kindly provide transporter");
+                        return Json("");
+                    }
+                    var supplirNos = _context.DTransports.Where(t => t.saccocode == sacco && t.TransCode.ToUpper().Equals(sms.Transporter.ToUpper()))
+                        .Select(t => t.Sno);
+                    if(!string.IsNullOrEmpty(sms.Branch))
+                        suppliers = suppliers.Where(s => s.Branch.ToUpper().Equals(sms.Branch.ToUpper())
+                        && supplirNos.Contains(s.Sno));
+                    if (!string.IsNullOrEmpty(sms.Transporter))
+                        suppliers = suppliers.Where(s => supplirNos.Contains(s.Sno));
+                }
+
+                if (sms.Recipient == SMSRecipient.SharesCat)
+                {
+                    var category = _context.SharesCategories.FirstOrDefault(c => c.Name.ToUpper().Equals(sms.SharesCategory.ToUpper()));
+                    if (category == null)
+                    {
+                        _notyf.Error("Sorry, Share category not found");
+                        return Json("");
+                    }
+                    var shares = _context.DShares.Where(s => s.SaccoCode == sacco).ToList().GroupBy(s => s.Sno).ToList();
+                    var catShareHolders = new List<string>();
+                    shares.ForEach(s =>
+                    {
+                        var amount = s.Sum(a => a.Amount);
+                        if (category.MinAmount >= amount && category.MaxAmount <= amount)
+                            catShareHolders.Add(s.Key);
+                    });
+                    suppliers = suppliers.Where(s => catShareHolders.Contains(s.Sno.ToString()));
+                }
 
                 phoneNos = suppliers.Select(s => s.PhoneNo).Distinct().ToList();
                 if (sms.Recipient == SMSRecipient.Individual)

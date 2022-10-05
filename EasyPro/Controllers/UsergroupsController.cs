@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
@@ -26,7 +28,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.Usergroups.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            return View(await _context.Usergroups.Where(g => g.SaccoCode == sacco).ToListAsync());
         }
 
         // GET: Usergroups/Details/5
@@ -60,7 +63,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets")] Usergroup usergroup)
+        public async Task<IActionResult> Create([Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets,Staff,Stock,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             try
@@ -85,9 +88,11 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Group name already exist");
                     return View(usergroup);
                 }
-                _notyf.Success("Group saved successfuly");
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                usergroup.SaccoCode = sacco;
                 _context.Add(usergroup);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Group saved successfuly");
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)
@@ -119,7 +124,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets")] Usergroup usergroup)
+        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets,Staff,Stock,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             if (id != usergroup.GroupId)
@@ -155,9 +160,11 @@ namespace EasyPro.Controllers
                         _notyf.Error("Sorry, Group name already exist");
                         return View(usergroup);
                     }
-                    _notyf.Success("Group edited successfully");
+                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                    usergroup.SaccoCode = sacco;
                     _context.Update(usergroup);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Group edited successfully");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
