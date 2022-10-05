@@ -182,16 +182,7 @@ namespace EasyPro.Controllers
             ViewBag.Branch = new SelectList(Branch, "BName", "BName");
             ViewBag.Branch = Branch;
 
-            var employees = _context.Employees.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            var staffs = new List<EmployeeDetVm>();
-            employees.ForEach(e => {
-                staffs.Add(new EmployeeDetVm
-                {
-                    Details = e.Surname + " " + e.Othernames + "(" + e.EmpNo + ")",
-                    EmpNo = e.EmpNo
-                });
-            });
-            ViewBag.staffs = new SelectList(staffs, "EmpNo", "Details");
+            
         }
 
         public IActionResult CreateDeduction()
@@ -266,6 +257,18 @@ namespace EasyPro.Controllers
                 new SelectListItem { Value = "2", Text = "Monthly" },
             };
             ViewBag.payment = payment;
+
+
+            var employees = _context.Employees.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var staffs = new List<EmployeeDetVm>();
+            employees.ForEach(e => {
+                staffs.Add(new EmployeeDetVm
+                {
+                    Details = e.Surname + " " + e.Othernames + "(" + e.EmpNo + ")",
+                    EmpNo = e.EmpNo
+                });
+            });
+            ViewBag.staffs = new SelectList(staffs, "EmpNo", "Details");
         }
         public IActionResult CreateCorrection()
         {
@@ -568,6 +571,52 @@ namespace EasyPro.Controllers
                 return RedirectToAction(nameof(TDeductionList));
             }
             return View(productIntake);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateStaffDeduction([Bind("Id,Empno, Date, Deduction, Amount, Remarks, AuditId, saccocode")] EmployeesDed employeesDed)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            //long.TryParse(, out long sno);
+            employeesDed.Remarks = employeesDed?.Remarks ?? "";
+            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco && t.Tbranch == saccoBranch);
+            if (!_context.Employees.Any(i => i.EmpNo == employeesDed.Empno && i.SaccoCode == sacco ))
+            {
+                _notyf.Error("Sorry, Staff code does not exist");
+                GetInitialValues();
+                 //return Json(new { data = Farmersobj });
+                return View();
+            }
+            if (employeesDed.Amount == 0)
+            {
+                GetInitialValues();
+                _notyf.Error("Sorry, Amount cannot be zero");
+                //return Json(new { data = Farmersobj });
+                return View();
+            }
+            if (employeesDed.Empno == "")
+            {
+                GetInitialValues();
+                _notyf.Error("Sorry, Staff Name cannot be zero");
+                //return Json(new { data = Farmersobj });
+                return View();
+            }
+            if (ModelState.IsValid)
+            {
+                //productIntake.TransactionType = TransactionType.Deduction;
+                //productIntake.TransDate = DateTime.Today;
+                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                employeesDed.AuditId = auditId ?? "";
+                employeesDed.saccocode = sacco;
+                employeesDed.Empno = employeesDed.Empno;
+                _context.Add(employeesDed);
+                _notyf.Success("Deducted successfully");
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(StaffDeductionList));
+            }
+            return View(employeesDed);
         }
 
         [HttpPost]
