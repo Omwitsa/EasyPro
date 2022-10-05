@@ -96,6 +96,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long? id)
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             if (id == null)
             {
                 return NotFound();
@@ -117,6 +118,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Accno,SaccoCode")] Deduction deduction)
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            deduction.SaccoCode = sacco;
             if (id != deduction.Id)
             {
                 return NotFound();
@@ -149,6 +153,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Delete(long? id)
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             if (id == null)
             {
                 return NotFound();

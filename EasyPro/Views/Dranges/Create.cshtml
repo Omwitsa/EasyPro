@@ -17,7 +17,6 @@
                         <div class="form-group">
                             <label asp-for="Deduction" class="control-label"></label>
                             <select id="glAcc" asp-for="Deduction" class="form-control" asp-items="@ViewBag.deductionname">
-                                <option value="" disabled selected hidden>Please select</option>
                             </select>
                             <span asp-validation-for="Deduction" class="text-danger"></span>
                         </div>
@@ -39,25 +38,36 @@
                         </div>
                     </div>
                 </div>
-                    <div class="row">
-                        <div class="col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label asp-for="Rate" class="control-label"></label>
-                                <input asp-for="Rate" class="form-control" />
-                                <span asp-validation-for="Rate" class="text-danger"></span>
-                            </div>
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Rate" class="control-label"></label>
+                            <input asp-for="Rate" class="form-control" />
+                            <span asp-validation-for="Rate" class="text-danger"></span>
                         </div>
                     </div>
-                    <hr />
-                    <div class="row">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <button type="submit" class="btn btn-success">Save</button>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <a asp-action="Index" class="btn btn-primary">Back to List</a>
-                        </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
                     </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
-    </div>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#glAcc").val("");
+        });
+    </script>
+}

@@ -46,7 +46,6 @@
                             <div class="nk-int-st">
                                 <label class="control-label">Product Name</label>
                                 <select id="pname" asp-for="AgReceipt.PCode" class="form-control" asp-items="@ViewBag.agproductsall">
-                                    <option value="" disabled selected hidden>Please select</option>
                                 </select>
                                 <span asp-validation-for="AgReceipt.PCode" class="text-danger"></span>
                             </div>
@@ -86,6 +85,10 @@
                             <div class="form-group">
                                 <input name="sales" type="radio" id="transporter" />
                                 <label class="control-label" for="transporter">Transporter</label>
+                            </div>
+                            <div class="form-group">
+                                <input name="sales" type="radio" id="staff" />
+                                <label class="control-label" for="staff">Staff</label>
                             </div>
                         </div>
 
@@ -173,6 +176,19 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row" id="staffDetails">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                                            <div class="nk-int-st">
+                                                <label class="control-label">Staff Name</label>
+                                                <select id="sname" asp-validation-for="AgReceipt.SNo"  class="form-control" asp-items="@ViewBag.staffs">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -240,6 +256,9 @@
                     <div class="col-sm-4 col-xs-12">
                         <a id="next" class="btn btn-success">Next</a>
                     </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <a id="next2" class="btn btn-success">Next</a>
+                    </div>
                 </div>
 
                 <hr />
@@ -275,7 +294,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Receive Amount</label>
-                                <input id="ttolpaid" class="form-control" />
+                                <input id="ttolpaid" class="form-control" readonly/>
                             </div>
                         </div>
                     </div>
@@ -283,7 +302,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Balance Amount</label>
-                                <input id="balance" class="form-control" />
+                                <input id="balance" class="form-control" readonly/>
                             </div>
                         </div>
                     </div>
@@ -311,33 +330,57 @@
     }
 <script type="text/javascript">
     $(function () {
-            let saleItems = new Array();
+        let isStaff = false;
+        let saleItems = new Array();
+            $("#pname").val("");
+            $("#sname").val("");
             $('#cash').prop('unchecked');
             $('#checkOffDetails').hide();
             $('#transpoterDetails').hide();
+            $('#staffDetails').hide();
             $('#next').hide();
             $('#next1').hide();
+            $('#next2').hide();
             $('input[type="radio"]').click(function () {
                 if ($(this).prop("checked") && $(this).attr('id') == 'cash') {
+                    isStaff = false;
                     $('#cash_details').show();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
+                    $('#staffDetails').hide();
                     $('#next1').hide();
+                    $('#next2').hide();
                     $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'checkOff') {
+                    isStaff = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').show();
                     $('#transpoterDetails').hide();
+                    $('#staffDetails').hide();
                     $('#next1').hide();
+                    $('#next2').hide();
                     $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'transporter') {
+                    isStaff = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
+                    $('#staffDetails').hide();
                     $('#transpoterDetails').show();
                     $('#next').hide();
                     $('#next1').show();
+                    $('#next2').hide();
+                }
+                if ($(this).prop("checked") && $(this).attr('id') == 'staff') {
+                    isStaff = true;
+                    $('#cash_details').hide();
+                    $('#checkOffDetails').hide();
+                    $('#transpoterDetails').hide();
+                    $('#staffDetails').show();
+                    $('#next').hide();
+                    $('#next1').hide();
+                    $('#next2').show();
                 }
 
                 let journalDetails = new Array();
@@ -357,7 +400,7 @@
                     $.ajax({
                         
                         type: 'POST',
-                        url: "save?RNo=" + $("#RNo").val(),
+                        url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff,
                         contentType: 'application/json',
                         data: JSON.stringify(saleItems),
                         success: function (response) {
@@ -549,7 +592,38 @@
             });
             populateTable();
         });
+        $('#next2').on('click', function () {
+            var pcode = $("#pcode").val();
+            var pname = $("#pname").val();
+            var bprice = $("#bprice").val();
+            var sprice = $("#sprice").val();
+            var qnty = $("#qnty").val();
+            var totalamnt = parseFloat($("#totalamnt").val());
+            var total = parseFloat($("#Amnttopay").val());
+            var tpay = parseFloat($("#ttolpaid").val());
 
+            saleItems.push({
+                Sno: $("#sname").val(),
+                sprice: sprice,
+                totalamnt: totalamnt,
+                pname: pname,
+                pcode: pcode,
+                Description: pname,
+                DateTime: $("#date").val(),
+                TransDate: $("#TDate").val(),
+                TransTime: $("#date").val(),
+                ProductType: "AGROVET",
+                Qsupplied: $("#qnty").val(),
+                Ppu: $("#sprice").val(),
+                CR: "0",
+                DR: totalamnt,
+                Balance: totalamnt,
+                Paid: "true",
+                Remarks: pname,
+                Branch: $("#bname").val(),
+            });
+            populateTable();
+        });
 
             $('#ttolpaid').on('keyup', function () {
                 var qty = parseFloat($("#Amnttopay").val());

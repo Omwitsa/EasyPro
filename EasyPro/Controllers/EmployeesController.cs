@@ -85,6 +85,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,EmpNo,MemberNo,SaccoCode,Surname,Othernames,IDNO,Category,Department,EmpStatus,nationality,gender,DOB,maritalstatus,RELIGION,EMAIL,MOBILE,NSSFCode,NHIFCode,PinNo,eposition,BankAccNo,Bank,AUDITTIME,EmpDate")] Employee employee)
         {
             utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            employee.SaccoCode = sacco;
             if (ModelState.IsValid)
             {
                 _context.Add(employee);

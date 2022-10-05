@@ -6,27 +6,38 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Utils;
+using Microsoft.AspNetCore.Http;
+using EasyPro.Constants;
 
 namespace EasyPro.Controllers
 {
     public class DepartmentsController : Controller
     {
         private readonly MORINGAContext _context;
-
-        public DepartmentsController(MORINGAContext context)
+        private readonly INotyfService _notyf;
+        private Utilities utilities;
+        public DepartmentsController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
+            utilities = new Utilities(context);
         }
 
         // GET: Departments
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Departments.ToListAsync());
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            return View(await _context.Departments
+                .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
 
         // GET: Departments/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -45,6 +56,7 @@ namespace EasyPro.Controllers
         // GET: Departments/Create
         public IActionResult Create()
         {
+            utilities.SetUpPrivileges(this);
             return View();
         }
 
@@ -55,8 +67,11 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,SaccoCode")] Departments departments)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (ModelState.IsValid)
             {
+                departments.SaccoCode = sacco;
                 _context.Add(departments);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -67,6 +82,7 @@ namespace EasyPro.Controllers
         // GET: Departments/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -87,6 +103,8 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,SaccoCode")] Departments departments)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != departments.Id)
             {
                 return NotFound();
@@ -96,6 +114,7 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    departments.SaccoCode = sacco;
                     _context.Update(departments);
                     await _context.SaveChangesAsync();
                 }
@@ -118,6 +137,7 @@ namespace EasyPro.Controllers
         // GET: Departments/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -138,6 +158,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var departments = await _context.Departments.FindAsync(id);
             _context.Departments.Remove(departments);
             await _context.SaveChangesAsync();

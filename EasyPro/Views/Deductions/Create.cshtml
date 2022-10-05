@@ -26,7 +26,6 @@
                         <div class="form-group">
                             <label asp-for="Accno" class="control-label"></label>
                             <select id="glAcc" asp-for="Accno" class="form-control" asp-items="@ViewBag.glAccounts">
-                                <option value="" disabled selected hidden>Please select</option>
                             </select>
                             <span asp-validation-for="Accno" class="text-danger"></span>
                         </div>
@@ -44,4 +43,15 @@
             </form>
         </div>
     </div>
-    </div>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#glAcc").val("");
+        });
+    </script>
+}

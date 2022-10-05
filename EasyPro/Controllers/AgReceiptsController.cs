@@ -11,6 +11,7 @@ using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using EasyPro.ViewModels.TranssupplyVM;
+using EasyPro.ViewModels;
 
 namespace EasyPro.Controllers
 {
@@ -47,10 +48,20 @@ namespace EasyPro.Controllers
             var branches = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.branches = new SelectList(branches, "");
 
+            var employees = _context.Employees.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var staffs = new List<EmployeeDetVm>();
+            employees.ForEach(e => {
+                staffs.Add(new EmployeeDetVm { 
+                    Details = e.Surname + " " + e.Othernames + "(" + e.EmpNo + ")",
+                    EmpNo = e.EmpNo
+                });
+            });
+            ViewBag.staffs = new SelectList(staffs, "EmpNo", "Details");
+
         }
         //PRODUCT SALES
         [HttpPost]
-        public JsonResult Save([FromBody] List<ProductIntake> intakes, string RNo)
+        public JsonResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff)
         {
             try
             {
@@ -64,8 +75,8 @@ namespace EasyPro.Controllers
                 da.ForEach(d =>
                 {
                     cash = d.Sno;
-
                 });
+
                 
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -81,6 +92,11 @@ namespace EasyPro.Controllers
                     {
                         t.Sno = "cash";
                     }
+
+                    var cashchecker = false;
+                    if (cash == "")
+                        cashchecker = true;
+
                     var product = _context.AgProducts.FirstOrDefault(p => p.PName.ToUpper().Equals(t.Description.ToUpper())
                     && p.saccocode == sacco && p.Branch== saccobranch);
                     if(product != null)
@@ -97,7 +113,7 @@ namespace EasyPro.Controllers
                             SBal = bal,
                             UserId = loggedInUser,
                             AuditDate = DateTime.Now,
-                            Cash = false,
+                            Cash = cashchecker,
                             Sno1 = t.Sno,
                             Transby = "",
                             Idno = "",
@@ -128,18 +144,34 @@ namespace EasyPro.Controllers
                             DrAccNo = product.Draccno,
                             CrAccNo = product.Craccno,
                         });
-
+                        if (isStaff == true)
+                        {
+                            _context.EmployeesDed.Add(new EmployeesDed 
+                            { 
+                               Empno = t.Sno,
+                               Date = t.TransDate,
+                               Deduction = "Store",
+                               Amount= (decimal)t.DR,
+                               Remarks = t.Remarks,
+                               AuditId = loggedInUser,
+                               saccocode = sacco
+                            });
+                        }
+                        
                         product.Qin = bal;
                         product.Qout = bal;
                         product.OBal = bal;
                     }
                     
                 });
-                
-                if (cash != "")
+                if (isStaff == false)
                 {
-                    _context.ProductIntake.AddRange(intakes);
+                    if (cash != "")
+                    {
+                        _context.ProductIntake.AddRange(intakes);
+                    }
                 }
+                //NEED TO BE CREATED STAFF DEDUCTION TABLE FOR ALL DEDUCTIONS
 
 
                 _context.SaveChanges();
@@ -154,7 +186,7 @@ namespace EasyPro.Controllers
 
         //PRODUCT REVERSAL
         [HttpPost]
-        public JsonResult SaveReturns([FromBody] List<ProductIntake> intakes, string RNo)
+        public JsonResult SaveReturns([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff)
         {
             try
             {
@@ -189,6 +221,9 @@ namespace EasyPro.Controllers
                     {
                         t.Sno = "cash";
                     }
+                    var cashchecker = false;
+                    if (cash == "")
+                        cashchecker = true;
 
                     var product = _context.AgProducts.FirstOrDefault(p => p.PName.ToUpper().Equals(t.Description.ToUpper())
                     && p.saccocode == sacco && p.Branch== saccobranch);
@@ -206,7 +241,7 @@ namespace EasyPro.Controllers
                             SBal = bal,
                             UserId = loggedInUser,
                             AuditDate = DateTime.Now,
-                            Cash = false,
+                            Cash = cashchecker,
                             Sno1 = t.Sno,
                             Transby = "",
                             Idno = "",
@@ -238,15 +273,34 @@ namespace EasyPro.Controllers
                             DrAccNo = product.Craccno,
                         });
 
+                        if (isStaff == true)
+                        {
+                            _context.EmployeesDed.Add(new EmployeesDed
+                            {
+                                Empno = t.Sno,
+                                Date = t.TransDate,
+                                Deduction = "Store",
+                                Amount = (decimal)t.CR * -1,
+                                Remarks = t.Remarks,
+                                AuditId = loggedInUser,
+                                saccocode = sacco
+                            });
+                        }
+
                         product.Qin = bal;
                         product.Qout = bal;
                         product.OBal = bal;
                     }
                 });
-                if (cash != "")
+
+                if (isStaff == false)
                 {
-                    _context.ProductIntake.AddRange(intakes);
+                    if (cash != "")
+                    {
+                        _context.ProductIntake.AddRange(intakes);
+                    }
                 }
+                
                    
 
                 _context.SaveChanges();
@@ -311,13 +365,16 @@ namespace EasyPro.Controllers
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch== saccobranch).ToList();
             var products = _context.AgProducts.Where(p => p.saccocode == sacco && p.Branch== saccobranch).ToList();
             var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && u.Branch== saccobranch);
+            var staff = _context.Employees.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             var agrovetsales = new Agrovetsales
             {
                 AgReceipt = receipt,
                 DTransporter = transporters,
                 DSuppliers = suppliers,
                 AgProductobj = products,
-                ProductIntake= intakes
+                ProductIntake= intakes,
+                Employees= staff
+
             };
             return View(agrovetsales);
             //Agrovetsalesobj = new Agrovetsales

@@ -13,6 +13,7 @@ namespace EasyPro.ViewModels.TranssupplyVM
         public IEnumerable<DSupplier> DSuppliers { get; set; }
         public IEnumerable<AgProduct> AgProductobj { get; set; }
         public IEnumerable<ProductIntake> ProductIntake { get; set; }
+        public IEnumerable<Employee> Employees  { get; set; }
         public Drawnstock Drawnstock { get; set; }
 
     }
