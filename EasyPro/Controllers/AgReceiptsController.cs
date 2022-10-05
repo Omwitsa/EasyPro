@@ -144,6 +144,7 @@ namespace EasyPro.Controllers
                             DrAccNo = product.Draccno,
                             CrAccNo = product.Craccno,
                         });
+                        //NEED TO BE CREATED STAFF DEDUCTION TABLE FOR ALL DEDUCTIONS
                         if (isStaff == true)
                         {
                             _context.EmployeesDed.Add(new EmployeesDed 
@@ -171,8 +172,6 @@ namespace EasyPro.Controllers
                         _context.ProductIntake.AddRange(intakes);
                     }
                 }
-                //NEED TO BE CREATED STAFF DEDUCTION TABLE FOR ALL DEDUCTIONS
-
 
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");

@@ -113,6 +113,32 @@ namespace EasyPro.Controllers
                 && c.TransDate == DateTime.Today && c.Branch == saccoBranch)
                 .ToListAsync());
         }
+        public async Task<IActionResult> StaffDeductionList()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var productIntakes = await _context.EmployeesDed.Where(c => c.Deduction != "Store" && c.saccocode == sacco 
+            && c.Date == DateTime.Today).ToListAsync();
+            var intakes = new List<EmployeeVm>();
+            foreach (var intake in productIntakes)
+            {
+                var emploeyeename = _context.Employees.FirstOrDefault(i => i.EmpNo == intake.Empno && i.SaccoCode == sacco);
+                if (emploeyeename != null)
+                {
+                    intakes.Add(new EmployeeVm
+                    {
+                        Empno = intake.Empno,
+                        Name = emploeyeename.Surname+" "+ emploeyeename.Othernames,
+                        Date = intake.Date,
+                        Deduction = intake.Deduction,
+                        Amount = intake.Amount,
+                        Remarks = intake.Remarks
+                    });
+                }
+            }
+            return View(intakes);
+        }
 
         // GET: ProductIntakes/Details/5
         public async Task<IActionResult> Details(long? id)
@@ -155,6 +181,17 @@ namespace EasyPro.Controllers
             var Branch = _context.DBranch.Where(i=>i.Bcode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.Branch = new SelectList(Branch, "BName", "BName");
             ViewBag.Branch = Branch;
+
+            var employees = _context.Employees.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var staffs = new List<EmployeeDetVm>();
+            employees.ForEach(e => {
+                staffs.Add(new EmployeeDetVm
+                {
+                    Details = e.Surname + " " + e.Othernames + "(" + e.EmpNo + ")",
+                    EmpNo = e.EmpNo
+                });
+            });
+            ViewBag.staffs = new SelectList(staffs, "EmpNo", "Details");
         }
 
         public IActionResult CreateDeduction()
@@ -187,6 +224,22 @@ namespace EasyPro.Controllers
                 ProductIntake = new ProductIntake
                 {
                     TransDate = DateTime.Today
+                }
+            };
+            return View(Farmersobj);
+        }
+        public IActionResult CreateStaffDeduction()
+        {
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            Farmersobj = new FarmersVM()
+            {
+                Employees = _context.Employees.Where(t => t.SaccoCode == sacco),
+                EmployeesDed = new EmployeesDed
+                {
+                    Date = DateTime.Today
                 }
             };
             return View(Farmersobj);

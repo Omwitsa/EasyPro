@@ -10,7 +10,9 @@ namespace EasyPro.ViewModels.FarmersVM
     public class FarmersVM
     {
         public ProductIntake ProductIntake { get; set; }
+        public EmployeesDed EmployeesDed { get; set; }
         public IEnumerable<DSupplier> DSuppliers { get; set; }
         public IEnumerable<DTransporter> DTransporters { get; set; }
+        public IEnumerable<Employee> Employees { get; set; }
     }
 }
