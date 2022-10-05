@@ -35,5 +35,9 @@ namespace EasyPro.Models
         [Display(Name = "Cr Account No")]
         public string CrAccNo { get; set; }
         public bool? Posted { get; set; }
+        [NotMapped]
+        public decimal? Todaykgs { get; set; }
+        [NotMapped]
+        public decimal? TodayBranchkgs { get; set; }
     }
 }

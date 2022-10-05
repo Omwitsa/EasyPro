@@ -57,6 +57,15 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
+                                <label asp-for="Locations" class="control-label"></label>
+                                <select asp-for="Locations" class="form-control" asp-items="@ViewBag.locations" required></select>
+                                <span asp-validation-for="Locations" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
                                 <label asp-for="Phoneno" class="control-label"></label>
                                 <input asp-for="Phoneno" autocomplete="off" class="form-control" required />
                                 <span asp-validation-for="Phoneno" class="text-danger"></span>

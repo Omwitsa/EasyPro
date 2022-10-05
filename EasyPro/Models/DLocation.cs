@@ -12,5 +12,6 @@ namespace EasyPro.Models
         public string Lname { get; set; }
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }
+        public string Branch { get; set; }
     }
 }

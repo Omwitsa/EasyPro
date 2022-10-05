@@ -7,6 +7,21 @@
                 <h2>Create</h2>
             </div>
             <hr />
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    Today's Intake:
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <input asp-for="Todaykgs" id="Sn" class="form-control" readonly />
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    Today's Branch Intake:
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <input asp-for="TodayBranchkgs" id="n" class="form-control" readonly />
+                </div>
+            </div>
+            <hr />
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
@@ -83,7 +98,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        
+
                     </div>
                 </div>
 
@@ -101,7 +116,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                       
+
                     </div>
                 </div>
 
@@ -115,7 +130,7 @@
                 </div>
             </form>
         </div>
-    </div>
+        </div>
 </div>
 
 @section Scripts {

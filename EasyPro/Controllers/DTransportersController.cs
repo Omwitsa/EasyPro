@@ -33,11 +33,11 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            //return View(await _context.DTransporters.Where(i => i.Active == true || i.Active == false).ToListAsync());
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            //dtransporterobj.TregDate = System.DateTime.Today;
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             return View(await _context.DTransporters
-                .Where(i => (i.Active == true || i.Active == false) && i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
+                .Where(i => (i.Active == true || i.Active == false) && i.ParentT.ToUpper().Equals(sacco.ToUpper())
+                && i.Tbranch==saccoBranch).ToListAsync());
         }
 
         // GET: DTransporters/Details/5
@@ -70,6 +70,7 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var banksname = _context.DBanks.Where(i=>i.BankCode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
 
@@ -79,7 +80,8 @@ namespace EasyPro.Controllers
             var bankbrances = _context.DBankBranch.Where(i => i.BankCode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
 
-            
+            var locations = _context.DLocations.Where(i => i.Lcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== saccoBranch).Select(b => b.Lname).ToList();
+            ViewBag.locations = new SelectList(locations);
 
             List<SelectListItem> gender = new()
             {
@@ -113,7 +115,8 @@ namespace EasyPro.Controllers
                 var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
                 sacco = sacco ?? "";
                 var dTransporterExists = _context.DTransporters
-                    .Any(i => (i.TransCode == dTransporter.TransCode || i.CertNo == dTransporter.CertNo) && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
+                    .Any(i => (i.TransCode == dTransporter.TransCode || i.CertNo == dTransporter.CertNo)
+                    && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
                 if (dTransporterExists)
                 {
                     GetInitialValues();

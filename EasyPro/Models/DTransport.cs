@@ -19,5 +19,6 @@ namespace EasyPro.Models
         public string Isfrate { get; set; }
         public string saccocode { get; set; }
         public string producttype { get; set; }
+        public string Branch { get; set; }
     }
 }

@@ -138,18 +138,21 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
-            $('#tcode').on('keyup', function () {
-                debugger
+
+
+            $('#tcode').on('change', function () {
+                calculatePrice();
+            });
+            function calculatePrice() {
                 var selectVal = $("#tcode").val();
-                debugger
                 var products = @Html.Raw(Json.Serialize(Model.DTransporter));
                 var selectProducts = products.filter(p => p.TransCode === selectVal);
                     if (selectProducts[0]) {
                         $("#tname").val(selectProducts[0].TransName);
                     }
-            });
+            }
             $('#sno').on('keyup', function () {
                             var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
                             var selectVal = parseInt($("#sno").val());
@@ -159,5 +162,5 @@
                                 }
                         });
                     });
-    </script>
+</script>
 }

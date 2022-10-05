@@ -33,5 +33,8 @@ namespace EasyPro.ViewModels
         public string PhoneNo { get; set; }
         public bool Print { get; set; }
         public bool SMS { get; set; }
+        public decimal? Todaykgs { get; set; }
+        public decimal? TodayBranchkgs { get; set; }
+        public TimeSpan TransTime { get; internal set; }
     }
 }

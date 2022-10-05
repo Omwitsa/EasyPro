@@ -63,7 +63,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="EmployeesDed.Amount" class="control-label"></label>
-                                    <input id="code" autocomplete="off" required asp-for="EmployeesDed.Amount" class="form-control" />
+                                    <input id="amount" autocomplete="off" required asp-for="EmployeesDed.Amount" class="form-control" />
                                     <span asp-validation-for="EmployeesDed.Amount" class="text-danger"></span>
                                 </div>
                             </div>
@@ -100,19 +100,13 @@
     }
     <script type="text/javascript">
         $(function () {
-            $("#transCode").val("");
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            $("#name").val("");
             $("#Deduction").val("");
-                        $('#transCode').on('keyup', function () {
-
-                            var products = @Html.Raw(Json.Serialize(Model.DTransporters));
-                           
-                            var selectVal = $("#transCode").val();
-                            var selectProducts = products.filter(p => p.TransCode === selectVal);
-                                if (selectProducts[0]) {
-                                    $("#name").val(selectProducts[0].TransName);
-                                }
-                        });
-                    });
+            $("#amount").val("0");
+                        
+         });
     </script>
 }
 
