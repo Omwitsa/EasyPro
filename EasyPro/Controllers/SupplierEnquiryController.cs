@@ -90,6 +90,8 @@ namespace EasyPro.Controllers
             decimal? bal = 0;
             intakes.ForEach(i =>
             {
+                i.CR = i?.CR ?? 0;
+                i.DR = i?.DR ?? 0;
                 bal += i.CR - i.DR;
                 i.Balance = bal;
             });
@@ -111,6 +113,8 @@ namespace EasyPro.Controllers
             decimal? bal = 0;
             intakes.ForEach(i =>
             {
+                i.CR = i?.CR ?? 0;
+                i.DR = i?.DR ?? 0;
                 bal += i.CR - i.DR;
                 i.Balance = bal;
             });
@@ -132,6 +136,8 @@ namespace EasyPro.Controllers
             decimal? bal = 0;
             intakes.ForEach(i =>
             {
+                i.CR = i?.CR ?? 0;
+                i.DR = i?.DR ?? 0;
                 bal += i.CR - i.DR;
                 i.Balance = bal;
             });
