@@ -1,0 +1,56 @@
+﻿@model EasyPro.Models.EmpBenefit
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<h4>EmpBenefit</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="EmpNo" class="control-label"></label>
+                <input asp-for="EmpNo" class="form-control" />
+                <span asp-validation-for="EmpNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EntType" class="control-label"></label>
+                <input asp-for="EntType" class="form-control" />
+                <span asp-validation-for="EntType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Auditdate" class="control-label"></label>
+                <input asp-for="Auditdate" class="form-control" />
+                <span asp-validation-for="Auditdate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AuditId" class="control-label"></label>
+                <input asp-for="AuditId" class="form-control" />
+                <span asp-validation-for="AuditId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SaccoCode" class="control-label"></label>
+                <input asp-for="SaccoCode" class="form-control" />
+                <span asp-validation-for="SaccoCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

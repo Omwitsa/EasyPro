@@ -47,5 +47,21 @@ namespace EasyPro.Controllers.Reports
 
             return NotFound();
         }
+
+        [HttpGet]
+        public IActionResult GetAgSalesReceipt(string rno)
+        {
+            var receipts = _context.AgReceipts.Where(i => i.RNo == rno).ToList();
+            if (receipts.Any())
+            {
+                var rSno = receipts.FirstOrDefault().SNo ?? "";
+                long.TryParse(rSno, out long sno);
+                var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
+                var pdfFile = _reportProvider.GetAgSalesReport(receipts, supplier);
+                return File(pdfFile, "application/pdf");
+            }
+
+            return NotFound();
+        }
     }
 }

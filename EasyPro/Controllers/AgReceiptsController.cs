@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using EasyPro.ViewModels.TranssupplyVM;
 using EasyPro.ViewModels;
+using EasyPro.IProvider;
 
 namespace EasyPro.Controllers
 {
@@ -20,10 +21,12 @@ namespace EasyPro.Controllers
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
         private Utilities utilities;
-        public AgReceiptsController(MORINGAContext context, INotyfService notyf)
+        private readonly IReportProvider _reportProvider;
+        public AgReceiptsController(MORINGAContext context, INotyfService notyf, IReportProvider reportProvider)
         {
             _context = context;
             _notyf = notyf;
+            _reportProvider = reportProvider;
             utilities = new Utilities(context);
         }
        
@@ -61,7 +64,7 @@ namespace EasyPro.Controllers
         }
         //PRODUCT SALES
         [HttpPost]
-        public JsonResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff)
+        public IActionResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool sms, bool print)
         {
             try
             {
@@ -70,14 +73,7 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly provide records");
                     return Json("");
                 }
-                var da = intakes;
-                var cash = "";
-                da.ForEach(d =>
-                {
-                    cash = d.Sno;
-                });
-
-                
+                var cash = intakes.FirstOrDefault()?.Sno ?? "";
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -165,16 +161,34 @@ namespace EasyPro.Controllers
                     }
                     
                 });
-                if (isStaff == false)
+                if (!isStaff && cash != "")
+                    _context.ProductIntake.AddRange(intakes);
+
+                if (sms)
                 {
-                    if (cash != "")
-                    {
-                        _context.ProductIntake.AddRange(intakes);
-                    }
+                    var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                    var endDate = startDate.AddMonths(1).AddDays(-1);
+                    var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToString() == cash);
+                    if(supplier != null)
+                        _context.Messages.Add(new Message
+                        {
+                            Telephone = supplier.PhoneNo,
+                            Content = $"Dear {supplier.Names}, You have bought goods worth {intakes.Sum(t => t.DR)} From our store",
+                            ProcessTime = DateTime.Now.ToString(),
+                            MsgType = "Outbox",
+                            Replied = false,
+                            DateReceived = DateTime.Now,
+                            Source = loggedInUser,
+                            Code = sacco
+                        });
+
                 }
 
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");
+                if (print)
+                    return RedirectToAction("GetAgSalesReceipt", "PdfReport", new { rno = RNo });
+
                 return Json("");
             }
             catch (Exception e)

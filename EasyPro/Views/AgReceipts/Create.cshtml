@@ -182,7 +182,7 @@
                                         <div class="form-group ic-cmp-int float-lb floating-lb">
                                             <div class="nk-int-st">
                                                 <label class="control-label">Staff Name</label>
-                                                <select id="sname" asp-validation-for="AgReceipt.SNo"  class="form-control" asp-items="@ViewBag.staffs">
+                                                <select id="sname" asp-validation-for="AgReceipt.SNo" class="form-control" asp-items="@ViewBag.staffs">
                                                 </select>
                                             </div>
                                         </div>
@@ -240,10 +240,10 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 @*<label asp-for="AgReceipt.Branch" class="control-label"></label>
-                                <select id="bname" asp-for="AgReceipt.Branch" class="form-control" asp-items="@ViewBag.branches">
-                                    <option value="" disabled selected hidden>Please select</option>
-                                </select>
-                                <span asp-validation-for="AgReceipt.Branch" class="text-danger"></span>*@
+                        <select id="bname" asp-for="AgReceipt.Branch" class="form-control" asp-items="@ViewBag.branches">
+                            <option value="" disabled selected hidden>Please select</option>
+                        </select>
+                        <span asp-validation-for="AgReceipt.Branch" class="text-danger"></span>*@
                             </div>
                         </div>
                     </div>
@@ -294,7 +294,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Receive Amount</label>
-                                <input id="ttolpaid" class="form-control" readonly/>
+                                <input id="ttolpaid" class="form-control" readonly />
                             </div>
                         </div>
                     </div>
@@ -302,9 +302,25 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Balance Amount</label>
-                                <input id="balance" class="form-control" readonly/>
+                                <input id="balance" class="form-control" readonly />
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <input id="print" type="checkbox" />
+                            <label class="control-label">Print</label>
+                        </div>
+                        <div class="form-group">
+                            <input id="sms" type="checkbox" />
+                            <label class="control-label">SMS</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                       
                     </div>
                 </div>
                 <hr />
@@ -382,7 +398,7 @@
                     $('#next1').hide();
                     $('#next2').show();
                 }
-
+                
                 let journalDetails = new Array();
                 $('#drAmt').on('blur', function () {
                     let drAmt = parseFloat($("#drAmt").val());
@@ -397,10 +413,11 @@
                 });
 
                 $('#save1').on('click', function () {
+                    let print = $('#print').prop('checked');
+                    let sms = $('#sms').prop('checked');
                     $.ajax({
-                        
                         type: 'POST',
-                        url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff,
+                        url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&sms=" + sms + "&print=" + print,
                         contentType: 'application/json',
                         data: JSON.stringify(saleItems),
                         success: function (response) {

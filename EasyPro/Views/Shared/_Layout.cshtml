@@ -285,6 +285,32 @@
                                         </ul>
                                     </li>
                                 }
+                                @if (ViewBag.staffRole)
+                                {
+                                    <li>
+                                        <a data-toggle="collapse" data-target="#mobile-staff-role" href="#">staff</a>
+                                        <ul id="mobile-setup-role" class="collapse dropdown-header-top">
+                                            <li>
+                                                <a asp-controller="Departments" asp-action="Index">Departments</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Deductions" asp-action="Index">Deductions</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Dranges" asp-action="Index">Ranges</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="EntitlementTypes" asp-action="Index">Entitlement Types</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="EmpBenefits" asp-action="Index">Employee Benefits</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Employees" asp-action="Index">Employees</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
 
                                 @if (ViewBag.reportsRole)
                                 {
@@ -593,6 +619,12 @@
                                 </li>
                                 <li>
                                     <a asp-controller="Dranges" asp-action="Index">Ranges</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="EntitlementTypes" asp-action="Index">Entitlement Types</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="EmpBenefits" asp-action="Index">Employee Benefits</a>
                                 </li>
                                 <li>
                                     <a asp-controller="Employees" asp-action="Index">Employees</a>

@@ -239,6 +239,75 @@ namespace EasyPro.Utils
             return sb.ToString();
         }
 
+        public static string GenerateAgSalesReceiptHtml(List<AgReceipt> receipts, DSupplier supplier)
+        {
+            var receipt = receipts.FirstOrDefault();
+            var sb = new StringBuilder();
+            sb.Append(@"
+                        <html>
+                            <head>
+                            </head>
+                            <body>
+                                <div class='header'><h3>Sales</h3></div><hr/>
+                                ");
+            if(supplier != null)
+            {
+                sb.AppendFormat(@"<table>
+                                <tr>
+                                   <td>Sacco Code:</td>
+                                   <td>{0}</td>
+                                </tr>
+                                <tr>
+                                   <td>Supplier No.:</td>
+                                   <td>{1}</td>
+                                </tr>
+                                <tr>
+                                   <td>Supplier Name:</td>
+                                   <td>{2}</td>
+                                </tr>
+                                <tr>
+                                   <td col-span='2'>.....................................................................</td>
+                                </tr>
+                                <tr>
+                                   <td>Phone No.:</td>
+                                   <td>{3}</td>
+                                </tr>
+                                <tr>
+                                   <td>Trans Date:</td>
+                                   <td>{4}</td>
+                                </tr>
+                              ",
+                             supplier.Scode, supplier.Sno, supplier.Names,
+                             supplier.PhoneNo, receipt.TDate);
+            }
+
+            foreach (var agReceipt in receipts)
+            {
+                sb.AppendFormat(@"
+                    <tr>
+                        <td>{0}</td>
+                        <td>{1}</td>
+                    </tr>
+                    ",
+                agReceipt.Remarks, agReceipt.Amount);
+            }
+            sb.AppendFormat(@"
+                    <tr>
+                        <td>Served By:</td>
+                        <td>{0}</td>
+                    </tr>
+                        <td>Powered By:</td>
+                        <td>Amtech Technologies LTD</td>
+                    </tr>
+                    ",
+                 receipt.UserId);
+            sb.Append(@"
+                                </table>
+                            </body>
+                        </html>");
+            return sb.ToString();
+        }
+
         public static string GenerateTIntakesHtml(IEnumerable<DTransporter> transporterobj, DCompany company, string title, IQueryable<ProductIntake> intakes)
         {
             var sb = new StringBuilder();

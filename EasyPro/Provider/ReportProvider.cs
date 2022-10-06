@@ -224,5 +224,23 @@ namespace EasyPro.Provider
 
             return _converter.Convert(htmlToPdfDocument);
         }
+
+        public byte[] GetAgSalesReport(List<AgReceipt> receipts, DSupplier supplier)
+        {
+            var objectSettings = new ObjectSettings
+            {
+                HtmlContent = HtmlGenerator.GenerateAgSalesReceiptHtml(receipts, supplier),
+                WebSettings = { DefaultEncoding = "utf-8" },
+            };
+
+            recieptGlobalSettings.DocumentTitle = "Sales Receipt";
+            HtmlToPdfDocument htmlToPdfDocument = new HtmlToPdfDocument()
+            {
+                GlobalSettings = recieptGlobalSettings,
+                Objects = { objectSettings },
+            };
+
+            return _converter.Convert(htmlToPdfDocument);
+        }
     }
 }

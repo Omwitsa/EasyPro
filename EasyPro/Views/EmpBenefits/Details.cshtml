@@ -1,0 +1,54 @@
+﻿@model EasyPro.Models.EmpBenefit
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>EmpBenefit</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.EmpNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EmpNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EntType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EntType)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Amount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SaccoCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SaccoCode)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

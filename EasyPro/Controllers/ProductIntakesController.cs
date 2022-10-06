@@ -372,7 +372,7 @@ namespace EasyPro.Controllers
 
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch==saccoBranch);
                
                 if (transport != null)
                 {
@@ -794,30 +794,30 @@ namespace EasyPro.Controllers
                         CrAccNo = price.TransportCrAccNo
                     });
                 }
-                decimal? amount = 0;
-                if (productIntake.Qsupplied > 1)
-                {
-                     amount = productIntake.CR > 0 ? productIntake.CR : productIntake.CR;
-                }
-                else
-                {
-                    amount = productIntake.DR > 0 ? productIntake.DR : productIntake.DR;
-                    amount = amount * -1;
+                //decimal? amount = 0;
+                //if (productIntake.Qsupplied > 1)
+                //{
+                //     amount = productIntake.CR > 0 ? productIntake.CR : productIntake.CR;
+                //}
+                //else
+                //{
+                //    amount = productIntake.DR > 0 ? productIntake.DR : productIntake.DR;
+                //    amount = amount * -1;
 
-                }
-                _context.Gltransactions.Add(new Gltransaction
-                {
-                    AuditId = auditId,
-                    TransDate = DateTime.Today,
-                    Amount = (decimal)amount,
-                    AuditTime = DateTime.Now,
-                    Source = productIntake.Sno,
-                    TransDescript = "Correction",
-                    Transactionno = $"{auditId}{DateTime.Now}",
-                    SaccoCode = sacco,
-                    DrAccNo = productIntake.DrAccNo,
-                    CrAccNo = productIntake.CrAccNo,
-                });
+                //}
+                //_context.Gltransactions.Add(new Gltransaction
+                //{
+                //    AuditId = auditId,
+                //    TransDate = DateTime.Today,
+                //    Amount = (decimal)amount,
+                //    AuditTime = DateTime.Now,
+                //    Source = productIntake.Sno,
+                //    TransDescript = "Correction",
+                //    Transactionno = $"{auditId}{DateTime.Now}",
+                //    SaccoCode = sacco,
+                //    DrAccNo = productIntake.DrAccNo,
+                //    CrAccNo = productIntake.CrAccNo,
+                //});
 
                 if (productIntake.SMS)
                 {
@@ -839,7 +839,6 @@ namespace EasyPro.Controllers
                 }
 
                 _context.SaveChanges();
-                //await _context.SaveChangesAsync();
                 _notyf.Success("Correction saved successfully");
                 return RedirectToAction(nameof(CorrectionList));
             }
