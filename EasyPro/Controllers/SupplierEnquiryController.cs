@@ -78,7 +78,7 @@ namespace EasyPro.Controllers
             ViewBag.products = new SelectList(products);
         }
         [HttpPost]
-        public JsonResult SuppliedProducts([FromBody] DSupplier supplier,DateTime date1, DateTime date2)
+        public JsonResult SuppliedProducts([FromBody] DSupplier supplier,DateTime date1, DateTime date2, string producttype)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             DateTime now = DateTime.Now;
@@ -87,6 +87,8 @@ namespace EasyPro.Controllers
 
             var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno.ToString() && i.SaccoCode.ToUpper()
             .Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+            if(!string.IsNullOrEmpty(producttype))
+                intakes = intakes.Where(i => i.ProductType.ToUpper().Equals(producttype.ToUpper())).ToList();
             decimal? bal = 0;
             intakes.ForEach(i =>
             {
@@ -99,52 +101,7 @@ namespace EasyPro.Controllers
             intakes = intakes.OrderByDescending(i => i.Id).ToList();
             return Json(intakes);
         }
-        [HttpPost]
-        public JsonResult SuppliedProducts2(string sno, string producttype, DateTime date1, DateTime date2)
-        {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            DateTime now = DateTime.Now;
-            var startDate = new DateTime(now.Year, now.Month, 1);
-            var enDate = startDate.AddMonths(1).AddDays(-1);
-            var intakes = _context.ProductIntake
-                .Where(i => i.Sno ==sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.ProductType==producttype && i.TransDate >= date1 && i.TransDate <= date2).ToList();
 
-            decimal? bal = 0;
-            intakes.ForEach(i =>
-            {
-                i.CR = i?.CR ?? 0;
-                i.DR = i?.DR ?? 0;
-                bal += i.CR - i.DR;
-                i.Balance = bal;
-            });
-
-            intakes = intakes.OrderByDescending(i => i.Id).ToList();
-            return Json(intakes);
-        }
-        [HttpPost]
-        public JsonResult SuppliedProducts3(string sno, DateTime date1, DateTime date2)
-        {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            DateTime now = DateTime.Now;
-            var startDate = new DateTime(now.Year, now.Month, 1);
-            var enDate = startDate.AddMonths(1).AddDays(-1);
-
-            var intakes = _context.ProductIntake
-                .Where(i => i.Sno == sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
-
-            decimal? bal = 0;
-            intakes.ForEach(i =>
-            {
-                i.CR = i?.CR ?? 0;
-                i.DR = i?.DR ?? 0;
-                bal += i.CR - i.DR;
-                i.Balance = bal;
-            });
-
-            intakes = intakes.OrderByDescending(i => i.Id).ToList();
-            return Json(intakes);
-        }
         [HttpPost]
         public JsonResult SuppliedProductsTransporter(string sno, DateTime date1, DateTime date2)
         {
