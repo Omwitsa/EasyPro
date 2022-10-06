@@ -49,5 +49,6 @@ namespace EasyPro.Models
         public decimal? Deduct12 { get; set; }
         public decimal? Mpesa { get; set; }
         public string SaccoCode { get; set; }
+        public string Branch { get; set; }
     }
 }

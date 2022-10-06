@@ -35,5 +35,6 @@ namespace EasyPro.Models
         public int? Frate { get; set; }
         public string Isfrate { get; set; }
         public string SaccoCode { get; set; }
+        public string BBranch { get; set; }
     }
 }
