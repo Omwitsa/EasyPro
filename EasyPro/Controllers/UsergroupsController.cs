@@ -63,7 +63,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets,Staff,Stock,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Create([Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             try
@@ -90,6 +90,17 @@ namespace EasyPro.Controllers
                 }
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 usergroup.SaccoCode = sacco;
+                usergroup.Registration = usergroup?.Registration ?? false;
+                usergroup.Activity = usergroup?.Activity ?? false;
+                usergroup.Reports = usergroup?.Reports ?? false;
+                usergroup.Setup = usergroup?.Setup ?? false;
+                usergroup.Files = usergroup?.Files ?? false;
+                usergroup.Accounts = usergroup?.Accounts ?? false;
+                usergroup.Deductions = usergroup?.Deductions ?? false;
+                usergroup.Staff = usergroup?.Staff ?? false;
+                usergroup.Store = usergroup?.Store ?? false;
+                usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
+
                 _context.Add(usergroup);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Group saved successfuly");
@@ -124,7 +135,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,CashBook,Transactions,Activity,Reports,Setup,Files,Accounts,AccountsPay,FixedAssets,Staff,Stock,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             if (id != usergroup.GroupId)
@@ -162,6 +173,16 @@ namespace EasyPro.Controllers
                     }
                     var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                     usergroup.SaccoCode = sacco;
+                    usergroup.Registration = usergroup?.Registration ?? false;
+                    usergroup.Activity = usergroup?.Activity ?? false;
+                    usergroup.Reports = usergroup?.Reports ?? false;
+                    usergroup.Setup = usergroup?.Setup ?? false;
+                    usergroup.Files = usergroup?.Files ?? false;
+                    usergroup.Accounts = usergroup?.Accounts ?? false;
+                    usergroup.Deductions = usergroup?.Deductions ?? false;
+                    usergroup.Staff = usergroup?.Staff ?? false;
+                    usergroup.Store = usergroup?.Store ?? false;
+                    usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
                     _context.Update(usergroup);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Group edited successfully");

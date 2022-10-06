@@ -453,7 +453,9 @@
             });
             $('#pname').on('click', function () {
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
-                
+                $("#sno").val("");
+                $("#sname").val("");
+                $("#tsno").val("");
                  var selectVal = $("#pname").val();
                  var selectProducts = products.filter(p => p.PName === selectVal);
                 if (selectProducts[0]) {

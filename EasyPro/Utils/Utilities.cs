@@ -28,13 +28,14 @@ namespace EasyPro.Utils
             controller.ViewBag.sacco = controller.HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             controller.ViewBag.filesRole = usergroup.Files;
             controller.ViewBag.accountsRole = usergroup.Accounts;
-            controller.ViewBag.transactionsRole = usergroup.Transactions;
+            controller.ViewBag.transactionsRole = usergroup.Registration;
             controller.ViewBag.activityRole = usergroup.Activity;
             controller.ViewBag.setupRole = usergroup.Setup;
             controller.ViewBag.reportsRole = usergroup.Reports;
             controller.ViewBag.saccoReportsRole = usergroup.SaccoReports;
             controller.ViewBag.staffRole = usergroup.Staff;
-            controller.ViewBag.stockRole = usergroup.Stock;
+            controller.ViewBag.stockRole = usergroup.Store;
+            controller.ViewBag.deductionsRole = usergroup.Deductions;
         }
 
         public string GenerateExcelGrid(ISheet sheet, string sacco, string loggedInUser)
