@@ -64,7 +64,7 @@ namespace EasyPro.Controllers
         }
         //PRODUCT SALES
         [HttpPost]
-        public IActionResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool sms, bool print)
+        public JsonResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool sms, bool print)
         {
             try
             {
@@ -187,7 +187,11 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");
                 if (print)
-                    return RedirectToAction("GetAgSalesReceipt", "PdfReport", new { rno = RNo });
+                    return Json(new
+                    {
+                        redirectUrl = Url.Action("GetAgSalesReceipt", "PdfReport", new { rno = RNo }),
+                        isRedirect = true
+                    });
 
                 return Json("");
             }

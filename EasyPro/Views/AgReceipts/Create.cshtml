@@ -312,11 +312,11 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <input id="print" type="checkbox" />
-                            <label class="control-label">Print</label>
+                            <label for="print" class="control-label">Print</label>
                         </div>
                         <div class="form-group">
                             <input id="sms" type="checkbox" />
-                            <label class="control-label">SMS</label>
+                            <label for="sms" class="control-label">SMS</label>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -421,6 +421,10 @@
                         contentType: 'application/json',
                         data: JSON.stringify(saleItems),
                         success: function (response) {
+                            debugger
+                            if (response.isRedirect) {
+                                window.location.href = response.redirectUrl;
+                            }
                             saleItems = new Array();
                             populateTable();
                             clearafthersave();
@@ -449,7 +453,9 @@
             });
             $('#pname').on('click', function () {
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
-                
+                $("#sno").val("");
+                $("#sname").val("");
+                $("#tsno").val("");
                  var selectVal = $("#pname").val();
                  var selectProducts = products.filter(p => p.PName === selectVal);
                 if (selectProducts[0]) {
