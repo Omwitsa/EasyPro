@@ -134,8 +134,13 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
+            var date = new Date();
+            var lastDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            var last = lastDay.toISOString().split('T')[0];
+            $("#curryDate").val(last);
+
             $("#gfg").on("keyup", function () {
                 var value = $(this).val().toLowerCase();
                 $("#geeks tr").filter(function () {
@@ -151,7 +156,7 @@
                     url: "curryForward?period=" + curryDate,
                     contentType: 'application/json',
                     success: function (response) {
-                        
+
                     },
                     failure: function (response) {
                     }
@@ -160,5 +165,5 @@
                 });
             });
         });
-    </script>
+</script>
 }
