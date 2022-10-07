@@ -53,6 +53,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> SaccoSupplierSummery()
         {
             utilities.SetUpPrivileges(this);
+            var counties = _context.County.Select(c => c.Name).ToList();
+            ViewBag.counties = new SelectList(counties);
             var countySuppliers = _context.DSuppliers.ToList().GroupBy(s => s.County).ToList();
             var countySaccos = new List<CountySupplierSummery>();
             var totalSuppliers = 0;

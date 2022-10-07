@@ -1742,8 +1742,9 @@ namespace EasyPro.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult ExportAllSuppliers()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ExportAllSuppliers(string County)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -1772,7 +1773,10 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 16).Value = "Address";
                 worksheet.Cell(currentRow, 17).Value = "Corperatives";
 
-                var suppliers = _context.DSuppliers.ToList().GroupBy(s => s.Scode).ToList();
+                var dSuppliers = _context.DSuppliers.ToList();
+                if (!string.IsNullOrEmpty(County))
+                    dSuppliers = dSuppliers.Where(s => s.County.ToUpper().Equals(County.ToUpper())).ToList();
+                var suppliers = dSuppliers.GroupBy(s => s.Scode).ToList();
                 suppliers.ForEach(s =>
                 {
                     var company = _context.DCompanies.FirstOrDefault(c => c.Name == s.Key);
