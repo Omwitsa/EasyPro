@@ -7222,7 +7222,7 @@ namespace EasyPro.Models
 
                 entity.Property(e => e.Agrovet).HasColumnType("money");
 
-                entity.Property(e => e.Ai)
+                entity.Property(e => e.AI)
                     .HasColumnType("money")
                     .HasColumnName("AI");
 
