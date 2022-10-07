@@ -145,6 +145,11 @@ namespace EasyPro.Controllers
                     var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
                     var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
                     var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
+                    var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
+                    var Others = p.Where(k => k.ProductType.ToLower().Contains("others"));
+                    var clinical = p.Where(k => k.ProductType.ToLower().Contains("clinical"));
+                    var ai = p.Where(k => k.ProductType.ToLower().Contains("ai"));
+                    var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
 
                     //var payroll = new DPayroll();
@@ -154,14 +159,21 @@ namespace EasyPro.Controllers
                     if (supplier != null)
                     {
                         var debits = corrections.Sum(s => s.DR);
-                        var Tot = advance.Sum(s => s.DR) + transport.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR);
+                        var Tot = advance.Sum(s => s.DR) + transport.Sum(s => s.DR)
+                        + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
+                        + Others.Sum(s => s.DR)+ clinical.Sum(s => s.DR)+ ai.Sum(s => s.DR)+ tractor.Sum(s => s.DR)
+                        + carryforward.Sum(s => s.DR);
                         _context.DPayrolls.Add(new DPayroll
                         {
                             Sno = (int?)supplier.Sno,
                             Gpay = p.Sum(s => s.CR),
                             KgsSupplied = (double?)p.Sum(s => s.Qsupplied),
                             Advance = advance.Sum(s => s.DR),
-                            Others = 0,
+                            CurryForward= carryforward.Sum(s => s.DR),
+                            Others = Others.Sum(s => s.DR),
+                            CLINICAL = clinical.Sum(s => s.DR),
+                            AI = ai.Sum(s => s.DR),
+                            Tractor=tractor.Sum(s => s.DR),
                             Transport = transport.Sum(s => s.DR),
                             Agrovet = agrovet.Sum(s => s.DR),
                             Bonus = bonus.Sum(s => s.DR),
@@ -198,6 +210,12 @@ namespace EasyPro.Controllers
                     var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
                     var transport = p.Where(k => k.ProductType.ToLower().Contains("transport"));
                     var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
+                    var variance = p.Where(k => k.ProductType.ToLower().Contains("variance"));
+                    var Others = p.Where(k => k.ProductType.ToLower().Contains("others"));
+                    var clinical = p.Where(k => k.ProductType.ToLower().Contains("clinical"));
+                    var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
+                    var ai = p.Where(k => k.ProductType.ToLower().Contains("ai"));
+                    var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
                     var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
                     var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
@@ -211,7 +229,9 @@ namespace EasyPro.Controllers
                     {
                         var debits = corrections.Sum(s => s.DR);
                         var amount = p.Sum(s => s.CR);
-                        var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + shares.Sum(s => s.DR);
+                        var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + shares.Sum(s => s.DR) 
+                        + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) 
+                        + tractor.Sum(s => s.DR) + variance.Sum(s => s.DR)+ carryforward.Sum(s => s.DR);
                         var subsidy = 0;
                         _context.DTransportersPayRolls.Add(new DTransportersPayRoll
                         {
@@ -221,7 +241,12 @@ namespace EasyPro.Controllers
                             GrossPay = amount + subsidy,
                             QntySup = (double?)p.Sum(s => s.Qsupplied),
                             Advance = advance.Sum(s => s.DR),
-                            Others = 0,
+                            CurryForward = carryforward.Sum(s => s.DR),
+                            Others = Others.Sum(s => s.DR),
+                            AI= ai.Sum(s => s.DR),
+                            CLINICAL= clinical.Sum(s => s.DR),
+                            Tractor= tractor.Sum(s => s.DR),
+                            VARIANCE= variance.Sum(s => s.DR),
                             Agrovet = agrovet.Sum(s => s.DR),
                             Hshares = shares.Sum(s => s.DR),
                             Totaldeductions = Tot,

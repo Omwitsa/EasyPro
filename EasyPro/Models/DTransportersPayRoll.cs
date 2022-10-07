@@ -19,7 +19,6 @@ namespace EasyPro.Models
         public decimal? Fsa { get; set; }
         public decimal? Hshares { get; set; }
         public decimal? Advance { get; set; }
-        public decimal? Ai { get; set; }
         public decimal? Others { get; set; }
         public decimal? Totaldeductions { get; set; }
         public decimal? NetPay { get; set; }
@@ -36,5 +35,10 @@ namespace EasyPro.Models
         public string Isfrate { get; set; }
         public string SaccoCode { get; set; }
         public string BBranch { get; set; }
+        public decimal? CLINICAL { get; set; }
+        public decimal? AI { get; set; }
+        public decimal? Tractor { get; set; }
+        public decimal? VARIANCE { get; set; }
+        public decimal? CurryForward { get; set; }
     }
 }
