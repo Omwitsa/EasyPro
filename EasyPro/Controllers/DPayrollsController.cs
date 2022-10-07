@@ -97,6 +97,7 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var payrolls = _context.DPayrolls
                 .Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month 
@@ -114,12 +115,20 @@ namespace EasyPro.Controllers
                 _context.DTransportersPayRolls.RemoveRange(transportersPayRolls);
                 _context.SaveChanges();
             }
+            var transpoterIntakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= endDate
+                && i.ProductType.ToLower().Equals("transport"));
+            if (transpoterIntakes.Any())
+            {
+                _context.ProductIntake.RemoveRange(transpoterIntakes);
+                _context.SaveChanges();
+            }
 
             var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
                 .Select(b => b.Bname.ToUpper());
 
             foreach(var branchName in branchNames)
             {
+                await ConsolidateTranspoterIntakes(startDate, endDate, sacco, branchName, loggedInUser);
                 var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()) 
                 && s.Branch.ToUpper().Equals(branchName)).Select(s => s.Sno.ToString());
 
@@ -235,6 +244,96 @@ namespace EasyPro.Controllers
             await _context.SaveChangesAsync();
             _notyf.Success("Payroll processed successfully");
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task ConsolidateTranspoterIntakes(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
+        {
+            var transporterIntakes = _context.DTransports.Join(_context.ProductIntake,
+                t => t.Sno.ToString().Trim(),
+                i => i.Sno.Trim(),
+                (t, i) => new
+                {
+                    i.Qsupplied,
+                    t.Sno,
+                    t.TransCode,
+                    i.SaccoCode,
+                    i.Remarks,
+                    i.TransTime,
+                    i.Ppu,
+                    i.Branch,
+                    i.ProductType,
+                    i.CR,
+                    i.DR,
+                    i.DrAccNo,
+                    i.CrAccNo,
+                    i.TransDate,
+                    t.Rate,
+                    t.Startdate
+                }).Where(i => i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco 
+                && i.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
+            
+            var intakes = transporterIntakes.GroupBy(i => i.TransCode.Trim()).ToList();
+            intakes.ForEach(i =>
+            {
+                if (!string.IsNullOrEmpty(i.Key))
+                {
+                    // Debit supplier transport amount
+                    var suppliers = i.GroupBy(s => s.Sno).ToList();
+                    suppliers.ForEach(s =>
+                    {
+                        var intake = s.FirstOrDefault();
+                        decimal? cr = 0;
+                        var dr = s.Sum(t => t.Qsupplied) * intake.Rate;
+                        _context.ProductIntake.Add(new ProductIntake
+                        {
+                            Sno = intake.Sno.ToString(),
+                            TransDate = intake.TransDate,
+                            TransTime = intake.TransTime,
+                            ProductType = "Transport",
+                            Qsupplied = s.Sum(t => t.Qsupplied),
+                            Ppu = intake.Rate,
+                            CR = cr,
+                            DR = dr,
+                            Description = "Transport",
+                            TransactionType = TransactionType.Deduction,
+                            Remarks = intake.Remarks,
+                            AuditId = loggedInUser,
+                            Auditdatetime = DateTime.Now,
+                            Branch = intake.Branch,
+                            SaccoCode = intake.SaccoCode,
+                            DrAccNo = intake.DrAccNo,
+                            CrAccNo = intake.CrAccNo
+
+                        });
+
+                        var product = intake?.ProductType ?? "";
+                        var price = _context.DPrices.FirstOrDefault(p => p.Products.ToUpper().Equals(product.ToUpper()));
+                        // Credit transpoter transport amount
+                        cr = s.Sum(t => t.Qsupplied) * intake.Rate;
+                        dr = 0;
+                        _context.ProductIntake.Add(new ProductIntake
+                        {
+                            Sno = intake.TransCode.Trim(),
+                            TransDate = intake.TransDate,
+                            TransTime = intake.TransTime,
+                            ProductType = "Transport",
+                            Qsupplied = s.Sum(t => t.Qsupplied),
+                            Ppu = intake.Rate,
+                            CR = cr,
+                            DR = dr,
+                            Description = "Transport",
+                            TransactionType = TransactionType.Deduction,
+                            Remarks = intake.Remarks,
+                            AuditId = loggedInUser,
+                            Auditdatetime = DateTime.Now,
+                            Branch = intake.Branch,
+                            SaccoCode = intake.SaccoCode,
+                            DrAccNo = price?.TransportDrAccNo ?? "",
+                            CrAccNo = price?.TransportCrAccNo ?? ""
+                        });
+                    });
+                }
+            });
         }
 
         // GET: DPayrolls/Edit/5

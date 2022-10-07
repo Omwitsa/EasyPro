@@ -41,6 +41,7 @@ namespace EasyPro.Controllers
                 && i.TransDate == DateTime.Today && i.Branch == saccoBranch)
                 .ToListAsync());
         }
+        
         public async Task<IActionResult> TDeductionList()
         {
             utilities.SetUpPrivileges(this);
