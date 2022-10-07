@@ -9,6 +9,7 @@ namespace EasyPro.ViewModels
         public int TotalSupplies { get; set; }
         public int TotalMale { get; set; }
         public int TotalFemale { get; set; }
+        public string County { get; set; }
     }
 
     public class CountySupplierSummery
