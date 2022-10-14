@@ -246,7 +246,7 @@ namespace EasyPro.Controllers
                     && p.saccocode == sacco && p.Branch== saccobranch);
                     if (product != null)
                     {
-                        var bal = product.OBal + (double?)t.Qsupplied;
+                        var bal = product.OBal + (double?)t.Qsupplied * -1;
                         _context.AgReceipts.Add(new AgReceipt
                         {
                             RNo = RNo,
@@ -254,7 +254,7 @@ namespace EasyPro.Controllers
                             TDate = t.TransDate,
                             Amount = t.CR * -1,
                             SNo = t.Sno,
-                            Qua = (double?)t.Qsupplied,
+                            Qua = (double?)t.Qsupplied * -1,
                             SBal = bal,
                             UserId = loggedInUser,
                             AuditDate = DateTime.Now,

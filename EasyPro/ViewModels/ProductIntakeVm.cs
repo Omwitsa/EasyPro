@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -33,7 +34,9 @@ namespace EasyPro.ViewModels
         public string PhoneNo { get; set; }
         public bool Print { get; set; }
         public bool SMS { get; set; }
+        [NotMapped]
         public decimal? Todaykgs { get; set; }
+        [NotMapped]
         public decimal? TodayBranchkgs { get; set; }
         public TimeSpan TransTime { get; internal set; }
     }

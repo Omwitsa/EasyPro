@@ -20,7 +20,6 @@ namespace EasyPro.Utils
         {
             _context = context;
         }
-
         public void SetUpPrivileges(Controller controller)
         {
             var group = controller.HttpContext.Session.GetString(StrValues.UserGroup) ?? "";

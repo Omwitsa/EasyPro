@@ -3,32 +3,36 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Create</h2>
-            </div>
-            <hr />
-            <div class="row">
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                    Today's Intake:
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                    <input asp-for="Todaykgs" id="Sn" class="form-control" readonly />
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                    Today's Branch Intake:
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                    <input asp-for="TodayBranchkgs" id="n" class="form-control" readonly />
-                </div>
-            </div>
-            <hr />
+           
             <form asp-action="CreateCorrection">
+                <div class="cmp-tb-hd">
+                    <h2>Create</h2>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        Today's Intake:
+                        <input asp-for="Todaykgs" id="Sn" class="form-control" readonly />
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        Today's Branch Intake:
+                        <input asp-for="TodayBranchkgs" id="n" class="form-control" readonly />
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Intake Date</label>
+                            <input id="transDate" asp-for="TransDate" class="form-control" type="date" />
+                            <span asp-validation-for="TransDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <hr />
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Sno" class="control-label"></label>
-                            <input asp-for="Sno" class="form-control" />
+                            <input asp-for="Sno" class="form-control" required />
                             <span asp-validation-for="Sno" class="text-danger"></span>
                         </div>
                     </div>
@@ -62,7 +66,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Qsupplied" class="control-label"></label>
-                            <input id="Qsupplied" asp-for="Qsupplied" class="form-control" />
+                            <input id="Qsupplied" asp-for="Qsupplied" class="form-control" required />
                             <span asp-validation-for="Qsupplied" class="text-danger"></span>
                         </div>
                     </div>
@@ -94,11 +98,7 @@
 
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Intake Date</label>
-                            <input id="transDate" asp-for="TransDate" class="form-control" type="date" readonly />
-                            <span asp-validation-for="TransDate" class="text-danger"></span>
-                        </div>
+
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
@@ -148,7 +148,7 @@
         var today = new Date().toISOString().split('T')[0];
         var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
             products = products ? products : [];
-        $("#transDate").val(today);
+        //$("#transDate").val(today);
         $("#Sno").val("");
         $("#Qsupplied").val("");
         if (products.length === 1) {

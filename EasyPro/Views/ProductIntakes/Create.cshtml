@@ -28,7 +28,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Sno" class="control-label"></label>
-                            <input asp-for="Sno" id="Sno" class="form-control" />
+                            <input asp-for="Sno" id="Sno" class="form-control" required/>
                             <span asp-validation-for="Sno" class="text-danger"></span>
                         </div>
                     </div>
@@ -61,7 +61,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Qsupplied" class="control-label"></label>
-                            <input id="Qsupplied" asp-for="Qsupplied" class="form-control" type="number" min="0" />
+                            <input id="Qsupplied" asp-for="Qsupplied" class="form-control" type="number" min="0" required />
                             <span asp-validation-for="Qsupplied" class="text-danger"></span>
                         </div>
                     </div>
