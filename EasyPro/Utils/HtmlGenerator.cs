@@ -21,6 +21,9 @@ namespace EasyPro.Utils
                                 <div class='header'><h3>Intake</h3></div><hr/>
                                 ");
 
+            var note = "";
+            if (intake.ProductType.ToLower().Equals("milk"))
+                note = "NB: Kindly observe withdrawal period after cow treatment";
             sb.AppendFormat(@"<table>
                                 <tr>
                                    <td>Sacco Code:</td>
@@ -61,13 +64,17 @@ namespace EasyPro.Utils
                                    <td>Served By:</td>
                                    <td>{8}</td>
                                 </tr>
+                                <tr>
                                    <td>Powered By:</td>
                                    <td>Amtech Technologies LTD</td>
+                                </tr>
+                                <tr>
+                                   <td colspan='2'><strong>{9}</strong></td>
                                 </tr>
                               </table>",
                               intake.SaccoCode, intake.Sno, intake.SupName,
                               intake.ProductType, intake.Qsupplied, intake.Cumlative,
-                              intake.PhoneNo, intake.TransDate, intake.AuditId);
+                              intake.PhoneNo, intake.TransDate, intake.AuditId, note);
             sb.Append(@"
                             </body>
                         </html>");
