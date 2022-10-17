@@ -436,10 +436,13 @@ namespace EasyPro.Controllers
                     var endDate = startDate.AddMonths(1).AddDays(-1);
                     var commulated = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
                     && s.TransDate >= startDate && s.TransDate <= endDate && s.Branch == saccoBranch).Sum(s => s.Qsupplied);
+                    var note = "";
+                    if (productIntake.ProductType.ToLower().Equals("milk"))
+                        note = "Kindly observe withdrawal period after cow treatment";
                     _context.Messages.Add(new Message
                     {
                         Telephone = supplier.PhoneNo,
-                        Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}",
+                        Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}\n {note}",
                         ProcessTime = DateTime.Now.ToString(),
                         MsgType = "Outbox",
                         Replied = false,

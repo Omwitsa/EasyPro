@@ -58,9 +58,9 @@ namespace EasyPro.Controllers
             ViewBag.suppliers = suppliers.Count();
 
             var activeSupNos = _context.ProductIntake.Where(p => p.TransDate >= startDate && p.TransDate <= endDate && p.SaccoCode == sacco)
-                .Select(p => p.Sno);
-            var activeSuppliers = suppliers.Where(s => activeSupNos.Contains(s.Sno.ToString()));
-            ViewBag.activeSuppliers = activeSuppliers.Count();
+                .Select(p => p.Sno).ToList();
+            var activeSuppliers = suppliers.Where(s => activeSupNos.Contains(s.Sno.ToString())).ToList();
+            ViewBag.activeSuppliers = activeSuppliers.Count;
 
             var todatysIntake = _context.ProductIntake.Where(p => p.TransDate == DateTime.Today && p.SaccoCode == sacco);
             var todaySupNos = todatysIntake.Select(p => p.Sno);
@@ -77,8 +77,8 @@ namespace EasyPro.Controllers
             var lastMonthStartDateEndDate = lastMonthStartDate.AddMonths(1).AddDays(-1);
 
             var lastMonthActiveSupNos = _context.ProductIntake.Where(p => p.TransDate >= lastMonthStartDate && p.TransDate <= lastMonthStartDateEndDate 
-            && p.SaccoCode == sacco).Select(p => p.Sno);
-            var newSupNos = newFarmers.Select(s => s.Sno.ToString());
+            && p.SaccoCode == sacco).Select(p => p.Sno).ToList();
+            var newSupNos = newFarmers.Select(s => s.Sno.ToString()).ToList();
             var lastMonthDomant = activeSuppliers.Where(s => !lastMonthActiveSupNos.Contains(s.Sno.ToString()) && newSupNos.Contains(s.Sno.ToString()));
             ViewBag.lastMonthDomant = lastMonthDomant.Count();
 
