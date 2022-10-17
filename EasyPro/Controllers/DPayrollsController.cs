@@ -304,7 +304,8 @@ namespace EasyPro.Controllers
                     i.CrAccNo,
                     i.TransDate,
                     t.Rate,
-                    t.Startdate
+                    t.Startdate,
+                    t.DateInactivate
                 }).Where(i => i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco 
                 && i.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
             

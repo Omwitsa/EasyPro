@@ -64,7 +64,7 @@ namespace EasyPro.Controllers
         }
         //PRODUCT SALES
         [HttpPost]
-        public JsonResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool sms, bool print)
+        public JsonResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff,bool isCash, bool sms, bool print)
         {
             try
             {
@@ -74,6 +74,11 @@ namespace EasyPro.Controllers
                     return Json("");
                 }
                 var cash = intakes.FirstOrDefault()?.Sno ?? "";
+                if (!isCash && cash == "")
+                {
+                    _notyf.Error("Sorry, Kindly Farmers Number");
+                    return Json("");
+                }
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -83,7 +88,11 @@ namespace EasyPro.Controllers
                     t.SaccoCode = sacco;
                     t.Branch = saccobranch;
                     t.TransactionType = TransactionType.Deduction;
+                    t.TransTime = DateTime.Now.TimeOfDay;
                     t.AuditId = loggedInUser;
+                    t.Auditdatetime = DateTime.Now;
+                    t.DrAccNo = t.DrAccNo;
+                    t.CrAccNo=t.CrAccNo;
                     if (t.Sno == "")
                     {
                         t.Sno = "cash";
@@ -161,6 +170,15 @@ namespace EasyPro.Controllers
                     }
                     
                 });
+
+                //if (isStaff == false)
+                //{
+                //    if (cash != "")
+                //    {
+                //        _context.ProductIntake.AddRange(intakes);
+                //    }
+                //}
+
                 if (!isStaff && cash != "")
                     _context.ProductIntake.AddRange(intakes);
 
@@ -203,7 +221,7 @@ namespace EasyPro.Controllers
 
         //PRODUCT REVERSAL
         [HttpPost]
-        public JsonResult SaveReturns([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff)
+        public JsonResult SaveReturns([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool isCash)
         {
             try
             {
@@ -213,14 +231,12 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly provide records");
                     return Json("");
                 }
-
-                var da = intakes;
-                var cash = "";
-                da.ForEach(d =>
+                var cash = intakes.FirstOrDefault()?.Sno ?? "";
+                if (!isCash && cash == "")
                 {
-                    cash = d.Sno;
-
-                });
+                    _notyf.Error("Sorry, Kindly Farmers Number");
+                    return Json("");
+                }
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
@@ -230,10 +246,14 @@ namespace EasyPro.Controllers
                     t.SaccoCode = sacco;
                     t.Branch = saccobranch;
                     t.TransactionType = TransactionType.Deduction;
+                    t.TransTime = DateTime.Now.TimeOfDay;
                     t.AuditId = loggedInUser;
                     t.Qsupplied = t.Qsupplied * -1;
                     t.CR = t.DR;
                     t.DR = 0;
+                    t.Auditdatetime = DateTime.Now;
+                    t.DrAccNo = t.DrAccNo;
+                    t.CrAccNo = t.CrAccNo;
                     if (t.Sno == "")
                     {
                         t.Sno = "cash";
@@ -310,12 +330,9 @@ namespace EasyPro.Controllers
                     }
                 });
 
-                if (isStaff == false)
+                if (!isStaff && cash != "")
                 {
-                    if (cash != "")
-                    {
                         _context.ProductIntake.AddRange(intakes);
-                    }
                 }
                 
                    
@@ -377,11 +394,15 @@ namespace EasyPro.Controllers
                 SBal = 0,
                 TDate = DateTime.Today,
             };
-
+            var period= DateTime.Today;
+            var startDate = new DateTime(period.Year, period.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             var transporters = _context.DTransporters.Where(s => s.ParentT == sacco && s.Tbranch == saccobranch).ToList();
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch== saccobranch).ToList();
             var products = _context.AgProducts.Where(p => p.saccocode == sacco && p.Branch== saccobranch).ToList();
-            var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && u.Branch== saccobranch);
+            var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && u.TransDate>= startDate && u.TransDate<=endDate
+            && u.Branch== saccobranch).ToList();
             var staff = _context.Employees.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             var agrovetsales = new Agrovetsales
             {
@@ -444,10 +465,15 @@ namespace EasyPro.Controllers
                 TDate = DateTime.Today,
             };
 
+            var period = DateTime.Today;
+            var startDate = new DateTime(period.Year, period.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             var transporters = _context.DTransporters.Where(s => s.ParentT == sacco && s.Tbranch== saccobranch).ToList();
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch== saccobranch).ToList();
             var products = _context.AgProducts.Where(p => p.saccocode == sacco && p.Branch== saccobranch).ToList();
-            var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && u.Branch== saccobranch);
+            var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && u.TransDate >= startDate && u.TransDate <= endDate
+            && u.Branch== saccobranch).ToList();
             var agrovetsales = new Agrovetsales
             {
                 AgReceipt = receipt,
