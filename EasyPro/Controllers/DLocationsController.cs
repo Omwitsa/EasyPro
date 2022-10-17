@@ -30,9 +30,10 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.DLocations
-                .Where(i => i.Lcode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
+                .Where(i => i.Lcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch).ToListAsync());
         }
 
         // GET: DLocations/Details/5
@@ -70,7 +71,8 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var locations = _context.DLocations.Where(i => i.Lname == dLocation.Lname && i.Lcode == sacco).Count();
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var locations = _context.DLocations.Where(i => i.Lname == dLocation.Lname && i.Lcode == sacco && i.Branch == saccoBranch).Count();
             if (locations != 0)
             {
                 _notyf.Error("Sorry, The Location Name already exist");
@@ -79,6 +81,7 @@ namespace EasyPro.Controllers
             if (ModelState.IsValid)
             {
                 dLocation.Lcode = sacco;
+                dLocation.Branch = saccoBranch;
                 _context.Add(dLocation);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Location saved successfully");
