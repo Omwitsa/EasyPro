@@ -138,8 +138,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Location" class="control-label"></label>
-                                    <select asp-for="Location" id="location" class="form-control" required>
-                                        <option value="" disabled selected hidden>Please Choose...</option>
+                                    <select asp-for="Location" id="location" class="form-control" asp-items="@ViewBag.locations" required>
                                     </select>
                                     <span asp-validation-for="Location" class="text-danger"></span>
                                 </div>
@@ -249,9 +248,9 @@
                 let wards = @Html.Raw(Json.Serialize(ViewBag.WardSubCounty));
                 let locations = @Html.Raw(Json.Serialize(ViewBag.locations));
 
-                $.each(locations, function() {
-                    $('#location').append($("<option />").val(this.Lname).text(this.Lname));
-                });
+                //$.each(locations, function() {
+                //    $('#location').append($("<option />").val(this.Lname).text(this.Lname));
+                //});
                 $('#county').on('change', function () {
                     $('#sub-county').empty();
                     $('#sub-county').append($('<option>').val('').text(''))

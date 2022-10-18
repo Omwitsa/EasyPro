@@ -165,7 +165,7 @@ namespace EasyPro.Controllers
             ViewBag.WardSubCounty = WardSubCounty;
             ViewBag.wards = new SelectList(WardSubCounty, "Name", "Name");
             var locations = _context.DLocations.Where(l => l.Lcode == sacco && l.Branch == saccoBranch).Select(b => b.Lname).ToList();
-            ViewBag.locations = locations;
+            ViewBag.locations = new SelectList(locations);
 
             var banksname = _context.DBanks.Where(a=>a.BankCode == sacco).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
