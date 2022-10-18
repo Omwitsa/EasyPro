@@ -36,10 +36,16 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            //return View(await _context.ProductIntake
+            //    .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
+            //    && i.TransDate == DateTime.Today && i.Branch == saccoBranch)
+            //    .ToListAsync());
+
             return View(await _context.ProductIntake
-                .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
-                && i.TransDate == DateTime.Today && i.Branch == saccoBranch)
+                .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                && i.TransDate == DateTime.Today)
                 .ToListAsync());
+
         }
         
         public async Task<IActionResult> TDeductionList()
