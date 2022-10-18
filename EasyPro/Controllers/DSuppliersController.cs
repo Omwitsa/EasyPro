@@ -153,6 +153,7 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             sacco = sacco ?? "";
             ViewBag.sacco = sacco;
             var counties = _context.County.Select(b => b.Name).ToList();
@@ -163,7 +164,7 @@ namespace EasyPro.Controllers
             var WardSubCounty = _context.Ward.ToList();
             ViewBag.WardSubCounty = WardSubCounty;
             ViewBag.wards = new SelectList(WardSubCounty, "Name", "Name");
-            var locations = _context.DLocations.Where(l => l.Lcode == sacco).ToList();
+            var locations = _context.DLocations.Where(l => l.Lcode == sacco && l.Branch == saccoBranch).Select(b => b.Lname).ToList();
             ViewBag.locations = locations;
             ViewBag.locs = new SelectList(locations, "Lname", "Lname");
 

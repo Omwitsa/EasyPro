@@ -271,7 +271,7 @@
                                 <th>Qnty</th>
                                 <th>Price</th>
                                 <th>Amount</th>
-                                <th>Amount</th>
+                                <th>Farmer</th>
                                 <th><a id="clearAll" class="btn btn-danger">CLEAR</a></th>
                             </tr>
                             <tbody id="details">
@@ -347,6 +347,7 @@
 <script type="text/javascript">
     $(function () {
         let isStaff = false;
+        let isCash = false;
         let saleItems = new Array();
             $("#pname").val("");
             $("#sname").val("");
@@ -360,40 +361,56 @@
             $('input[type="radio"]').click(function () {
                 if ($(this).prop("checked") && $(this).attr('id') == 'cash') {
                     isStaff = false;
+                    isCash = true;
                     $('#cash_details').show();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
                     $('#staffDetails').hide();
+                    $("#sno").val("");
+                    $("#tsno").val("");
+                    $("#sname").val("");
                     $('#next1').hide();
                     $('#next2').hide();
                     $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'checkOff') {
                     isStaff = false;
+                    isCash = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').show();
                     $('#transpoterDetails').hide();
                     $('#staffDetails').hide();
+                    $("#sno").val("");
+                    $("#tsno").val("");
+                    $("#sname").val("");
                     $('#next1').hide();
                     $('#next2').hide();
                     $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'transporter') {
                     isStaff = false;
+                    isCash = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
                     $('#staffDetails').hide();
                     $('#transpoterDetails').show();
+                    $("#sno").val("");
+                    $("#tsno").val("");
+                    $("#sname").val("");
                     $('#next').hide();
                     $('#next1').show();
                     $('#next2').hide();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'staff') {
                     isStaff = true;
+                    isCash = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
                     $('#staffDetails').show();
+                    $("#sno").val("");
+                    $("#tsno").val("");
+                    $("#sname").val("");
                     $('#next').hide();
                     $('#next1').hide();
                     $('#next2').show();
@@ -417,7 +434,7 @@
                     let sms = $('#sms').prop('checked');
                     $.ajax({
                         type: 'POST',
-                        url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&sms=" + sms + "&print=" + print,
+                        url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&isCash=" + isCash + "&sms=" + sms + "&print=" + print,
                         contentType: 'application/json',
                         data: JSON.stringify(saleItems),
                         success: function (response) {
@@ -542,10 +559,10 @@
                     sumDr += p.DR;
                     sumCr += p.CR;
                 })
-                $("#Gross").val(sumDr);
-                $("#Deductions").val(sumCr);
-                let gross = sumDr;
-                let deduction = sumCr;
+                $("#Gross").val(sumCr);
+                $("#Deductions").val(sumDr);
+                let gross = sumCr;
+                let deduction = sumDr;
                 sumtotal = gross - deduction;
                 $("#Net").val(sumtotal);
             }

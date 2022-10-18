@@ -87,12 +87,12 @@ namespace EasyPro.Controllers
                 GetInitialValues();
                 return View();
             }
-            if(dispatch.TIntake < dispatch.Dispatchkgs)
-            {
-                _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
-                GetInitialValues();
-                return View();
-            }
+            //if(dispatch.TIntake < dispatch.Dispatchkgs)
+            //{
+            //    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
+            //    GetInitialValues();
+            //    return View();
+            //}
 
             if (ModelState.IsValid)
             {
@@ -101,7 +101,7 @@ namespace EasyPro.Controllers
                 dispatch.Dcode = sacco;
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
-                var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.ToUpper().Equals(dispatch.DName.ToUpper()));
+                var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.Trim().ToUpper().Equals(dispatch.DName.ToUpper()) && d.Dcode==sacco);
 
                 _context.Gltransactions.Add(new Gltransaction
                 {
@@ -152,6 +152,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long id, [Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,auditid")] Dispatch dispatch)
         {
             utilities.SetUpPrivileges(this);
+            var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != dispatch.Id)
             {
                 return NotFound();
@@ -161,6 +163,8 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    dispatch.auditid = user;
+                    dispatch.Dcode = sacco;
                     _context.Update(dispatch);
                     await _context.SaveChangesAsync();
                 }

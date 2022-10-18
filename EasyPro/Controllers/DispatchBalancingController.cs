@@ -91,13 +91,23 @@ namespace EasyPro.Controllers
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var intakes = _context.ProductIntake.Where(s => s.TransDate== date && s.SaccoCode == sacco).ToList();
+                var alredydispatch = _context.Dispatch.Where(s => s.Transdate== date && s.Dcode == sacco).ToList();
 
                 var dispatch = _context.DispatchBalancing.FirstOrDefault(d => d.Saccocode == sacco && d.Date == date);
+                double dispatched = 0;
+                if (dispatch == null)
+                {
+                    dispatched = (double)alredydispatch.Sum(c => c.Dispatchkgs);
+                }
+                else
+                {
+                    dispatched = (double)dispatch.Dispatch;
+                }
                 dispatch = dispatch == null ? new DispatchBalancing() : dispatch;
                 var balancing = new DispatchBalancing
                 {
                     Intake = intakes.Sum(i => i.Qsupplied),
-                    Dispatch = dispatch.Dispatch,
+                    Dispatch = (decimal?)dispatched,
                     CF = dispatch.CF,
                     BF = dispatch.BF,
                     Actuals = dispatch.Actuals,

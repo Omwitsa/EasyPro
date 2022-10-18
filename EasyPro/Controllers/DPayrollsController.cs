@@ -192,19 +192,29 @@ namespace EasyPro.Controllers
                             Branch=branchName
                         });
                     }
+                    
                 });
-
+                
+                //Transporters
+            }
+            await _context.SaveChangesAsync();
+            //Transporters
+            var branchTransporters = _context.DBranch.Where(b => b.Bcode == sacco)
+                .Select(b => b.Bname.ToUpper());
+            foreach(var branchName in branchTransporters)
+            {
+                //Transporters
                 var transpoterCodes = _context.DTransporters
                .Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()) && s.Tbranch.ToUpper().Equals(branchName))
                .Select(s => s.TransCode.ToUpper());
 
-                productIntakes = _context.ProductIntake
+                var productIntakes = _context.ProductIntake
                 .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
-                && transpoterCodes.Contains(p.Sno.Trim().ToUpper()) 
+                && transpoterCodes.Contains(p.Sno.Trim().ToUpper())
                 && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && p.Branch.ToUpper().Equals(branchName)).ToList();
 
-                intakes = productIntakes.GroupBy(p => p.Sno).ToList();
+                var intakes = productIntakes.GroupBy(p => p.Sno.Trim().ToUpper()).ToList();
                 intakes.ForEach(p =>
                 {
                     var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
@@ -229,9 +239,9 @@ namespace EasyPro.Controllers
                     {
                         var debits = corrections.Sum(s => s.DR);
                         var amount = p.Sum(s => s.CR);
-                        var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + shares.Sum(s => s.DR) 
-                        + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) 
-                        + tractor.Sum(s => s.DR) + variance.Sum(s => s.DR)+ carryforward.Sum(s => s.DR);
+                        var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + shares.Sum(s => s.DR)
+                        + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR)
+                        + tractor.Sum(s => s.DR) + variance.Sum(s => s.DR) + carryforward.Sum(s => s.DR);
                         var subsidy = 0;
                         _context.DTransportersPayRolls.Add(new DTransportersPayRoll
                         {
@@ -243,10 +253,10 @@ namespace EasyPro.Controllers
                             Advance = advance.Sum(s => s.DR),
                             CurryForward = carryforward.Sum(s => s.DR),
                             Others = Others.Sum(s => s.DR),
-                            AI= ai.Sum(s => s.DR),
-                            CLINICAL= clinical.Sum(s => s.DR),
-                            Tractor= tractor.Sum(s => s.DR),
-                            VARIANCE= variance.Sum(s => s.DR),
+                            AI = ai.Sum(s => s.DR),
+                            CLINICAL = clinical.Sum(s => s.DR),
+                            Tractor = tractor.Sum(s => s.DR),
+                            VARIANCE = variance.Sum(s => s.DR),
                             Agrovet = agrovet.Sum(s => s.DR),
                             Hshares = shares.Sum(s => s.DR),
                             Totaldeductions = Tot,
@@ -260,13 +270,14 @@ namespace EasyPro.Controllers
                             Rate = 0,
                             SaccoCode = sacco,
                             AuditId = loggedInUser,
-                            Branch= branchName
+                            Branch = branchName
                         });
                     }
+
                 });
             }
-
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
+            //await _context.SaveChangesAsync();
             _notyf.Success("Payroll processed successfully");
             return RedirectToAction(nameof(Index));
         }
@@ -293,7 +304,8 @@ namespace EasyPro.Controllers
                     i.CrAccNo,
                     i.TransDate,
                     t.Rate,
-                    t.Startdate
+                    t.Startdate,
+                    t.DateInactivate
                 }).Where(i => i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco 
                 && i.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
             
@@ -338,7 +350,7 @@ namespace EasyPro.Controllers
                         dr = 0;
                         _context.ProductIntake.Add(new ProductIntake
                         {
-                            Sno = intake.TransCode.Trim(),
+                            Sno = intake.TransCode.Trim().ToUpper(),
                             TransDate = intake.TransDate,
                             TransTime = intake.TransTime,
                             ProductType = "Transport",

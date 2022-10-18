@@ -49,7 +49,7 @@ namespace EasyPro.Controllers
             var intakes = new List<TransSuppliersVM>();
             foreach (var intake in transdeduction)
             {
-                var trans = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.TransCode && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
+                var trans = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.TransCode.Trim().ToUpper() && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
                 var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno && i.Branch==saccoBranch && i.Scode.ToUpper().Equals(sacco.ToUpper()));
                 if(supplier != null)
                 {

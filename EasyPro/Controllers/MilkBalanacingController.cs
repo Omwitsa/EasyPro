@@ -133,7 +133,7 @@ namespace EasyPro.Controllers
                 var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(filter.TCode.ToUpper()) && t.saccocode == sacco)
                     .Select(t => t.Sno.ToString());
 
-                var intakes = _context.ProductIntake.Where(s => s.TransDate== filter.Date && s.SaccoCode == sacco && transporterSuppliers.Contains(s.Sno)).ToList();
+                var intakes = _context.ProductIntake.Where(s => s.TransDate== filter.Date && s.SaccoCode == sacco && s.Description!= "Transport" && transporterSuppliers.Contains(s.Sno)).ToList();
 
                 return Json(intakes);
             }
@@ -152,6 +152,7 @@ namespace EasyPro.Controllers
             {
                 utilities.SetUpPrivileges(this);
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 if (string.IsNullOrEmpty(balancing.Transporter))
                 {
@@ -169,7 +170,7 @@ namespace EasyPro.Controllers
                     return Json("");
                 }
                 var checkexist = _context.TransportersBalancings
-                    .Any(s => s.Date == balancing.Date && s.Code == sacco && s.Transporter == balancing.Transporter);
+                    .Any(s => s.Date == balancing.Date && s.Code == sacco && s.Branch== saccoBranch && s.Transporter == balancing.Transporter);
                 if (checkexist)
                 {
                     _notyf.Error("Sorry, Intake for the Transporter already Balanced");
@@ -177,7 +178,10 @@ namespace EasyPro.Controllers
                 }
 
                 balancing.Code = sacco;
+                balancing.Branch = saccoBranch;
                 _context.TransportersBalancings.Add(balancing);
+
+
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");
                 return Json("");

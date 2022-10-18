@@ -196,9 +196,6 @@ namespace EasyPro.Controllers
             ViewBag.Branch = new SelectList(Branch, "BName", "BName");
             ViewBag.Branch = Branch;
 
-            
-
-
         }
 
         public IActionResult CreateDeduction()
@@ -661,7 +658,7 @@ namespace EasyPro.Controllers
             productIntake.Description = productIntake?.Description ?? "";
             productIntake.DR = 0;
             long.TryParse(productIntake.Sno, out long sno);
-
+            
             if (sno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
@@ -677,9 +674,10 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly select product type");
                 return RedirectToAction(nameof(CreateCorrection));
             }
+
             if (productIntake.Qsupplied == 0)
             {
-                _notyf.Error("Sorry, Kindly provide quantity");
+                //_notyf.Error("Sorry, Kindly provide quantity");
                 return RedirectToAction(nameof(CreateCorrection));
             }
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode == sacco && s.Branch == saccoBranch);
@@ -693,9 +691,11 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Supplier must be approved and active");
                 return RedirectToAction(nameof(CreateCorrection));
             }
+            double ch = 0;
             if (productIntake.CR < 0)
             {
-                productIntake.DR -= productIntake.CR;
+                productIntake.DR = (productIntake.CR)*-1;
+                ch = (double)productIntake.CR;
                 productIntake.CR = 0;
             }
             if (productIntake.DrAccNo == null)
@@ -726,7 +726,7 @@ namespace EasyPro.Controllers
                 var collection = new ProductIntake
                 {
                     Sno = productIntake.Sno.Trim(),
-                    TransDate = DateTime.Today,
+                    TransDate = (DateTime)productIntake.TransDate,
                     TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                     ProductType = productIntake.ProductType,
                     Qsupplied = (decimal)productIntake.Qsupplied,
@@ -753,13 +753,21 @@ namespace EasyPro.Controllers
                 if (transport != null)
                 {
                     // Debit supplier transport amount
-                    productIntake.DR = 0;
-                    productIntake.CR  = productIntake.Qsupplied * transport.Rate;
+                    productIntake.CR = 0;
+                    productIntake.DR  = productIntake.Qsupplied * transport.Rate;
+                   
+
+                    if (ch < 0)
+                    {
+                        productIntake.CR = (decimal?)((productIntake.Qsupplied * transport.Rate)*-1);
+                        productIntake.DR = 0;
+                    }
+
                     productIntake.Balance = productIntake.Balance + productIntake.CR;
                     collection = new ProductIntake
                     {
                         Sno = productIntake.Sno.Trim(),
-                        TransDate = DateTime.Today,
+                        TransDate = (DateTime)productIntake.TransDate,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                         ProductType = productIntake.ProductType,
                         Qsupplied = (decimal)productIntake.Qsupplied,
@@ -780,12 +788,17 @@ namespace EasyPro.Controllers
                     _context.ProductIntake.Add(collection);
 
                     // Credit transpoter transport amount
-                    productIntake.DR  = productIntake.Qsupplied * transport.Rate;
-                    productIntake.CR = 0;
+                    productIntake.CR  = productIntake.Qsupplied * transport.Rate;
+                    productIntake.DR = 0;
+                    if (ch < 0)
+                    {
+                        productIntake.DR = (decimal?)((productIntake.CR) * -1);
+                        productIntake.CR = 0;
+                    }
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = transport.TransCode.Trim(),
-                        TransDate = DateTime.Today,
+                        TransDate = (DateTime)productIntake.TransDate,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                         ProductType = productIntake.ProductType,
                         Qsupplied = (decimal)productIntake.Qsupplied,
@@ -850,7 +863,16 @@ namespace EasyPro.Controllers
 
                 _context.SaveChanges();
                 _notyf.Success("Correction saved successfully");
-                return RedirectToAction(nameof(CorrectionList));
+                SetIntakeInitialValues();
+
+                var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == (DateTime)productIntake.TransDate).Sum(p => p.Qsupplied);
+                var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == (DateTime)productIntake.TransDate && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+                return View(new ProductIntakeVm
+                {
+                    Todaykgs = Todayskg,
+                    TodayBranchkgs = TodaysBranchkg
+                });
+                //return RedirectToAction(nameof(CreateCorrection));
             }
 
             return View(productIntake);
