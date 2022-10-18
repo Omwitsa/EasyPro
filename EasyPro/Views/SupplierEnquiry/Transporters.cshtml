@@ -2,161 +2,180 @@
 @{
     ViewData["Title"] = "Transporters";
 }
-<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <div class="row">
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <label class="control-label">TranCode</label>
-                <input id="sno" autocomplete="off" class="form-control" required />
-                <span class="text-danger"></span>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Transporter Enquiry</h2>
             </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <div class="form-group">
-                    <label class="control-label">Names</label>
-                    <input id="names" autocomplete="off" class="form-control" />
-                    <span class="text-danger"></span>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">TranCode</label>
+                                <input id="sno" autocomplete="off" class="form-control" required />
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Names</label>
+                                    <input id="names" autocomplete="off" class="form-control" />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">IdNo</label>
+                                    <input id="idno" autocomplete="off" class="form-control" />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Phone No</label>
+                                <input id="phoneno" autocomplete="off" class="form-control" />
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <div class="form-group">
-                    <label class="control-label">IdNo</label>
-                    <input id="idno" autocomplete="off" class="form-control" />
-                    <span class="text-danger"></span>
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">BName</label>
+                                <input id="bname" autocomplete="off" class="form-control" />
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Acc No</label>
+                                    <input id="accno" autocomplete="off" class="form-control" />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">BBranch</label>
+                                    <input id="bbranch" autocomplete="off" class="form-control" />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <label class="control-label">Phone No</label>
-                <input id="phoneno" autocomplete="off" class="form-control" />
-                <span class="text-danger"></span>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <label class="control-label">BName</label>
-                <input id="bname" autocomplete="off" class="form-control" />
-                <span class="text-danger"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <div class="form-group">
-                    <label class="control-label">Acc No</label>
-                    <input id="accno" autocomplete="off" class="form-control" />
-                    <span class="text-danger"></span>
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Gross Pay</label>
+                                    <input id="grosspay" class="form-control text-green" />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">NETPAY</label>
+                                    <input id="netpay" class="form-control text-danger" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Deductions</label>
+                                    <input id="totaldeductions" class="form-control text-blue" />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <div class="form-group">
-                    <label class="control-label">BBranch</label>
-                    <input id="bbranch" autocomplete="off" class="form-control" />
-                    <span class="text-danger"></span>
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="FilterVm.DateFrom" class="control-label"></label>
+                                <input id="firstdate" required class="form-control" type="text" />
+                                <span asp-validation-for="FilterVm.DateFrom" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="FilterVm.DateTo" class="control-label"></label>
+                                <input id="enddate" required class="form-control" type="text" />
+                                <span asp-validation-for="FilterVm.DateTo" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <label class="control-label"></label>
+                        <a id="showtable" class="btn btn-warning">Show</a>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <div class="form-group">
-                    <label class="control-label">Gross Pay</label>
-                    <input id="grosspay" class="form-control text-green" />
-                    <span class="text-danger"></span>
+                <div class="bsc-tbl-hvr table-border-style">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <tr>
+                                <th>Date</th>
+                                <th>Product Type</th>
+                                <th>Quantity</th>
+                                <th>CR</th>
+                                <th>DR</th>
+                                <th>Balance</th>
+                                <th>Description</th>
+                                <th>Remarks</th>
+                            </tr>
+                            <tbody id="intakes">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <label asp-for="FilterVm.DateFrom" class="control-label"></label>
-                <input id="firstdate" required class="form-control" type="text" />
-                <span asp-validation-for="FilterVm.DateFrom" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <div class="form-group">
-                    <label asp-for="FilterVm.DateTo" class="control-label"></label>
-                    <input id="enddate" required class="form-control" type="text" />
-                    <span asp-validation-for="FilterVm.DateTo" class="text-danger"></span>
-                    <a id="showtable" class="btn-warning btn-success">Show</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <div class="form-group">
-                    <label class="control-label">NETPAY</label>
-                    <input id="netpay" class="form-control text-danger" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-        <div class="form-group ic-cmp-int float-lb floating-lb">
-            <div class="nk-int-st">
-                <div class="form-group">
-                    <label class="control-label">Deductions</label>
-                    <input id="totaldeductions" class="form-control text-blue" />
-                    <span class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="bsc-tbl-hvr table-border-style">
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <tr>
-                <th>Date</th>
-                <th>Product Type</th>
-                <th>Quantity</th>
-                <th>CR</th>
-                <th>DR</th>
-                <th>Balance</th>
-                <th>Description</th>
-                <th>Remarks</th>
-            </tr>
-            <tbody id="intakes">
-            </tbody>
-        </table>
     </div>
 </div>
 <link href="~/css/jquery-ui.css" rel="stylesheet" />
 @section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script src="~/js/jquery.js"></script>
     <script src="~/js/jquery-ui.js"></script>
     @*<script src="~/js/deduction.js"></script>*@
-    <script type="text/javascript">
+<script type="text/javascript">
        /* const { Doc } = require("codemirror");*/
         $(function ()
         {
@@ -375,6 +394,6 @@
                 $('#intakes').html(itemTableRows);
             }
         });
-    </script>
+</script>
 
 }

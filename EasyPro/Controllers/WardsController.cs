@@ -32,7 +32,15 @@ namespace EasyPro.Controllers
             var myIp = utilities.GetLocalIPAddress();
             var ClientIPAddr = HttpContext.Connection.RemoteIpAddress?.ToString();
             utilities.SetUpPrivileges(this);
-            return View(await _context.Ward.ToListAsync());
+            var saccouser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var subcounty = _context.DCompanies.FirstOrDefault(a=>a.Name.ToUpper().Equals(sacco.ToUpper())).District;
+            var Wards = await _context.Ward.ToListAsync();
+            if (saccouser != "psigei")
+                Wards=await _context.Ward.Where(k=>k.SubCounty.ToUpper().Equals(subcounty.ToUpper())).ToListAsync();
+
+            return View(Wards);
         }
 
         // GET: Wards/Details/5

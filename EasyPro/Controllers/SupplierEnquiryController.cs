@@ -32,12 +32,13 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             GetInitialValues();
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
             //.ToUpper().Equals(sacco.ToUpper())
-            ViewBag.suppliers = _context.DSuppliers.Where(i=>i.Scode.ToUpper().Equals(sacco.ToUpper())).Select(s => new DSupplier
+            ViewBag.suppliers = _context.DSuppliers.Where(i=>i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== saccobranch).Select(s => new DSupplier
             {
                 Sno = s.Sno,
                 Names = s.Names,
@@ -53,11 +54,13 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             //GetInitialValues();
             DateTime now = DateTime.Now;
             DateTime startDate = new DateTime(now.Year, now.Month, 1);
             DateTime enDate = startDate.AddMonths(1).AddDays(-1);
-            ViewBag.transporters = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).Select(s => new DTransporter
+            ViewBag.transporters = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())
+            && i.Tbranch== saccobranch).Select(s => new DTransporter
             {
                 TransCode = s.TransCode,
                 TransName = s.TransName,
@@ -74,6 +77,7 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var products = _context.DBranchProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.products = new SelectList(products);
         }
@@ -81,12 +85,13 @@ namespace EasyPro.Controllers
         public JsonResult SuppliedProducts([FromBody] DSupplier supplier,DateTime date1, DateTime date2, string producttype)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
 
             var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno.ToString() && i.SaccoCode.ToUpper()
-            .Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+            .Equals(sacco.ToUpper()) && i.Branch== saccobranch && i.TransDate >= date1 && i.TransDate <= date2).ToList();
             if(!string.IsNullOrEmpty(producttype))
                 intakes = intakes.Where(i => i.ProductType.ToUpper().Equals(producttype.ToUpper())).ToList();
             decimal? bal = 0;
@@ -106,12 +111,27 @@ namespace EasyPro.Controllers
         public JsonResult SuppliedProductsTransporter(string sno, DateTime date1, DateTime date2)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
 
-            var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate)
-                .Where(i => i.Sno == sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+            var intakes = _context.ProductIntake.Where(i => i.Sno == sno && i.SaccoCode.ToUpper()
+           .Equals(sacco.ToUpper()) && i.Branch == saccobranch && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+            decimal? bal = 0;
+            intakes.ForEach(i =>
+            {
+                i.CR = i?.CR ?? 0;
+                i.DR = i?.DR ?? 0;
+                bal += i.CR - i.DR;
+                i.Balance = bal;
+            });
+
+            intakes = intakes.OrderByDescending(i => i.Id).ToList();
+
+            //var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate)
+            //    .Where(i => i.Sno == sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            //    && i.TransDate >= date1 && i.TransDate <= date2).ToList();
             return Json(intakes);
         }
 
@@ -119,30 +139,32 @@ namespace EasyPro.Controllers
         public JsonResult SuppliedProductsTransporter1(string sno, DateTime date1, DateTime date2)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
             var resultsget = _context.ProductIntake.OrderByDescending(i => i.TransDate)
-                        .Where(i => i.SaccoCode == sacco
+                        .Where(i => i.SaccoCode == sacco && i.Branch== saccobranch
                     && i.TransDate >= date1 && i.TransDate <= date2).ToList();
             var transExist =  _context.DTransporters.Any(u => u.TransCode == sno && u.Active == true && u.ParentT == sacco);
             if (transExist)
             {
                 var transassign = _context.DTransports
-                    .Where(u => u.TransCode == sno && u.Active == true && u.saccocode.ToUpper().Equals(sacco.ToUpper()));
+                    .Where(u => u.TransCode == sno && u.Branch== saccobranch && u.Active == true && u.saccocode.ToUpper().Equals(sacco.ToUpper()));
                 foreach(var snoo in transassign)
                 {
                     var sumkgspersupplier = _context.ProductIntake
-                        .Where(u => u.SaccoCode == sacco && u.TransDate >= date1 && u.TransDate <= date2 && u.Sno == snoo.Sno.ToString())
+                        .Where(u => u.SaccoCode == sacco && u.Branch== saccobranch && u.TransDate >= date1 && u.TransDate <= date2 && u.Sno == snoo.Sno.ToString())
                         .Sum(i=>i.CR);
                     var all = _context.DTmpTransEnqueries;
                     DTmpTransEnqueryobj.sacco = sacco;
                     DTmpTransEnqueryobj.Sno = snoo.Sno.ToString();
                     DTmpTransEnqueryobj.TransDate = date2;
                     DTmpTransEnqueryobj.Cr = sumkgspersupplier;
+                    DTmpTransEnqueryobj.Branch = saccobranch;
                 }
                 var intakes = _context.DTmpTransEnqueries.OrderByDescending(i => i.TransDate)
-                       .Where(i => i.Sno == sno && i.sacco.ToUpper().Equals(sacco.ToUpper())
+                       .Where(i => i.Sno == sno && i.sacco.ToUpper().Equals(sacco.ToUpper()) && i.Branch== saccobranch
                    && i.TransDate >= date1 && i.TransDate <= date2).ToList();
                 //resultsget = intakes;
             }
