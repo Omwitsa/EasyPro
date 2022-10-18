@@ -133,7 +133,7 @@ namespace EasyPro.Controllers
                 var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(filter.TCode.ToUpper()) && t.saccocode == sacco)
                     .Select(t => t.Sno.ToString());
 
-                var intakes = _context.ProductIntake.Where(s => s.TransDate== filter.Date && s.SaccoCode == sacco && s.Description!= "Transport" && transporterSuppliers.Contains(s.Sno)).ToList();
+                var intakes = _context.ProductIntake.Where(s => s.TransDate== filter.Date && s.SaccoCode == sacco &&( s.Description== "Intake"|| s.Description == "Correction") && transporterSuppliers.Contains(s.Sno)).ToList();
 
                 return Json(intakes);
             }
