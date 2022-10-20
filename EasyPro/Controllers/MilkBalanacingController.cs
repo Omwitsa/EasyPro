@@ -55,7 +55,6 @@ namespace EasyPro.Controllers
                 Spillage = "0",
                 Varriance = "0",
                 Rejects = "0",
-                ActualBal="0"
             });
         }
         // GET: DSuppliers/Edit/5
@@ -63,6 +62,8 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             if (id == null)
             {
                 return NotFound();
@@ -72,8 +73,18 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
-            return View(TransportersBalancings);
+            var transporter = _context.DTransporters.FirstOrDefault(i=>i.TransCode.ToUpper().Equals(TransportersBalancings.Transporter.ToUpper())
+            && i.ParentT== TransportersBalancings.Code && i.Tbranch== TransportersBalancings.Branch);
+            
+            return View(new TransportersBalancing
+            {
+                Code = TransportersBalancings.Transporter,
+                Transporter= transporter.TransName,
+                Date= TransportersBalancings.Date,
+                Varriance = TransportersBalancings.Varriance,
+                Spillage = TransportersBalancings.Spillage,
+                Rejects= TransportersBalancings.Rejects
+            });
         }
         // GET: DSuppliers/Delete/5
         public async Task<IActionResult> Delete(long? id)
@@ -109,13 +120,15 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var agproducts = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var agproducts = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch== saccobranch).ToList();
             ViewBag.agproductsall = agproducts;
 
-            var TransportersName = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var TransportersName = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()) && s.Tbranch== saccobranch).ToList();
             ViewBag.Transporterslist = new SelectList(TransportersName, "TransName", "TransName");
 
         }
+
         [HttpPost]
         public JsonResult GetSuppliedItems([FromBody] ProductBalancingFilterVm filter)
         {
@@ -124,18 +137,25 @@ namespace EasyPro.Controllers
                 utilities.SetUpPrivileges(this);
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+                
                 if (string.IsNullOrEmpty(filter.TCode))
                 {
                     _notyf.Error("Sorry, Kindly select transporter");
                     return Json("");
                 }
-
+               
+                var suppliersdeliveries = _context.d_TransporterIntake.Where(i =>i.Date == filter.Date && i.TransCode.ToUpper().Equals(filter.TCode.ToUpper()) 
+                && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).Sum(i => i.ActualKg);
                 var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(filter.TCode.ToUpper()) && t.saccocode == sacco)
                     .Select(t => t.Sno.ToString());
 
                 var intakes = _context.ProductIntake.Where(s => s.TransDate== filter.Date && s.SaccoCode == sacco &&( s.Description== "Intake"|| s.Description == "Correction") && transporterSuppliers.Contains(s.Sno)).ToList();
 
-                return Json(intakes);
+                return Json(new {
+                    intakes,
+                    suppliersdeliveries
+                });
             }
             catch (Exception e)
             {

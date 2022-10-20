@@ -24,7 +24,7 @@ namespace EasyPro.ViewModels
 
     public class ProductBalancingFilterVm
     {
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
         public string TCode { get; set; }
     }
 }

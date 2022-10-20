@@ -1,12 +1,40 @@
 ﻿@model EasyPro.Models.TransportersBalancing
+    <style>
+        #customers {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+            #customers td, #customers th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            #customers tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            #customers tr:hover {
+                background-color: #ddd;
+            }
+
+            #customers th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: left;
+                background-color: #04AA6D;
+                color: white;
+            }
+    </style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
             <div class="cmp-tb-hd">
-                <h2>Transporters Balancing Form</h2>
+                <h2>Transporters Balancing Enquiery</h2>
             </div>
             <hr />
-            <form asp-action="Create">
+            <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Id" />
                 <div class="row">
@@ -16,7 +44,7 @@
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Date</label>
-                            <input id="date" asp-for="Date" class="form-control" type="date" />
+                            <input id="date" asp-for="Date" class="form-control" type="date" readonly />
                             <span asp-validation-for="Date" class="text-danger"></span>
                         </div>
                     </div>
@@ -25,22 +53,20 @@
                     <div class="col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Select Transporter</label>
-                            <select id="name" class="form-control" asp-items="@ViewBag.Transporterslist">
-                                <option disabled selected hidden></option>
-                            </select>
+                            <input id="show" class="form-control" asp-for="Transporter" readonly />
                             <span asp-validation-for="Transporter" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">TCode</label>
-                            <input id="tcode" asp-for="Transporter" class="form-control" readonly />
+                            <input id="tcode" asp-for="Code" class="form-control" readonly />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a id="show" class="btn btn-success">Show</a>
+                        @*<a id="show" class="btn btn-success">Show</a>*@
                     </div>
                 </div>
 
@@ -48,7 +74,7 @@
                     <div class="col-xs-12">
                         <div class="bsc-tbl-hvr table-border-style">
                             <div class="table-responsive">
-                                <table class="table table-hover">
+                                <table class="table table-hover" id="customers">
                                     <thead>
                                         <tr>
                                             <th>
@@ -84,7 +110,7 @@
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Actual Kgs</label>
-                            <input id="actual" asp-for="ActualBal" class="form-control" />
+                            <input id="actual" asp-for="ActualBal" class="form-control" readonly />
                             <span asp-validation-for="ActualBal" class="text-danger"></span>
                         </div>
                     </div>
@@ -100,21 +126,21 @@
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Spillage Kgs</label>
-                            <input id="spillage" asp-for="Spillage" class="form-control" />
+                            <input id="spillage" asp-for="Spillage" class="form-control" readonly />
                             <span asp-validation-for="Spillage" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Rejects Kgs</label>
-                            <input id="rejects" asp-for="Rejects" class="form-control" />
+                            <input id="rejects" asp-for="Rejects" class="form-control" readonly />
                             <span asp-validation-for="Rejects" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a id="edit" class="btn btn-success">Save</a>
+                        @*<a id="save" class="btn btn-success">Save</a>*@
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a asp-action="Index" class="btn btn-primary">Back to List</a>
@@ -129,12 +155,13 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
             var today = new Date().toISOString().split('T')[0];
-            $("#date").val(today);
+            var products = $("#show").val();
+            populateFields();
             let suppliedItems = new Array();
-
+            $("#actual").attr("disabled", true);
             $('#name').on('click', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
                 var selectVal = $("#name").val();
@@ -144,19 +171,21 @@
                 }
             });
 
-
-            $('#show').on('click', function () {
+            function populateFields() {
+               
                 var filter = {
                     date: $("#date").val(),
-                    tcode: $("#tcode").val()
+                    tcode: $("#tcode").val(),
                 };
+
                 $.ajax({
                     type: 'POST',
-                    url: "getSuppliedItems",
+                    url: "/milkBalancing/getSuppliedItems",
                     contentType: 'application/json',
                     data: JSON.stringify(filter),
                     success: function (response) {
-                        suppliedItems = response ? response : [];
+                        suppliedItems = response.intakes ? response.intakes : [];
+                        $("#actual").val(response.suppliersdeliveries);
                         populateDetailsTable();
                     },
                     failure: function (response) {
@@ -164,9 +193,13 @@
                 }).then(function () {
                     // ...
                 });
+            }
+            $('#show').on('change', function () {
+
             });
 
-            $('#actual').on('keyup', function () {
+
+            $('#spillage').on('keyup', function () {
                 var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
                 $("#varriance").val(variance);
             });
@@ -174,12 +207,8 @@
                 var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
                 $("#varriance").val(variance);
             });
-            $('#spillage').on('keyup', function () {
-                var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
-                $("#varriance").val(variance);
-            });
 
-            $('#edit').on('click', function () {
+            $('#save').on('click', function () {
                 var variance = {
                     date: $("#date").val(),
                     transporter: $("#tcode").val(),
@@ -189,25 +218,26 @@
                     spillage: $("#spillage").val(),
                     varriance: $("#varriance").val()
                 };
-                debugger
+
                 $.ajax({
                     type: 'POST',
-                    url: "editVariance",
+                    url: "saveVariance",
                     contentType: 'application/json',
                     data: JSON.stringify(variance),
                     success: function (response) {
+
                     },
                     failure: function (response) {
                     }
                 }).then(function () {
                     // ...
                 });
-                
             });
 
             let totalQnty = 0;
             function populateDetailsTable() {
                 let itemTableRows = new Array();
+
                 suppliedItems.forEach(j => {
                     itemTableRows.push(`<tr>
 				            <td>${j.Sno}</td>
@@ -218,11 +248,15 @@
 
                     totalQnty += j.Qsupplied;
                 });
-
-
                 $("#totalkgs").val(totalQnty);
                 $('#balance').html(itemTableRows);
+
             }
+
+            //$('#actual').on('keyup', function () {
+            //    var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
+            //    $("#varriance").val(variance);
+            //});
         });
-    </script>
+</script>
 }

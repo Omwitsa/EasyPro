@@ -164,6 +164,7 @@ namespace EasyPro.Models
         public virtual DbSet<DTransFrate> DTransFrates { get; set; }
         public virtual DbSet<DTransMode> DTransModes { get; set; }
         public virtual DbSet<DTransport> DTransports { get; set; }
+        public virtual DbSet<DTransporterIntake> d_TransporterIntake { get; set; }
         public virtual DbSet<DTransportDeduc> DTransportDeducs { get; set; }
         public virtual DbSet<DTransportStandingorder> DTransportStandingorders { get; set; }
         public virtual DbSet<DTransporter> DTransporters { get; set; }

@@ -43,7 +43,7 @@ namespace EasyPro.Controllers
 
             return View(await _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                && i.TransDate == DateTime.Today)
+                && i.TransDate == DateTime.Today && i.Branch== saccoBranch)
                 .ToListAsync());
 
         }

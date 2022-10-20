@@ -27,29 +27,39 @@ namespace EasyPro.Controllers
             utilities = new Utilities(context);
         }
         // GET: DSuppliers
-        public async Task<IActionResult> Index(int? pageNumber, int? pageSize)
+        
+        [HttpGet]
+        public async Task<IActionResult> Index(string Search,int? pageNumber, int? pageSize)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             sacco = sacco ?? "";
 
-            var suppliers = _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval==true && i.Branch == saccoBranch);
-
-            return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.AsNoTracking(), pageNumber ?? 1, pageSize ?? 1000));
-        }
-
-        public async Task<IActionResult> UnApprovedList()
+            ViewData["Getsuppliers"]= Search;
+            var suppliers = from x in _context.DSuppliers
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval 
+                && i.Branch == saccoBranch) select x;
+            if (!string.IsNullOrEmpty(Search))
+                suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
+            return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.AsNoTracking(), pageNumber ?? 1, pageSize ?? 20));
+        }//return Json(shares);
+        [HttpGet]
+        public async Task<IActionResult> UnApprovedList(string Search)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            return View(await _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval && i.Branch == saccoBranch).ToListAsync());
-        }
 
+            ViewData["Getsuppliers"] = Search;
+            var suppliers = from x in _context.DSuppliers
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval 
+                && i.Branch == saccoBranch) select x;
+            if (!string.IsNullOrEmpty(Search))
+                suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
+            return View(await suppliers.AsNoTracking().ToListAsync());
+        }
         public async Task<IActionResult> SaccoSupplierSummery()
         {
             utilities.SetUpPrivileges(this);
