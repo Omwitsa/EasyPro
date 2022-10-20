@@ -29,6 +29,11 @@
             background-color: #04AA6D;
             color: white;
         }
+    .divScroll {
+        width: 1110px;
+        height: 500px;
+        overflow: auto;
+    }
 </style>
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <div class="row">
@@ -56,98 +61,101 @@
                 </div>
             </div>
             <div class="bsc-tbl-hvr table-border-style">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="customers">
-                        <thead>
-                            <tr>
-                                <th>
-                                    Supplier No.
-                                </th>
-                                <th>
-                                    Reg date
-                                </th>
-                                <th>
-                                    Names
-                                </th>
-                                <th>
-                                    Id No.
-                                </th>
-                                <th>
-                                    Account No.
-                                </th>
-                                <th>
-                                    Location
-                                </th>
-                                <th>
-                                    Branch
-                                </th>
-                                <th>
-                                    Phone No.
-                                </th>
-                                <th>
-                                    Active
-                                </th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="geeks">
-                            @foreach (var item in Model)
-                            {
+                <div class="divScroll">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="customers">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Sno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Regdate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Names)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.IdNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.AccNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Location)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Branch)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.PhoneNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Active)
-                                    </td>
-                                    <td class="col-4">
-                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                        @*<a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
-                                    </td>
+                                    <th>
+                                        Supplier No.
+                                    </th>
+                                    <th>
+                                        Reg date
+                                    </th>
+                                    <th>
+                                        Names
+                                    </th>
+                                    <th>
+                                        Id No.
+                                    </th>
+                                    <th>
+                                        Account No.
+                                    </th>
+                                    <th>
+                                        Location
+                                    </th>
+                                    <th>
+                                        Branch
+                                    </th>
+                                    <th>
+                                        Phone No.
+                                    </th>
+                                    <th>
+                                        Active
+                                    </th>
+                                    <th></th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="geeks">
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Sno)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Regdate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Names)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.IdNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AccNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Location)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Branch)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PhoneNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Active)
+                                        </td>
+                                        <td class="col-4">
+                                            <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                            @*<a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
 
-                    @{
-                        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-                        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-                    }
+                        @{
+                            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                        }
 
-                    <a asp-action="Index"
-                       asp-route-pageNumber="@(Model.PageIndex - 1)"
-                       class="btn btn-default @prevDisabled">
-                        Previous
-                    </a>
-                    <a asp-action="Index"
-                       asp-route-pageNumber="@(Model.PageIndex + 1)"
-                       class="btn btn-default @nextDisabled">
-                        Next
-                    </a>
+                        <a asp-action="Index"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           class="btn btn-default @prevDisabled">
+                            Previous
+                        </a>
+                        <a asp-action="Index"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           class="btn btn-default @nextDisabled">
+                            Next
+                        </a>
+                    </div>
                 </div>
+                
             </div>
-        </div>
+            </div>
     </div>
 </div>
 @section scripts{

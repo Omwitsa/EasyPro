@@ -7,6 +7,8 @@ using EasyPro.Models;
 using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
@@ -27,7 +29,14 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.DCompanies.ToListAsync());
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var companies = _context.DCompanies.ToList();
+            if (!loggedInUser.ToLower().Equals("psigei"))
+                companies = _context.DCompanies.Where(i=>i.Name.ToUpper().Equals(sacco.ToUpper())).ToList();
+               
+            return View(companies);
         }
 
         // GET: DCompanies/Details/5

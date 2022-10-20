@@ -3,6 +3,40 @@
 @{
     ViewData["Title"] = "Index";
 }
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #4cff00;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1000px;
+        height: 500px;
+        overflow: auto;
+    }
+</style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
@@ -18,64 +52,67 @@
                 </div>
             </div>
             <div class="bsc-tbl-hvr table-border-style">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.PName)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Qin)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.DateEntered)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.OBal)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Pprice)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Sprice)
-                                </th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
+                <div class="divScroll">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="customers">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.PName)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Qin)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.DateEntered)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.OBal)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Pprice)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Sprice)
-                                    </td>
-                                    <td>
-                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">TopUp Stock</a> |
-                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                    </td>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.PName)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Qin)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.DateEntered)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.OBal)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Pprice)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Sprice)
+                                    </th>
+                                    <th></th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Qin)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.DateEntered)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.OBal)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Pprice)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Sprice)
+                                        </td>
+                                        <td>
+                                            <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">TopUp Stock</a> |
+                                            <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+               
             </div>
             </div>
-        </div>
     </div>
+</div>
 
