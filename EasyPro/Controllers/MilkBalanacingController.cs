@@ -39,9 +39,49 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(date.Year, date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var suppliers = _context.TransportersBalancings
-                .Where(i => i.Code.ToUpper().Equals(sacco.ToUpper()) && i.Date >= startDate && i.Date <= endDate).OrderByDescending(s=>s.Date).ToList();
+                .Where(i => i.Code.ToUpper().Equals(sacco.ToUpper()) && i.Date >= startDate 
+                && i.Date <= endDate).OrderByDescending(s => s.Date).ToList();
+            
             return View(suppliers);
         }
+
+        public void PostTransporterIntake()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var transporterIntakes = _context.d_TransporterIntake.Where(i => i.Posted != "Posted"
+            && i.SaccoCode == sacco && i.Branch== saccobranch).ToList();
+            var intakes = transporterIntakes.GroupBy(i => i.Date).ToList();
+            intakes.ForEach(i =>
+            {
+                var transGroups = i.GroupBy(t => t.TransCode).ToList();
+                transGroups.ForEach(t =>
+                {
+                    var intake = t.FirstOrDefault();
+                    var qty = t.Sum(t => t.ActualKg);
+                    var savedIntakes = GetTransporterIntakes(intake.TransCode, intake.Date);
+                    var supplies = savedIntakes.Sum(s => s.Qsupplied);
+                    var variance = supplies - qty;
+                    _context.TransportersBalancings.Add(new TransportersBalancing
+                    {
+                        Date = intake.Date,
+                        Transporter = intake.TransCode,
+                        Quantity = "" + supplies,
+                        ActualBal = "" + qty,
+                        Rejects = "0",
+                        Spillage = "0",
+                        Varriance = "" + variance,
+                        Code = sacco,
+                        Branch = saccobranch,
+                    });
+
+                });
+
+                i.ToList().ForEach(t => t.Posted = "Posted");
+                _context.SaveChanges();
+            });
+        }
+
         public IActionResult Create(long? id)
         {
             utilities.SetUpPrivileges(this);
@@ -147,14 +187,10 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly select transporter");
                     return Json("");
                 }
-               
-                var suppliersdeliveries = _context.d_TransporterIntake.Where(i =>i.Date == filter.Date && i.TransCode.ToUpper().Equals(filter.TCode.ToUpper()) 
+
+                var suppliersdeliveries = _context.d_TransporterIntake.Where(i => i.Date == filter.Date && i.TransCode.ToUpper().Equals(filter.TCode.ToUpper())
                 && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).Sum(i => i.ActualKg);
-                var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(filter.TCode.ToUpper()) && t.saccocode == sacco)
-                    .Select(t => t.Sno.ToString());
-
-                var intakes = _context.ProductIntake.Where(s => s.TransDate== filter.Date && s.SaccoCode == sacco &&( s.Description== "Intake"|| s.Description == "Correction") && transporterSuppliers.Contains(s.Sno)).ToList();
-
+                var intakes = GetTransporterIntakes(filter.TCode, filter.Date);
                 return Json(new {
                     intakes,
                     suppliersdeliveries
@@ -166,6 +202,18 @@ namespace EasyPro.Controllers
             }
         }
 
+        private IEnumerable<ProductIntake> GetTransporterIntakes(string transCode, DateTime? date)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.saccocode == sacco && t.Branch== saccobranch)
+                .Select(t => t.Sno.ToString());
+
+            var intakes = _context.ProductIntake.Where(s => s.TransDate == date && s.SaccoCode == sacco && (s.Description == "Intake" || s.Description == "Correction") 
+            && transporterSuppliers.Contains(s.Sno) && s.Branch == saccobranch).ToList();
+
+            return intakes;
+        }
 
 
         [HttpPost]//editVariance

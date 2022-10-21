@@ -12,7 +12,9 @@ namespace EasyPro.Models
         public string TransCode { get; set; }
         public decimal? ActualKg { get; set; }
         public DateTime? Date { get; set; }
+        public DateTime? AuditDate { get; set; }
         public string SaccoCode { get; set; }
         public string Branch { get; set; }
+        public string Posted { get; set; }
     }
 }
