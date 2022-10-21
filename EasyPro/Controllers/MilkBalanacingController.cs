@@ -42,7 +42,7 @@ namespace EasyPro.Controllers
                 .Where(i => i.Code.ToUpper().Equals(sacco.ToUpper()) && i.Date >= startDate && i.Date <= endDate).OrderByDescending(s=>s.Date).ToList();
             return View(suppliers);
         }
-        public IActionResult Create()
+        public IActionResult Create(long? id)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -126,7 +126,10 @@ namespace EasyPro.Controllers
 
             var TransportersName = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()) && s.Tbranch== saccobranch).ToList();
             ViewBag.Transporterslist = new SelectList(TransportersName, "TransName", "TransName");
-
+            if(sacco.ToUpper()== "MBURUGU DAIRY F.C.S")
+                ViewBag.checkiftoenable = 1;
+            else
+                ViewBag.checkiftoenable = 0;
         }
 
         [HttpPost]
@@ -166,7 +169,7 @@ namespace EasyPro.Controllers
 
 
         [HttpPost]//editVariance
-        public JsonResult SaveVariance([FromBody] TransportersBalancing balancing)
+        public JsonResult SaveVariance([FromBody] TransportersBalancing balancing )
         {
             try
             {
@@ -190,18 +193,19 @@ namespace EasyPro.Controllers
                     return Json("");
                 }
                 var checkexist = _context.TransportersBalancings
-                    .Any(s => s.Date == balancing.Date && s.Code == sacco && s.Branch== saccoBranch && s.Transporter == balancing.Transporter);
-                if (checkexist)
+                    .FirstOrDefault(s => s.Date == balancing.Date && s.Code == sacco && s.Branch== saccoBranch && s.Transporter == balancing.Transporter);
+                if (checkexist!=null)
                 {
-                    _notyf.Error("Sorry, Intake for the Transporter already Balanced");
-                    return Json("");
+                    var id = checkexist.Id;
+                    var transportersBalancing = _context.TransportersBalancings.Find(id);
+                    _context.TransportersBalancings.Remove(transportersBalancing);
                 }
+                
 
-                balancing.Code = sacco;
-                balancing.Branch = saccoBranch;
-                _context.TransportersBalancings.Add(balancing);
-
-
+                    balancing.Code = sacco;
+                    balancing.Branch = saccoBranch;
+                    _context.TransportersBalancings.Add(balancing);
+               
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");
                 return Json("");

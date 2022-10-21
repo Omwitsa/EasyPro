@@ -127,7 +127,7 @@ namespace EasyPro.Controllers
                 i.Balance = bal;
             });
 
-            intakes = intakes.OrderByDescending(i => i.Id).ToList();
+            intakes = intakes.OrderByDescending(i => i.TransDate).ToList();
 
             //var intakes = _context.ProductIntake.OrderByDescending(i => i.TransDate)
             //    .Where(i => i.Sno == sno && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
@@ -182,7 +182,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var shares = _context.DShares.Where(s => s.Sno == sno && s.SaccoCode == sacco).ToList();
+            var shares = _context.DShares.Where(s => s.Sno == sno && s.SaccoCode == sacco).OrderByDescending(s=>s.TransDate).ToList();
             return Json(shares);
         }
 

@@ -103,10 +103,10 @@
                                         </table>
                                     </div>
                                 </div>
-                                
-                                
+
+
                             </div>
-                            </div>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -165,12 +165,19 @@
         @{
             await Html.RenderPartialAsync("_ValidationScriptsPartial");
         }
-        <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
             let suppliedItems = new Array();
-            $("#actual").attr("disabled", true);
+            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+            if (checkiftoenable === 0) {
+                $("#actual").prop('disabled', false);
+            }
+            else {
+                $("#actual").prop('disabled', true);
+            }
+            
             $('#name').on('click', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
                 var selectVal = $("#name").val();
@@ -185,13 +192,13 @@
             }
 
             $('#show').on('click', function () {
-                
                 populateDetailsTableupdate();
                 var filter = {
                     date: $("#date").val(),
                     tcode: $("#tcode").val(),
 
                 };
+                $("#actual").val("0");
                 $.ajax({
                     type: 'POST',
                     url: "getSuppliedItems",
@@ -245,10 +252,11 @@
                 });
             });
 
-            let totalQnty = 0;
+           
 
             function populateDetailsTable() {
                 let itemTableRows = new Array();
+                let totalQnty = 0;
                 $("#balance").empty();
                 suppliedItems.forEach(j => {
                     itemTableRows.push(`<tr>
@@ -269,5 +277,5 @@
             //    $("#varriance").val(variance);
             //});
         });
-        </script>
+</script>
     }
