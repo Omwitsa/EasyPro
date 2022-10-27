@@ -82,13 +82,12 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction 
-            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today
-            && c.Branch == saccoBranch).ToListAsync();
+            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach (var intake in productIntakes)
             {
                 long.TryParse(intake.Sno, out long sno);
-                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == sno && i.Scode == sacco && i.Branch == saccoBranch);
+                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == sno && i.Scode == sacco);
                 if (supplier != null)
                 {
                     intakes.Add(new ProductIntakeVm
@@ -724,6 +723,7 @@ namespace EasyPro.Controllers
                 var price = _context.DPrices
                     .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                     && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));
+                productIntake.TransDate = productIntake?.TransDate ?? DateTime.Now;
                 var collection = new ProductIntake
                 {
                     Sno = productIntake.Sno.Trim(),

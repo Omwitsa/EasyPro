@@ -83,6 +83,16 @@
                                     </div>
                                     <button type="submit" class="btn btn-info">Export to PDF</button>
                                 </form>
+
+                               @* <div class="form-group">
+                                    <label class="control-label"></label>
+                                    <input id="intake_from" class="form-control" type="date" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label"></label>
+                                    <input id="intake_to" class="form-control" type="date" />
+                                </div>
+                                <button id="btn_intake_pdf"  class="btn btn-info">Export to PDF</button>*@
                             </div>
                         </div>
                     </div>
@@ -125,3 +135,38 @@
 </div>
 
 
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#intake_from").val(today);
+            $("#intake_to").val(today);
+
+            $('#btn_intake_pdf').on('click', function () {
+                let from = $("#intake_from").val();
+                let to = $("#intake_to").val();
+
+                var filter = {
+                    dateFrom: from,
+                    dateTo: to,
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "TIntakePdf",
+                    contentType: 'application/json',
+                    data: JSON.stringify(filter),
+                    success: function (response) {
+
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+        });
+    </script>
+}

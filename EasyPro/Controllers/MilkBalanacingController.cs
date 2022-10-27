@@ -206,11 +206,11 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.saccocode == sacco && t.Branch== saccobranch)
+            var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.saccocode == sacco)
                 .Select(t => t.Sno.ToString());
 
             var intakes = _context.ProductIntake.Where(s => s.TransDate == date && s.SaccoCode == sacco && (s.Description == "Intake" || s.Description == "Correction") 
-            && transporterSuppliers.Contains(s.Sno) && s.Branch == saccobranch).ToList();
+            && transporterSuppliers.Contains(s.Sno)).ToList();
 
             return intakes;
         }

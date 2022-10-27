@@ -272,10 +272,10 @@
                 $('#balance').html(itemTableRows);
 
             }
-            //$('#actual').on('keyup', function () {
-            //    var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
-            //    $("#varriance").val(variance);
-            //});
+            $('#actual').on('keyup', function () {
+                var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
+                $("#varriance").val(variance);
+            });
         });
 </script>
     }

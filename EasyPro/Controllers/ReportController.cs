@@ -547,7 +547,7 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public IActionResult TIntakePdf([Bind("DateFrom,DateTo")] FilterVm filter)
+        public IActionResult TIntakePdf([FromBody] FilterVm filter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";

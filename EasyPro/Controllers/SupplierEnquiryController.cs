@@ -103,7 +103,8 @@ namespace EasyPro.Controllers
                 i.Balance = bal;
             });
 
-            intakes = intakes.OrderByDescending(i => i.TransDate).ToList();
+            intakes = intakes.Where(i => i.CR > 0 || i.DR > 0).ToList();
+            intakes = intakes.OrderByDescending(i => i.Id).ToList();
             return Json(intakes);
         }
 

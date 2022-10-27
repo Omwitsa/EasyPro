@@ -446,10 +446,10 @@
                     $('#details').html(itemTableRows);
                 }
             });
-            $('#pname').on('click', function () {
+            $('#pname').on('change', function () {
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
                  var selectVal = $("#pname").val();
-                 var selectProducts = products.filter(p => p.PName === selectVal);
+                 var selectProducts = products.filter(p => p.PName.trim() === selectVal);
                 if (selectProducts[0]) {
                     $("#pcode").val(selectProducts[0].PCode);
                     $("#qnty").val("1");

@@ -41,7 +41,7 @@ namespace EasyPro.Controllers
                 .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval) select x;
             if (!string.IsNullOrEmpty(Search))
                 suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
-            return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.AsNoTracking(), pageNumber ?? 1, pageSize ?? 20));
+            return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.OrderByDescending(s => s.Id).AsNoTracking(), pageNumber ?? 1, pageSize ?? 20));
         }//return Json(shares);
         [HttpGet]
         public async Task<IActionResult> UnApprovedList(string Search)
