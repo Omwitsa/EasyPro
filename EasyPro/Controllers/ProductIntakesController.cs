@@ -351,6 +351,7 @@ namespace EasyPro.Controllers
                 var price = _context.DPrices
                     .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                     && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));
+
                 var collection = new ProductIntake
                 {
                     Sno = productIntake.Sno.Trim(),

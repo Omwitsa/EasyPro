@@ -38,8 +38,7 @@ namespace EasyPro.Controllers
 
             ViewData["Getsuppliers"]= Search;
             var suppliers = from x in _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval 
-                && i.Branch == saccoBranch) select x;
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval) select x;
             if (!string.IsNullOrEmpty(Search))
                 suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
             return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.AsNoTracking(), pageNumber ?? 1, pageSize ?? 20));
@@ -54,8 +53,7 @@ namespace EasyPro.Controllers
 
             ViewData["Getsuppliers"] = Search;
             var suppliers = from x in _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval 
-                && i.Branch == saccoBranch) select x;
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval) select x;
             if (!string.IsNullOrEmpty(Search))
                 suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
             return View(await suppliers.AsNoTracking().ToListAsync());
