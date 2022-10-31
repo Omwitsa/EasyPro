@@ -20,5 +20,6 @@ namespace EasyPro.Models
         public string saccocode { get; set; }
         public string producttype { get; set; }
         public string Branch { get; set; }
+        public string Zone { get; set; }
     }
 }

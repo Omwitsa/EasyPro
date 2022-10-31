@@ -10,8 +10,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
@@ -21,8 +26,10 @@ namespace EasyPro.Controllers
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
         private Utilities utilities;
+        private static object clientSock;
 
         public FarmersVM Farmersobj { get; private set; }
+        
 
         public ProductIntakesController(MORINGAContext context, INotyfService notyf)
         {
@@ -194,8 +201,11 @@ namespace EasyPro.Controllers
             ViewBag.Branch = new SelectList(Branch, "BName", "BName");
             ViewBag.Branch = Branch;
 
-        }
+            var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
+            ViewBag.zones = new SelectList(zones);
 
+        }
+        
         public IActionResult CreateDeduction()
         {
             utilities.SetUpPrivileges(this);
@@ -301,7 +311,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo,Print,SMS")] ProductIntakeVm productIntake)
+        public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo,Print,SMS,Zone")] ProductIntakeVm productIntake)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -315,7 +325,8 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return RedirectToAction(nameof(Create));
             }
-            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch))
+            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper())
+            && s.Zone== productIntake.Zone && s.Branch == saccoBranch))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
                 return RedirectToAction(nameof(Create));
@@ -330,7 +341,8 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return RedirectToAction(nameof(Create));
             }
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch);
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper())
+            && s.Zone == productIntake.Zone && s.Branch == saccoBranch);
             if (supplier == null)
             {
                 _notyf.Error("Sorry, Supplier does not exist");
@@ -370,6 +382,7 @@ namespace EasyPro.Controllers
                     SaccoCode = productIntake.SaccoCode,
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
+                    Zone = productIntake.Zone
                 };
                 _context.ProductIntake.Add(collection);
 
@@ -402,7 +415,8 @@ namespace EasyPro.Controllers
                         Branch = productIntake.Branch,
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = productIntake.DrAccNo,
-                        CrAccNo = productIntake.CrAccNo
+                        CrAccNo = productIntake.CrAccNo,
+                        Zone=productIntake.Zone
                     };
                     _context.ProductIntake.Add(collection);
 
@@ -428,7 +442,8 @@ namespace EasyPro.Controllers
                         Branch = productIntake.Branch,
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = price.TransportDrAccNo,
-                        CrAccNo = price.TransportCrAccNo
+                        CrAccNo = price.TransportCrAccNo,
+                        Zone=productIntake.Zone
                     });
                 }
 
@@ -437,7 +452,7 @@ namespace EasyPro.Controllers
                     var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
                     var endDate = startDate.AddMonths(1).AddDays(-1);
                     var commulated = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
-                    && s.TransDate >= startDate && s.TransDate <= endDate && s.Branch == saccoBranch).Sum(s => s.Qsupplied);
+                    && s.TransDate >= startDate && s.TransDate <= endDate && s.Branch == saccoBranch && s.Zone==productIntake.Zone).Sum(s => s.Qsupplied);
                     var note = "";
                     if (productIntake.ProductType.ToLower().Equals("milk"))
                         note = "Kindly observe withdrawal period after cow treatment";
@@ -456,16 +471,108 @@ namespace EasyPro.Controllers
 
                 _context.SaveChanges();
                 _notyf.Success("Intake saved successfully");
+                //PrintReceiptForTransaction();
                 if (productIntake.Print)
                     return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = collection.Id });
             }
 
             return RedirectToAction(nameof(Create));
         }
-        
+        //public IActionResult PrintReceiptForTransaction()
+        //{
+        //    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        //    PrintDocument recordDoc = new PrintDocument();
+        //    recordDoc.DocumentName = "Customer Receipt";
+        //   // PrintPageEventHandler ReceiptPrinter = null;
+        //    //recordDoc.PrintPage += new PrintPageEventHandler(ReceiptPrinter); // function below
+        //    recordDoc.PrintController = new StandardPrintController(); // hides status dialog popup
+        //                                                               // Comment if debugging 
+        //    PrinterSettings ps = new PrinterSettings();
+        //    ps.PrinterName = "E-PoS 80mm Thermal Printer";
+        //    recordDoc.PrinterSettings = ps;
+        //    Encoding enc = Encoding.ASCII;
+        //    string GS = Convert.ToString((char)29);
+        //    string ESC = Convert.ToString((char)27);
+        //    string COMMAND = "";
+        //    COMMAND = ESC + "@";
+        //    COMMAND += GS + "V" + (char)1;
+        //    //byte[] bse = 
+        //    char[] bse = COMMAND.ToCharArray();
+        //    byte[] paperCut = enc.GetBytes(bse);
+        //    // Line feed hexadecimal values
+        //    byte[] bEsc = new byte[4];
+        //    // Sends an ESC/POS command to the printer to cut the paper
+        //    string t = ("                  " + sacco.ToUpper() + "\r\n");
+        //    t = t + ("----------------------------------------\r\n");
+        //    t = t + ("Table:  Table-C           BillNo: 120 \r\n");
+        //    t = t + ("----------------------------------------\r\n");
+        //    t = t + ("Date :2022/01/21  Order: Sylvia \r\n");
+        //    t = t + ("=======================================\r\n");
+        //    t = t + ("\r\n");
+        //    t = t + (" SN. 1   Item: MoMo         Qty: 2   \r\n");
+        //    char[] array = t.ToCharArray();
+        //    byte[] byData = enc.GetBytes(array);
+        //    recordDoc.Print();
+        //    return Ok(200);
+        //    // --------------------------------------
+        //    //Socket clientSock = new Socket(
+        //    //    AddressFamily.InterNetwork,
+        //    //    SocketType.Stream,
+        //    //    ProtocolType.Tcp
+        //    //    );
+        //    //IPAddress ip = IPAddress.Parse("192.168.100.200");
+        //    //IPEndPoint name = new IPEndPoint(ip, 4730);
+        //    //clientSock.Connect(name);
+        //    //if (!clientSock.Connected)
+        //    //{
+        //    //    return BadRequest("Printer is not connected");
+        //    //}
+            
+        //    //clientSock.Send(byData);
+        //    //clientSock.Send(paperCut);
+        //    ////clientSock.DuplicateAndClose(2);
+        //    //clientSock.Close();
+        //    //return Ok(200);
+
+        //    // --------------------------------------
+
+        //}
+
+        //private static void PrintReceiptPage(object sender, PrintPageEventArgs e)
+        //{
+        //    float x = 10;
+        //    float y = 5;
+        //    float width = 270.0F; // max width I found through trial and error
+        //    float height = 0F;
+
+        //    Font drawFontArial12Bold = new Font("Arial", 12, FontStyle.Bold);
+        //    Font drawFontArial10Regular = new Font("Arial", 10, FontStyle.Regular);
+        //    SolidBrush drawBrush = new SolidBrush(Color.Black);
+
+        //    // Set format of string.
+        //    StringFormat drawFormatCenter = new StringFormat();
+        //    drawFormatCenter.Alignment = StringAlignment.Center;
+        //    StringFormat drawFormatLeft = new StringFormat();
+        //    drawFormatLeft.Alignment = StringAlignment.Near;
+        //    StringFormat drawFormatRight = new StringFormat();
+        //    drawFormatRight.Alignment = StringAlignment.Far;
+
+        //    // Draw string to screen.
+        //    string text = "Company Name";
+        //    e.Graphics.DrawString(text, drawFontArial12Bold, drawBrush, new RectangleF(x, y, width, height), drawFormatCenter);
+        //    y += e.Graphics.MeasureString(text, drawFontArial12Bold).Height;
+
+        //    text = "Address";
+        //    e.Graphics.DrawString(text, drawFontArial10Regular, drawBrush, new RectangleF(x, y, width, height), drawFormatCenter);
+        //    y += e.Graphics.MeasureString(text, drawFontArial10Regular).Height;
+
+        //    // ... and so on
+        //}
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
+        public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,Zone")] ProductIntake productIntake)
         {
             utilities.SetUpPrivileges(this);
             long.TryParse(productIntake.Sno, out long sno);
@@ -474,7 +581,8 @@ namespace EasyPro.Controllers
             DateTime enddate = startdate.AddMonths(1).AddDays(-1);
             productIntake.Description = productIntake?.Description ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Scode == sacco && i.Active == true && i.Approval == true && i.Branch == saccoBranch))
+            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Scode == sacco && i.Active == true && i.Approval == true
+            && i.Branch == saccoBranch && i.Zone== productIntake.Zone))
             {
                 _notyf.Error("Sorry, Supplier Number code does not exist");
                 GetInitialValues();
@@ -487,7 +595,7 @@ namespace EasyPro.Controllers
                 return View(Farmersobj);
             }
             if (!_context.ProductIntake.Any(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco && i.Qsupplied!= 0 
-            && i.TransDate >= startdate && i.TransDate <= enddate && i.Branch == saccoBranch))
+            && i.TransDate >= startdate && i.TransDate <= enddate && i.Branch == saccoBranch && i.Zone == productIntake.Zone))
             {
                 _notyf.Error("Sorry, Supplier has not deliver any product for this month"+" "+ startdate+ "To " + " "+ enddate );
                 GetInitialValues();
@@ -522,6 +630,7 @@ namespace EasyPro.Controllers
                 productIntake.CR = 0;
                 productIntake.Description = productIntake.Remarks;
                 productIntake.Balance = utilities.GetBalance(productIntake);
+                productIntake.Zone = productIntake.Zone;
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
@@ -644,7 +753,7 @@ namespace EasyPro.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCorrection([Bind("Id, Sno, TransDate, ProductType, Qsupplied, Ppu, CR, DR, Balance, Description, Remarks, AuditId, Auditdatetime, Branch, DrAccNo, CrAccNo, Print, SMS")] ProductIntakeVm productIntake)
+        public async Task<IActionResult> CreateCorrection([Bind("Id, Sno, TransDate, ProductType, Qsupplied, Ppu, CR, DR, Balance, Description, Remarks, AuditId, Auditdatetime, Branch, DrAccNo, CrAccNo, Print, SMS,Zone")] ProductIntakeVm productIntake)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -663,7 +772,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return RedirectToAction(nameof(CreateCorrection));
             }
-            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode == sacco && s.Branch == saccoBranch))
+            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode == sacco && s.Zone==productIntake.Zone && s.Branch == saccoBranch))
             {
                 _notyf.Error("Sorry, Supplier No. not found");
                 return RedirectToAction(nameof(CreateCorrection));
@@ -679,7 +788,7 @@ namespace EasyPro.Controllers
                 //_notyf.Error("Sorry, Kindly provide quantity");
                 return RedirectToAction(nameof(CreateCorrection));
             }
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode == sacco && s.Branch == saccoBranch);
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode == sacco && s.Zone == productIntake.Zone && s.Branch == saccoBranch);
             if (supplier == null) 
             {
                 _notyf.Error("Sorry, Supplier does not exist");
@@ -743,6 +852,7 @@ namespace EasyPro.Controllers
                     SaccoCode = productIntake.SaccoCode,
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
+                    Zone=productIntake.Zone,
                 };
                 _context.ProductIntake.Add(collection);
 
@@ -783,7 +893,8 @@ namespace EasyPro.Controllers
                         Branch = productIntake.Branch,
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = productIntake.DrAccNo,
-                        CrAccNo = productIntake.CrAccNo
+                        CrAccNo = productIntake.CrAccNo,
+                        Zone = productIntake.Zone,
                     };
                     _context.ProductIntake.Add(collection);
 
@@ -814,7 +925,8 @@ namespace EasyPro.Controllers
                         Branch = productIntake.Branch,
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = price.TransportDrAccNo,
-                        CrAccNo = price.TransportCrAccNo
+                        CrAccNo = price.TransportCrAccNo,
+                        Zone = productIntake.Zone,
                     });
                 }
                 //decimal? amount = 0;

@@ -71,5 +71,6 @@ namespace EasyPro.Models
         public string Mass { get; set; }
         public long? Status1 { get; set; }
         public long? Run { get; set; }
+        public string Zone { get; set; }
     }
 }

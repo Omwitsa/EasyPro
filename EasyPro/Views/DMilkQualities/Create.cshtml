@@ -1,0 +1,269 @@
+﻿@model EasyPro.Models.DMilkQuality
+
+@{
+    ViewData["Title"] = "Create";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create Deduction</h2>
+            </div>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Zone</label>
+                                <select id="zone" asp-for="Branch" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones" required></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="RejDate" class="control-label"></label>
+                                    <input id="date" type="date" asp-for="RejDate" class="form-control" />
+                                    <span asp-validation-for="RejDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="Sno" class="control-label"></label>
+                                    <input id="sno" asp-for="Sno" class="form-control" />
+                                    <span asp-validation-for="Sno" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Farmer Name</label>
+                                    <input id="name"  class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Approximate Kgs Rejected</label>
+                                    <input asp-for="ApproxKgs" class="form-control" />
+                                    <span asp-validation-for="ApproxKgs" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Total Kgs Delivered</label>
+                                    <input asp-for="DeKgs" class="form-control" />
+                                    <span asp-validation-for="DeKgs" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Container Capacity</label>
+                                    <input asp-for="ContCpcity" class="form-control" />
+                                    <span asp-validation-for="ContCpcity" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Type of Transport</label>
+                                    <select asp-for="Ttransporter" class="form-control" asp-items="@ViewBag.Ttransporter" required></select>
+                                    <span asp-validation-for="Ttransporter" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Container Type</label>
+                                    <select asp-for="Conttype" class="form-control" asp-items="@ViewBag.Conttype" required></select>
+                                    <span asp-validation-for="Conttype" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transport Mode</label>
+                                    <select asp-for="TransMode" class="form-control" asp-items="@ViewBag.TransMode" required></select>
+                                    <span asp-validation-for="TransMode" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 border-r">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label>Alcohol Tests</label>
+                                    <select asp-for="Alcohol" class="form-control" asp-items="@ViewBag.Alcohol" required></select>
+                                    <span asp-validation-for="Alcohol" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 border-r">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label>Organoleptic Tests</label>
+                                    <select asp-for="Organoleptic" class="form-control" asp-items="@ViewBag.Organoleptic" required></select>
+                                    <span asp-validation-for="Organoleptic" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 border-r">
+                        <label>Other Tests</label>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <label>Rezasurin</label>
+                                <select asp-for="Rez" Value="Select Bank" asp-items="@ViewBag.Rez" required></select>
+                                <span asp-validation-for="Rez" class="text-danger"></span>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <label>Lactometer</label>
+                                <select asp-for="Lact" Value="Select Bank" asp-items="@ViewBag.Lact" required></select>
+                                <span asp-validation-for="Lact" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 border-r">
+                        <label>Antibiotic</label>
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <select asp-for="Antibiotic" class="form-control" asp-items="@ViewBag.Antibiotic" required></select>
+                                    <span asp-validation-for="Antibiotic" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <label class="control-label">Clot on Boil</label>
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <select asp-for="Pcheck" class="form-control" asp-items="@ViewBag.Pcheck" required></select>
+                                    <span asp-validation-for="Pcheck" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Plate Count</label>
+                                    <input asp-for="PlateCount" class="form-control" />
+                                    <span asp-validation-for="PlateCount" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Draminiski</label>
+                                    <input asp-for="Dramsk" class="form-control" />
+                                    <span asp-validation-for="Dramsk" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Reject Reasons</label>
+                                <textarea id="message" asp-for="RejReasons" rows="3" autocomplete="off" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script type="text/javascript">
+        $(function () {
+            $("#zone").val('');
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            $('#zone').change(function () {
+                var selectVal = parseInt($("#sno").val());
+                getSelectedDateIntakes();
+            });
+             $('#sno').on('keyup', function () {
+                 getSelectedDateIntakes();
+             });
+            function getSelectedDateIntakes() {
+                var products = @Html.Raw(Json.Serialize(ViewBag.dSuppliers));
+                         $("#name").val('')
+                            var selectVal = $("#zone").val();
+
+                            var selectProducts = products.filter(p => p.Zone === selectVal);
+                            if (selectProducts[0]) {
+                                    $("#name").val(selectProducts[0].Names);
+
+                                }
+            }
+                    });
+</script>
+}
+

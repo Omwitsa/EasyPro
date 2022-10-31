@@ -39,5 +39,6 @@ namespace EasyPro.Models
         public decimal? Todaykgs { get; set; }
         [NotMapped]
         public decimal? TodayBranchkgs { get; set; }
+        public string Zone { get; set; }
     }
 }

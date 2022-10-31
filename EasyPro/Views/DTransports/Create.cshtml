@@ -6,12 +6,22 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Assign Transporters</h2>
-            </div>
-            <hr />
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                        <h2>Assign Transporters</h2>
+                    </div>
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Zone</label>
+                                <select id="zone" Value="Select Bank" asp-for="DTransport.Zone"  class="form-control" asp-items="@ViewBag.zones"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
@@ -30,7 +40,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Assignment Date</label>
-                                    <input type="date" asp-for="DTransport.Startdate" class="form-control" required />
+                                    <input id="date" type="date" asp-for="DTransport.Startdate" class="form-control" required />
                                     <span asp-validation-for="DTransport.Startdate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -126,8 +136,11 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
-                    $(function () {
+<script type="text/javascript">
+            $(function () {
+                        var today = new Date().toISOString().split('T')[0];
+                        $("#date").val(today);
+                        $('#zone').val('');//date
                         $('#tcode').on('keyup', function () {
                             var products = @Html.Raw(Json.Serialize(Model.DTransporter));
                             var selectVal = $("#tcode").val();
@@ -137,13 +150,30 @@
                                 }
                         });
                         $('#sno').on('keyup', function () {
-                            var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
                             var selectVal = parseInt($("#sno").val());
-                            var selectProducts = products.filter(p => p.Sno === selectVal);
-                                if (selectProducts[0]) {
-                                    $("#sname").val(selectProducts[0].Names);
-                                }
+                            getSelectedDateIntakes();
                         });
+                        $('#zone').change(function () {
+                            var selectVal = parseInt($("#sno").val());
+                            getSelectedDateIntakes();
+                        });
+                        function getSelectedDateIntakes() {
+                            var zone = $('#zone').val();
+                            var sno = $('#sno').val();
+                            $.ajax(
+                                {
+                                    type: 'GET',
+                                    url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
+                                    contentType: 'application/json',
+                                    success: function (response) {
+                                        $("#sname").val(response);
+                                    },
+                                    failure: function (response) {
+                                    }
+                                }).then(function () {
+
+                                });
+                        }
                     });
-    </script>
+</script>
 }

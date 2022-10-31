@@ -35,8 +35,18 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Create</h2>
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                    <h2>Supplier Shares Enquiry</h2>
+                </div>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="nk-int-st">
+                            <label class="control-label">Zone</label>
+                            <select id="zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones" required></select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <hr />
             <form asp-action="Create">
@@ -50,7 +60,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                       
+
                     </div>
                 </div>
 
@@ -71,9 +81,9 @@
                             </table>
                         </div>
                     </div>
-                    
+
                 </div>
-</form>
+            </form>
         </div>
     </div>
 </div>
@@ -85,17 +95,18 @@
     <script type="text/javascript">
         $(function () {
             let shares = new Array();
-
+            $("#zone").val('');
             $('#sno').on('keyup', function () {
                 buildShares();
             });
 
             function buildShares() {
                 var sno = $("#sno").val();
+                var zone = $("#zone").val();
                 if (sno) {
                     $.ajax({
                         type: 'GET',
-                        url: "shareInquiries?sno=" + sno,
+                        url: "shareInquiries?sno=" + sno + "&zone=" + zone,
                         contentType: 'application/json',
                         success: function (response) {
                             shares = response ? response : [];

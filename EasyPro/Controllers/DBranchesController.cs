@@ -32,6 +32,14 @@ namespace EasyPro.Controllers
             return View(await _context.DBranch
                 .Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
+        public async Task<IActionResult> ZonesList()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            return View(await _context.Zones
+                .Where(i => i.Code.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
+        }
 
         // GET: DBranches/Details/5
         public async Task<IActionResult> Details(long? id)
@@ -58,7 +66,34 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             return View();
         }
-
+        public IActionResult Createzone()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Createzone([Bind("Id,Name")] Zone zone)
+        {
+            utilities.SetUpPrivileges(this);
+            var dSupplier1 = _context.Zones.Where(i => i.Name == zone.Name && i.Code == zone.Code).Count();
+            if (dSupplier1 != 0)
+            {
+                _notyf.Error("Sorry, The Zone Name already exist");
+                return View();
+            }
+            if (ModelState.IsValid)
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                sacco = sacco ?? "";
+                zone.Code = sacco;
+                _context.Add(zone);
+                await _context.SaveChangesAsync();
+                _notyf.Success("saved successfully");
+                return RedirectToAction(nameof(ZonesList));
+            }
+            return View(zone);
+        }
         // POST: DBranches/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -102,7 +137,59 @@ namespace EasyPro.Controllers
             }
             return View(dBranch);
         }
+        public async Task<IActionResult> Editzone(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            if (id == null)
+            {
+                return NotFound();
+            }
 
+            var zone = await _context.Zones.FindAsync(id);
+            if (zone == null)
+            {
+                return NotFound();
+            }
+            return View(zone);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editzone(long id, [Bind("Id,Name")] Zone zone)
+        {
+            utilities.SetUpPrivileges(this);
+            if (id != zone.Id)
+            {
+                _notyf.Error("Sorry, an error occured while eidting");
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                    sacco = sacco ?? "";
+                    zone.Code = sacco;
+                    _context.Update(zone);
+                    await _context.SaveChangesAsync();
+                    _notyf.Success("saved successfully");
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!DBranchExists(zone.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(ZonesList));
+            }
+            return View(zone);
+        }
         // POST: DBranches/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -162,7 +249,23 @@ namespace EasyPro.Controllers
 
             return View(dBranch);
         }
+        public async Task<IActionResult> Deletezone(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            if (id == null)
+            {
+                return NotFound();
+            }
 
+            var dBranch = await _context.Zones
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (dBranch == null)
+            {
+                return NotFound();
+            }
+
+            return View(dBranch);
+        }
         // POST: DBranches/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -174,6 +277,17 @@ namespace EasyPro.Controllers
             await _context.SaveChangesAsync();
             _notyf.Success("Branch Deleted successfully");
             return RedirectToAction(nameof(Index));
+        }
+        [HttpPost, ActionName("Deletezone")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deletezone(long id)
+        {
+            utilities.SetUpPrivileges(this);
+            var dBranch = await _context.Zones.FindAsync(id);
+            _context.Zones.Remove(dBranch);
+            await _context.SaveChangesAsync();
+            _notyf.Success("Deleted successfully");
+            return RedirectToAction(nameof(ZonesList));
         }
 
         private bool DBranchExists(long id)

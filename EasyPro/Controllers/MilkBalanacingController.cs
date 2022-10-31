@@ -35,6 +35,7 @@ namespace EasyPro.Controllers
             var date = DateTime.Now;
             GetInitialValues();
             utilities.SetUpPrivileges(this);
+            PostTransporterIntake();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var startDate = new DateTime(date.Year, date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);

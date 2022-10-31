@@ -27,6 +27,9 @@ namespace EasyPro.Models
         public double? Dramsk { get; set; }
         public string RejReasons { get; set; }
         public string Auditid { get; set; }
+        public string code { get; set; }
+        public string Branch { get; set; }
+        public string Antibiotic { get; set; }
         public DateTime? Auditdatetime { get; set; }
     }
 }
