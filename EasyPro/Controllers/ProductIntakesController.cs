@@ -54,12 +54,11 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction 
-            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today
-            && c.Branch == saccoBranch).ToListAsync();
+            && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
             var intakes = new List<ProductIntakeVm>();
             foreach (var intake in productIntakes)
             {
-                var supplier = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.Sno && i.ParentT == sacco && i.Tbranch == saccoBranch);
+                var supplier = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.Sno);
                 if (supplier != null)
                 {
                     intakes.Add(new ProductIntakeVm

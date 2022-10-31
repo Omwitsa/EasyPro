@@ -41,60 +41,38 @@
                 
                 <div class="card-body register-card-body">
                     <div class="form-row">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <form asp-controller="Report" asp-antiforgery="true" asp-action="TIntake" method="post">
-                                    <div class="row">
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateFrom" class="control-label"></label>
-                                                <input required asp-for="DateFrom" class="form-control" type="date" />
-                                                <span asp-validation-for="DateFrom" class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateTo" class="control-label"></label>
-                                                <input required asp-for="DateTo" class="form-control" type="date" />
-                                                <span asp-validation-for="DateTo" class="text-danger"></span>
-                                            </div>
-                                        </div>
+                        <form asp-controller="Report" asp-antiforgery="true" asp-action="TIntake" method="post">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                     <div class="form-group">
+                                        <label asp-for="DateFrom" class="control-label"></label>
+                                        <input id="intake_from" asp-for="DateFrom" class="form-control" type="date" />
+                                        <span asp-validation-for="DateFrom" class="text-danger"></span>
                                     </div>
-                                    <button type="submit" class="btn btn-success">Export to Excel</button>
-                                </form>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <form asp-controller="Report" asp-antiforgery="true" asp-action="TIntakePdf" method="post">
-                                    <div class="row">
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateFrom" class="control-label"></label>
-                                                <input required asp-for="DateFrom" class="form-control" type="date" />
-                                                <span asp-validation-for="DateFrom" class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateTo" class="control-label"></label>
-                                                <input required asp-for="DateTo" class="form-control" type="date" />
-                                                <span asp-validation-for="DateTo" class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-info">Export to PDF</button>
-                                </form>
 
-                               @* <div class="form-group">
-                                    <label class="control-label"></label>
-                                    <input id="intake_from" class="form-control" type="date" />
+                                    <button type="submit" class="btn btn-success">Export to Excel</button>
                                 </div>
+
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateTo" class="control-label"></label>
+                                        <input id="intake_to" asp-for="DateTo" class="form-control" type="date" />
+                                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                                    </div>
+
+                                     <a id="btn_intake_pdf"  class="btn btn-info">Export to PDF</a>
+                                </div>
+                            </div>
+                        </form>
+                       @* <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-group">
                                     <label class="control-label"></label>
-                                    <input id="intake_to" class="form-control" type="date" />
+                                    <input  class="form-control" type="date" />
                                 </div>
-                                <button id="btn_intake_pdf"  class="btn btn-info">Export to PDF</button>*@
+                               
                             </div>
-                        </div>
+                        </div>*@
                     </div>
                 </div>
             </div>
@@ -159,7 +137,9 @@
                     contentType: 'application/json',
                     data: JSON.stringify(filter),
                     success: function (response) {
-
+                        if (response.isRedirect) {
+                            window.open(response.redirectUrl);
+                        }
                     },
                     failure: function (response) {
                     }

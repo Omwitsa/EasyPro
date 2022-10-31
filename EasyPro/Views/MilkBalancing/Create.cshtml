@@ -216,16 +216,6 @@
                 });
             });
 
-
-            $('#spillage').on('keyup', function () {
-                var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
-                $("#varriance").val(variance);
-            });
-            $('#rejects').on('keyup', function () {
-                var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
-                $("#varriance").val(variance);
-            });
-
             $('#save').on('click', function () {
                 var variance = {
                     date: $("#date").val(),
@@ -252,8 +242,6 @@
                 });
             });
 
-           
-
             function populateDetailsTable() {
                 let itemTableRows = new Array();
                 let totalQnty = 0;
@@ -273,7 +261,7 @@
 
             }
             $('#actual').on('keyup', function () {
-                var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
+                var variance = (parseFloat($("#actual").val()) - parseFloat($("#totalkgs").val());
                 $("#varriance").val(variance);
             });
         });

@@ -547,15 +547,28 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public IActionResult TIntakePdf([FromBody] FilterVm filter)
+        public JsonResult TIntakePdf([FromBody] FilterVm filter)
+        {
+            return Json(new
+            {
+                redirectUrl = Url.Action("TIntakePdf", new { dateFrom = filter.DateFrom, dateTo = filter.DateTo }),
+                isRedirect = true
+            });
+        }
+
+
+        [HttpGet]
+        public IActionResult TIntakePdf(DateTime? dateFrom, DateTime? dateTo)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
 
-            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+            var filter = new FilterVm
+            {
+                DateFrom = dateFrom,
+                DateTo = dateTo
+            };
             transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
-
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
             var title = "Transpoter Intakes";
             var pdfFile = _reportProvider.GetTIntakePdf(transporterobj, company, title, filter);

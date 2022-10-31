@@ -198,7 +198,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> GetStandingOrder()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.StandingOrder.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            return View(await _context.StandingOrder.Where(o => o.SaccoCode == sacco).ToListAsync());
         }
 
         public IActionResult StandingOrder()

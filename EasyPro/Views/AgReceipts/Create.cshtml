@@ -438,7 +438,6 @@
                         contentType: 'application/json',
                         data: JSON.stringify(saleItems),
                         success: function (response) {
-                            debugger
                             if (response.isRedirect) {
                                 window.location.href = response.redirectUrl;
                             }

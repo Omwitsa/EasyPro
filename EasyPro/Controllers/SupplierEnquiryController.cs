@@ -91,7 +91,7 @@ namespace EasyPro.Controllers
             var enDate = startDate.AddMonths(1).AddDays(-1);
 
             var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno.ToString() && i.SaccoCode.ToUpper()
-            .Equals(sacco.ToUpper()) && i.Branch== saccobranch && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+            .Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
             if(!string.IsNullOrEmpty(producttype))
                 intakes = intakes.Where(i => i.ProductType.ToUpper().Equals(producttype.ToUpper())).ToList();
             decimal? bal = 0;
