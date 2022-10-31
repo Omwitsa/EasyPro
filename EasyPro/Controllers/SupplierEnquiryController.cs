@@ -80,9 +80,12 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var products = _context.DBranchProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.products = new SelectList(products);
+
+            var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
+            ViewBag.zones = new SelectList(zones);
         }
         [HttpPost]
-        public JsonResult SuppliedProducts([FromBody] DSupplier supplier,DateTime date1, DateTime date2, string producttype)
+        public JsonResult SuppliedProducts([FromBody] DSupplier supplier,DateTime date1, DateTime date2, string producttype,string zone)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -91,7 +94,8 @@ namespace EasyPro.Controllers
             var enDate = startDate.AddMonths(1).AddDays(-1);
 
             var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno.ToString() && i.SaccoCode.ToUpper()
-            .Equals(sacco.ToUpper()) && i.Branch== saccobranch && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+            .Equals(sacco.ToUpper()) && i.Branch== saccobranch && i.TransDate >= date1 
+            && i.TransDate <= date2 && i.Zone== zone).ToList();
             if(!string.IsNullOrEmpty(producttype))
                 intakes = intakes.Where(i => i.ProductType.ToUpper().Equals(producttype.ToUpper())).ToList();
             decimal? bal = 0;
@@ -174,15 +178,17 @@ namespace EasyPro.Controllers
         public IActionResult SharesInquiry()
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             return View();
         }
 
         [HttpGet]
-        public JsonResult ShareInquiries(string sno)
+        public JsonResult ShareInquiries(string sno,string zone)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var shares = _context.DShares.Where(s => s.Sno == sno && s.SaccoCode == sacco).OrderByDescending(s=>s.TransDate).ToList();
+            var shares = _context.DShares.Where(s => s.Sno == sno && s.SaccoCode == sacco 
+            && s.zone== zone).OrderByDescending(s=>s.TransDate).ToList();
             return Json(shares);
         }
 

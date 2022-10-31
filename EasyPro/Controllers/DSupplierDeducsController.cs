@@ -213,7 +213,7 @@ namespace EasyPro.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> StandingOrder([Bind("Id,Sno,TransDate,StartDate,EndDate,Duration,Amount,Description,AuditId,Auditdatetime,SaccoCode")] StandingOrder standingOrder)
+        public async Task<IActionResult> StandingOrder([Bind("Id,Sno,TransDate,StartDate,EndDate,Duration,Amount,Description,AuditId,Auditdatetime,SaccoCode,Zone")] StandingOrder standingOrder)
         {
             utilities.SetUpPrivileges(this);
             if (string.IsNullOrEmpty(standingOrder.Sno))
@@ -246,6 +246,7 @@ namespace EasyPro.Controllers
             standingOrder.EndDate = standingOrder.StartDate.GetValueOrDefault().AddMonths((int)standingOrder.Duration);
             standingOrder.SaccoCode = sacco;
             standingOrder.AuditId = auditId;
+            standingOrder.Zone = standingOrder.Zone;
 
             _context.StandingOrder.Add(standingOrder);
             _context.SaveChanges();

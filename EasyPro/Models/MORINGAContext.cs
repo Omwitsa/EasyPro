@@ -88,6 +88,7 @@ namespace EasyPro.Models
         public virtual DbSet<DBonu> DBonus { get; set; }
         public virtual DbSet<DBonus2> DBonus2s { get; set; }
         public virtual DbSet<DBranch> DBranch { get; set; }
+        public virtual DbSet<Zone> Zones { get; set; }
         public virtual DbSet<DBankBranch> DBankBranch { get; set; }
         public virtual DbSet<DBranchProduct> DBranchProducts { get; set; }
         public virtual DbSet<DBranchsalesman> DBranchsalesmen { get; set; }
@@ -119,7 +120,9 @@ namespace EasyPro.Models
         public virtual DbSet<DMilkBranch> DMilkBranches { get; set; }
         public virtual DbSet<DMilkControl> DMilkControls { get; set; }
         public virtual DbSet<DMilkControl1> DMilkControl1s { get; set; }
-        public virtual DbSet<DMilkQuality> DMilkQualities { get; set; }
+        public virtual DbSet<milkcontrol2> milkcontrol2 { get; set; }
+        public virtual DbSet<Milktransfer> Milktransfer { get; set; }
+        public virtual DbSet<DMilkQuality> DMilkQuality { get; set; }
         public virtual DbSet<DMilkVehicle> DMilkVehicles { get; set; }
         public virtual DbSet<DMilkintake> DMilkintakes { get; set; }
         public virtual DbSet<DMilkintake1> DMilkintake1s { get; set; }
@@ -4843,11 +4846,19 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DMilkQuality>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_MilkQuality");
 
                 entity.Property(e => e.Alcohol)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.code)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Branch)
                     .HasMaxLength(50)
                     .IsUnicode(false);
 

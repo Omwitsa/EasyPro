@@ -1,0 +1,155 @@
+﻿@model EasyPro.Models.milkcontrol2
+
+@{
+    ViewData["Title"] = "RejectsCreate";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <form asp-action="RejectsCreate">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                        <h2>Create Branch Milk</h2>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Date</label>
+                                    <input id="transDate" type="date" asp-for="transdate" class="form-control" />
+                                    <span asp-validation-for="transdate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">From Branch</label>
+                                    <select id="branch" asp-for="Branch" class="form-control" asp-items="@ViewBag.brances" required>
+                                    </select>
+                                    <span asp-validation-for="Branch" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Quantity Sold</label>
+                                    <input asp-for="SQuantity" class="form-control" />
+                                    <span asp-validation-for="SQuantity" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Quantity Rejected</label>
+                                    <input asp-for="Reject" class="form-control" />
+                                    <span asp-validation-for="Reject" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Physical Qnty CF</label>
+                                    <input asp-for="cfa" class="form-control" />
+                                    <span asp-validation-for="cfa" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Spillage</label>
+                                    <input asp-for="Spillage" class="form-control" />
+                                    <span asp-validation-for="Spillage" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transfer To Station</label>
+                                    <input asp-for="Tostation" class="form-control" />
+                                    <span asp-validation-for="Tostation" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transfer From Station</label>
+                                    <input asp-for="FromStation" class="form-control" />
+                                    <span asp-validation-for="FromStation" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">BF</label>
+                                    <input asp-for="Bf" class="form-control" />
+                                    <span asp-validation-for="Bf" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="Intake" class="control-label"></label>
+                                    <input asp-for="Intake" class="form-control" />
+                                    <span asp-validation-for="Intake" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="RejectsIndex" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+ </div>

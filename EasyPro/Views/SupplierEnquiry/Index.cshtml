@@ -35,12 +35,24 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Supplier Enquiry</h2>
-            </div>
+            
+            
             <hr />
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                        <h2>Supplier Enquiry</h2>
+                    </div>
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Zone</label>
+                                <select id="zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones" required></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
@@ -103,7 +115,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-sm-3 col-xs-12">
                         <div class="form-group">
@@ -168,6 +180,7 @@
             $("#firstdate").val(today);
             $("#enddate").val(today);
             $("#bname").prop("selectedIndex", -1);
+            $("#zone").val('');
 
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
@@ -176,6 +189,7 @@
                 var idno = $("#idno").val();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
+                var zone = $("#zone").val();
                 var selectsuppliers = suppliers.filter(p => p.Sno === selectVal);
                 if (selectsuppliers[0]) {
                     $("#names").val(selectsuppliers[0].Names);
@@ -185,7 +199,7 @@
                     $("#bbranch").val(selectsuppliers[0].Bbranch);
                     $.ajax({
                         type: 'POST',
-                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2,
+                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2 + "&zone=" + zone,
                         contentType: 'application/json',
                         data: JSON.stringify(selectsuppliers[0]),
                         success: function (response) {
@@ -224,10 +238,11 @@
                 var sno = $("#sno").val();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
+                var zone = $("#zone").val();
                 $.ajax(
                     {
                         type: 'POST',
-                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2,
+                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2 + "&zone=" + zone,
                         contentType: 'application/json',
                         data: JSON.stringify({ sno: sno }),
                         success: function (response) {

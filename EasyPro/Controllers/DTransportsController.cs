@@ -34,7 +34,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var intakes = GetAssignedTransporters();
-
+            intakes = intakes.OrderBy(K => K.Sno).ToList();
             return View(intakes);
         }
         private List<TransSuppliersVM> GetAssignedTransporters()
@@ -91,6 +91,9 @@ namespace EasyPro.Controllers
             sacco = sacco ?? "";
             var producttypes = _context.DPrices.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Products).ToList();
             ViewBag.producttypes = new SelectList(producttypes, "");
+
+            var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
+            ViewBag.zones = new SelectList(zones);
         }
         // GET: DTransports/Create
         public IActionResult Create()
@@ -108,13 +111,22 @@ namespace EasyPro.Controllers
             //return Json(new { data = Farmersobj });
             return View(TransSuppliersobj);
         }
-
+        [HttpGet]
+        public JsonResult SelectedDateIntake(String? zone, long? sno)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var todaysIntake = _context.DSuppliers.Where(L=>L.Sno == sno && L.Zone== zone && L.Scode== sacco)
+                .Select(b => b.Names).ToList();
+            return Json(todaysIntake);
+        }
         // POST: DTransports/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype")] DTransport dTransport)
+        public async Task<IActionResult> Create([Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype,Zone")] DTransport dTransport)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -318,7 +330,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype")] DTransport dTransport)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype,Zone")] DTransport dTransport)
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();

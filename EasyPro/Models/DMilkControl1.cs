@@ -20,5 +20,6 @@ namespace EasyPro.Models
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }
         public string Dcode { get; set; }
+        public string BranchCode { get; set; }
     }
 }

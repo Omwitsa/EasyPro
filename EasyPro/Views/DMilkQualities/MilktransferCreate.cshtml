@@ -1,0 +1,181 @@
+﻿@model EasyPro.Models.Milktransfer
+
+@{
+    ViewData["Title"] = "MilktransferCreate";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <form asp-action="MilktransferCreate">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                        <h2>Create Milk transfer </h2>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Date</label>
+                                    <input id="transDate" type="date" asp-for="Transdate" class="form-control" />
+                                    <span asp-validation-for="Transdate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="FromBranch" class="control-label">From Branch</label>
+                                    <select id="bfrom" asp-for="FromBranch" class="form-control" asp-items="@ViewBag.brances" required>
+                                    </select>
+                                    <span asp-validation-for="FromBranch" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">To Branch</label>
+                                    <select id="tfrom"  asp-for="ToBranch" class="form-control" asp-items="@ViewBag.brances" required>
+                                    </select>
+                                    <span asp-validation-for="ToBranch" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Transfer/Recieve</label>
+                                <div class="form-group">
+                                    <input name="sales" type="radio" id="to" />
+                                    <label class="control-label" for="cash">To station</label>
+                                    <input name="sales" type="radio" id="from" />
+                                    <label class="control-label" for="checkOff">From station</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="fbranch">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">From Branch</label>
+                                    <input id="fstation" asp-for="fromStation" class="form-control" />
+                                    <span asp-validation-for="fromStation" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="tbranch">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transfer To station</label>
+                                    <input id="tstation" asp-for="Tostation" class="form-control" />
+                                    <span asp-validation-for="Tostation" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="Intake" class="control-label"></label>
+                                    <input id="intake" asp-for="Intake" class="form-control" readonly />
+                                    <span asp-validation-for="Intake" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="MilktransferIndex" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script type="text/javascript">
+         var today = new Date().toISOString().split('T')[0];
+        $("#transDate").val(today);
+        $("#tstation").val("0");
+        $("#fstation").val("0");
+        $("#tfrom").val('');
+        $("#bfrom").val('');
+        getSelectedDateIntakes();
+        $(function () {
+            $('input[type="radio"]').click(function () {
+                if ($(this).prop("checked") && $(this).attr('id') == 'to') {
+                    $('#tbranch').show();
+                    $('#fbranch').hide();
+                }
+                if ($(this).prop("checked") && $(this).attr('id') == 'from') {
+                    $('#fbranch').show();
+                    $('#tbranch').hide();
+                }
+            });
+        });
+    var total = 0;
+    $('#transDate').on('keyup',function () {
+        $("#intake").val(total);
+        getSelectedDateIntakes();
+    });
+    
+    function getSelectedDateIntakes() {
+        var date = $('#transDate').val();
+        $.ajax(
+            {
+                type: 'GET',
+                url: "selectedDateIntake?date=" + date,
+                contentType: 'application/json',
+                success: function (response) {
+                    $("#intake").val(response);
+                },
+                failure: function (response) {
+                }
+            }).then(function () {
+
+            });
+    }
+
+</script>
+}

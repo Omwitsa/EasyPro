@@ -83,6 +83,9 @@ namespace EasyPro.Controllers
             var locations = _context.DLocations.Where(i => i.Lcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== saccoBranch).Select(b => b.Lname).ToList();
             ViewBag.locations = new SelectList(locations);
 
+            var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
+            ViewBag.zones = new SelectList(zones);
+
             List<SelectListItem> gender = new()
             {
                 new SelectListItem { Text = "Male" },

@@ -1,0 +1,69 @@
+﻿@model EasyPro.Models.Milktransfer
+
+@{
+    ViewData["Title"] = "MilktransferDelete";
+}
+
+<h2>MilktransferDelete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Milktransfer</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Transdate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Transdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.fromStation)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.fromStation)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tostation)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tostation)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FromBranch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FromBranch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ToBranch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ToBranch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.auditid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Intake)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Intake)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Code)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Code)
+        </dd>
+    </dl>
+    
+    <form asp-action="MilktransferDelete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="MilktransferIndex">Back to List</a>
+    </form>
+</div>
