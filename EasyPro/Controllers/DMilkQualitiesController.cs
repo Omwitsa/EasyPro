@@ -253,6 +253,10 @@ namespace EasyPro.Controllers
 
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
+            if (zones.Count != 0)
+                ViewBag.checkiftoenable = 1;
+            else
+                ViewBag.checkiftoenable = 0;
             //var TransMode = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             //ViewBag.TransMode = new SelectList(TransMode);
             List<SelectListItem> Pcheck = new()

@@ -39,6 +39,7 @@ namespace EasyPro.Models
         public string Br { get; set; }
         public string Freezed { get; set; }
         public string PaymenMode { get; set; }
+        public string Route { get; set; }
         
     }
 }

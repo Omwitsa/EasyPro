@@ -1,5 +1,8 @@
-﻿@model IEnumerable<EasyPro.Models.ProductCat>
+﻿@model IEnumerable<EasyPro.Models.Route>
 
+@{
+    ViewData["Title"] = "Index";
+}
 <style>
     #customers {
         font-family: Arial, Helvetica, sans-serif;
@@ -39,7 +42,7 @@
         <div class="normal-table-list mg-t-30">
             <div class="row">
                 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-                    <h3 class="text-danger fa-bold">Product Category</h3>
+                    <h3 class="text-danger fa-bold">Routes List</h3>
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
                 </div>
@@ -83,3 +86,4 @@
         </div>
     </div>
 </div>
+

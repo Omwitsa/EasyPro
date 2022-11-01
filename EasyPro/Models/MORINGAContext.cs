@@ -247,6 +247,7 @@ namespace EasyPro.Models
         public virtual DbSet<Tran> Trans { get; set; }
         public virtual DbSet<TransCode> TransCodes { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
+        public virtual DbSet<Route> Routes { get; set; }
         public virtual DbSet<Transport> Transports { get; set; }
         public virtual DbSet<Transporter> Transporters { get; set; }
         public virtual DbSet<Transporter1> Transporters1 { get; set; }

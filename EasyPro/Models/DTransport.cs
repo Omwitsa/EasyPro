@@ -21,5 +21,6 @@ namespace EasyPro.Models
         public string producttype { get; set; }
         public string Branch { get; set; }
         public string Zone { get; set; }
+        public string Morning { get; set; }
     }
 }

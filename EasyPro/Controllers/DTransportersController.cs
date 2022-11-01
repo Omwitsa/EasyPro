@@ -35,6 +35,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            GetInitialValues();
             return View(await _context.DTransporters
                 .Where(i => (i.Active == true || i.Active == false) && i.ParentT.ToUpper().Equals(sacco.ToUpper())
                 && i.Tbranch==saccoBranch).ToListAsync());
@@ -85,6 +86,14 @@ namespace EasyPro.Controllers
 
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
+
+            var Routes = _context.Routes.Where(a => a.scode == sacco).Select(b => b.Name).ToList();
+            ViewBag.Route = new SelectList(Routes);
+            //var zone = _context.Zones.Where(a => a.Code == sacco).ToList();
+            if (Routes.Count != 0)
+                ViewBag.checkiftoenable = 1;
+            else
+                ViewBag.checkiftoenable = 0;
 
             List<SelectListItem> gender = new()
             {

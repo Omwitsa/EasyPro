@@ -13,7 +13,7 @@
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Zone</label>
@@ -245,6 +245,14 @@
             $("#zone").val('');
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
+            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+            if (checkiftoenable === 0) {
+                $('#zone1').hide();
+            }
+            else {
+                $('#zone1').show();
+            }
+
             $('#zone').change(function () {
                 var selectVal = parseInt($("#sno").val());
                 getSelectedDateIntakes();

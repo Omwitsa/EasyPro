@@ -204,7 +204,7 @@ namespace EasyPro.Controllers
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
-            if (!string.IsNullOrEmpty(zones.ToString()))
+            if (zones.Count != 0)
                 ViewBag.checkiftoenable = 1;
             else
                 ViewBag.checkiftoenable = 0;
@@ -275,7 +275,7 @@ namespace EasyPro.Controllers
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
-            if (!string.IsNullOrEmpty(zones.ToString()))
+            if (zones.Count != 0)
                 ViewBag.checkiftoenable = 1;
             else
                 ViewBag.checkiftoenable = 0;

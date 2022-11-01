@@ -96,7 +96,7 @@ namespace EasyPro.Controllers
             ViewBag.zones = new SelectList(zones);
 
             //var zone = _context.Zones.Where(a => a.Code == sacco).ToList();
-            if (!string.IsNullOrEmpty(zones.ToString()))
+            if (zones.Count != 0)
                 ViewBag.checkiftoenable = 1;
             else
                 ViewBag.checkiftoenable = 0;
