@@ -20,125 +20,125 @@
                 </div>
             </div>
             <hr />
-            <form asp-action="Create">
+            <form  asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
-                        <h2>Create</h2>
-                    </div>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label class="control-label">Zone</label>
-                                <select id="zone" Value="Select Bank" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones" required></select>
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                            <h2>Create</h2>
+                        </div>
+                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Zone</label>
+                                    <select id="zone" Value="Select Bank" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Sno" class="control-label"></label>
-                            <input asp-for="Sno" id="Sno" class="form-control" required />
-                            <span asp-validation-for="Sno" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Sno" class="control-label"></label>
+                                <input asp-for="Sno" id="Sno" class="form-control" OnChange = "document.getElementById('Qsupplied').focus()" required />
+                                <span asp-validation-for="Sno" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Names</label>
+                                <input id="Names" class="form-control" readonly />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Names</label>
-                            <input id="Names" class="form-control" readonly />
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="ProductType" class="control-label"></label>
+                                <select id="ProductType" asp-for="ProductType" class="form-control" asp-items="@ViewBag.products">
+                                    <option value="" disabled selected hidden>Please Choose...</option>
+                                </select>
+                                <span asp-validation-for="ProductType" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Ppu" class="control-label"></label>
+                                <input id="Ppu" asp-for="Ppu" class="form-control" readonly />
+                                <span asp-validation-for="Ppu" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="ProductType" class="control-label"></label>
-                            <select id="ProductType" asp-for="ProductType" class="form-control" asp-items="@ViewBag.products">
-                                <option value="" disabled selected hidden>Please Choose...</option>
-                            </select>
-                            <span asp-validation-for="ProductType" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Qsupplied" class="control-label"></label>
+                                <input id="Qsupplied" asp-for="Qsupplied" class="form-control" type="number" min="0" required />
+                                <span asp-validation-for="Qsupplied" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="CR" class="control-label"></label>
+                                <input asp-for="CR" id="CR" class="form-control" readonly />
+                                <span asp-validation-for="CR" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Ppu" class="control-label"></label>
-                            <input id="Ppu" asp-for="Ppu" class="form-control" readonly />
-                            <span asp-validation-for="Ppu" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="DrAccNo" class="control-label"></label>
+                                <input id="DrAccNo" asp-for="DrAccNo" class="form-control" readonly />
+                                <span asp-validation-for="DrAccNo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="CrAccNo" class="control-label"></label>
+                                <input asp-for="CrAccNo" id="CrAccNo" class="form-control" readonly />
+                                <span asp-validation-for="CrAccNo" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Qsupplied" class="control-label"></label>
-                            <input id="Qsupplied" asp-for="Qsupplied" class="form-control" type="number" min="0" required />
-                            <span asp-validation-for="Qsupplied" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Remarks" class="control-label"></label>
+                                <input asp-for="Remarks" class="form-control" />
+                                <span asp-validation-for="Remarks" class="text-danger"></span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="CR" class="control-label"></label>
-                            <input asp-for="CR" id="CR" class="form-control" readonly />
-                            <span asp-validation-for="CR" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="DrAccNo" class="control-label"></label>
-                            <input id="DrAccNo" asp-for="DrAccNo" class="form-control" readonly />
-                            <span asp-validation-for="DrAccNo" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="CrAccNo" class="control-label"></label>
-                            <input asp-for="CrAccNo" id="CrAccNo" class="form-control" readonly />
-                            <span asp-validation-for="CrAccNo" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Remarks" class="control-label"></label>
-                            <input asp-for="Remarks" class="form-control" />
-                            <span asp-validation-for="Remarks" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <input asp-for="Print" type="checkbox" />
-                            <label asp-for="Print" class="control-label"></label>
-                            <span asp-validation-for="Print" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <input asp-for="SMS" type="checkbox" />
-                            <label asp-for="SMS" class="control-label"></label>
-                            <span asp-validation-for="SMS" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 
-                    </div>
-                </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <input asp-for="Print" type="checkbox" />
+                                <label asp-for="Print" class="control-label"></label>
+                                <span asp-validation-for="Print" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <input asp-for="SMS" type="checkbox" />
+                                <label asp-for="SMS" class="control-label"></label>
+                                <span asp-validation-for="SMS" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Save</button>
+                        </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                        </div>
                     </div>
-                </div>
             </form>
         </div>
         </div>
@@ -149,11 +149,23 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 <script type="text/javascript">
-        $(function () {
+    $(function () {
+        //document.forms['myform'].elements['mytextfield'].focus();
+        
+        document.getElementById('Sno').focus();
             var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
             products = products ? products : [];
             $("#Sno").val("");
             $("#Qsupplied").val("");
+
+            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+            if (checkiftoenable === 0) {
+                $('#zone1').hide();
+            }
+            else {
+                $('#zone1').show();
+            }
+
             if (products.length === 1){
                 $("#ProductType").val(products[0].Products);
                 populateFields(products[0].Products);

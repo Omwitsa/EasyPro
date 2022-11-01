@@ -204,8 +204,14 @@ namespace EasyPro.Controllers
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
+            if (!string.IsNullOrEmpty(zones.ToString()))
+                ViewBag.checkiftoenable = 1;
+            else
+                ViewBag.checkiftoenable = 0;
+
+
         }
-        
+
         public IActionResult CreateDeduction()
         {
             utilities.SetUpPrivileges(this);
@@ -265,6 +271,15 @@ namespace EasyPro.Controllers
 
             var brances = _context.DBranch.Where(b => b.Bcode == sacco).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
+
+            var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
+            ViewBag.zones = new SelectList(zones);
+
+            if (!string.IsNullOrEmpty(zones.ToString()))
+                ViewBag.checkiftoenable = 1;
+            else
+                ViewBag.checkiftoenable = 0;
+
 
             List<SelectListItem> gender = new()
             {
@@ -470,7 +485,7 @@ namespace EasyPro.Controllers
                 }
 
                 _context.SaveChanges();
-                _notyf.Success("Intake saved successfully");
+               // _notyf.Success("Intake saved successfully");
                 //PrintReceiptForTransaction();
                 if (productIntake.Print)
                     return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = collection.Id });
@@ -974,7 +989,7 @@ namespace EasyPro.Controllers
                 }
 
                 _context.SaveChanges();
-                _notyf.Success("Correction saved successfully");
+                //_notyf.Success("Correction saved successfully");
                 SetIntakeInitialValues();
 
                 var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == (DateTime)productIntake.TransDate).Sum(p => p.Qsupplied);

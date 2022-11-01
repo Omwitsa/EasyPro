@@ -187,6 +187,12 @@ namespace EasyPro.Controllers
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
+            if (!string.IsNullOrEmpty(zones.ToString()))
+                ViewBag.checkiftoenable = 1;
+            else
+                ViewBag.checkiftoenable = 0;
+
+
             List<SelectListItem> gender = new()
             {
                 new SelectListItem { Text = "Male" },
