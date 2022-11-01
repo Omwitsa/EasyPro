@@ -91,7 +91,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone")] UserAccount userAccount)
+        public async Task<IActionResult> Create([Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone,AccessLevel")] UserAccount userAccount)
         {
             utilities.SetUpPrivileges(this);
             try
@@ -140,6 +140,7 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
+            ViewBag.password = Decryptor.Decript_String(userAccount.Password);
             return View(userAccount);
         }
 
@@ -148,7 +149,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone")] UserAccount userAccount)
+        public async Task<IActionResult> Edit(long id, [Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone,AccessLevel")] UserAccount userAccount)
         {
             utilities.SetUpPrivileges(this);
             if (id != userAccount.Userid)
@@ -163,6 +164,7 @@ namespace EasyPro.Controllers
                 {
                     _notyf.Success("User saved successfully");
                     userAccount.Branchcode = userAccount?.Branchcode ?? "";
+                    userAccount.Password = Decryptor.Decript_String(userAccount.Password);
                     _context.Update(userAccount);
                     await _context.SaveChangesAsync();
                 }

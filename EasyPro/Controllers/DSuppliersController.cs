@@ -32,13 +32,16 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index(string Search,int? pageNumber, int? pageSize)
         {
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             sacco = sacco ?? "";
-
             ViewData["Getsuppliers"]= Search;
             var suppliers = from x in _context.DSuppliers
                 .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval) select x;
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(u => u.Branch == saccoBranch);
             if (!string.IsNullOrEmpty(Search))
                 suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
             return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.OrderByDescending(s => s.Id).AsNoTracking(), pageNumber ?? 1, pageSize ?? 20));
