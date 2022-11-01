@@ -40,12 +40,14 @@
                     <h2>Supplier Shares Enquiry</h2>
                 </div>
                 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                    <div class="form-group ic-cmp-int float-lb floating-lb">
-                        <div class="nk-int-st">
-                            <label class="control-label">Zone</label>
-                            <select id="zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones" required></select>
+                    @if (ViewBag.isAinabkoi){
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Zone</label>
+                                <select id="zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones" required></select>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
             <hr />
@@ -103,6 +105,7 @@
             function buildShares() {
                 var sno = $("#sno").val();
                 var zone = $("#zone").val();
+                zone = zone ? zone : "";
                 if (sno) {
                     $.ajax({
                         type: 'GET',

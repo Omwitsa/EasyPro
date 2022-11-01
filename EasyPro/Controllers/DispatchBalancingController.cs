@@ -90,9 +90,11 @@ namespace EasyPro.Controllers
                 utilities.SetUpPrivileges(this);
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                var intakes = _context.ProductIntake.Where(s => s.TransDate== date && s.SaccoCode == sacco).ToList();
+                var supplierNos = _context.DSuppliers.Where(s => s.Scode == sacco)
+                    .Select(s => s.Sno.ToString()).Distinct().ToList();
+                var intakes = _context.ProductIntake
+                    .Where(s => s.TransDate== date && s.SaccoCode == sacco && supplierNos.Contains(s.Sno)).ToList();
                 var alredydispatch = _context.Dispatch.Where(s => s.Transdate== date && s.Dcode == sacco).ToList();
-
                 var dispatch = _context.DispatchBalancing.FirstOrDefault(d => d.Saccocode == sacco && d.Date == date);
                 double dispatched = 0;
                 if (dispatch == null)

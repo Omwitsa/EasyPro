@@ -45,12 +45,14 @@
                         <h2>Supplier Enquiry</h2>
                     </div>
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label class="control-label">Zone</label>
-                                <select id="zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones" required></select>
+                        @if (ViewBag.isAinabkoi){
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Zone</label>
+                                    <select id="zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones" required></select>
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
                 <div class="row">
@@ -190,6 +192,7 @@
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
                 var zone = $("#zone").val();
+                zone = zone ? zone : "";
                 var selectsuppliers = suppliers.filter(p => p.Sno === selectVal);
                 if (selectsuppliers[0]) {
                     $("#names").val(selectsuppliers[0].Names);
@@ -218,10 +221,12 @@
                 var sno = $("#sno").val();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
+                var zone = $("#zone").val();
+                zone = zone ? zone : "";
                 $.ajax(
                     {
                         type: 'POST',
-                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2 + "&producttype=" + producttype,
+                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2 + "&producttype=" + producttype + "&zone=" + zone,
                         contentType: 'application/json',
                         data: JSON.stringify({ sno: sno }),
                         success: function (response) {
@@ -239,6 +244,7 @@
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
                 var zone = $("#zone").val();
+                zone = zone ? zone : "";
                 $.ajax(
                     {
                         type: 'POST',

@@ -82,7 +82,6 @@ namespace EasyPro.Controllers
                 Date = DateTime.Today
             });
             var products = _context.AgProducts.Where(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) && u.Branch == saccobranch);
-            var val = _context.Drawnstocks.Where(p => p.saccocode == sacco && p.Branch == saccobranch);
             var agrovetsales = new Agrovetsales
             {
                 Drawnstock = receipt,

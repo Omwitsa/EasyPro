@@ -178,7 +178,7 @@
                 $("#actual").prop('disabled', true);
             }
             
-            $('#name').on('click', function () {
+            $('#name').on('change', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
                 var selectVal = $("#name").val();
                 var selectSupplier = suppliers.filter(p => p.TransName === selectVal);
@@ -233,7 +233,10 @@
                     contentType: 'application/json',
                     data: JSON.stringify(variance),
                     success: function (response) {
-
+                        $("#actual").val(0)
+                        $("#name").val("")
+                        $("#tcode").val("")
+                        $("#varriance").val(0)
                     },
                     failure: function (response) {
                     }
@@ -261,7 +264,11 @@
 
             }
             $('#actual').on('keyup', function () {
-                var variance = (parseFloat($("#actual").val()) - parseFloat($("#totalkgs").val());
+                var actual = parseFloat($("#actual").val());
+                var total = parseFloat($("#totalkgs").val());
+                actual = actual ? actual : 0;
+                total = total ? total : 0;
+                var variance = actual - total;
                 $("#varriance").val(variance);
             });
         });

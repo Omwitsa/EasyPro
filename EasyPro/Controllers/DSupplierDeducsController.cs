@@ -206,6 +206,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var suppliers = _context.DSuppliers
                 .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.suppliers = suppliers;
@@ -259,9 +260,9 @@ namespace EasyPro.Controllers
         public IActionResult ProcessStandingOrder()
         {
             utilities.SetUpPrivileges(this);
-            var activeorders = _context.StandingOrder.Where(o => o.StartDate <= DateTime.Today && o.EndDate >= DateTime.Today).ToList();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var activeorders = _context.StandingOrder.Where(o => o.StartDate <= DateTime.Today && o.EndDate >= DateTime.Today && o.SaccoCode == sacco).ToList();
             activeorders.ForEach(o =>
             {
                 var exists = _context.ProductIntake.Any(i => i.Sno == o.Sno && i.TransDate <= DateTime.Today 
@@ -274,13 +275,13 @@ namespace EasyPro.Controllers
                         Sno = o.Sno,
                         TransDate = DateTime.Today,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                        ProductType = o.Description,
+                        ProductType = o?.Description ?? "",
                         Qsupplied = 0,
                         Ppu = 0,
                         CR = 0,
                         DR = o.Amount,
                         Balance = 0,
-                        Description = o.Description,
+                        Description = o?.Description ?? "",
                         TransactionType = TransactionType.Deduction,
                         Paid = false,
                         Remarks = "Standing Order",

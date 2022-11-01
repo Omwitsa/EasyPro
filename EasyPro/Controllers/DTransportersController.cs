@@ -33,11 +33,17 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            return View(await _context.DTransporters
-                .Where(i => (i.Active == true || i.Active == false) && i.ParentT.ToUpper().Equals(sacco.ToUpper())
-                && i.Tbranch==saccoBranch).ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            var transporters = _context.DTransporters
+                .Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()));
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporters = transporters.Where(t => t.Tbranch == saccoBranch);
+            return View(await transporters.ToListAsync());
         }
 
         // GET: DTransporters/Details/5

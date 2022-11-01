@@ -39,13 +39,17 @@ namespace EasyPro.Controllers
         }
         private List<TransSuppliersVM> GetAssignedTransporters()
         {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var today = DateTime.Now;
             var month = new DateTime(today.Year, today.Month, 1);
             var startdate = month;
             var enddate = startdate.AddMonths(1).AddDays(-1);
-            var transdeduction = _context.DTransports.Where(i => i.Active && i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch==saccoBranch).ToList();
+            var transdeduction = _context.DTransports.Where(i => i.Active && i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                transdeduction = transdeduction.Where(t => t.Branch == saccoBranch).ToList();
             var intakes = new List<TransSuppliersVM>();
             foreach (var intake in transdeduction)
             {
