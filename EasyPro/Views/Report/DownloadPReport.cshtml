@@ -9,52 +9,32 @@
                 <div class="card-header">
                     <h3 class="card-title">Suppliers Payroll Report</h3>
                 </div>
+
                 <div class="card-body register-card-body">
                     <div class="form-row">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <form asp-controller="Report" asp-antiforgery="true" asp-action="SuppliersPayrollExcel" method="post">
-                                    <div class="row">
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateFrom" class="control-label"></label>
-                                                <input required asp-for="DateFrom" class="form-control" type="date" />
-                                                <span asp-validation-for="DateFrom" class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateTo" class="control-label"></label>
-                                                <input required asp-for="DateTo" class="form-control" type="date" />
-                                                <span asp-validation-for="DateTo" class="text-danger"></span>
-                                            </div>
-                                        </div>
+                        <form asp-controller="Report" asp-antiforgery="true" asp-action="SuppliersPayrollExcel" method="post">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateFrom" class="control-label"></label>
+                                        <input id="sup_payroll_from" asp-for="DateFrom" class="form-control" type="date" />
+                                        <span asp-validation-for="DateFrom" class="text-danger"></span>
                                     </div>
+
                                     <button type="submit" class="btn btn-success">Export to Excel</button>
-                                </form>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <form asp-controller="Report" asp-antiforgery="true" asp-action="SuppliersPayrollPdf" method="post">
-                                    <div class="row">
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateFrom" class="control-label"></label>
-                                                <input required asp-for="DateFrom" class="form-control" type="date" />
-                                                <span asp-validation-for="DateFrom" class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateTo" class="control-label"></label>
-                                                <input required asp-for="DateTo" class="form-control" type="date" />
-                                                <span asp-validation-for="DateTo" class="text-danger"></span>
-                                            </div>
-                                        </div>
+                                </div>
+                                
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateTo" class="control-label"></label>
+                                        <input id="sup_payroll_to" asp-for="DateTo" class="form-control" type="date" />
+                                        <span asp-validation-for="DateTo" class="text-danger"></span>
                                     </div>
-                                    <button type="submit" class="btn btn-info">Export to PDF</button>
-                                </form>
+
+                                    <a id="sup_payroll_pdf" class="btn btn-info">Export to PDF</a>
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -64,53 +44,32 @@
                 <div class="card-header">
                     <h3 class="card-title">Transporters Payroll Report</h3>
                 </div>
-                
+
                 <div class="card-body register-card-body">
                     <div class="form-row">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <form asp-controller="Report" asp-antiforgery="true" asp-action="TransportersPayrollExcel" method="post">
-                                    <div class="row">
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateFrom" class="control-label"></label>
-                                                <input required asp-for="DateFrom" class="form-control" type="date" />
-                                                <span asp-validation-for="DateFrom" class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateTo" class="control-label"></label>
-                                                <input required asp-for="DateTo" class="form-control" type="date" />
-                                                <span asp-validation-for="DateTo" class="text-danger"></span>
-                                            </div>
-                                        </div>
+                        <form asp-controller="Report" asp-antiforgery="true" asp-action="TransportersPayrollExcel" method="post">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateFrom" class="control-label"></label>
+                                        <input id="trans_payrol_from" asp-for="DateFrom" class="form-control" type="date" />
+                                        <span asp-validation-for="DateFrom" class="text-danger"></span>
                                     </div>
+
                                     <button type="submit" class="btn btn-success">Export to Excel</button>
-                                </form>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <form asp-controller="Report" asp-antiforgery="true" asp-action="TransportersPayrollPdf" method="post">
-                                    <div class="row">
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateFrom" class="control-label"></label>
-                                                <input required asp-for="DateFrom" class="form-control" type="date" />
-                                                <span asp-validation-for="DateFrom" class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                            <div class="form-group">
-                                                <label asp-for="DateTo" class="control-label"></label>
-                                                <input required asp-for="DateTo" class="form-control" type="date" />
-                                                <span asp-validation-for="DateTo" class="text-danger"></span>
-                                            </div>
-                                        </div>
+                                </div>
+                                
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateTo" class="control-label"></label>
+                                        <input id="trans_payrol_to" asp-for="DateTo" class="form-control" type="date" />
+                                        <span asp-validation-for="DateTo" class="text-danger"></span>
                                     </div>
-                                    <button type="submit" class="btn btn-info">Export to PDF</button>
-                                </form>
+
+                                    <a id="trans_payrol_pdf" class="btn btn-info">Export to PDF</a>
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -118,3 +77,67 @@
     </div>
 </div>
 
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#sup_payroll_from").val(today);
+            $("#sup_payroll_to").val(today);
+            $("#trans_payrol_from").val(today);
+            $("#trans_payrol_to").val(today);
+
+            $('#sup_payroll_pdf').on('click', function () {
+                let from = $("#sup_payroll_from").val();
+                let to = $("#sup_payroll_to").val();
+
+                var filter = {
+                    dateFrom: from,
+                    dateTo: to,
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "SuppliersPayrollPdf",
+                    contentType: 'application/json',
+                    data: JSON.stringify(filter),
+                    success: function (response) {
+                        if (response.isRedirect) {
+                            window.open(response.redirectUrl);
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+
+            $('#trans_payrol_pdf').on('click', function () {
+                let from = $("#trans_payrol_from").val();
+                let to = $("#trans_payrol_to").val();
+
+                var filter = {
+                    dateFrom: from,
+                    dateTo: to,
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "TransportersPayrollPdf",
+                    contentType: 'application/json',
+                    data: JSON.stringify(filter),
+                    success: function (response) {
+                        if (response.isRedirect) {
+                            window.open(response.redirectUrl);
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+        });
+    </script>
+}
