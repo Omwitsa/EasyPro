@@ -6,8 +6,18 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Product Sale Return</h2>
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                    <h2>Product Sale Return</h2>
+                </div>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="nk-int-st">
+                            <label class="control-label">Zone</label>
+                            <select id="zone" Value="Select Bank" asp-for="AgReceipt.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <hr />
             <form asp-action="CreateReversal">
@@ -328,7 +338,7 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
     $(function () {
             let saleItems = new Array();
         let isStaff = false;
@@ -342,6 +352,15 @@
             $('#next').hide();
             $('#next1').hide();
             $('#next2').hide();
+
+            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+            if (checkiftoenable === 0) {
+                $('#zone1').hide();
+            }
+            else {
+                $('#zone1').show();
+            }
+
             $('input[type="radio"]').click(function () {
                 if ($(this).prop("checked") && $(this).attr('id') == 'cash') {
                     isStaff = false;
@@ -414,7 +433,7 @@
 
                 $('#save1').on('click', function () {
                     $.ajax({
-                        
+
                         type: 'POST',
                         url: "SaveReturns?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&isCash=" + isCash ,
                         contentType: 'application/json',
@@ -498,6 +517,7 @@
                     sumtotalkgsT();
                 }
             });
+
             function sumtotalkgsT() {
                 let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
                 let selectVal = $("#tsno").val().toUpperCase();
@@ -522,6 +542,7 @@
                     sumtotalkgs();
                 }
             });
+
             function sumtotalkgs() {
                 let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
                 let selectVal = $("#sno").val().toUpperCase();
@@ -676,7 +697,7 @@
                 }
             }
         });
-    </script>
+</script>
 }
 
 

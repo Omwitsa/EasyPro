@@ -98,7 +98,14 @@ namespace EasyPro.Controllers
 
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
+
+            //var zone = _context.Zones.Where(a => a.Code == sacco).ToList();
+            if (!string.IsNullOrEmpty(zones.ToString()))
+                ViewBag.checkiftoenable = 1;
+            else
+                ViewBag.checkiftoenable = 0;
         }
+
         // GET: DTransports/Create
         public IActionResult Create()
         {

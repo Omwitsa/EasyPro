@@ -34,5 +34,6 @@ namespace EasyPro.Models
         public int? Completed { get; set; }
         public string Salesrep { get; set; }
         public string saccocode { get; set; }
+        public string Zone { get; set; }
     }
 }

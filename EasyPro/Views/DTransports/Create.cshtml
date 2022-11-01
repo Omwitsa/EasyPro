@@ -12,7 +12,7 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
                         <h2>Assign Transporters</h2>
                     </div>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Zone</label>
@@ -141,6 +141,16 @@
                         var today = new Date().toISOString().split('T')[0];
                         $("#date").val(today);
                         $('#zone').val('');//date
+
+
+                        var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+                        if (checkiftoenable === 0) {
+                            $('#zone1').hide();
+                        }
+                        else {
+                            $('#zone1').show();
+                        }
+
                         $('#tcode').on('keyup', function () {
                             var products = @Html.Raw(Json.Serialize(Model.DTransporter));
                             var selectVal = $("#tcode").val();
