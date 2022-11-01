@@ -74,6 +74,9 @@
                                     <th>
                                         @Html.DisplayNameFor(model => model.Startdate)
                                     </th>
+                                    <th>
+                                        Morning/Evening
+                                    </th>
 
                                     <th></th>
                                 </tr>
@@ -81,31 +84,34 @@
                             <tbody id="geeks">
                                 @foreach (var item in Model)
                                 {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.TransCode)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.TransName)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Sno)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Names)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Rate)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Startdate)
-                                        </td>
-                                        <td class="col-4">
-                                            <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                            @*<a class="btn-info btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
-                                            <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransCode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sno)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Names)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Rate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Startdate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Morning)
+                                    </td>
+                                    <td class="col-4">
+                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                        @*<a class="btn-info btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
+                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                    </td>
+                                </tr>
                                 }
                             </tbody>
                         </table>

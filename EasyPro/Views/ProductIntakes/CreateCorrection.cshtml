@@ -44,7 +44,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Sno" class="control-label"></label>
-                            <input asp-for="Sno" class="form-control" required />
+                            <input asp-for="Sno" id="Sno" OnChange="document.getElementById('Qsupplied').focus();" class="form-control" required />
                             <span asp-validation-for="Sno" class="text-danger"></span>
                         </div>
                     </div>
@@ -159,7 +159,8 @@
     $(function () {
         var today = new Date().toISOString().split('T')[0];
         var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
-            products = products ? products : [];
+        products = products ? products : [];
+        document.getElementById('Sno').focus();
         //$("#transDate").val(today);
         $("#Sno").val("");
         $("#Qsupplied").val("");

@@ -66,6 +66,7 @@ namespace EasyPro.Controllers
                         Names = supplier.Names,
                         Rate = intake.Rate,
                         Startdate = intake.Startdate,
+                        Morning= intake.Morning
                     });
                 }
             }
@@ -104,6 +105,14 @@ namespace EasyPro.Controllers
                 ViewBag.checkiftoenable = 1;
             else
                 ViewBag.checkiftoenable = 0;
+
+            List<SelectListItem> morningEve = new()
+            {
+                new SelectListItem { Text = "" },
+                new SelectListItem { Text = "Morning" },
+                new SelectListItem { Text = "Evening" },
+            };
+            ViewBag.morningEve = morningEve;
         }
 
         // GET: DTransports/Create
@@ -128,7 +137,8 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var todaysIntake = _context.DSuppliers.Where(L=>L.Sno == sno && L.Zone== zone && L.Scode== sacco)
+            //&& L.Zone.ToUpper().Equals(zone.ToUpper())
+            var todaysIntake = _context.DSuppliers.Where(L=>L.Sno == sno  && L.Scode== sacco)
                 .Select(b => b.Names).ToList();
             return Json(todaysIntake);
         }
@@ -137,12 +147,13 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype,Zone")] DTransport dTransport)
+        public async Task<IActionResult> Create([Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype,Zone,Morning")] DTransport dTransport)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var checkNonExistingTransporter = _context.DTransporters.Any(i => i.TransCode == dTransport.TransCode && i.Active && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch==saccoBranch);
+            var checkNonExistingTransporter = _context.DTransporters.Any(i => i.TransCode == dTransport.TransCode 
+            && i.Active && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch==saccoBranch);
             if (!checkNonExistingTransporter)
             {
                 _notyf.Error("TransCode not Exist or InActive");
@@ -157,7 +168,8 @@ namespace EasyPro.Controllers
                 return View(TransSuppliersobj);
             }
             var dTransporterExists = _context.DTransports
-                .Any(i => i.Sno == dTransport.Sno && i.Active == true && i.producttype == dTransport.producttype && i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch);
+                .Any(i => i.Sno == dTransport.Sno && i.Active == true && i.producttype == dTransport.producttype
+                && i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch && i.Morning== dTransport.Morning);
             if (dTransporterExists)
             {
                 _notyf.Error("Supplier has an active Assignment");
@@ -341,7 +353,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype,Zone")] DTransport dTransport)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype,Zone,Morning")] DTransport dTransport)
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();

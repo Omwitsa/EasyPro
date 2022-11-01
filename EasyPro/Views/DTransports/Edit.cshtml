@@ -10,11 +10,19 @@
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
                     <h2>Edit Assign Transporters</h2>
                 </div>
-                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="zone1">
                     <div class="form-group ic-cmp-int float-lb floating-lb">
                         <div class="nk-int-st">
                             <label class="control-label">Zone</label>
                             <select id="zone" Value="Select Bank" asp-for="DTransport.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="MorningEvening">
+                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="nk-int-st">
+                            <label class="control-label">Morning/Evening</label>
+                            <select id="mevng" Value="Select Bank" asp-for="DTransport.Morning" class="form-control" asp-items="@ViewBag.morningEve"></select>
                         </div>
                     </div>
                 </div>
@@ -150,13 +158,14 @@
     }
 <script type="text/javascript">
     $(function () {
-
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
                 $('#zone1').hide();
+                $('#MorningEvening').hide();
             }
             else {
                 $('#zone1').show();
+                $('#MorningEvening').show();
             }
            
             $('#tcode').on('change', function () {

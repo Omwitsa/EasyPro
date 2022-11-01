@@ -66,6 +66,13 @@ namespace EasyPro.Controllers
             });
             ViewBag.staffs = new SelectList(staffs, "EmpNo", "Details");
 
+            var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
+            ViewBag.zones = new SelectList(zones);
+            if (zones.Count != 0)
+                ViewBag.checkiftoenable = 1;
+            else
+                ViewBag.checkiftoenable = 0;
+
         }
         //PRODUCT SALES
         [HttpPost]
@@ -102,6 +109,7 @@ namespace EasyPro.Controllers
                     {
                         t.Sno = "cash";
                     }
+                    t.Zone = t.Zone;
 
                     var cashchecker = false;
                     if (cash == "")
@@ -137,7 +145,8 @@ namespace EasyPro.Controllers
                             Paid = 0,
                             Completed = 0,
                             Salesrep = "",
-                            saccocode = sacco
+                            saccocode = sacco,
+                            Zone= t.Zone,
                         });
 
                         _context.Gltransactions.Add(new Gltransaction

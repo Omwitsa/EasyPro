@@ -42,7 +42,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Sno" class="control-label"></label>
-                            <input asp-for="Sno" id="Sno" class="form-control" required />
+                            <input asp-for="Sno" id="Sno" OnChange="document.getElementById('Qsupplied').focus();" class="form-control" required />
                             <span asp-validation-for="Sno" class="text-danger"></span>
                         </div>
                     </div>
@@ -155,6 +155,7 @@
         $(function () {
             var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
             products = products ? products : [];
+            document.getElementById('Sno').focus();
             $("#Sno").val("");
             $("#Qsupplied").val("");
             if (products.length === 1){

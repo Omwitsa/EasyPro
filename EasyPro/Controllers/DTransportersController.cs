@@ -102,12 +102,14 @@ namespace EasyPro.Controllers
 
             List<SelectListItem> gender = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Text = "Male" },
                 new SelectListItem {Text = "Female" },
             };
             ViewBag.gender = gender;
             List<SelectListItem> payment = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem {  Text = "Weekly" },
                 new SelectListItem { Text = "Monthly" },
             };

@@ -16,5 +16,6 @@ namespace EasyPro.ViewModels.TranssupplyVM
         public DateTime? Startdate { get; set; }
         //public bool? Active { get; set; }
         public DateTime? DateInactivate { get; set; }
+        public string Morning { get; set; }
     }
 }

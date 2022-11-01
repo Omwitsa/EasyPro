@@ -261,6 +261,7 @@ namespace EasyPro.Controllers
             //ViewBag.TransMode = new SelectList(TransMode);
             List<SelectListItem> Pcheck = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Value = "1", Text = "YES" },
                 new SelectListItem {Value="0", Text = "NO" },
             };
@@ -268,6 +269,7 @@ namespace EasyPro.Controllers
 
             List<SelectListItem> Antibiotic = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Text = "Positive" },
                 new SelectListItem {Text = "Negative" },
             };
@@ -275,6 +277,7 @@ namespace EasyPro.Controllers
 
             List<SelectListItem> Conttype = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Value = "ALUMINIUM", Text = "ALUMINIUM" },
                 new SelectListItem { Value = "GLASS", Text = "GLASS" },
                 new SelectListItem { Value = "PLASTIC", Text = "PLASTIC" },
@@ -284,6 +287,7 @@ namespace EasyPro.Controllers
 
             List<SelectListItem> Ttransporter = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Value = "Individual Farmer", Text = "Individual Farmer" },
                 new SelectListItem { Value = "Trader", Text = "Trader" },
                 new SelectListItem { Value = "Bulk Transporter", Text = "Bulk Transporter" },
@@ -292,6 +296,7 @@ namespace EasyPro.Controllers
 
             List<SelectListItem> TransMode = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Text = "BICYCLE" },
                 new SelectListItem { Text = "DONKEY" },
                 new SelectListItem { Text = "HANDCART" },
@@ -305,6 +310,7 @@ namespace EasyPro.Controllers
 
             List<SelectListItem> lac = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Text = "1.000" },
                 new SelectListItem { Text = "1.001" },
                 new SelectListItem { Text = "1.002" },
@@ -344,6 +350,7 @@ namespace EasyPro.Controllers
             ViewBag.Lact = lac;
             List<SelectListItem> Rez = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Text = "0" },
                 new SelectListItem { Text = "1" },
                 new SelectListItem { Text = "2" },
@@ -355,12 +362,14 @@ namespace EasyPro.Controllers
             ViewBag.Rez = Rez;
             List<SelectListItem> Alcohol = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Value = "Positive", Text = "Positive" },
                 new SelectListItem { Value = "Negative", Text = "Negative" },
             };
             ViewBag.Alcohol = Alcohol;
             List<SelectListItem> Organoleptic = new()
             {
+                new SelectListItem { Text = "" },
                 new SelectListItem { Value = "Good", Text = "Good" },
                 new SelectListItem { Value = "Bad", Text = "Bad" },
             };
