@@ -42,26 +42,28 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            //return View(await _context.ProductIntake
-            //    .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
-            //    && i.TransDate == DateTime.Today && i.Branch == saccoBranch)
-            //    .ToListAsync());
-
-            return View(await _context.ProductIntake
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var intakes = _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                && i.TransDate == DateTime.Today && i.Branch== saccoBranch)
-                .ToListAsync());
-
+                && i.TransDate == DateTime.Today);
+            if (user.AccessLevel == AccessLevel.Branch)
+                intakes = intakes.Where(i => i.Branch == saccoBranch);
+            return View(await intakes.ToListAsync());
         }
         
         public async Task<IActionResult> TDeductionList()
         {
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction 
             && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                productIntakes = productIntakes.Where(i => i.Branch == saccoBranch).ToList();
             var intakes = new List<ProductIntakeVm>();
             foreach (var intake in productIntakes)
             {
@@ -85,10 +87,15 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> DeductionList()
         {
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction 
             && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                productIntakes = productIntakes.Where(i => i.Branch == saccoBranch).ToList();
+
             var intakes = new List<ProductIntakeVm>();
             foreach (var intake in productIntakes)
             {
@@ -118,12 +125,18 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CorrectionList()
         {
             utilities.SetUpPrivileges(this);
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            return View(await _context.ProductIntake
-                .Where(c => c.TransactionType == TransactionType.Correction && c.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
-                && c.TransDate == DateTime.Today && c.Branch == saccoBranch)
-                .ToListAsync());
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+           
+            var intakes = _context.ProductIntake
+                .Where(c => c.TransactionType == TransactionType.Correction && c.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                && c.TransDate == DateTime.Today);
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                intakes = intakes.Where(i => i.Branch == saccoBranch);
+            return View(await intakes.ToListAsync());
         }
         public async Task<IActionResult> StaffDeductionList()
         {
@@ -190,6 +203,7 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var suppliers = _context.DSuppliers
                 .Where(s=>s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch).ToList();
             ViewBag.suppliers = suppliers;
@@ -217,16 +231,21 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco);
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
             Farmersobj = new FarmersVM()
             {
-                DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch == saccoBranch),
+                DSuppliers = suppliers,
                 ProductIntake = new ProductIntake
                 {
                     TransDate = DateTime.Today
                 }
             };
-            //return Json(new { data = Farmersobj });
             return View(Farmersobj);
         }
 

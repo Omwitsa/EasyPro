@@ -35,7 +35,6 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            GetInitialValues();
             return View(await _context.DTransporters
                 .Where(i => (i.Active == true || i.Active == false) && i.ParentT.ToUpper().Equals(sacco.ToUpper())
                 && i.Tbranch==saccoBranch).ToListAsync());

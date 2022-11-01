@@ -9,13 +9,15 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
                         <h2>Create</h2>
                     </div>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label class="control-label">Zone</label>
-                                <select id="zone" Value="Select Bank" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                        @if (ViewBag.isAinabkoi){
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Zone</label>
+                                    <select id="zone" Value="Select Bank" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones" required></select>
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
                 <hr />
@@ -42,7 +44,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Sno" class="control-label"></label>
-                            <input asp-for="Sno" id="Sno" class="form-control" OnChange = "document.getElementById('Qsupplied').focus()" required />
+                            <input asp-for="Sno" class="form-control" required />
                             <span asp-validation-for="Sno" class="text-danger"></span>
                         </div>
                     </div>
@@ -153,25 +155,14 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-<script type="text/javascript">
+    <script type="text/javascript">
     $(function () {
         var today = new Date().toISOString().split('T')[0];
-        document.getElementById('Sno').focus();
         var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
             products = products ? products : [];
         //$("#transDate").val(today);
         $("#Sno").val("");
         $("#Qsupplied").val("");
-
-        var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
-        if (checkiftoenable === 0) {
-            $('#zone1').hide();
-        }
-        else {
-            $('#zone1').show();
-        }
-
-
         if (products.length === 1) {
             $("#ProductType").val(products[0].Products);
             populateFields(products[0].Products);
@@ -221,5 +212,5 @@
                 }
             }
         });
-</script>
+    </script>
 }

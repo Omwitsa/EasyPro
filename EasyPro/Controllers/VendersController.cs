@@ -30,7 +30,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.Venders.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            return View(await _context.Venders.Where(v => v.SaccoCode == sacco).ToListAsync());
         }
 
         // GET: Venders/Details/5

@@ -39,13 +39,15 @@
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
                     <h2>Supplier Shares Enquiry</h2>
                 </div>
-                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
-                    <div class="form-group ic-cmp-int float-lb floating-lb">
-                        <div class="nk-int-st">
-                            <label class="control-label">Zone</label>
-                            <select id="zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones"></select>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                    @if (ViewBag.isAinabkoi){
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Zone</label>
+                                <select id="zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones" required></select>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
             <hr />
@@ -92,19 +94,10 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-<script type="text/javascript">
+    <script type="text/javascript">
         $(function () {
             let shares = new Array();
             $("#zone").val('');
-
-            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
-            if (checkiftoenable === 0) {
-                $('#zone1').hide();
-            }
-            else {
-                $('#zone1').show();
-            }
-
             $('#sno').on('keyup', function () {
                 buildShares();
             });
@@ -112,6 +105,7 @@
             function buildShares() {
                 var sno = $("#sno").val();
                 var zone = $("#zone").val();
+                zone = zone ? zone : "";
                 if (sno) {
                     $.ajax({
                         type: 'GET',
@@ -145,5 +139,5 @@
                 $('#shares').html(itemTableRows);
             }
         });
-</script>
+    </script>
 }
