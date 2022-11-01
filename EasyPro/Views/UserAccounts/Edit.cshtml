@@ -79,6 +79,21 @@
                 </div>
 
                 <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <fieldset>
+                            <legend>Access Level:</legend>
+                            <div>
+                                <input type="radio" id="branch" name="AccessLevel" value="1" checked=@(Model.AccessLevel == AccessLevel.Branch) />
+                                <label for="branch">Branch</label>
+
+                                <input type="radio" id="society" name="AccessLevel" value="2" checked=@(Model.AccessLevel == AccessLevel.Society) />
+                                <label for="society">Society</label>
+                            </div>
+                        </fieldset><br />
+                    </div>
+                </div>
+
+                <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <button type="submit" class="btn btn-success">Save</button>
                     </div>
@@ -92,5 +107,36 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var password = @ViewBag.password;
+            $("#Password").val(password);
+            $("#confirmPassword").val(password);
+            $('#Branch').on('change', function () {
+                var selectVal = $("#Branch").val();
+                var branches = @Html.Raw(Json.Serialize(ViewBag.dBranches));
+                var selectBranches = branches.filter(p => p.bname === selectVal);
+                if (selectBranches[0]) {
+                    $("#Branchcode").val(selectBranches[0].bcode);
+                }
+            });
+
+            $('#confirmPassword').on('blur', function () {
+                var confirmPassword = $("#confirmPassword").val();
+                var password = $("#Password").val();
+                if (!password) {
+                    $("#confirmPassword").val('');
+                    return
+                }
+                if (password != confirmPassword) {
+                    $("#Password").val('');
+                    $("#confirmPassword").val('');
+                    return
+                }
+            });
+        });
+    </script>
 }

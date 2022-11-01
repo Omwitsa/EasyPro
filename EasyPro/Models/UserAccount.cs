@@ -31,5 +31,13 @@ namespace EasyPro.Models
         public string Branch { get; set; }
         public string Sign { get; set; }
         public int? Phone { get; set; }
+        [Display(Name = "Access Level")]
+        public AccessLevel? AccessLevel { get; set; }
+    }
+
+    public enum AccessLevel
+    {
+        Branch = 1,
+        Society = 2
     }
 }
