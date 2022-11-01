@@ -13,12 +13,14 @@
                         <h2>Assign Transporters</h2>
                     </div>
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label class="control-label">Zone</label>
-                                <select id="zone" Value="Select Bank" asp-for="DTransport.Zone"  class="form-control" asp-items="@ViewBag.zones"></select>
+                        @if (ViewBag.isAinabkoi){
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Zone</label>
+                                    <select id="zone" Value="Select Bank" asp-for="DTransport.Zone"  class="form-control" asp-items="@ViewBag.zones"></select>
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
                 <hr />
@@ -137,53 +139,55 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 <script type="text/javascript">
-            $(function () {
-                        var today = new Date().toISOString().split('T')[0];
-                        $("#date").val(today);
-                        $('#zone').val('');//date
+    $(function () {
+        var today = new Date().toISOString().split('T')[0];
+        $("#date").val(today);
+        $('#zone').val('');//date
 
 
-                        var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
-                        if (checkiftoenable === 0) {
-                            $('#zone1').hide();
-                        }
-                        else {
-                            $('#zone1').show();
-                        }
+        var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+        if (checkiftoenable === 0) {
+            $('#zone1').hide();
+        }
+        else {
+            $('#zone1').show();
+        }
 
-                        $('#tcode').on('keyup', function () {
-                            var products = @Html.Raw(Json.Serialize(Model.DTransporter));
-                            var selectVal = $("#tcode").val();
-                            var selectProducts = products.filter(p => p.TransCode === selectVal);
-                                if (selectProducts[0]) {
-                                    $("#tname").val(selectProducts[0].TransName);
-                                }
-                        });
-                        $('#sno').on('keyup', function () {
-                            var selectVal = parseInt($("#sno").val());
-                            getSelectedDateIntakes();
-                        });
-                        $('#zone').change(function () {
-                            var selectVal = parseInt($("#sno").val());
-                            getSelectedDateIntakes();
-                        });
-                        function getSelectedDateIntakes() {
-                            var zone = $('#zone').val();
-                            var sno = $('#sno').val();
-                            $.ajax(
-                                {
-                                    type: 'GET',
-                                    url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
-                                    contentType: 'application/json',
-                                    success: function (response) {
-                                        $("#sname").val(response);
-                                    },
-                                    failure: function (response) {
-                                    }
-                                }).then(function () {
+        $('#tcode').on('keyup', function () {
+            var products = @Html.Raw(Json.Serialize(Model.DTransporter));
+            var selectVal = $("#tcode").val();
+            var selectProducts = products.filter(p => p.TransCode === selectVal);
+                if (selectProducts[0]) {
+                    $("#tname").val(selectProducts[0].TransName);
+                }
+        });
+        $('#sno').on('keyup', function () {
+            var selectVal = parseInt($("#sno").val());
+            getSelectedDateIntakes();
+        });
+        $('#zone').change(function () {
+            var selectVal = parseInt($("#sno").val());
+            getSelectedDateIntakes();
+        });
+        function getSelectedDateIntakes() {
+            var zone = $('#zone').val();
+            zone = zone ? zone : "";
+            var sno = $('#sno').val();
+            sno = sno ? sno : "";
+            $.ajax(
+            {
+                type: 'GET',
+                url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
+                contentType: 'application/json',
+                success: function (response) {
+                    $("#sname").val(response);
+                },
+                failure: function (response) {
+                }
+            }).then(function () {
 
-                                });
-                        }
-                    });
+            });
+        }
+    });
 </script>
 }

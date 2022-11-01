@@ -52,7 +52,7 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var agproducts = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).Select(b => b.PName).ToList();
             ViewBag.agproductsall = new SelectList(agproducts, "");
-
+            ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var branches = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.branches = new SelectList(branches, "");
 

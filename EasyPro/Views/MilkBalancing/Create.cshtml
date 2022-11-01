@@ -171,7 +171,7 @@
             $("#date").val(today);
             let suppliedItems = new Array();
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
-            if (checkiftoenable === 1) {
+            if (checkiftoenable === 0) {
                 $("#actual").prop('disabled', false);
             }
             else {

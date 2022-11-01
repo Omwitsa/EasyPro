@@ -11,12 +11,14 @@
                     <h2>Product Sale</h2>
                 </div>
                 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
-                    <div class="form-group ic-cmp-int float-lb floating-lb">
-                        <div class="nk-int-st">
-                            <label class="control-label">Zone</label>
-                            <select id="zone" Value="Select Bank" asp-for="AgReceipt.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                    @if(ViewBag.isAinabkoi){
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Zone</label>
+                                <select id="zone" Value="Select Bank" asp-for="AgReceipt.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
             <hr />
