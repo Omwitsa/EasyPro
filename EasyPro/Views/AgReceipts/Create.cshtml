@@ -584,7 +584,7 @@
                     url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
                     contentType: 'application/json',
                     success: function (response) {
-                        $("#sname").val(response);
+                        $("#names").val(response);
                         sumtotalkgs();
                     },
                     failure: function (response) {
@@ -596,7 +596,8 @@
             function sumtotalkgs() {
                 let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
                 let selectVal = $("#sno").val().toUpperCase();
-                let selectProducts = products.filter(p => p.Sno === selectVal);
+                let selectzone = $("#zone").val().toUpperCase();
+                let selectProducts = products.filter(p => p.Sno === selectVal && p.Zone === selectzone);
                 let sumqty = 0;
                 let sumDr = 0;
                 let sumCr = 0;

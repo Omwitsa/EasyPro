@@ -183,7 +183,7 @@
             $("#enddate").val(today);
             $("#bname").prop("selectedIndex", -1);
             $("#zone").val('');
-
+            document.getElementById('sno').focus();
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
                 var selectVal = parseInt($("#sno").val());

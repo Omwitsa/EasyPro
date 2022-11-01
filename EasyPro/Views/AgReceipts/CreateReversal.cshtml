@@ -14,7 +14,7 @@
                     <div class="form-group ic-cmp-int float-lb floating-lb">
                         <div class="nk-int-st">
                             <label class="control-label">Zone</label>
-                            <select id="zone" Value="Select Bank" asp-for="AgReceipt.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                            <select id="zone" asp-for="AgReceipt.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
                         </div>
                     </div>
                 </div>
@@ -533,20 +533,40 @@
                 totalsum = sumCr-sumDr;
                 $("#TNet").val(totalsum);
             }
-            $('#sno').on('keyup', function () {
-                var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
-                var selectVal = parseInt($("#sno").val());
-                var selectProducts = products.filter(p => p.Sno === selectVal);
-                if (selectProducts[0]) {
-                    $("#names").val(selectProducts[0].Names);
-                    sumtotalkgs();
-                }
-            });
+            $('#zone').change(function () {
+            var selectVal = parseInt($("#sno").val());
+            getSelectedDateIntakes();
+        });
+        $('#sno').on('keyup',function () {
+            var selectVal = parseInt($("#sno").val());
+            getSelectedDateIntakes();
+        });
+        function getSelectedDateIntakes() {
+            var zone = $('#zone').val();
+            var sno = $('#sno').val();
+            var mevng = $('#mevng').val();
+
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        $("#names").val(response);
+                        sumtotalkgs();
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+                });
+        }
 
             function sumtotalkgs() {
                 let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
                 let selectVal = $("#sno").val().toUpperCase();
-                let selectProducts = products.filter(p => p.Sno === selectVal);
+                let selectzone = $("#zone").val().toUpperCase();
+                let selectProducts = products.filter(p => p.Sno === selectVal && p.Zone === selectzone);
                 let sumqty = 0;
                 let sumDr = 0;
                 let sumCr = 0;
