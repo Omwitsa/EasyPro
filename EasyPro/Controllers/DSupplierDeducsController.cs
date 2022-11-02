@@ -205,12 +205,17 @@ namespace EasyPro.Controllers
         public IActionResult StandingOrder()
         {
             utilities.SetUpPrivileges(this);
+            SetStandingOrderValues();
+            return View();
+        }
+
+        private void SetStandingOrderValues()
+        {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var suppliers = _context.DSuppliers
                 .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.suppliers = suppliers;
-            return View();
         }
 
         [HttpPost]
@@ -218,6 +223,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> StandingOrder([Bind("Id,Sno,TransDate,StartDate,EndDate,Duration,Amount,Description,AuditId,Auditdatetime,SaccoCode,Zone")] StandingOrder standingOrder)
         {
             utilities.SetUpPrivileges(this);
+            SetStandingOrderValues();
             if (string.IsNullOrEmpty(standingOrder.Sno))
             {
                 _notyf.Error("Sorry, Kindly provide supplier No");
