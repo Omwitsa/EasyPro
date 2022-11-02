@@ -40,5 +40,6 @@ namespace EasyPro.ViewModels
         public decimal? TodayBranchkgs { get; set; }
         public TimeSpan TransTime { get; internal set; }
         public string Zone { get; set; }
+        public string MornEvening { get; set; }
     }
 }

@@ -571,7 +571,7 @@
             var selectVal = parseInt($("#sno").val());
             getSelectedDateIntakes();
         });
-        $('#sno').on('keyup',function () {
+        $('#sno').on('keyup', function () {
             var selectVal = parseInt($("#sno").val());
             getSelectedDateIntakes();
         });
@@ -588,12 +588,14 @@
                     url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
                     contentType: 'application/json',
                     success: function (response) {
-                        $("#sname").val(response);
+                        $("#names").val(response);
                         sumtotalkgs();
                     },
                     failure: function (response) {
                     }
                 }).then(function () {
+
+                }
             });
         }
 
