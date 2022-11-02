@@ -37,7 +37,7 @@ namespace EasyPro.Utils
             controller.ViewBag.deductionsRole = usergroup.Deductions;
         }
 
-        public string GenerateExcelGrid(ISheet sheet, string sacco, string loggedInUser)
+        public string GenerateExcelGrid(ISheet sheet, string sacco, string loggedInUser, string branch)
         {
             StringBuilder sb = new StringBuilder();
             IRow headerRow = sheet.GetRow(0); //Get Header Row
@@ -75,10 +75,12 @@ namespace EasyPro.Utils
                 {
                     LoggedInUser = loggedInUser,
                     SaccoCode = sacco,
+                    Branch = branch,
                     Sno = row.GetCell(0).ToString(),
                     ProductType = row.GetCell(1).ToString(),
                     Quantity = qnty,
-                    TransDate = transDate
+                    TransDate = transDate,
+                    TransCode = row.GetCell(4).ToString()
                 });
                 
                 sb.AppendLine("</tr>");

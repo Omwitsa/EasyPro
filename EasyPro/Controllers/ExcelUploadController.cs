@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Spreadsheet;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
@@ -44,6 +45,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            string branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
             IFormFile file = Request.Form.Files[0];
             string folderName = "UploadExcel";
@@ -74,7 +76,7 @@ namespace EasyPro.Controllers
                         sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook   
                     }
 
-                    str_excel_grid = utilities.GenerateExcelGrid(sheet, sacco, loggedInUser);
+                    str_excel_grid = utilities.GenerateExcelGrid(sheet, sacco, loggedInUser, branch);
                 }
             }
             return this.Content(str_excel_grid);
@@ -94,12 +96,14 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
-            var excelDumps = _context.ExcelDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var excelDumps = _context.ExcelDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();          
             excelDumps.ForEach(e =>
             {
+                e.TransCode = e?.TransCode ?? "";
                 var price = _context.DPrices.FirstOrDefault(p => p.Products.ToUpper().Equals(e.ProductType.ToUpper()) && p.SaccoCode == sacco);
-
                 var productIntake = new ProductIntake
                 {
                     Sno = e.Sno,
@@ -116,16 +120,86 @@ namespace EasyPro.Controllers
                     Remarks = "",
                     AuditId = loggedInUser,
                     Auditdatetime = DateTime.Now,
-                    Branch = "",
+                    Branch = saccoBranch,
+                    Balance = 0,
                     SaccoCode = sacco,
                     CrAccNo = price.CrAccNo,
                     DrAccNo = price.DrAccNo
                 };
 
-                var balance = utilities.GetBalance(productIntake);
-                productIntake.Balance = balance;
-
                 _context.ProductIntake.Add(productIntake);
+
+                var transports = _context.DTransports.Where(t => t.Sno.ToString() == e.Sno && t.Active
+               && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
+               && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    transports = transports.Where(t => t.Branch == saccoBranch);
+                var transport = transports.FirstOrDefault();
+                decimal? rate = 0;
+                if (transport != null)
+                {
+                    transport.TransCode = transport?.TransCode ?? "";
+                    if (transport.TransCode.Trim().ToUpper().Equals(e.TransCode.Trim().ToUpper()))
+                    {
+                        rate = transport.Rate;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(e.TransCode))
+                {
+                    // Debit supplier transport amount
+                    productIntake.CR = 0;
+                    productIntake.DR = productIntake.Qsupplied * rate;
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = e.Sno,
+                        TransDate = e.TransDate,
+                        TransTime = e.TransDate.TimeOfDay,
+                        ProductType = e.ProductType,
+                        Qsupplied = e.Quantity,
+                        Ppu = rate,
+                        CR = productIntake.CR,
+                        DR = productIntake.DR,
+                        Balance = 0,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Remarks = productIntake.Remarks,
+                        AuditId = loggedInUser,
+                        Auditdatetime = productIntake.Auditdatetime,
+                        Branch = saccoBranch,
+                        SaccoCode = sacco,
+                        DrAccNo = productIntake.DrAccNo,
+                        CrAccNo = productIntake.CrAccNo,
+                        Zone = productIntake.Zone
+                    });
+
+
+                    // Credit transpoter transport amount
+                    productIntake.CR = productIntake.Qsupplied * transport.Rate;
+                    productIntake.DR = 0;
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = e.TransCode.ToUpper().Trim(),
+                        TransDate = e.TransDate,
+                        TransTime = e.TransDate.TimeOfDay,
+                        ProductType = e.ProductType,
+                        Qsupplied = e.Quantity,
+                        Ppu = rate,
+                        CR = productIntake.CR,
+                        DR = productIntake.DR,
+                        Balance = 0,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Remarks = productIntake.Remarks,
+                        AuditId = loggedInUser,
+                        Auditdatetime = productIntake.Auditdatetime,
+                        Branch = saccoBranch,
+                        SaccoCode = sacco,
+                        DrAccNo = price.TransportDrAccNo,
+                        CrAccNo = price.TransportCrAccNo,
+                        Zone = productIntake.Zone
+                    });
+                }
             });
 
             if (excelDumps.Any())
@@ -133,7 +207,6 @@ namespace EasyPro.Controllers
                 _context.ExcelDump.RemoveRange(excelDumps);
                 _context.SaveChanges();
             }
-
             return RedirectToAction("Index");
         }
     }
