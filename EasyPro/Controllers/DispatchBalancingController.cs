@@ -146,9 +146,12 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Variance already saved");
                     return Json("");
                 }
-                if(balancing.Dispatch > balancing.Actuals)
+                balancing.BF = balancing?.BF ?? 0;
+                balancing.Actuals = balancing?.Actuals ?? 0;
+                var available = balancing.BF + balancing.Actuals;
+                if (balancing.Dispatch > available)
                 {
-                    _notyf.Error("Sorry, Dispatch cannot exceed actuals");
+                    _notyf.Error("Sorry, Dispatch cannot exceed available quantity");
                     return Json("");
                 }
 
