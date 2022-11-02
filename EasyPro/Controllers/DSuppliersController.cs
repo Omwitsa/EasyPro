@@ -167,6 +167,7 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             sacco = sacco ?? "";
             ViewBag.sacco = sacco;
+            ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var counties = _context.County.Select(b => b.Name).ToList();
             ViewBag.counties = new SelectList(counties);
             var SubCountyName = _context.SubCounty.ToList();

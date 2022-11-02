@@ -214,10 +214,14 @@ namespace EasyPro.Controllers
         private void SetIntakeInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var suppliers = _context.DSuppliers
-                .Where(s=>s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch).ToList();
+                .Where(s=>s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
             ViewBag.suppliers = suppliers;
             var products = _context.DPrices.Where(s=>s.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.products = new SelectList(products, "Products", "Products");
@@ -252,7 +256,6 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco);
             if (user.AccessLevel == AccessLevel.Branch)
@@ -306,7 +309,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var Descriptionname = _context.DDcodes.Where(d => d.Dcode == sacco).Select(b => b.Description).ToList();
             ViewBag.Description = new SelectList(Descriptionname);
-
+            ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var brances = _context.DBranch.Where(b => b.Bcode == sacco).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
@@ -368,7 +371,8 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             productIntake.Branch = saccoBranch;
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
             productIntake.Description = productIntake?.Description ?? "";
@@ -376,12 +380,6 @@ namespace EasyPro.Controllers
             if (sno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
-                return RedirectToAction(nameof(Create));
-            }
-            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper())
-            && s.Zone== productIntake.Zone && s.Branch == saccoBranch))
-            {
-                _notyf.Error("Sorry, Supplier No. not found");
                 return RedirectToAction(nameof(Create));
             }
             if (string.IsNullOrEmpty(productIntake.ProductType))
@@ -394,8 +392,17 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return RedirectToAction(nameof(Create));
             }
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper())
-            && s.Zone == productIntake.Zone && s.Branch == saccoBranch);
+            var suppliers = _context.DSuppliers.Where(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()));
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if(user.AccessLevel == AccessLevel.Branch)
+            {
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+            }
+            if (!string.IsNullOrEmpty(productIntake.Zone))
+            {
+                suppliers = suppliers.Where(s => s.Zone == productIntake.Zone);
+            }
+            var supplier = suppliers.FirstOrDefault();
             if (supplier == null)
             {
                 _notyf.Error("Sorry, Supplier does not exist");
@@ -441,7 +448,9 @@ namespace EasyPro.Controllers
 
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch==saccoBranch);
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch);
+
+                
                 if(productIntake.MornEvening!=null || productIntake.MornEvening!="")
                 {
                     transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
@@ -510,8 +519,13 @@ namespace EasyPro.Controllers
                 {
                     var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
                     var endDate = startDate.AddMonths(1).AddDays(-1);
-                    var commulated = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
-                    && s.TransDate >= startDate && s.TransDate <= endDate && s.Branch == saccoBranch && s.Zone==productIntake.Zone).Sum(s => s.Qsupplied);
+                    var intakes = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
+                    && s.TransDate >= startDate && s.TransDate <= endDate);
+                    if (user.AccessLevel == AccessLevel.Branch)
+                        intakes = intakes.Where(s => s.Branch == saccoBranch);
+                    if(!string.IsNullOrEmpty(productIntake.Zone))
+                        intakes = intakes.Where(i => i.Zone == productIntake.Zone);
+                    var commulated = intakes.Sum(s => s.Qsupplied);
                     var note = "";
                     if (productIntake.ProductType.ToLower().Equals("milk"))
                         note = "Kindly observe withdrawal period after cow treatment";
@@ -639,28 +653,46 @@ namespace EasyPro.Controllers
             DateTime startdate = new DateTime(productIntake.TransDate.Year, productIntake.TransDate.Month, 1);
             DateTime enddate = startdate.AddMonths(1).AddDays(-1);
             productIntake.Description = productIntake?.Description ?? "";
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            if (!_context.DSuppliers.Any(i => i.Sno == sno && i.Scode == sacco && i.Active == true && i.Approval == true
-            && i.Branch == saccoBranch && i.Zone== productIntake.Zone))
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            var suppliers = _context.DSuppliers.Where(s => s.Sno == sno && s.Scode == sacco && s.Active && s.Approval);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+
+            var intakes = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco
+            && i.Qsupplied != 0 && i.TransDate >= startdate && i.TransDate <= enddate);
+
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+                intakes = intakes.Where(i => i.Branch == saccoBranch);
+            }
+                
+            if (!string.IsNullOrEmpty(productIntake.Zone))
+            {
+                suppliers = suppliers.Where(s => s.Zone == productIntake.Zone);
+                intakes = intakes.Where(i => i.Zone == productIntake.Zone);
+            }
+                
+            if (!suppliers.Any())
             {
                 _notyf.Error("Sorry, Supplier Number code does not exist");
                 GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = _context.DSuppliers,
+                    DSuppliers = suppliers,
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
             }
-            if (!_context.ProductIntake.Any(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco && i.Qsupplied!= 0 
-            && i.TransDate >= startdate && i.TransDate <= enddate && i.Branch == saccoBranch && i.Zone == productIntake.Zone))
+            if (!intakes.Any())
             {
                 _notyf.Error("Sorry, Supplier has not deliver any product for this month"+" "+ startdate+ "To " + " "+ enddate );
                 GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch ==saccoBranch),
+                    DSuppliers = suppliers,
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -672,7 +704,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Farmer code cannot be zero");
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco && s.Branch == saccoBranch),
+                    DSuppliers = suppliers,
                     ProductIntake = new Models.ProductIntake()
                 };
                 //return Json(new { data = Farmersobj });
@@ -831,23 +863,24 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return RedirectToAction(nameof(CreateCorrection));
             }
-            if (!_context.DSuppliers.Any(s => s.Sno == sno && s.Scode == sacco && s.Zone==productIntake.Zone && s.Branch == saccoBranch))
-            {
-                _notyf.Error("Sorry, Supplier No. not found");
-                return RedirectToAction(nameof(CreateCorrection));
-            }
             if (string.IsNullOrEmpty(productIntake.ProductType))
             {
                 _notyf.Error("Sorry, Kindly select product type");
                 return RedirectToAction(nameof(CreateCorrection));
             }
-
             if (productIntake.Qsupplied == 0)
             {
                 //_notyf.Error("Sorry, Kindly provide quantity");
                 return RedirectToAction(nameof(CreateCorrection));
             }
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno && s.Scode == sacco && s.Zone == productIntake.Zone && s.Branch == saccoBranch);
+            var suppliers = _context.DSuppliers.Where(s => s.Sno == sno && s.Scode == sacco);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(auditId.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+            if (!string.IsNullOrEmpty(productIntake.Zone))
+                suppliers = suppliers.Where(s => s.Zone == productIntake.Zone);
+
+            var supplier = suppliers.FirstOrDefault();
             if (supplier == null) 
             {
                 _notyf.Error("Sorry, Supplier does not exist");
@@ -1025,8 +1058,12 @@ namespace EasyPro.Controllers
                 {
                     var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
                     var endDate = startDate.AddMonths(1).AddDays(-1);
-                    var commulated = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
-                    && s.TransDate >= startDate && s.TransDate <= endDate && s.Branch == saccoBranch).Sum(s => s.Qsupplied);
+                    var intakes = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
+                    && s.TransDate >= startDate && s.TransDate <= endDate);
+                    if (user.AccessLevel == AccessLevel.Branch)
+                        intakes = intakes.Where(i => i.Branch == saccoBranch);
+
+                    var commulated = intakes.Sum(s => s.Qsupplied);
                     _context.Messages.Add(new Message
                     {
                         Telephone = supplier.PhoneNo,
