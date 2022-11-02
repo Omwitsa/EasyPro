@@ -13,6 +13,7 @@ using EasyPro.ViewModels;
 using EasyPro.ViewModels.EnquiryVM;
 using System.Collections.Generic;
 using static EasyPro.ViewModels.AccountingVm;
+using System.Globalization;
 
 namespace EasyPro.Controllers
 {
@@ -136,10 +137,11 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             DateTime now = DateTime.Now;
-            var startDate = new DateTime(now.Year, now.Month, 1);
-            var enDate = startDate.AddMonths(1).AddDays(-1);
+            var startDate = new DateTime(date1.Year, date1.Month, 1);
+            //var enDate = Convert.ToDateTime(date_for).AddMonths(1).AddDays(-1);
+            //date2 = enDate;
 
-            var intakes = _context.ProductIntake.Where(i => i.Sno == sno && i.SaccoCode.ToUpper()
+            var intakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
            .Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)

@@ -14,27 +14,21 @@
                     </div>
 
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
-                        @if (ViewBag.isAinabkoi)
-                        {
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
                                     <label class="control-label">Zone</label>
                                     <select id="zone" Value="Select Bank" asp-for="DTransport.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
                                 </div>
                             </div>
-                        }
                     </div>
 
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
-                        @if (ViewBag.isAinabkoi)
-                        {
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
                                     <label class="control-label">Morning/Evening</label>
                                 <select id="mevng" Value="Select Bank" asp-for="DTransport.Morning" class="form-control" asp-items="@ViewBag.morningEve"></select>
                                 </div>
                             </div>
-                        }
                     </div>
                 </div>
                 <hr />

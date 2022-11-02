@@ -442,7 +442,8 @@ namespace EasyPro.Controllers
                     SaccoCode = productIntake.SaccoCode,
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
-                    Zone = productIntake.Zone
+                    Zone = productIntake.Zone,
+                    MornEvening = productIntake.MornEvening
                 };
                 _context.ProductIntake.Add(collection);
 
@@ -451,11 +452,12 @@ namespace EasyPro.Controllers
                 && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch);
 
                 
-                if(productIntake.MornEvening!=null || productIntake.MornEvening!="")
+                if(!string.IsNullOrEmpty(productIntake.MornEvening))
                 {
                     transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch && t.Morning== productIntake.MornEvening);
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
+                && t.Morning== productIntake.MornEvening);
                 }
 
                 if (transport != null)
@@ -484,7 +486,8 @@ namespace EasyPro.Controllers
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = productIntake.DrAccNo,
                         CrAccNo = productIntake.CrAccNo,
-                        Zone=productIntake.Zone
+                        Zone=productIntake.Zone,
+                        MornEvening = productIntake.MornEvening
                     };
                     _context.ProductIntake.Add(collection);
 
@@ -511,7 +514,8 @@ namespace EasyPro.Controllers
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = price.TransportDrAccNo,
                         CrAccNo = price.TransportCrAccNo,
-                        Zone=productIntake.Zone
+                        Zone=productIntake.Zone,
+                        MornEvening = productIntake.MornEvening
                     });
                 }
 
@@ -945,6 +949,7 @@ namespace EasyPro.Controllers
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
                     Zone=productIntake.Zone,
+                    MornEvening = productIntake.MornEvening
                 };
                 _context.ProductIntake.Add(collection);
 
@@ -952,11 +957,12 @@ namespace EasyPro.Controllers
                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                && t.saccocode.ToUpper().Equals(sacco.ToUpper()));
 
-                if (productIntake.MornEvening != null || productIntake.MornEvening != "")
+                if (!string.IsNullOrEmpty(productIntake.MornEvening))
                 {
                     transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch && t.Morning == productIntake.MornEvening);
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
+                && t.Morning == productIntake.MornEvening);
                 }
 
 
@@ -995,6 +1001,7 @@ namespace EasyPro.Controllers
                         DrAccNo = productIntake.DrAccNo,
                         CrAccNo = productIntake.CrAccNo,
                         Zone = productIntake.Zone,
+                        MornEvening = productIntake.MornEvening
                     };
                     _context.ProductIntake.Add(collection);
 
@@ -1027,6 +1034,7 @@ namespace EasyPro.Controllers
                         DrAccNo = price.TransportDrAccNo,
                         CrAccNo = price.TransportCrAccNo,
                         Zone = productIntake.Zone,
+                        MornEvening = productIntake.MornEvening
                     });
                 }
                 //decimal? amount = 0;
