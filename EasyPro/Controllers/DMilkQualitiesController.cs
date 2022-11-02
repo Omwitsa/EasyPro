@@ -58,6 +58,82 @@ namespace EasyPro.Controllers
             return View();
         }
 
+        public IActionResult MilkControll()
+        {
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            var today = DateTime.Now;
+            var month = new DateTime(today.Year, today.Month, 1);
+            var startdate = month;
+            var enddate = month.AddMonths(1).AddDays(-1);
+
+
+
+            var milkcontrols = _context.milkcontrol2.Where(i => i.code.ToUpper().Equals(sacco.ToUpper())
+            && i.transdate >= startdate && i.transdate <= enddate).ToList();
+            var MilkControlVmlist = new List<MilkControlVm>();
+            var intakes = milkcontrols.GroupBy(i => i.transdate).ToList();
+            if (intakes.Count > 0)
+            {
+                intakes.ForEach(i =>
+                {
+                    var intake = i.FirstOrDefault();
+                    var Intakekg = i.Sum(t => t.Intake);
+                    var SQuantitykg = i.Sum(t => t.SQuantity);
+                    var Rejectkg = i.Sum(t => t.Reject);
+                    var cfakg = i.Sum(t => t.cfa);
+                    var Spillagekg = i.Sum(t => t.Spillage);
+                    var Bfkg = i.Sum(t => t.Bf);
+                    var FromStationkg = i.Sum(t => t.FromStation);
+                    var Tostationkg = i.Sum(t => t.Tostation);
+                    MilkControlVmlist.Add(new MilkControlVm
+                    {
+                        Id = intake.Id,
+                        Intake = Intakekg,
+                        transdate = intake.transdate,
+                        SQuantity = SQuantitykg,
+                        Reject = Rejectkg,
+                        cfa = cfakg,
+                        Spillage = Spillagekg,
+                        Bf = Bfkg,
+                        FromStation = FromStationkg,
+                        Tostation = Tostationkg,
+                        code = sacco,
+                        auditid = LoggedInUser,
+                        Branch = "MAIN",
+                        Varriance = (Intakekg - (SQuantitykg + Rejectkg + cfakg + Spillagekg))
+                    });
+                    _context.SaveChanges();
+                });
+            }
+            return View(MilkControlVmlist);
+        }
+
+        public IActionResult MilkcontrolDetails(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var milkintake2 = _context.milkcontrol2.FirstOrDefault(M=>M.Id== id);
+
+            var milkcontrolslist =  _context.milkcontrol2.Where(m => m.transdate == milkintake2.transdate).ToList();
+
+            if (milkcontrolslist == null)
+            {
+                return NotFound();
+            }
+
+            return View(milkcontrolslist);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectsCreate([Bind("Id,Intake, SQuantity, Reject, transdate, auditid, cfa, Spillage, FromStation, Tostation, Bf, code, Branch")] milkcontrol2 milkcontrol2)
