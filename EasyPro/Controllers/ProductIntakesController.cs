@@ -454,10 +454,10 @@ namespace EasyPro.Controllers
                 
                 if(!string.IsNullOrEmpty(productIntake.MornEvening))
                 {
-                    transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
-                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
-                && t.Morning== productIntake.MornEvening);
+                            transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
+                        && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
+                        && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
+                        && t.Morning== productIntake.MornEvening);
                 }
 
                 if (transport != null)
