@@ -235,6 +235,13 @@ namespace EasyPro.Controllers
             else
                 ViewBag.checkiftoenable = 0;
 
+            List<SelectListItem> morningEve = new()
+            {
+                new SelectListItem { Text = "" },
+                new SelectListItem { Text = "Morning" },
+                new SelectListItem { Text = "Evening" },
+            };
+            ViewBag.morningEve = morningEve;
 
         }
 
@@ -357,7 +364,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo,Print,SMS,Zone")] ProductIntakeVm productIntake)
+        public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo,Print,SMS,Zone,MornEvening")] ProductIntakeVm productIntake)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -435,7 +442,13 @@ namespace EasyPro.Controllers
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                 && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch==saccoBranch);
-               
+                if(productIntake.MornEvening!=null || productIntake.MornEvening!="")
+                {
+                    transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
+                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch && t.Morning== productIntake.MornEvening);
+                }
+
                 if (transport != null)
                 {
                     // Debit supplier transport amount
@@ -799,7 +812,7 @@ namespace EasyPro.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCorrection([Bind("Id, Sno, TransDate, ProductType, Qsupplied, Ppu, CR, DR, Balance, Description, Remarks, AuditId, Auditdatetime, Branch, DrAccNo, CrAccNo, Print, SMS,Zone")] ProductIntakeVm productIntake)
+        public async Task<IActionResult> CreateCorrection([Bind("Id, Sno, TransDate, ProductType, Qsupplied, Ppu, CR, DR, Balance, Description, Remarks, AuditId, Auditdatetime, Branch, DrAccNo, CrAccNo, Print, SMS,Zone,MornEvening")] ProductIntakeVm productIntake)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -905,6 +918,14 @@ namespace EasyPro.Controllers
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                && t.saccocode.ToUpper().Equals(sacco.ToUpper()));
+
+                if (productIntake.MornEvening != null || productIntake.MornEvening != "")
+                {
+                    transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
+                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch && t.Morning == productIntake.MornEvening);
+                }
+
 
                 if (transport != null)
                 {
