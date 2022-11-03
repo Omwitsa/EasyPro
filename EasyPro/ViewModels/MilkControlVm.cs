@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,6 +12,8 @@ namespace EasyPro.ViewModels
     {
         public long Id { get; set; }
         public decimal? Intake { get; set; }
+        //[ModelBinder(BinderType = typeof(CustomDateTimeModelBinder))]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? transdate { get; set; }
         public decimal? SQuantity { get; set; }
         public decimal? Reject { get; set; }

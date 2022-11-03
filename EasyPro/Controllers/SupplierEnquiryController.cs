@@ -84,6 +84,21 @@ namespace EasyPro.Controllers
             }).ToList();
             return Json(ViewBag.suppliers);
         }
+
+        [HttpGet]
+        public JsonResult SelectedName2(String? zone, long? sno)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
+            if (zone != null)
+                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone);
+            else
+                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == null);
+
+            return Json(todaysIntake);
+        }
         public IActionResult Transporters()
         {
             utilities.SetUpPrivileges(this);

@@ -210,7 +210,20 @@ namespace EasyPro.Controllers
 
             return Json(todaysIntake);
         }
+        [HttpGet]
+        public JsonResult SelectedName(String? zone, long? sno)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
+            if (zone != null)
+                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone);
+            else
+                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == null);
 
+             return Json(todaysIntake.Select(b => b.Names).ToList());
+        }
         private void SetIntakeInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -312,6 +325,9 @@ namespace EasyPro.Controllers
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var brances = _context.DBranch.Where(b => b.Bcode == sacco).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
+
+            var suppliers = _context.DSuppliers.Where(a => a.Scode == sacco).ToList();
+            ViewBag.suppliers = new SelectList(suppliers);
 
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);

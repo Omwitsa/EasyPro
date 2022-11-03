@@ -195,13 +195,48 @@
             $('#zone').change(function () {
                 var selectVal = parseInt($("#sno").val());
                 var zoneVal = $("#zone").val();
+                getSelectedDateIntakes1();
                 getSelectedDateIntakes();
             });
             $('#sno').on('keyup', function () {
                 var selectVal = parseInt($("#sno").val());
                 var zoneVal = $("#zone").val();
+                getSelectedDateIntakes1();
                 getSelectedDateIntakes();
             });
+
+            function getSelectedDateIntakes1() {
+                $("#names").val('');
+                $("#idno").val('');
+                $("#phoneno").val('');
+                $("#accno").val('');
+                $("#bbranch").val('');
+                var zone = $('#zone').val();
+                var sno = $('#sno').val();
+                var mevng = $('#mevng').val();
+
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "SelectedName2?zone=" + zone + "&sno=" + sno,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            var selectsuppliers = response;
+                            if (selectsuppliers[0]) {
+                                $("#names").val(selectsuppliers[0].Names);
+                                $("#idno").val(selectsuppliers[0].IdNo);
+                                $("#phoneno").val(selectsuppliers[0].PhoneNo);
+                                $("#accno").val(selectsuppliers[0].AccNo);
+                                $("#bbranch").val(selectsuppliers[0].Bbranch);
+                            }
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
+
             function getSelectedDateIntakes() {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
                 var selectVal = parseInt($("#sno").val());
@@ -212,13 +247,13 @@
                 var date2 = $("#enddate").val();
                 var zone = $("#zone").val();
                 zone = zone ? zone : "";
-                var selectsuppliers = suppliers.filter(p => p.Sno === selectVal && p.Zone === zoneVal);
-                if (selectsuppliers[0]) {
-                    $("#names").val(selectsuppliers[0].Names);
-                    $("#idno").val(selectsuppliers[0].IdNo);
-                    $("#phoneno").val(selectsuppliers[0].PhoneNo);
-                    $("#accno").val(selectsuppliers[0].AccNo);
-                    $("#bbranch").val(selectsuppliers[0].Bbranch);
+                //var selectsuppliers = suppliers.filter(p => p.Sno === selectVal && p.Zone === zoneVal);
+                //if (selectsuppliers[0]) {
+                //    $("#names").val(selectsuppliers[0].Names);
+                //    $("#idno").val(selectsuppliers[0].IdNo);
+                //    $("#phoneno").val(selectsuppliers[0].PhoneNo);
+                //    $("#accno").val(selectsuppliers[0].AccNo);
+                //    $("#bbranch").val(selectsuppliers[0].Bbranch);
                     $.ajax({
                         type: 'POST',
                         url: "suppliedProducts?date1=" + date1 + "&date2=" + date2 + "&zone=" + zone,
@@ -232,7 +267,7 @@
                     }).then(function () {
                         // ...
                     });
-                }
+                //}
             }
 
             

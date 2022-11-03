@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace EasyPro.Models
 {
@@ -6,6 +7,7 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         public decimal? Intake { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? transdate { get; set; }
         public decimal? SQuantity { get; set; }
         public decimal? Reject { get; set; }

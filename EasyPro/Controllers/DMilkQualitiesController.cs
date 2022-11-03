@@ -90,6 +90,7 @@ namespace EasyPro.Controllers
                     var Bfkg = i.Sum(t => t.Bf);
                     var FromStationkg = i.Sum(t => t.FromStation);
                     var Tostationkg = i.Sum(t => t.Tostation);
+                    var date = intake.transdate;
                     MilkControlVmlist.Add(new MilkControlVm
                     {
                         Id = intake.Id,
