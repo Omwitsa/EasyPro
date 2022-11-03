@@ -21,6 +21,7 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private Utilities utilities;
+        private List<DSupplier> dsuppliers;
 
         public SupplierEnquiryController(MORINGAContext context)
         {
@@ -52,10 +53,36 @@ namespace EasyPro.Controllers
                 IdNo = s.IdNo,
                 PhoneNo = s.PhoneNo,
                 AccNo = s.AccNo,
-                Bbranch = s.Bbranch
+                Bbranch = s.Bbranch,
+                Zone= s.Zone
             }).ToList();
 
             return View();
+        }
+
+        [HttpGet]
+        public JsonResult SelectedDateIntake(String? zone, long? sno)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            //var dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone).ToList();
+            zone = zone ?? "";
+            if (zone != "null")
+                dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone).ToList();
+            else
+                dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == null).ToList();
+
+            ViewBag.suppliers = dsuppliers.Select(s => new DSupplier
+            {
+                Sno = s.Sno,
+                Names = s.Names,
+                IdNo = s.IdNo,
+                PhoneNo = s.PhoneNo,
+                AccNo = s.AccNo,
+                Bbranch = s.Bbranch
+            }).ToList();
+            return Json(ViewBag.suppliers);
         }
         public IActionResult Transporters()
         {
