@@ -69,6 +69,7 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 transporters = transporters.Where(t => t.Tbranch == saccobranch);
+
             ViewBag.transporters = transporters.Select(s => new DTransporter
             {
                 TransCode = s.TransCode,

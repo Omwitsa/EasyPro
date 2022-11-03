@@ -175,7 +175,7 @@ namespace EasyPro.Controllers
 
 
                     // Credit transpoter transport amount
-                    productIntake.CR = productIntake.Qsupplied * transport.Rate;
+                    productIntake.CR = productIntake.Qsupplied * rate;
                     productIntake.DR = 0;
                     _context.ProductIntake.Add(new ProductIntake
                     {

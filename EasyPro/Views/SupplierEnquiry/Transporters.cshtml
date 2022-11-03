@@ -153,13 +153,24 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Total Quantity</label>
+                                    <input id="totalQty" class="form-control text-blue" />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="FilterVm.DateFrom" class="control-label"></label>
-                                <input id="firstdate" required class="form-control" type="text" />
+                                <input id="firstdate" class="form-control" type="date" />
                                 <span asp-validation-for="FilterVm.DateFrom" class="text-danger"></span>
                             </div>
                         </div>
@@ -168,7 +179,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="FilterVm.DateTo" class="control-label"></label>
-                                <input id="enddate" required class="form-control" type="text" />
+                                <input id="enddate" class="form-control" type="date" />
                                 <span asp-validation-for="FilterVm.DateTo" class="text-danger"></span>
                             </div>
                         </div>
@@ -179,8 +190,8 @@
                     </div>
                 </div>
                 <div class="bsc-tbl-hvr table-border-style">
-                    <div class="divScroll">
-                        <div class="table-responsive">
+                    <div class="table-responsive">
+                        <div class="divScroll">
                             <table class="table table-hover" id="customers">
                                 <tr>
                                     <th>Date</th>
@@ -197,7 +208,6 @@
                             </table>
                         </div>
                     </div>
-                    
                 </div>
 </form>
         </div>
@@ -208,154 +218,34 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script src="~/js/jquery.js"></script>
-    <script src="~/js/jquery-ui.js"></script>
-    @*<script src="~/js/deduction.js"></script>*@
-<script type="text/javascript">
-       /* const { Doc } = require("codemirror");*/
+    <script type="text/javascript">
         $(function ()
         {
-            var date = new Date();
             document.getElementById('sno').focus();
-            var firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString();
-            var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toLocaleDateString();
-            $("#firstdate").val(firstDay);
-            $("#enddate").val(lastDay);
+            var today = new Date().toISOString().split('T')[0];
+            $("#firstdate").val(today);
+            $("#enddate").val(today);
 
-            $("#bname").prop("selectedIndex", -1);
-        });
-        $(function () {
-            $("#firstdate").datepicker();
-        });
-        $(function () {
-            $("#enddate").datepicker();
-        });
-
-        $(function ()
-        {
-             $("#showtable").click(function () {
-                 var sno = $("#sno").val().toUpperCase();
-                var date1 = $("#firstdate").val();
-                var date2 = $("#enddate").val();
-                    $.ajax(
-                        {
-                            type: 'POST',
-                            url: "SuppliedProductsTransporter?sno="+sno+"&date1="+date1+"&date2="+date2+"",
-                            contentType: 'application/json',
-                            data: JSON.stringify(),
-                            success: function (response) {
-                                populateIntake3(response)
-                            },
-                            failure: function (response) {
-                            }
-                        }).then(function () {
-                            // ...
-                        });
-                });
-            function populateIntake3(intakes) {
-                var selectVal = $("#sno").val().toUpperCase();
-                let itemTableRows = new Array();
-                intakes.forEach(i => {
-                    //debugger;
-                    var ddate = i.TransDate;
-                    var dd1 = new Date(ddate).toLocaleDateString();
-                    itemTableRows.push(`<tr>
-				        <td>${dd1}</td>
-                        <td>${i.ProductType}</td>
-                        <td>${i.Qsupplied}</td>
-                        <td>${i.CR}</td>
-                        <td>${i.DR}</td>
-                        <td>${i.Balance}</td>
-                        <td>${i.Description}</td>
-                        <td>${i.Remarks}</td>
-			        </tr>`)
-                    var Total = 0;
-                    var Total2 = 0;
-                    var netpay = 0;
-                    intakes.forEach(i => {
-                        var ddr = 0;
-                        var ccr = 0;
-                        ddr = i.DR;
-                        ccr = i.CR;
-                        Total2 = Total2 + ddr;
-                        Total = Total + ccr;
-                        netpay = Total - Total2;
-
-                    });
-                    $('#netpay').val(netpay);
-                    $('#totaldeductions').val(Total2)
-                    $('#grosspay').val(Total)
-                });
-
-                $('#intakes').html(itemTableRows);
-            }
-            });
-        $(function () {
-
-            $("#bname").change(function () {
-                var producttype = $("#bname").val();
+            $("#showtable").click(function () {
                 var sno = $("#sno").val().toUpperCase();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
-                    $.ajax(
-                        {
-
-                            type: 'POST',
-                            url: "SuppliedProducts2?sno="+sno+"&producttype="+producttype+"&date1="+date1+"&date2="+date2+"",
-                            contentType: 'application/json',
-                            data: JSON.stringify(),
-                            success: function (response) {
-                                //if (response.Success) {
-
-                                //}
-                                populateIntake2(response)
-                            },
-                            failure: function (response) {
-                            }
-                        }).then(function () {
-                            // ...
-                        });
+                $.ajax(
+                    {
+                    type: 'POST',
+                    url: "SuppliedProductsTransporter?sno=" + sno + "&date1=" + date1 + "&date2=" + date2 + "",
+                    contentType: 'application/json',
+                    data: JSON.stringify(),
+                    success: function (response) {
+                       populateIntake(response)
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
                 });
-            function populateIntake2(intakes) {
-
-                var selectVal = parseInt($("#sno").val().toUpperCase());
-                let itemTableRows = new Array();
-                intakes.forEach(i => {
-                    //debugger;
-                    var ddate = i.TransDate;
-                    var dd1 = new Date(ddate).toLocaleDateString();
-                    itemTableRows.push(`<tr>
-				        <td>${dd1}</td>
-                        <td>${i.ProductType}</td>
-                        <td>${i.Qsupplied}</td>
-                        <td>${i.CR}</td>
-                        <td>${i.DR}</td>
-                        <td>${i.Balance}</td>
-                        <td>${i.Description}</td>
-                        <td>${i.Remarks}</td>
-			        </tr>`)
-                    var Total = 0;
-                    var Total2 = 0;
-                    var netpay = 0;
-                    intakes.forEach(i => {
-                        var ddr = 0;
-                        var ccr = 0;
-                        ddr = i.DR;
-                        ccr = i.CR;
-                        Total2 = Total2 + ddr;
-                        Total = Total + ccr;
-                        netpay = Total - Total2;
-
-                    });
-                    $('#netpay').val(netpay);
-                    $('#totaldeductions').val(Total2)
-                    $('#grosspay').val(Total)
-                });
-
-                $('#intakes').html(itemTableRows);
-            }
             });
-        $(function () {
+
             $('#sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.transporters));
                 var selectVal = $("#sno").val().toUpperCase();
@@ -364,40 +254,42 @@
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
                 var selectsuppliers = suppliers.filter(p => p.TransCode === selectVal);
-                    if (selectsuppliers[0]) {
-                        $("#names").val(selectsuppliers[0].TransName);
-                        $("#idno").val(selectsuppliers[0].CertNo);
-                        $("#phoneno").val(selectsuppliers[0].Phoneno);
-                        $("#bname").val(selectsuppliers[0].Bcode);
-                        $("#accno").val(selectsuppliers[0].Accno);
-                        $("#bbranch").val(selectsuppliers[0].Bbranch);
-                        $.ajax({
-                            type: 'POST',
-                            url: "SuppliedProductsTransporter?sno=" + sno +"&date1="+date1+"&date2="+date2+"",
-                            contentType: 'application/json',
-                            data: JSON.stringify(selectsuppliers[0]),
-                            success: function (response) {
-                                //if (response.Success) {
+                if (selectsuppliers[0]) {
+                    $("#names").val(selectsuppliers[0].TransName);
+                    $("#idno").val(selectsuppliers[0].CertNo);
+                    $("#phoneno").val(selectsuppliers[0].Phoneno);
+                    $("#bname").val(selectsuppliers[0].Bcode);
+                    $("#accno").val(selectsuppliers[0].Accno);
+                    $("#bbranch").val(selectsuppliers[0].Bbranch);
+                    $.ajax({
+                        type: 'POST',
+                        url: "SuppliedProductsTransporter?sno=" + sno + "&date1=" + date1 + "&date2=" + date2 + "",
+                        contentType: 'application/json',
+                        data: JSON.stringify(selectsuppliers[0]),
+                        success: function (response) {
+                            //if (response.Success) {
 
-                                //}
-                                populateIntake(response)
-                            },
-                            failure: function (response) {
-                            }
-                        }).then(function () {
-                            // ...
-                        });
-                    }
+                            //}
+                            populateIntake(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
             });
 
             function populateIntake(intakes) {
-
-                var selectVal = $("#sno").val().toUpperCase();
+                let selectVal = $("#sno").val().toUpperCase();
                 let itemTableRows = new Array();
+                let grossPay = 0;
+                let deductions = 0;
+                let totalQty = 0;
+
                 intakes.forEach(i => {
-                    //debugger;
-                    var ddate = i.TransDate;
-                    var dd1=new Date(ddate).toLocaleDateString();
+                    let ddate = i.TransDate;
+                    let dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
 				        <td>${dd1}</td>
                         <td>${i.ProductType}</td>
@@ -408,27 +300,21 @@
                         <td>${i.Description}</td>
                         <td>${i.Remarks}</td>
 			        </tr>`)
-                    var Total = 0;
-                    var Total2 = 0;
-                    var netpay = 0;
+                    
                     intakes.forEach(i => {
-                        var ddr = 0;
-                        var ccr = 0;
-                        ddr = i.DR;
-                        ccr = i.CR;
-                        Total2 = Total2 + ddr;
-                        Total = Total + ccr;
-                        netpay = Total - Total2;
-
+                        deductions += i.DR;
+                        grossPay += i.CR;
+                        totalQty += i.Qsupplied;
                     });
-                    $('#netpay').val(netpay);
-                    $('#totaldeductions').val(Total2)
-                    $('#grosspay').val(Total)
                 });
 
+                let netpay = grossPay - deductions;
+                $('#totalQty').val(totalQty);
+                $('#netpay').val(netpay);
+                $('#totaldeductions').val(deductions)
+                $('#grosspay').val(grossPay)
                 $('#intakes').html(itemTableRows);
             }
         });
-</script>
-
+    </script>
 }

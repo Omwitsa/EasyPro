@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace EasyPro.Utils
 {
@@ -70,7 +71,8 @@ namespace EasyPro.Utils
 
                 decimal.TryParse(row.GetCell(2).ToString(), out decimal qnty);
                 totalQnty += qnty;
-                var transDate = DateTime.Parse(row.GetCell(3).ToString());
+                var dateString = row.GetCell(3).ToString();
+                var transDate = DateTime.Parse(dateString);
                 excelDumps.Add(new ExcelDump
                 {
                     LoggedInUser = loggedInUser,
