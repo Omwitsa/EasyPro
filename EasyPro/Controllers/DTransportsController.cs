@@ -209,7 +209,7 @@ namespace EasyPro.Controllers
                 dTransport.Branch = saccoBranch;
                 _context.Add(dTransport);
                 UpdateLastKgs(dTransport);
-                if (dTransport.DateInactivate != null)
+                if (!string.IsNullOrEmpty(dTransport.DateInactivate.ToString()))
                     UpdateIntakeKgs(dTransport);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Assignment saved successfully");

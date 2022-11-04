@@ -32,6 +32,7 @@
                                 <div class="form-group">
                                     <label class="control-label">From Branch</label>
                                     <select id="branch" asp-for="Branch" class="form-control" asp-items="@ViewBag.brances" required>
+                                        <option value=""></option>
                                     </select>
                                     <span asp-validation-for="Branch" class="text-danger"></span>
                                 </div>

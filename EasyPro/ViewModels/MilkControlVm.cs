@@ -1,12 +1,18 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace EasyPro.Models
+namespace EasyPro.ViewModels
 {
-    public class milkcontrol2
+    public class MilkControlVm
     {
         public long Id { get; set; }
         public decimal? Intake { get; set; }
+        //[ModelBinder(BinderType = typeof(CustomDateTimeModelBinder))]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? transdate { get; set; }
         public decimal? SQuantity { get; set; }
@@ -19,5 +25,6 @@ namespace EasyPro.Models
         public decimal? Tostation { get; set; }
         public string code { get; set; }
         public string Branch { get; set; }
+        public decimal? Varriance { get; set; }
     }
 }

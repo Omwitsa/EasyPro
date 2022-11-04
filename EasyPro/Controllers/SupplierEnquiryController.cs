@@ -13,6 +13,7 @@ using EasyPro.ViewModels;
 using EasyPro.ViewModels.EnquiryVM;
 using System.Collections.Generic;
 using static EasyPro.ViewModels.AccountingVm;
+using System.Globalization;
 
 namespace EasyPro.Controllers
 {
@@ -20,6 +21,7 @@ namespace EasyPro.Controllers
     {
         private readonly MORINGAContext _context;
         private Utilities utilities;
+        private List<DSupplier> dsuppliers;
 
         public SupplierEnquiryController(MORINGAContext context)
         {
@@ -51,10 +53,51 @@ namespace EasyPro.Controllers
                 IdNo = s.IdNo,
                 PhoneNo = s.PhoneNo,
                 AccNo = s.AccNo,
-                Bbranch = s.Bbranch
+                Bbranch = s.Bbranch,
+                Zone= s.Zone
             }).ToList();
 
             return View();
+        }
+
+        [HttpGet]
+        public JsonResult SelectedDateIntake(String? zone, long? sno)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            //var dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone).ToList();
+            zone = zone ?? "";
+            if (zone != "null")
+                dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone).ToList();
+            else
+                dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == null).ToList();
+
+            ViewBag.suppliers = dsuppliers.Select(s => new DSupplier
+            {
+                Sno = s.Sno,
+                Names = s.Names,
+                IdNo = s.IdNo,
+                PhoneNo = s.PhoneNo,
+                AccNo = s.AccNo,
+                Bbranch = s.Bbranch
+            }).ToList();
+            return Json(ViewBag.suppliers);
+        }
+
+        [HttpGet]
+        public JsonResult SelectedName2(String? zone, long? sno)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
+            if (zone != null)
+                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone);
+            else
+                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == null);
+
+            return Json(todaysIntake);
         }
         public IActionResult Transporters()
         {
@@ -136,11 +179,8 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            DateTime now = DateTime.Now;
-            var startDate = new DateTime(now.Year, now.Month, 1);
-            var enDate = startDate.AddMonths(1).AddDays(-1);
 
-            var intakes = _context.ProductIntake.Where(i => i.Sno == sno && i.SaccoCode.ToUpper()
+            var intakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
            .Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)

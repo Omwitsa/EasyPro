@@ -210,7 +210,20 @@ namespace EasyPro.Controllers
 
             return Json(todaysIntake);
         }
+        [HttpGet]
+        public JsonResult SelectedName(String? zone, long? sno)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
+            if (zone != null)
+                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone);
+            else
+                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == null);
 
+             return Json(todaysIntake.Select(b => b.Names).ToList());
+        }
         private void SetIntakeInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -312,6 +325,9 @@ namespace EasyPro.Controllers
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var brances = _context.DBranch.Where(b => b.Bcode == sacco).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
+
+            var suppliers = _context.DSuppliers.Where(a => a.Scode == sacco).ToList();
+            ViewBag.suppliers = new SelectList(suppliers);
 
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
@@ -442,7 +458,8 @@ namespace EasyPro.Controllers
                     SaccoCode = productIntake.SaccoCode,
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
-                    Zone = productIntake.Zone
+                    Zone = productIntake.Zone,
+                    MornEvening = productIntake.MornEvening
                 };
                 _context.ProductIntake.Add(collection);
 
@@ -451,11 +468,12 @@ namespace EasyPro.Controllers
                 && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch);
 
                 
-                if(productIntake.MornEvening!=null || productIntake.MornEvening!="")
+                if(!string.IsNullOrEmpty(productIntake.MornEvening))
                 {
-                    transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
-                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch && t.Morning== productIntake.MornEvening);
+                            transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
+                        && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
+                        && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
+                        && t.Morning== productIntake.MornEvening);
                 }
 
                 if (transport != null)
@@ -484,7 +502,8 @@ namespace EasyPro.Controllers
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = productIntake.DrAccNo,
                         CrAccNo = productIntake.CrAccNo,
-                        Zone=productIntake.Zone
+                        Zone=productIntake.Zone,
+                        MornEvening = productIntake.MornEvening
                     };
                     _context.ProductIntake.Add(collection);
 
@@ -511,7 +530,8 @@ namespace EasyPro.Controllers
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = price.TransportDrAccNo,
                         CrAccNo = price.TransportCrAccNo,
-                        Zone=productIntake.Zone
+                        Zone=productIntake.Zone,
+                        MornEvening = productIntake.MornEvening
                     });
                 }
 
@@ -945,6 +965,7 @@ namespace EasyPro.Controllers
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
                     Zone=productIntake.Zone,
+                    MornEvening = productIntake.MornEvening
                 };
                 _context.ProductIntake.Add(collection);
 
@@ -952,11 +973,12 @@ namespace EasyPro.Controllers
                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                && t.saccocode.ToUpper().Equals(sacco.ToUpper()));
 
-                if (productIntake.MornEvening != null || productIntake.MornEvening != "")
+                if (!string.IsNullOrEmpty(productIntake.MornEvening))
                 {
                     transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch && t.Morning == productIntake.MornEvening);
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
+                && t.Morning == productIntake.MornEvening);
                 }
 
 
@@ -995,6 +1017,7 @@ namespace EasyPro.Controllers
                         DrAccNo = productIntake.DrAccNo,
                         CrAccNo = productIntake.CrAccNo,
                         Zone = productIntake.Zone,
+                        MornEvening = productIntake.MornEvening
                     };
                     _context.ProductIntake.Add(collection);
 
@@ -1027,6 +1050,7 @@ namespace EasyPro.Controllers
                         DrAccNo = price.TransportDrAccNo,
                         CrAccNo = price.TransportCrAccNo,
                         Zone = productIntake.Zone,
+                        MornEvening = productIntake.MornEvening
                     });
                 }
                 //decimal? amount = 0;

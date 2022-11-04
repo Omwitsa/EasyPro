@@ -39,6 +39,7 @@
                                 <div class="form-group">
                                     <label asp-for="FromBranch" class="control-label">From Branch</label>
                                     <select id="bfrom" asp-for="FromBranch" class="form-control" asp-items="@ViewBag.brances" required>
+                                        <option value=""></option>
                                     </select>
                                     <span asp-validation-for="FromBranch" class="text-danger"></span>
                                 </div>
@@ -50,7 +51,8 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">To Branch</label>
-                                    <select id="tfrom"  asp-for="ToBranch" class="form-control" asp-items="@ViewBag.brances" required>
+                                    <select id="tfrom" asp-for="ToBranch" class="form-control" asp-items="@ViewBag.brances" required>
+                                        <option value=""></option>
                                     </select>
                                     <span asp-validation-for="ToBranch" class="text-danger"></span>
                                 </div>

@@ -12,15 +12,15 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
                         <h2>Create Deduction</h2>
                     </div>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                        @if (ViewBag.isAinabkoi){
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
                                     <label class="control-label">Zone</label>
-                                    <select id="zone" Value="Select Bank" asp-for="ProductIntake.Zone" class="form-control" asp-items="@ViewBag.zones" required></select>
+                                    <select id="zone" asp-for="ProductIntake.Zone" class="form-control" asp-items="@ViewBag.zones" required>
+                                        <option value=""></option>
+                                    </select>
                                 </div>
                             </div>
-                        }
                     </div>
                 </div>
                 <hr />
@@ -70,7 +70,9 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="ProductIntake.ProductType" class="control-label"></label>
-                                    <select asp-for="ProductIntake.ProductType" required class="form-control" asp-items="@ViewBag.Description"></select>
+                                    <select asp-for="ProductIntake.ProductType" required class="form-control" asp-items="@ViewBag.Description">
+                                        <option value=""></option>
+                                    </select>
                                     <span asp-validation-for="ProductIntake.ProductType" class="text-danger"></span>
                                 </div>
                             </div>
@@ -105,7 +107,9 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="ProductIntake.Branch" class="control-label"></label>
-                                    <select asp-for="ProductIntake.Branch" class="form-control" asp-items="@ViewBag.brances" required></select>
+                                    <select asp-for="ProductIntake.Branch" class="form-control" asp-items="@ViewBag.brances" required>
+                                        <option value=""></option>
+                                    </select>
                                     <span asp-validation-for="ProductIntake.Branch" class="text-danger"></span>
                                 </div>
                             </div>
@@ -132,17 +136,39 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
-        $(function () {
-            $('#sno').on('keyup', function () {
-                var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
-                var selectVal = parseInt($("#sno").val());
-                var selectProducts = products.filter(p => p.Sno === selectVal);
-               // debugger;
-                    if (selectProducts[0]) {
-                        $("#name").val(selectProducts[0].Names);
-                    }
-            });
+<script type="text/javascript">
+    $(function () {
+
+            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+            if (checkiftoenable === 0) {
+                $('#zone1').hide();
+            }
+            else {
+                $('#zone1').show();
+        }
+        $('#sno').on('keyup', function () {
+            getSelectedDateIntakes();
         });
-    </script>
+        $('#zone').change(function () {
+            getSelectedDateIntakes();
+        });
+        function getSelectedDateIntakes() {
+            var zone = $("#zone").val();
+            var sno = parseInt($("#sno").val());
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: "SelectedName?zone=" + zone + "&sno=" + sno,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        $("#name").val(response);
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+                });
+        }
+        });
+</script>
 }
