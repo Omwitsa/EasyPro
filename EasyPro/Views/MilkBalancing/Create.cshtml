@@ -187,17 +187,12 @@
                 }
             });
 
-            function populateDetailsTableupdate() {
-                $("#totalkgs").val('');
-            }
-
             $('#show').on('click', function () {
-                populateDetailsTableupdate();
                 var filter = {
                     date: $("#date").val(),
                     tcode: $("#tcode").val(),
-
                 };
+                $("#totalkgs").val('0');
                 $("#actual").val("0");
                 $.ajax({
                     type: 'POST',
@@ -261,16 +256,22 @@
                 });
                 $("#totalkgs").val(totalQnty);
                 $('#balance').html(itemTableRows);
-
+                populateVariance();
             }
+
             $('#actual').on('keyup', function () {
-                var actual = parseFloat($("#actual").val());
-                var total = parseFloat($("#totalkgs").val());
+                populateVariance();
+            });
+
+            function populateVariance() {
+                let actual = parseFloat($("#actual").val());
+                let total = parseFloat($("#totalkgs").val());
                 actual = actual ? actual : 0;
                 total = total ? total : 0;
-                var variance = actual - total;
+                let variance = actual - total;
+                variance = variance.toFixed(2);
                 $("#varriance").val(variance);
-            });
+            }
         });
 </script>
     }

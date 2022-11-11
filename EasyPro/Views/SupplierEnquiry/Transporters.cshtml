@@ -298,15 +298,12 @@
                         <td>${i.Balance}</td>
                         <td>${i.Description}</td>
                         <td>${i.Remarks}</td>
-			        </tr>`)
-                    
-                    intakes.forEach(i => {
-                        deductions += i.DR;
-                        grossPay += i.CR;
-                        totalQty += i.Qsupplied;
-                    });
-                });
+			        </tr>`);
 
+                    deductions += i.DR;
+                    grossPay += i.CR;
+                    totalQty += i.Qsupplied;
+                });
                 let netpay = grossPay - deductions;
                 $('#totalQty').val(totalQty);
                 $('#netpay').val(netpay);

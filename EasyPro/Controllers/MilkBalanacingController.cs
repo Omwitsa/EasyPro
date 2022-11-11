@@ -211,13 +211,18 @@ namespace EasyPro.Controllers
 
         private IEnumerable<ProductIntake> GetTransporterIntakes(string transCode, DateTime? date)
         {
+            transCode = transCode ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.saccocode == sacco)
                 .Select(t => t.Sno.ToString());
 
+            var notTransporterSuppliers = _context.ProductIntake.Where(i => i.AuditId.ToUpper().Equals(transCode.ToUpper()) 
+                && i.SaccoCode == sacco && !transporterSuppliers.Contains(i.Sno) && i.TransDate == date)
+                .Select(t => t.Sno).Distinct().ToList();
+
             var intakes = _context.ProductIntake.Where(s => s.TransDate == date && s.SaccoCode == sacco && (s.Description == "Intake" || s.Description == "Correction") 
-            && transporterSuppliers.Contains(s.Sno)).ToList();
+            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno)) ).ToList();
 
             return intakes;
         }
