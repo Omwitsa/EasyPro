@@ -564,104 +564,13 @@ namespace EasyPro.Controllers
 
                 _context.SaveChanges();
                // _notyf.Success("Intake saved successfully");
-                //PrintReceiptForTransaction();
+               // PrintReceiptForTransaction();
                 if (productIntake.Print)
                     return RedirectToAction("GetIntakeReceipt", "PdfReport", new { id = collection.Id });
             }
 
             return RedirectToAction(nameof(Create));
         }
-        //public IActionResult PrintReceiptForTransaction()
-        //{
-        //    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-        //    PrintDocument recordDoc = new PrintDocument();
-        //    recordDoc.DocumentName = "Customer Receipt";
-        //   // PrintPageEventHandler ReceiptPrinter = null;
-        //    //recordDoc.PrintPage += new PrintPageEventHandler(ReceiptPrinter); // function below
-        //    recordDoc.PrintController = new StandardPrintController(); // hides status dialog popup
-        //                                                               // Comment if debugging 
-        //    PrinterSettings ps = new PrinterSettings();
-        //    ps.PrinterName = "E-PoS 80mm Thermal Printer";
-        //    recordDoc.PrinterSettings = ps;
-        //    Encoding enc = Encoding.ASCII;
-        //    string GS = Convert.ToString((char)29);
-        //    string ESC = Convert.ToString((char)27);
-        //    string COMMAND = "";
-        //    COMMAND = ESC + "@";
-        //    COMMAND += GS + "V" + (char)1;
-        //    //byte[] bse = 
-        //    char[] bse = COMMAND.ToCharArray();
-        //    byte[] paperCut = enc.GetBytes(bse);
-        //    // Line feed hexadecimal values
-        //    byte[] bEsc = new byte[4];
-        //    // Sends an ESC/POS command to the printer to cut the paper
-        //    string t = ("                  " + sacco.ToUpper() + "\r\n");
-        //    t = t + ("----------------------------------------\r\n");
-        //    t = t + ("Table:  Table-C           BillNo: 120 \r\n");
-        //    t = t + ("----------------------------------------\r\n");
-        //    t = t + ("Date :2022/01/21  Order: Sylvia \r\n");
-        //    t = t + ("=======================================\r\n");
-        //    t = t + ("\r\n");
-        //    t = t + (" SN. 1   Item: MoMo         Qty: 2   \r\n");
-        //    char[] array = t.ToCharArray();
-        //    byte[] byData = enc.GetBytes(array);
-        //    recordDoc.Print();
-        //    return Ok(200);
-        //    // --------------------------------------
-        //    //Socket clientSock = new Socket(
-        //    //    AddressFamily.InterNetwork,
-        //    //    SocketType.Stream,
-        //    //    ProtocolType.Tcp
-        //    //    );
-        //    //IPAddress ip = IPAddress.Parse("192.168.100.200");
-        //    //IPEndPoint name = new IPEndPoint(ip, 4730);
-        //    //clientSock.Connect(name);
-        //    //if (!clientSock.Connected)
-        //    //{
-        //    //    return BadRequest("Printer is not connected");
-        //    //}
-            
-        //    //clientSock.Send(byData);
-        //    //clientSock.Send(paperCut);
-        //    ////clientSock.DuplicateAndClose(2);
-        //    //clientSock.Close();
-        //    //return Ok(200);
-
-        //    // --------------------------------------
-
-        //}
-
-        //private static void PrintReceiptPage(object sender, PrintPageEventArgs e)
-        //{
-        //    float x = 10;
-        //    float y = 5;
-        //    float width = 270.0F; // max width I found through trial and error
-        //    float height = 0F;
-
-        //    Font drawFontArial12Bold = new Font("Arial", 12, FontStyle.Bold);
-        //    Font drawFontArial10Regular = new Font("Arial", 10, FontStyle.Regular);
-        //    SolidBrush drawBrush = new SolidBrush(Color.Black);
-
-        //    // Set format of string.
-        //    StringFormat drawFormatCenter = new StringFormat();
-        //    drawFormatCenter.Alignment = StringAlignment.Center;
-        //    StringFormat drawFormatLeft = new StringFormat();
-        //    drawFormatLeft.Alignment = StringAlignment.Near;
-        //    StringFormat drawFormatRight = new StringFormat();
-        //    drawFormatRight.Alignment = StringAlignment.Far;
-
-        //    // Draw string to screen.
-        //    string text = "Company Name";
-        //    e.Graphics.DrawString(text, drawFontArial12Bold, drawBrush, new RectangleF(x, y, width, height), drawFormatCenter);
-        //    y += e.Graphics.MeasureString(text, drawFontArial12Bold).Height;
-
-        //    text = "Address";
-        //    e.Graphics.DrawString(text, drawFontArial10Regular, drawBrush, new RectangleF(x, y, width, height), drawFormatCenter);
-        //    y += e.Graphics.MeasureString(text, drawFontArial10Regular).Height;
-
-        //    // ... and so on
-        //}
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -808,6 +717,7 @@ namespace EasyPro.Controllers
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.SaccoCode = sacco;
                 productIntake.Balance = utilities.GetBalance(productIntake);
+                productIntake.Branch = saccoBranch;
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
