@@ -170,13 +170,6 @@
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
             let suppliedItems = new Array();
-            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
-            if (checkiftoenable === 0) {
-                $("#actual").prop('disabled', false);
-            }
-            else {
-                $("#actual").prop('disabled', true);
-            }
             
             $('#name').on('change', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
