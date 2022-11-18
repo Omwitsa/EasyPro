@@ -616,6 +616,9 @@
             });
 
         $('#next1').on('click', function () {
+            if (!checkbal()) {
+                return;
+            }
             var pcode = $("#pcode").val();
             var pname = $("#pname").val();
             var bprice = $("#bprice").val();
@@ -648,6 +651,9 @@
             populateTable();
         });
         $('#next2').on('click', function () {
+            if (!checkbal()) {
+                return;
+            }
             var pcode = $("#pcode").val();
             var pname = $("#pname").val();
             var bprice = $("#bprice").val();
@@ -679,6 +685,21 @@
             });
             populateTable();
         });
+        function checkbal() {
+            if (!checkbal()) {
+                return;
+            }
+            var qnty = $("#qnty").val();
+            var qntybal = $("#sbal").val();
+            if (qnty > qntybal) {
+                error.textContent = "You Quantity cannot be grater than the Balance in stock"
+                error.style.color = "red"
+                document.getElementById('qnty').focus();
+                return false;
+            }
+            return true;
+        }
+
             $('#ttolpaid').on('keyup', function () {
                 var qty = parseFloat($("#Amnttopay").val());
                 var price = parseFloat($("#ttolpaid").val());

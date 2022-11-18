@@ -13,6 +13,7 @@ namespace EasyPro.Models
         [Required]
         public string Sno { get; set; }
         [Required]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime TransDate { get; set; }
         public TimeSpan TransTime { get; set; }
         public string ProductType { get; set; }
