@@ -143,7 +143,7 @@ namespace EasyPro.Controllers
             return View(TransSuppliersobj);
         }
         [HttpGet]
-        public JsonResult SelectedDateIntake(string zone, long? sno)
+        public JsonResult SelectedDateIntake(string zone, string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";

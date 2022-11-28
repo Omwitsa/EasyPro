@@ -23,8 +23,7 @@ namespace EasyPro.Controllers.Reports
             var productIntake = _context.ProductIntake.FirstOrDefault(i => i.Id == id);
             if(productIntake != null)
             {
-                long.TryParse(productIntake.Sno, out long sno);
-                var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
+                var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == productIntake.Sno);
                 var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
                 var cumlativeIntake = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno
                 && s.TransDate >= startDate && s.ProductType.ToUpper().Equals(productIntake.ProductType.ToUpper()));
@@ -55,8 +54,7 @@ namespace EasyPro.Controllers.Reports
             if (receipts.Any())
             {
                 var rSno = receipts.FirstOrDefault().SNo ?? "";
-                long.TryParse(rSno, out long sno);
-                var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno);
+                var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == rSno);
                 var pdfFile = _reportProvider.GetAgSalesReport(receipts, supplier);
                 return File(pdfFile, "application/pdf");
             }

@@ -61,7 +61,7 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult SelectedDateIntake(String? zone, long? sno)
+        public JsonResult SelectedDateIntake(String? zone, string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -86,7 +86,7 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult SelectedName2(String? zone, long? sno)
+        public JsonResult SelectedName2(String? zone, string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);

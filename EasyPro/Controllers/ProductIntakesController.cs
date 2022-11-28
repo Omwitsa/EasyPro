@@ -108,8 +108,7 @@ namespace EasyPro.Controllers
             var intakes = new List<ProductIntakeVm>();
             foreach (var intake in productIntakes)
             {
-                long.TryParse(intake.Sno, out long sno);
-                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == sno && i.Scode == sacco);
+                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno && i.Scode == sacco);
                 if (supplier != null)
                 {
                     intakes.Add(new ProductIntakeVm
@@ -226,7 +225,7 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult SelectedDateIntake(String? zone, long? sno)
+        public JsonResult SelectedDateIntake(String? zone, string? sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -238,7 +237,7 @@ namespace EasyPro.Controllers
             return Json(todaysIntake);
         }
         [HttpGet]
-        public JsonResult SelectedName(String? zone, long? sno)
+        public JsonResult SelectedName(String? zone, string? sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -418,8 +417,9 @@ namespace EasyPro.Controllers
             productIntake.Branch = saccoBranch;
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
             productIntake.Description = productIntake?.Description ?? "";
-            long.TryParse(productIntake.Sno, out long sno);
-            if (sno < 1)
+            var sno = productIntake.Sno;
+            long.TryParse(productIntake.Sno, out long supno);
+            if (supno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return RedirectToAction(nameof(Create));
@@ -634,7 +634,8 @@ namespace EasyPro.Controllers
                 // cummulative kgs calc
                 var cumkg = _context.ProductIntake.Where(o=>o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && 
                 o.Sno == items.Sno && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) && 
-                o.TransDate >= startDate && o.Zone == items.Zone && o.TransDate<=enDate).Sum(d=>d.Qsupplied);
+                o.TransDate >= startDate && o.Zone == items.Zone && o.TransDate<=enDate &&
+                (o.Description == "Intake" || o.Description == "Correction")).Sum(d=>d.Qsupplied);
 
 
                 var productIntakes = _context.ProductIntake.FirstOrDefault(u => u.Id == items.Id);
@@ -750,9 +751,10 @@ namespace EasyPro.Controllers
             var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             
-            long.TryParse(productIntake.Sno, out long sno);
+            var sno = productIntake.Sno;
+            long.TryParse(productIntake.Sno, out long supno);
 
-            if (sno < 1)
+            if (supno < 1)
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return RedirectToAction(nameof(CreateCorrection));
@@ -806,13 +808,17 @@ namespace EasyPro.Controllers
                 // cummulative kgs calc
                 var productIntakes  = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
                 o.Sno == items.Sno && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) &&
-                o.TransDate >= startDate && o.TransDate <= enDate && o.Zone == items.Zone );
+                o.TransDate >= startDate && o.TransDate <= enDate && o.Zone == items.Zone ).ToList();
 
-
-                var cumkg = productIntakes.Sum(l=>l.Qsupplied);
+                var IntakesOnly = productIntakes.Where(o => (o.Description == "Intake" || o.Description == "Correction")).OrderBy(o=>o.TransDate);
+                var DeductionsOnly = productIntakes.Where(o => o.Description != "Intake" && o.Description != "Correction").ToList();
+                var TotalMonthKgs = string.Format("{0:.###}", IntakesOnly.Sum(l=>l.Qsupplied));
+                var Gross = string.Format("{0:.###}", IntakesOnly.Sum(l => l.CR)- IntakesOnly.Sum(l => l.DR));
+                var TotalDeductions = string.Format("{0:.###}", DeductionsOnly.Sum(l => l.DR)- DeductionsOnly.Sum(l => l.CR));
 
                 var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
                 u.Sno.ToString() == items.Sno && u.Zone == items.Zone && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
+
 
                 var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) &&
                 u.Sno.ToString() == items.Sno && u.Active);
@@ -837,7 +843,7 @@ namespace EasyPro.Controllers
                 graphics.DrawString(companies.Name, font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("P.O BOX " + companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                graphics.DrawString(companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
                 graphics.DrawString(companies.Town.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
@@ -857,6 +863,9 @@ namespace EasyPro.Controllers
                 graphics.DrawString("Supplier Statement For: " + datet.PadRight(15), new Font("Times New Roman", 14), new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
+                graphics.DrawString("Transporter: ".PadLeft(10) + transporter.PadRight(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
                 string sno = items.Sno.PadRight(10);
                 graphics.DrawString("SNo: " + sno, font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
@@ -866,58 +875,107 @@ namespace EasyPro.Controllers
                 offset = offset + (int)fontHeight + 5;
 
                 string HDate = "Date".PadLeft(3);
-                string HPrice = "Price".PadLeft(15);
-                string HQnty = "Qnty".PadLeft(17);
+                string HPrice = "Price".PadLeft(16);
+                string HQnty = "Qnty  Amount".PadLeft(17);
                 string Hsession = "Session".PadLeft(18);
-                string Heading = HDate + HPrice+ HQnty+ Hsession;
-                graphics.DrawString(Heading, new Font("Times New Roman", 10), new SolidBrush(Color.Black), startX, startY + offset);
+                string Heading = HDate + HPrice+ HQnty + Hsession;
+                graphics.DrawString(Heading, new Font("Times New Roman", 9), new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
                 string session = "MORNING";
-                foreach (var item in productIntakes)
-                {
-                    string BDate = item.TransDate.ToString("dd/MM/yyy").PadLeft(0);
-                    string BPrice = string.Format("{0:.###}", item.Ppu).PadLeft(10);
-                    string BQnty = string.Format("{0:.###}", item.Qsupplied).PadLeft(15);
-                    if (items.MornEvening != null)
-                        session = items.MornEvening.ToUpper().ToString();
-                    string Bsession = session.PadLeft(18);
-                    string Body = BDate + BPrice + BQnty + Bsession;
-                    
-                    graphics.DrawString(Body, new Font("Times New Roman", 10), new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-                }
+
+                var intakes = IntakesOnly.GroupBy(i => i.TransDate).ToList();
+                intakes.ForEach(i => {
+                    var sessionGroups = i.GroupBy(t => t.MornEvening).ToList();
+                    sessionGroups.ForEach(t => {
+                            var intake = t.FirstOrDefault();
+                            string BDate = intake.TransDate.ToString("dd/MM/yyy").PadLeft(0);
+                            string BPrice = string.Format("{0:.###}", intake.Ppu).PadLeft(8);
+                            string BQnty = string.Format("{0:.###}", t.Sum(k=>k.Qsupplied)).PadLeft(12);
+                            string Amt = string.Format("{0:.###}", (t.Sum(k => k.Qsupplied)* intake.Ppu)).PadLeft(14);
+                            if (items.MornEvening != null)
+                                session = intake.MornEvening.ToUpper().ToString();
+                            string Bsession = session.PadLeft(16);
+                            string Body = BDate + BPrice + BQnty + Amt + Bsession;
+
+                            graphics.DrawString(Body, new Font("Times New Roman", 9), new SolidBrush(Color.Black), startX, startY + offset);
+                            offset = offset + (int)fontHeight + 5;
+                    });
+                });
+                
 
                 string bline = "---------------------------------------------";
                 graphics.DrawString(bline, font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
-                string cummkgs = string.Format("{0:.###}", cumkg + items.Qsupplied);
-                graphics.DrawString("Cummulative: " + cummkgs + "kgs", font, new SolidBrush(Color.Black), startX, startY + offset);
+                graphics.DrawString("Total Kgs: " + TotalMonthKgs, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+                graphics.DrawString("Gross Pay Kshs: " + Gross, font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
-                
-                
+                graphics.DrawString(bline, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
 
+                graphics.DrawString("DEDUCTIONS: ".PadLeft(10), new Font("Times New Roman", 14), new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("Transporter: ".PadLeft(10) + transporter.PadRight(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                graphics.DrawString(bline, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                string DDate = "Date".PadLeft(5);
+                string DPrice = "Amount".PadLeft(16);
+                string DQnty = "Description".PadLeft(17);
+                string Deduction = DDate + DPrice + DQnty ;
+                graphics.DrawString(Deduction, new Font("Times New Roman", 10), new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+                var deduction = DeductionsOnly.GroupBy(s=>s.ProductType).ToList();
+                deduction.ForEach(i => {
+                    var deductionGroups = i.GroupBy(t => t.TransDate).ToList();
+                    deductionGroups.ForEach(t => {
+                        var deductionGroupsdetails = t.FirstOrDefault();
+                        string DBDate = deductionGroupsdetails.TransDate.ToString("dd/MM/yyy").PadLeft(0);
+
+                        string DeductionType = (deductionGroupsdetails.ProductType.ToString()).PadLeft(15);
+                        if (DeductionType == "MILK")
+                            DeductionType = "Transport";
+                        string DDescription = (deductionGroupsdetails.Description.ToString());
+                        string FinalDDescription = DeductionType +" " + DDescription;
+                        
+                        var DR = t.Sum(t => t.DR);
+                        var CR = t.Sum(t => t.CR);
+                        var CombineAmount = DR-CR;
+                        if (CombineAmount != 0)
+                        {
+                            string DAmount = string.Format("{0:.###}", CombineAmount).PadLeft(10);
+                            string DBody = DBDate + DAmount + FinalDDescription;
+                            graphics.DrawString(DBody, new Font("Times New Roman", 10), new SolidBrush(Color.Black), startX, startY + offset);
+                            offset = offset + (int)fontHeight + 5;
+                        }
+                    });
+                });
+
+                graphics.DrawString("Total Deductions Kshs: " + TotalDeductions, font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
                 string line1 = "---------------------------------------------";
                 graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("Received By: " + loggedInUser, font, new SolidBrush(Color.Black), startX, startY + offset);
+                decimal NetPay = Convert.ToDecimal(Gross)- Convert.ToDecimal(TotalDeductions);
+
+                graphics.DrawString("Net Pay Kshs: " + NetPay, font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("Date: " + DateTime.Now, font, new SolidBrush(Color.Black), startX, startY + offset);
-
+                graphics.DrawString("Bank Name: "+ supplier.Bcode, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+                graphics.DrawString("Bank AccNo: " + supplier.AccNo, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+                graphics.DrawString("Bank Branch: " + supplier.Bbranch, font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
-                string line2 = "---------------------------------------------";
-                graphics.DrawString(line2, font, new SolidBrush(Color.Black), startX, startY + offset);
-
+                string line7 = "---------------------------------------------";
+                graphics.DrawString(line7, font, new SolidBrush(Color.Black), startX, startY + offset);
+                
                 offset = offset + (int)fontHeight + 5;
-                startY = startY + 20;
                 string dev = "DEVELOP BY: AMTECH TECHNOLOGIES LIMITED";
                 graphics.DrawString(dev.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
 
@@ -926,7 +984,9 @@ namespace EasyPro.Controllers
                 string dev1 = " ";
                 graphics.DrawString(dev1.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
-                graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
+
+                string line16 = "---------------------------------------------";
+                graphics.DrawString(line16, font, new SolidBrush(Color.Black), startX, startY + offset);
 
 
             }
@@ -937,7 +997,6 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,Zone")] ProductIntake productIntake)
         {
             utilities.SetUpPrivileges(this);
-            long.TryParse(productIntake.Sno, out long sno);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             DateTime startdate = new DateTime(productIntake.TransDate.Year, productIntake.TransDate.Month, 1);
             DateTime enddate = startdate.AddMonths(1).AddDays(-1);
@@ -945,7 +1004,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
-            var suppliers = _context.DSuppliers.Where(s => s.Sno == sno && s.Scode == sacco && s.Active && s.Approval);
+            var suppliers = _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode == sacco && s.Active && s.Approval);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
 
             var intakes = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco
@@ -987,7 +1046,7 @@ namespace EasyPro.Controllers
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
             }
-            if (sno == 0)
+            if (string.IsNullOrEmpty(productIntake.Sno))
             {
                 GetInitialValues();
                 _notyf.Error("Sorry, Farmer code cannot be zero");
@@ -1146,9 +1205,8 @@ namespace EasyPro.Controllers
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
             productIntake.Description = productIntake?.Description ?? "";
             productIntake.DR = 0;
-            long.TryParse(productIntake.Sno, out long sno);
             
-            if (sno < 1)
+            if (string.IsNullOrEmpty(productIntake.Sno))
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return RedirectToAction(nameof(CreateCorrection));
@@ -1163,7 +1221,7 @@ namespace EasyPro.Controllers
                 //_notyf.Error("Sorry, Kindly provide quantity");
                 return RedirectToAction(nameof(CreateCorrection));
             }
-            var suppliers = _context.DSuppliers.Where(s => s.Sno == sno && s.Scode == sacco);
+            var suppliers = _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode == sacco);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(auditId.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch);
@@ -1239,13 +1297,13 @@ namespace EasyPro.Controllers
                 };
                 _context.ProductIntake.Add(collection);
 
-                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
+                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                && t.saccocode.ToUpper().Equals(sacco.ToUpper()));
 
                 if (!string.IsNullOrEmpty(productIntake.MornEvening))
                 {
-                    transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
+                    transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                 && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
                 && t.Morning == productIntake.MornEvening);

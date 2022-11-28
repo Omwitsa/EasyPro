@@ -8,7 +8,7 @@ namespace EasyPro.Models
     public partial class DMilkQuality
     {
         public long Id { get; set; }
-        public long? Sno { get; set; }
+        public string Sno { get; set; }
         public DateTime? RejDate { get; set; }
         public double? ApproxKgs { get; set; }
         public double? DeKgs { get; set; }
