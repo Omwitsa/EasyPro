@@ -143,14 +143,13 @@ namespace EasyPro.Controllers
             return View(TransSuppliersobj);
         }
         [HttpGet]
-        public JsonResult SelectedDateIntake(string zone, string sno)
+        public JsonResult SelectedDateIntake( string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var suppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
-            if (!string.IsNullOrEmpty(zone))
-                suppliers = suppliers.Where(s => s.Zone == zone);
+            
 
             var todaysIntake = suppliers.Select(b => b.Names).ToList();
             return Json(todaysIntake);

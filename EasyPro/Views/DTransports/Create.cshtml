@@ -156,10 +156,10 @@
         var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
         if (checkiftoenable === 0) {
             $('#zone1').hide();
-            $('#MorningEvening').hide();
+            $('#MorningEvening').show();
         }
         else {
-            $('#zone1').show();
+            $('#zone1').hide();
             $('#MorningEvening').show();
         }
 
@@ -172,16 +172,16 @@
             }
         });
         $('#sno').on('keyup', function () {
-            var selectVal = parseInt($("#sno").val());
+            var selectVal = $("#sno").val();
             getSelectedDateIntakes();
         });
 
         $('#zone').change(function () {
-            var selectVal = parseInt($("#sno").val());
+            var selectVal = $("#sno").val();
             getSelectedDateIntakes();
         });
         $('#mevng').change(function () {
-            var selectVal = parseInt($("#sno").val());
+            var selectVal = $("#sno").val();
             getSelectedDateIntakes();
         });
 
@@ -196,7 +196,7 @@
             $.ajax(
             {
                 type: 'GET',
-                url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
+                url: "selectedDateIntake?sno=" + sno,
                 contentType: 'application/json',
                 success: function (response) {
                     $("#sname").val(response);
