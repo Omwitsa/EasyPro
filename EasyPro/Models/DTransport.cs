@@ -9,7 +9,7 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         public string TransCode { get; set; }
-        public long? Sno { get; set; }
+        public string Sno { get; set; }
         public decimal? Rate { get; set; }
         public DateTime? Startdate { get; set; }
         public bool Active { get; set; }

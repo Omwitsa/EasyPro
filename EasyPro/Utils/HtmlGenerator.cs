@@ -127,8 +127,7 @@ namespace EasyPro.Utils
             {
                 var supplier = suppliers.FirstOrDefault(s => s.Sno.ToString() == intake.Sno);
                 var supplierName = supplier?.Names ?? "";
-                long.TryParse(intake.Sno, out long sno);
-                var checkifexist = suppliers.Where(u => u.Sno == sno);
+                var checkifexist = suppliers.Where(u => u.Sno == intake.Sno);
                 if (checkifexist.Any())
                 {
                     sb.AppendFormat(@"
@@ -607,8 +606,7 @@ namespace EasyPro.Utils
                 {
                     var supplier = suppliers.FirstOrDefault(s => s.Sno.ToString() == intake.Sno);
                     var supplierName = supplier?.Names ?? "";
-                    long.TryParse(intake.Sno, out long sno);
-                    var checkifexist = suppliers.Where(u => u.Sno == sno);
+                    var checkifexist = suppliers.Where(u => u.Sno == intake.Sno);
                     if (checkifexist.Any())
                     {
                         sb.AppendFormat(@"
@@ -682,8 +680,7 @@ namespace EasyPro.Utils
             {
                 var supplier = suppliers.FirstOrDefault(s => s.Sno.ToString() == intake.Sno);
                 var supplierName = supplier?.Names ?? "";
-                long.TryParse(intake.Sno, out long sno);
-                var checkifexist = suppliers.Where(u => u.Sno == sno);
+                var checkifexist = suppliers.Where(u => u.Sno == intake.Sno);
                 if (checkifexist.Any())
                 {
                     sb.AppendFormat(@"

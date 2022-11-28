@@ -4,7 +4,7 @@ namespace EasyPro.ViewModels
 {
     public class PayrollVm
     {
-        public long Sno { get; set; }
+        public string Sno { get; set; }
         public string Names { get; set; }
         public string PhoneNo { get; set; }
         public string IdNo { get; set; }

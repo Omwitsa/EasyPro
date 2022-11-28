@@ -1104,8 +1104,7 @@ namespace EasyPro.Controllers
                 decimal sum = 0;
                 foreach (var emp in productIntakeobj)
                 {
-                    long.TryParse(emp.Sno, out long sno);
-                    var checkifexist = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                    var checkifexist = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
                     if (checkifexist.Any())
                     {
 
@@ -1113,7 +1112,7 @@ namespace EasyPro.Controllers
                         currentRow++;
                         worksheet.Cell(currentRow, 1).Value = emp.Sno;
 
-                        var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                        var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
                         foreach (var al in TName)
                             worksheet.Cell(currentRow, 2).Value = al.Names;
                         worksheet.Cell(currentRow, 3).Value = emp.TransDate;
@@ -1505,13 +1504,12 @@ namespace EasyPro.Controllers
                     .OrderBy(i => i.Sno);
                 foreach (var emp in productIntakeobj)
                 {
-                    long.TryParse(emp.Sno, out long sno);
-                    var TransporterExist = _context.DSuppliers.Where(u => u.Sno == sno).Count();
+                    var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
                     if (TransporterExist > 0)
                     {
                         currentRow++;
                         worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                        var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                        var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
                         foreach (var al in TName)
                             worksheet.Cell(currentRow, 2).Value = al.Names;
                         worksheet.Cell(currentRow, 3).Value = emp.TransDate;
@@ -1586,13 +1584,12 @@ namespace EasyPro.Controllers
                         .OrderBy(i => i.Sno);
                     foreach (var emp in productIntakeobj)
                     {
-                        long.TryParse(emp.Sno, out long sno);
-                        var TransporterExist = _context.DSuppliers.Where(u => u.Sno == sno).Count();
+                        var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
                         if (TransporterExist > 0)
                         {
                             currentRow++;
                             worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                            var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                            var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
                             foreach (var al in TName)
                                 worksheet.Cell(currentRow, 2).Value = al.Names;
                             worksheet.Cell(currentRow, 3).Value = emp.TransDate;
@@ -1733,13 +1730,12 @@ namespace EasyPro.Controllers
                 decimal? sum = 0;
                 foreach (var emp in productIntakeobj)
                 {
-                    long.TryParse(emp.Sno, out long sno);
-                    var TransporterExist = _context.DSuppliers.Where(u => u.Sno == sno).Count();
+                    var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
                     if (TransporterExist > 0)
                     {
                         currentRow++;
                         worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                        var TName = _context.DSuppliers.Where(u => u.Sno == sno && u.Scode == sacco);
+                        var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
                         foreach (var ann in TName)
                             worksheet.Cell(currentRow, 2).Value = ann.Names;
                         worksheet.Cell(currentRow, 3).Value = emp.TransDate;

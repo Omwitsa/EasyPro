@@ -153,8 +153,7 @@ namespace EasyPro.Controllers
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
 
                     //var payroll = new DPayroll();
-                    long.TryParse(p.Key, out long sno);
-                    var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == sno 
+                    var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == p.Key
                     && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch.ToUpper().Equals(branchName));
                     if (supplier != null)
                     {
@@ -165,7 +164,7 @@ namespace EasyPro.Controllers
                         + carryforward.Sum(s => s.DR);
                         _context.DPayrolls.Add(new DPayroll
                         {
-                            Sno = (int?)supplier.Sno,
+                            Sno = supplier.Sno,
                             Gpay = p.Sum(s => s.CR),
                             KgsSupplied = (double?)p.Sum(s => s.Qsupplied),
                             Advance = advance.Sum(s => s.DR),

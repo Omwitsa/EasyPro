@@ -8,7 +8,7 @@ namespace EasyPro.Models
     public partial class DPayroll
     {
         public long Id { get; set; }
-        public int? Sno { get; set; }
+        public string Sno { get; set; }
         public decimal? Transport { get; set; }
         public decimal? Agrovet { get; set; }
         public decimal? Bonus { get; set; }
