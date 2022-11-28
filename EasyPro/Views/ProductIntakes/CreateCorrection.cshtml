@@ -42,7 +42,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Intake Date</label>
-                            <input id="transDate" asp-for="TransDate" class="form-control" type="date" />
+                            <input id="transDate" asp-for="TransDate" class="form-control" type="date" required/>
                             <span asp-validation-for="TransDate" class="text-danger"></span>
                         </div>
                     </div>
@@ -100,7 +100,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row" id="DrCr">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="DrAccNo" class="control-label"></label>
@@ -175,6 +175,7 @@
         $("#zone").val("");
         $("#Qsupplied").val("");
         $('#mevng').val('');
+        $('#DrCr').hide();
 
         var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {

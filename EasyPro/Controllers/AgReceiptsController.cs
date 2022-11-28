@@ -92,6 +92,8 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly Farmers Number");
                     return Json("");
                 }
+
+
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var saccobranch = HttpContext.Session.GetString(StrValues.Branch);

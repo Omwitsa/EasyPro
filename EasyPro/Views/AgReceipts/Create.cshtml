@@ -208,7 +208,7 @@
                             <div class="nk-int-st">
                                 <label asp-for="AgReceipt.Qua" class="control-label"></label>
                                 <input id="qnty" asp-for="AgReceipt.Qua" class="form-control" />
-                                <span asp-validation-for="AgReceipt.Qua" class="text-danger"></span>
+                                <span  id="error"   asp-validation-for="AgReceipt.Qua" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -287,30 +287,30 @@
                         </table>
                     </div>
                 </div>
-                <hr />
-                <h5 class="text-center text-danger">Make Payement</h5>
+                @*<hr />*@
+                @*<h5 class="text-center text-danger">Make Payement</h5>*@
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Total Amount</label>
-                                <input id="Amnttopay" class="form-control" readonly />
+                                @*<label class="control-label">Total Amount</label>
+                                <input id="Amnttopay" class="form-control" readonly />*@
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Receive Amount</label>
-                                <input id="ttolpaid" class="form-control" readonly />
+                                @*<label class="control-label">Receive Amount</label>
+                                <input id="ttolpaid" class="form-control" readonly />*@
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Balance Amount</label>
-                                <input id="balance" class="form-control" readonly />
+                                @*<label class="control-label">Balance Amount</label>
+                                <input id="balance" class="form-control" readonly />*@
                             </div>
                         </div>
                     </div>
@@ -612,6 +612,9 @@
             }
 
             $('#next').on('click', function () {
+                if (!checkbal()) {
+                    return;
+                }
                 var pcode = $("#pcode").val();
                 var pname = $("#pname").val();
                 var bprice = $("#bprice").val();
@@ -645,6 +648,9 @@
             });
 
             $('#next1').on('click', function () {
+                if (!checkbal()) {
+                    return;
+                }
                 var pcode = $("#pcode").val();
                 var pname = $("#pname").val();
                 var bprice = $("#bprice").val();
@@ -677,6 +683,9 @@
                 populateTable();
             });
             $('#next2').on('click', function () {
+                if (!checkbal()) {
+                    return;
+                }
                 var pcode = $("#pcode").val();
                 var pname = $("#pname").val();
                 var bprice = $("#bprice").val();
@@ -708,6 +717,19 @@
                 });
                 populateTable();
             });
+
+            function checkbal() {
+                var qnty = $("#qnty").val();
+                var qntybal = $("#sbal").val();
+                if (qnty > qntybal)
+                {
+                    error.textContent = "You Quantity cannot be grater than the Balance in stock"
+                    error.style.color = "red"
+                    document.getElementById('qnty').focus();
+                    return false;
+                }
+                return true;
+            }
 
             $('#ttolpaid').on('keyup', function () {
                 var qty = parseFloat($("#Amnttopay").val());
