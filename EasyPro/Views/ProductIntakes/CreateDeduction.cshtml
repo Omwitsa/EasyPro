@@ -15,10 +15,10 @@
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
-                                    <label class="control-label">Zone</label>
+                                    @*<label class="control-label">Zone</label>
                                     <select id="zone" asp-for="ProductIntake.Zone" class="form-control" asp-items="@ViewBag.zones" required>
                                         <option value=""></option>
-                                    </select>
+                                    </select>*@
                                 </div>
                             </div>
                     </div>
@@ -144,7 +144,7 @@
                 $('#zone1').hide();
             }
             else {
-                $('#zone1').show();
+                $('#zone1').hide();
         }
         $('#sno').on('keyup', function () {
             getSelectedDateIntakes();
@@ -154,11 +154,11 @@
         });
         function getSelectedDateIntakes() {
             var zone = $("#zone").val();
-            var sno = parseInt($("#sno").val());
+            var sno =  $("#sno").val();
             $.ajax(
                 {
                     type: 'GET',
-                    url: "SelectedName?zone=" + zone + "&sno=" + sno,
+                    url: "SelectedName?sno=" + sno,
                     contentType: 'application/json',
                     success: function (response) {
                         $("#name").val(response);

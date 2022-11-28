@@ -109,7 +109,7 @@
                 if (sno) {
                     $.ajax({
                         type: 'GET',
-                        url: "shareInquiries?sno=" + sno + "&zone=" + zone,
+                        url: "shareInquiries?sno=" + sno ,
                         contentType: 'application/json',
                         success: function (response) {
                             shares = response ? response : [];

@@ -35,7 +35,6 @@ namespace EasyPro.Controllers
         private readonly INotyfService _notyf;
         private Utilities utilities;
         private static object clientSock;
-        private object e;
 
         public FarmersVM Farmersobj { get; private set; }
         
@@ -225,29 +224,22 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult SelectedDateIntake(String? zone, string? sno)
+        public JsonResult SelectedDateIntake(string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco).Select(b => b.Names).ToList();
-            if (zone != "null")
-                todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone).Select(b => b.Names).ToList();
-
+            
             return Json(todaysIntake);
         }
         [HttpGet]
-        public JsonResult SelectedName(String? zone, string? sno)
+        public JsonResult SelectedName( string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
-            if (zone != null)
-                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone);
-            else
-                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == null);
-
              return Json(todaysIntake.Select(b => b.Names).ToList());
         }
         private void SetIntakeInitialValues()
@@ -438,10 +430,6 @@ namespace EasyPro.Controllers
             {
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch);
             }
-            if (!string.IsNullOrEmpty(productIntake.Zone))
-            {
-                suppliers = suppliers.Where(s => s.Zone == productIntake.Zone);
-            }
             var supplier = suppliers.FirstOrDefault();
             if (supplier == null)
             {
@@ -567,8 +555,6 @@ namespace EasyPro.Controllers
                     && s.TransDate >= startDate && s.TransDate <= endDate);
                     if (user.AccessLevel == AccessLevel.Branch)
                         intakes = intakes.Where(s => s.Branch == saccoBranch);
-                    if(!string.IsNullOrEmpty(productIntake.Zone))
-                        intakes = intakes.Where(i => i.Zone == productIntake.Zone);
                     var commulated = intakes.Sum(s => s.Qsupplied);
                     var note = "";
                     if (productIntake.ProductType.ToLower().Equals("milk"))
@@ -632,14 +618,14 @@ namespace EasyPro.Controllers
                 // cummulative kgs calc
                 var cumkg = _context.ProductIntake.Where(o=>o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && 
                 o.Sno == items.Sno && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) && 
-                o.TransDate >= startDate && o.Zone == items.Zone && o.TransDate<=enDate &&
+                o.TransDate >= startDate && o.TransDate<=enDate &&
                 (o.Description == "Intake" || o.Description == "Correction")).Sum(d=>d.Qsupplied);
 
 
                 var productIntakes = _context.ProductIntake.FirstOrDefault(u => u.Id == items.Id);
                 
                 var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
-                u.Sno.ToString() == items.Sno && u.Zone== items.Zone && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
+                u.Sno.ToString() == items.Sno && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
                 
                 var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) && 
                 u.Sno.ToString() == items.Sno && u.Active);
@@ -761,8 +747,6 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(auditId.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-            if (!string.IsNullOrEmpty(productIntake.Zone))
-                suppliers = suppliers.Where(s => s.Zone == productIntake.Zone);
 
             var supplier = suppliers.FirstOrDefault();
             if (supplier == null)
@@ -806,7 +790,7 @@ namespace EasyPro.Controllers
                 // cummulative kgs calc
                 var productIntakes  = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
                 o.Sno == items.Sno && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) &&
-                o.TransDate >= startDate && o.TransDate <= enDate && o.Zone == items.Zone ).ToList();
+                o.TransDate >= startDate && o.TransDate <= enDate ).ToList();
 
                 var IntakesOnly = productIntakes.Where(o => (o.Description == "Intake" || o.Description == "Correction")).OrderBy(o=>o.TransDate);
                 var DeductionsOnly = productIntakes.Where(o => o.Description != "Intake" && o.Description != "Correction").ToList();
@@ -815,7 +799,7 @@ namespace EasyPro.Controllers
                 var TotalDeductions = string.Format("{0:.###}", DeductionsOnly.Sum(l => l.DR)- DeductionsOnly.Sum(l => l.CR));
 
                 var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
-                u.Sno.ToString() == items.Sno && u.Zone == items.Zone && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
+                u.Sno.ToString() == items.Sno  && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
 
 
                 var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) &&
@@ -1013,12 +997,7 @@ namespace EasyPro.Controllers
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch);
                 intakes = intakes.Where(i => i.Branch == saccoBranch);
             }
-                
-            if (!string.IsNullOrEmpty(productIntake.Zone))
-            {
-                suppliers = suppliers.Where(s => s.Zone == productIntake.Zone);
-                intakes = intakes.Where(i => i.Zone == productIntake.Zone);
-            }
+              
                 
             if (!suppliers.Any())
             {
@@ -1223,8 +1202,7 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(auditId.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-            if (!string.IsNullOrEmpty(productIntake.Zone))
-                suppliers = suppliers.Where(s => s.Zone == productIntake.Zone);
+             
 
             var supplier = suppliers.FirstOrDefault();
             if (supplier == null) 

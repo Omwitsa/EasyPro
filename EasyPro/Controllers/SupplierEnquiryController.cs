@@ -61,18 +61,13 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult SelectedDateIntake(String? zone, string sno)
+        public JsonResult SelectedDateIntake( string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            //var dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone).ToList();
-            zone = zone ?? "";
-            if (zone != "null")
-                dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone).ToList();
-            else
-                dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == null).ToList();
-
+            dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco ).ToList();
+            
             ViewBag.suppliers = dsuppliers.Select(s => new DSupplier
             {
                 Sno = s.Sno,
@@ -86,17 +81,13 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult SelectedName2(String? zone, string sno)
+        public JsonResult SelectedName2(string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
-            if (zone != null)
-                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone);
-            else
-                todaysIntake = todaysIntake.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == null);
-
+             
             return Json(todaysIntake);
         }
         public IActionResult Transporters()
@@ -152,8 +143,6 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
-            if (!string.IsNullOrEmpty(zone))
-                intakes = intakes.Where(i => i.Zone == zone).ToList();
             if (!string.IsNullOrEmpty(producttype))
                 intakes = intakes.Where(i => i.ProductType.ToUpper().Equals(producttype.ToUpper())).ToList();
             decimal? bal = 0;
@@ -163,6 +152,8 @@ namespace EasyPro.Controllers
                 i.DR = i?.DR ?? 0;
                 bal += i.CR - i.DR;
                 i.Balance = bal;
+                if (i.Remarks == null)
+                    i.Remarks = i.ProductType;
             });
 
             intakes = intakes.Where(i => i.CR > 0 || i.DR > 0).ToList();
@@ -190,6 +181,8 @@ namespace EasyPro.Controllers
                 i.DR = i?.DR ?? 0;
                 bal += i.CR - i.DR;
                 i.Balance = bal;
+                if (i.Remarks == null)
+                    i.Remarks = i.ProductType;
             });
 
             intakes = intakes.OrderByDescending(i => i.TransDate).ToList();
@@ -242,13 +235,12 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult ShareInquiries(string sno,string zone)
+        public JsonResult ShareInquiries(string sno )
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var shares = _context.DShares.Where(s => s.Sno == sno && s.SaccoCode == sacco).ToList();
-            if (!string.IsNullOrEmpty(zone))
-                shares = shares.Where(s => s.zone == zone).ToList();
+             
             shares = shares.OrderByDescending(s=>s.TransDate).ToList();
 
             return Json(shares);

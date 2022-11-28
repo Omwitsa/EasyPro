@@ -13,10 +13,10 @@
                         @*@if (ViewBag.isAinabkoi){*@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Zone</label>
+                                @*<label class="control-label">Zone</label>
                                 <select id="zone" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones" required>
                                     <option value=""></option>
-                                </select>
+                                </select>*@
                             </div>
                         </div>
                     </div>
@@ -180,10 +180,10 @@
         var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
                 $('#zone1').hide();
-                $('#MorningEvening').hide();
+                $('#MorningEvening').show();
             }
             else {
-                $('#zone1').show();
+                $('#zone1').hide();
                 $('#MorningEvening').show();
             }
 
@@ -207,11 +207,11 @@
             });*@
 
         $('#zone').change(function () {
-            var selectVal = parseInt($("#Sno").val());
+            var selectVal =  $("#Sno").val();
             getSelectedDateIntakes();
         });
         $('#Sno').on('keyup', function () {
-            var selectVal = parseInt($("#Sno").val());
+            var selectVal =  $("#Sno").val();
             getSelectedDateIntakes();
         });
         function getSelectedDateIntakes() {
@@ -222,7 +222,7 @@
             $.ajax(
                 {
                     type: 'GET',
-                    url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
+                    url: "selectedDateIntake?sno=" + sno,
                     contentType: 'application/json',
                     success: function (response) {
                         $("#Names").val(response);
