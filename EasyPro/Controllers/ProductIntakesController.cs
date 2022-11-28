@@ -417,9 +417,7 @@ namespace EasyPro.Controllers
             productIntake.Branch = saccoBranch;
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
             productIntake.Description = productIntake?.Description ?? "";
-            var sno = productIntake.Sno;
-            long.TryParse(productIntake.Sno, out long supno);
-            if (supno < 1)
+            if (string.IsNullOrEmpty(productIntake.Sno))
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
                 return RedirectToAction(nameof(Create));
@@ -434,7 +432,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return RedirectToAction(nameof(Create));
             }
-            var suppliers = _context.DSuppliers.Where(s => s.Sno == sno && s.Scode.ToUpper().Equals(sacco.ToUpper()));
+            var suppliers = _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode.ToUpper().Equals(sacco.ToUpper()));
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if(user.AccessLevel == AccessLevel.Branch)
             {
@@ -489,14 +487,14 @@ namespace EasyPro.Controllers
                 };
                 _context.ProductIntake.Add(collection);
 
-                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
+                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                 && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch);
 
                 
                 if(!string.IsNullOrEmpty(productIntake.MornEvening))
                 {
-                            transport = _context.DTransports.FirstOrDefault(t => t.Sno == sno && t.Active
+                            transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
                         && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                         && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
                         && t.Morning== productIntake.MornEvening);

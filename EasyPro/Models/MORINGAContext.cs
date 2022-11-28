@@ -6379,7 +6379,6 @@ namespace EasyPro.Models
                 entity.ToTable("d_Suppliers");
 
                 entity.Property(e => e.Sno)
-                    .ValueGeneratedNever()
                     .HasColumnName("SNo");
 
                 entity.Property(e => e.Aarno)

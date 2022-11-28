@@ -54,7 +54,7 @@ namespace EasyPro.Controllers
             });
 
             ViewBag.intakeStatistics = intakeStatistics;
-            var suppliers = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()));
+            var suppliers = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.suppliers = suppliers.Count();
 
             var activeSupNos = _context.ProductIntake.Where(p => p.TransDate >= startDate && p.TransDate <= endDate && p.SaccoCode == sacco)

@@ -13,7 +13,6 @@ namespace EasyPro.Models
         public long Id { get; set; }
         public long? LocalId { get; set; }
         [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Sno should be grater than 1")]
         public string Sno { get; set; }
         public DateTime? Regdate { get; set; }
         public string IdNo { get; set; }
