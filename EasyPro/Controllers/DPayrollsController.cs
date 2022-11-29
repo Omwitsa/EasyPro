@@ -38,8 +38,8 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var payroll = await _context.DPayrolls.Where(i=>i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndofPeriod == endDate).Join(
                 _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
-                p => p.Sno.ToString(),
-                s => s.Sno.ToString(),
+                p => p.Sno,
+                s => s.Sno,
                 (p, s) => new PayrollVm
                 {
                     Sno = s.Sno,
@@ -115,12 +115,15 @@ namespace EasyPro.Controllers
                 _context.DTransportersPayRolls.RemoveRange(transportersPayRolls);
                 _context.SaveChanges();
             }
-            var transpoterIntakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= endDate
-                && i.ProductType.ToLower().Equals("transport"));
-            if (transpoterIntakes.Any())
+            if(sacco != "MBURUGU DAIRY F.C.S")
             {
-                _context.ProductIntake.RemoveRange(transpoterIntakes);
-                _context.SaveChanges();
+                var transpoterIntakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= endDate
+                && i.ProductType.ToLower().Equals("transport"));
+                if (transpoterIntakes.Any())
+                {
+                    _context.ProductIntake.RemoveRange(transpoterIntakes);
+                    _context.SaveChanges();
+                }
             }
 
             var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
@@ -128,10 +131,10 @@ namespace EasyPro.Controllers
 
             foreach(var branchName in branchNames)
             {
-                await ConsolidateTranspoterIntakes(startDate, endDate, sacco, branchName, loggedInUser);
+                if (sacco != "MBURUGU DAIRY F.C.S")
+                    await ConsolidateTranspoterIntakes(startDate, endDate, sacco, branchName, loggedInUser);
                 var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()) 
-                && s.Branch.ToUpper().Equals(branchName)).Select(s => s.Sno.ToString());
-
+                && s.Branch.ToUpper().Equals(branchName)).Select(s => s.Sno);
                 var productIntakes = _context.ProductIntake
                 .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
                 && supplierNos.Contains(p.Sno) && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
@@ -284,7 +287,7 @@ namespace EasyPro.Controllers
         private async Task ConsolidateTranspoterIntakes(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
         {
             var transporterIntakes = _context.DTransports.Join(_context.ProductIntake,
-                t => t.Sno.ToString().Trim(),
+                t => t.Sno.Trim(),
                 i => i.Sno.Trim(),
                 (t, i) => new
                 {
@@ -322,7 +325,7 @@ namespace EasyPro.Controllers
                         var dr = s.Sum(t => t.Qsupplied) * intake.Rate;
                         _context.ProductIntake.Add(new ProductIntake
                         {
-                            Sno = intake.Sno.ToString(),
+                            Sno = intake.Sno,
                             TransDate = intake.TransDate,
                             TransTime = intake.TransTime,
                             ProductType = "Transport",
@@ -339,7 +342,6 @@ namespace EasyPro.Controllers
                             SaccoCode = intake.SaccoCode,
                             DrAccNo = intake.DrAccNo,
                             CrAccNo = intake.CrAccNo
-
                         });
 
                         var product = intake?.ProductType ?? "";
