@@ -100,7 +100,7 @@ namespace EasyPro.Controllers
                 dispatch.auditid = user;
                 dispatch.Dcode = sacco;
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-
+                _context.SaveChanges();
                 var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.Trim().ToUpper().Equals(dispatch.DName.ToUpper()) && d.Dcode==sacco);
 
                 _context.Gltransactions.Add(new Gltransaction
@@ -119,7 +119,7 @@ namespace EasyPro.Controllers
                 });
 
                 _context.Add(dispatch);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
                 _notyf.Success("Dispatch saved successfully");
                 return RedirectToAction(nameof(Index));
             }

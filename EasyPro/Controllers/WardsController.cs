@@ -126,7 +126,13 @@ namespace EasyPro.Controllers
 
         private void SetInitialValues()
         {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccouser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var subCounties = _context.SubCounty.Where(c => !c.Closed).ToList();
+            var checkcounty = _context.DCompanies.FirstOrDefault(l => l.Name.ToUpper().Equals(sacco.ToUpper()));
+            if (saccouser != "psigei")
+                subCounties = _context.SubCounty.Where(k => k.County.ToUpper().Equals(checkcounty.Province.ToUpper())).OrderBy(m => m.Name).ToList();
+            
             ViewBag.subCounties = new SelectList(subCounties, "Name", "Name");
         }
 

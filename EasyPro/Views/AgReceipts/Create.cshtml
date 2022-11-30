@@ -578,7 +578,7 @@
                 $.ajax(
                     {
                         type: 'GET',
-                        url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
+                        url: "selectedDateIntake?sno=" + sno,
                         contentType: 'application/json',
                         success: function (response) {
                             $("#names").val(response);
