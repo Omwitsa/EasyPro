@@ -385,14 +385,14 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult SelectedDateIntake(string zone, string sno)
+        public JsonResult SelectedDateIntake(string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco).Select(b => b.Names).ToList();
-            if (zone != "null")
-                todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone).Select(b => b.Names).ToList();
+            var todaysIntake = _context.DSuppliers.Where(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Names).ToList();
+            //if (zone != "null")
+            //    todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Zone == zone).Select(b => b.Names).ToList();
 
             return Json(todaysIntake);
         }

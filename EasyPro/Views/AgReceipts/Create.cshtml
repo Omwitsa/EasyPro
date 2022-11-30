@@ -365,6 +365,7 @@
             $('#next').hide();
             $('#next1').hide();
             $('#next2').hide();
+            $('#bprice').hide();
 
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
@@ -578,7 +579,7 @@
                 $.ajax(
                     {
                         type: 'GET',
-                        url: "selectedDateIntake?zone=" + zone + "&sno=" + sno,
+                        url: "selectedDateIntake?sno=" + sno,
                         contentType: 'application/json',
                         success: function (response) {
                             $("#names").val(response);

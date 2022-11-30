@@ -29,7 +29,7 @@ namespace EasyPro.Models
         public string Tbranch { get; set; }
         public string Auditid { get; set; }
         public DateTime? Auditdatetime { get; set; }
-        public decimal? Price { get; set; }
+        public decimal Price { get; set; }
         public string AccDr { get; set; }
         public string AccCr { get; set; }
         public double? Crate { get; set; }
