@@ -215,7 +215,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.saccocode == sacco)
-                .Select(t => t.Sno.ToString());
+                .Select(t => t.Sno);
 
             var notTransporterSuppliers = _context.ProductIntake.Where(i => i.AuditId.ToUpper().Equals(transCode.ToUpper()) 
                 && i.SaccoCode == sacco && !transporterSuppliers.Contains(i.Sno) && i.TransDate == date)
