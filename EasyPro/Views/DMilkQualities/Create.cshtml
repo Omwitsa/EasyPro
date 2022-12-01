@@ -256,7 +256,7 @@
             }
 
             $('#zone').change(function () {
-                var selectVal = parseInt($("#sno").val());
+                var selectVal = $("#sno").val().toUpperCase();
                 getSelectedDateIntakes();
             });
              $('#sno').on('keyup', function () {

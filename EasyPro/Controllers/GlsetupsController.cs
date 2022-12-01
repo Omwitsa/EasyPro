@@ -199,12 +199,14 @@ namespace EasyPro.Controllers
                         _notyf.Error("Sorry, Account Name already exist");
                         return View(glsetup);
                     }
-                        glsetup.TransDate = DateTime.Now;
-                        glsetup.NewGlopeningBalDate = DateTime.Now;
-                        glsetup.AuditDate = DateTime.Now;
-                        glsetup.Branch = "Null";
-                        glsetup.saccocode = sacco;
-                        glsetup.AuditId = LoggedInUser;
+                    //var glsetups = _context.Glsetups.FirstOrDefault(i => i.Glid == Glid);
+                    //glsetup.Glid = glsetups.Glid;
+                    glsetup.TransDate = DateTime.Now;
+                    glsetup.NewGlopeningBalDate = DateTime.Now;
+                    glsetup.AuditDate = DateTime.Now;
+                    glsetup.Branch = "Null";
+                    glsetup.saccocode = sacco;
+                    glsetup.AuditId = LoggedInUser;
                     _context.Update(glsetup);
                     await _context.SaveChangesAsync();
                 }

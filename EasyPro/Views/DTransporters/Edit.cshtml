@@ -99,11 +99,20 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Route</label>
                                 <select id="route" asp-for="Route" class="form-control" asp-items="@ViewBag.Route"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Is Paid By Society</label>
+                                <input asp-for="Rate" autocomplete="off" class="form-control" />
+                                <span asp-validation-for="Rate" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -162,7 +171,7 @@
             $('#zone1').hide();
         }
         else {
-            $('#zone1').show();
+            $('#zone1').hide();
         }
     });
     </script>

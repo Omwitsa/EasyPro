@@ -68,6 +68,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             try
             {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 if (string.IsNullOrEmpty(usergroup.GroupId))
                 {
                     _notyf.Error("Sorry, Kindly provide group code");
@@ -78,17 +79,17 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly provide group name");
                     return View(usergroup);
                 }
-                if (_context.Usergroups.Any(g => g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper())))
+                if (_context.Usergroups.Any(g => g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()) && g.SaccoCode.ToUpper().Equals(sacco.ToUpper())))
                 {
                     _notyf.Error("Sorry, Group code already exist");
                     return View(usergroup);
                 }
-                if (_context.Usergroups.Any(g => g.GroupName.ToUpper().Equals(usergroup.GroupName.ToUpper())))
+                if (_context.Usergroups.Any(g => g.GroupName.ToUpper().Equals(usergroup.GroupName.ToUpper()) && g.SaccoCode.ToUpper().Equals(sacco.ToUpper())))
                 {
                     _notyf.Error("Sorry, Group name already exist");
                     return View(usergroup);
                 }
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+               
                 usergroup.SaccoCode = sacco;
                 usergroup.Registration = usergroup?.Registration ?? false;
                 usergroup.Activity = usergroup?.Activity ?? false;

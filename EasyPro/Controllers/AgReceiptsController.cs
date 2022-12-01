@@ -48,6 +48,10 @@ namespace EasyPro.Controllers
         }
         private void GetInitialValues()
         {
+            DateTime endmonth = DateTime.Now;
+            DateTime startDate = new DateTime(endmonth.Year, endmonth.Month, 1);
+            DateTime enDate = startDate.AddMonths(1).AddDays(-1);
+
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var agproducts = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).Select(b => b.PName).ToList();
@@ -55,7 +59,9 @@ namespace EasyPro.Controllers
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var branches = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.branches = new SelectList(branches, "");
-
+            var productintake = _context.ProductIntake.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && 
+            i.Branch == saccobranch && i.TransDate>=startDate && i.TransDate<= enDate).ToList();
+            ViewBag.productintake = productintake;
             var employees = _context.Employees.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             var staffs = new List<EmployeeDetVm>();
             employees.ForEach(e => {

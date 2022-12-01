@@ -107,7 +107,7 @@
         });
         function getSelectedDateIntakes() {
             var zone = $("#zone").val();
-            var sno = parseInt($("#sno").val());
+            var sno = $("#sno").val().toUpperCase();
             $.ajax(
                 {
                     type: 'GET',

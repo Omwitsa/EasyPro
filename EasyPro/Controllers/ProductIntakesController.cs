@@ -520,7 +520,18 @@ namespace EasyPro.Controllers
                     _context.ProductIntake.Add(collection);
 
                     // Credit transpoter transport amount
-                    productIntake.CR = productIntake.Qsupplied * transport.Rate;
+                    ///CHECK IF TRANSPORTER IS PAID BY SOCIETY
+                    var transporterscheck = _context.DTransporters.FirstOrDefault(h => h.ParentT.ToUpper().Equals(sacco.ToUpper())
+                    && h.Tbranch.ToUpper().Equals(saccoBranch.ToUpper()));
+                    if(transport.Rate==0 && transporterscheck.Rate>0)
+                    {
+                        productIntake.CR = productIntake.Qsupplied * (decimal)transporterscheck.Rate;
+                    }
+                    else
+                    {
+                        productIntake.CR = productIntake.Qsupplied * transport.Rate;
+                    }
+                   
                     productIntake.DR = 0;
                     _context.ProductIntake.Add(new ProductIntake
                     {
@@ -1326,7 +1337,17 @@ namespace EasyPro.Controllers
                     _context.ProductIntake.Add(collection);
 
                     // Credit transpoter transport amount
-                    productIntake.CR  = productIntake.Qsupplied * transport.Rate;
+                    ///CHECK IF TRANSPORTER IS PAID BY SOCIETY
+                    var transporterscheck = _context.DTransporters.FirstOrDefault(h => h.ParentT.ToUpper().Equals(sacco.ToUpper())
+                    && h.Tbranch.ToUpper().Equals(saccoBranch.ToUpper()));
+                    if (transport.Rate == 0 && transporterscheck.Rate > 0)
+                    {
+                        productIntake.CR = productIntake.Qsupplied * (decimal)transporterscheck.Rate;
+                    }
+                    else
+                    {
+                        productIntake.CR = productIntake.Qsupplied * transport.Rate;
+                    }
                     productIntake.DR = 0;
                     if (ch < 0)
                     {

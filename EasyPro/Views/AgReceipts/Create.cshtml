@@ -62,7 +62,7 @@
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="form-group ic-cmp-int float-lb floating-lb" id="bprice1">
                             <div class="nk-int-st">
                                 <label asp-for="AgReceipt.Bprice" class="control-label">Bprice</label>
                                 <input id="bprice" asp-for="AgReceipt.Bprice" class="form-control" readonly />
@@ -365,14 +365,14 @@
             $('#next').hide();
             $('#next1').hide();
             $('#next2').hide();
-            $('#bprice').hide();
+            $('#bprice1').hide();
 
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
                 $('#zone1').hide();
             }
             else {
-                $('#zone1').show();
+                $('#zone1').hide();
             }
 
             $('input[type="radio"]').click(function () {
@@ -564,11 +564,11 @@
             }
             });*@
                 $('#zone').change(function () {
-                    var selectVal = parseInt($("#sno").val());
+                    var selectVal = $("#sno").val().toUpperCase();
                     getSelectedDateIntakes();
                 });
             $('#sno').on('keyup', function () {
-                var selectVal = parseInt($("#sno").val());
+                var selectVal = $("#sno").val().toUpperCase();
                 getSelectedDateIntakes();
             });
             function getSelectedDateIntakes() {
@@ -592,10 +592,9 @@
                     });
             }
             function sumtotalkgs() {
-                let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
+                let products = @Html.Raw(Json.Serialize(ViewBag.productintake));
                 let selectVal = $("#sno").val().toUpperCase();
-                let selectzone = $("#zone").val().toUpperCase();
-                let selectProducts = products.filter(p => p.Sno === selectVal && p.Zone === selectzone);
+                let selectProducts = products.filter(p => p.Sno === selectVal);
                 let sumqty = 0;
                 let sumDr = 0;
                 let sumCr = 0;
@@ -603,7 +602,7 @@
                 selectProducts.forEach(p => {
                     sumDr += p.DR;
                     sumCr += p.CR;
-                })
+                });
                 $("#Gross").val(sumCr);
                 $("#Deductions").val(sumDr);
                 let gross = sumCr;
@@ -626,7 +625,7 @@
                 var tpay = parseFloat($("#ttolpaid").val());
 
                 saleItems.push({
-                    Sno: $("#sno").val(),
+                    Sno: $("#sno").val().toUpperCase(),
                     sprice: sprice,
                     totalamnt: totalamnt,
                     pname: pname,

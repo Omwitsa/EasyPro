@@ -88,6 +88,7 @@
                                 <div class="form-group">
                                     <label asp-for="Branch" class="control-label"></label>
                                     <select asp-for="Branch" class="form-control" asp-items="@ViewBag.brances" required></select>
+                                    <option value=""></option>
                                     <span asp-validation-for="Branch" class="text-danger"></span>
                                 </div>
                             </div>
@@ -101,6 +102,7 @@
                                     <select asp-for="County" id="county" class="form-control" asp-items="@ViewBag.counties" required>
                                         <option value="" disabled selected hidden>Please Choose...</option>
                                     </select>
+                                    <option value=""></option>
                                     <span asp-validation-for="County" class="text-danger"></span>
                                 </div>
                             </div>
@@ -113,6 +115,7 @@
                                 <select asp-for="District" id="sub-county" class="form-control" required disabled>
                                     <option value="" disabled selected hidden>Please Choose...</option>
                                 </select>
+                                <option value=""></option>
                                 <span asp-validation-for="District" class="text-danger"></span>
                             </div>
                         </div>
@@ -128,6 +131,7 @@
                                     <select asp-for="Division" id="ward" class="form-control" disabled>
                                         <option value="" disabled selected hidden>Please Choose...</option>
                                     </select>
+                                    <option value=""></option>
                                     <span asp-validation-for="Division" class="text-danger"></span>
                                 </div>
                             </div>
@@ -140,6 +144,7 @@
                                     <label asp-for="Location" class="control-label"></label>
                                     <select asp-for="Location" id="location" class="form-control" asp-items="@ViewBag.locations">
                                     </select>
+                                    <option value=""></option>
                                     <span asp-validation-for="Location" class="text-danger"></span>
                                 </div>
                             </div>
@@ -164,6 +169,7 @@
                             <div class="nk-int-st">
                                 <label asp-for="TransCode" class="control-label">Payment Mode</label>
                                 <select asp-for="TransCode" class="form-control" asp-items="@ViewBag.payment" required></select>
+                                <option value=""></option>
                                 <span asp-validation-for="TransCode" class="text-danger"></span>
                             </div>
                         </div>
@@ -174,6 +180,7 @@
                                 <label class="control-label">Gender</label>
                                 <div class="form-group">
                                     <select asp-for="Type" class="form-control" asp-items="@ViewBag.gender" required></select>
+                                    <option value=""></option>
                                     <span asp-validation-for="Type" class="text-danger"></span>
                                 </div>
                             </div>
@@ -196,6 +203,7 @@
                                 <div class="nk-int-st">
                                     <label asp-for="Zone" class="control-label"></label>
                                     <select id="zone" asp-for="Zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones"></select>
+                                    <option value=""></option>
                                     <span asp-validation-for="Zone" class="text-danger"></span>
                                 </div>
                             </div>
@@ -209,8 +217,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Bcode" class="control-label"></label>
+                                    <label class="control-label">Bank</label>
                                     <select asp-for="Bcode" Value="Select Bank" class="form-control" asp-items="@ViewBag.banksname"></select>
+                                    <option value=""></option>
                                     <span asp-validation-for="Bcode" class="text-danger"></span>
                                 </div>
                             </div>
@@ -232,6 +241,7 @@
                             <div class="nk-int-st">
                                 <label asp-for="Bbranch" class="control-label">Bank Branch</label>
                                 <select asp-for="Bbranch" class="form-control" asp-items="@ViewBag.bankbrances"></select>
+                                <option value=""></option>
                                 <span asp-validation-for="Bbranch" class="text-danger"></span>
                             </div>
                         </div>

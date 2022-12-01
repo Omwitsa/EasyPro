@@ -409,7 +409,7 @@
             let lands = new Array();
             populateFlmdDetails();
             $('#sno').on('keyup', function () {
-                let sno = parseInt($("#sno").val());  
+                let sno = $("#sno").val().toUpperCase();
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
                 var selectSupplier = suppliers.filter(p => p.Sno === sno);
                 if (selectSupplier[0]) {

@@ -78,50 +78,56 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,auditid")] Dispatch dispatch)
         {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco && i.Transdate== dispatch.Transdate);
-            if (locations)
+            try
             {
-                _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
-                GetInitialValues();
-                return View();
-            }
-            //if(dispatch.TIntake < dispatch.Dispatchkgs)
-            //{
-            //    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
-            //    GetInitialValues();
-            //    return View();
-            //}
-
-            if (ModelState.IsValid)
-            {
-                var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
-                dispatch.auditid = user;
-                dispatch.Dcode = sacco;
-                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-                _context.SaveChanges();
-                var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.Trim().ToUpper().Equals(dispatch.DName.ToUpper()) && d.Dcode==sacco);
-
-                _context.Gltransactions.Add(new Gltransaction
+                utilities.SetUpPrivileges(this);
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco && i.Transdate == dispatch.Transdate);
+                if (locations)
                 {
-                    AuditId = auditId,
-                    TransDate = DateTime.Today,
-                    Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
-                    AuditTime = DateTime.Now,
-                    DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
-                    Source = dispatch.DName,
-                    TransDescript = "Sales",
-                    Transactionno = $"{auditId}{DateTime.Now}",
-                    SaccoCode = sacco,
-                    DrAccNo = debtor.AccDr,
-                    CrAccNo = debtor.AccCr,
-                });
+                    _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
+                    GetInitialValues();
+                    return View();
+                }
+                //if(dispatch.TIntake < dispatch.Dispatchkgs)
+                //{
+                //    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
+                //    GetInitialValues();
+                //    return View();
+                //}
 
-                _context.Add(dispatch);
-                _context.SaveChanges();
-                _notyf.Success("Dispatch saved successfully");
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                    dispatch.auditid = user;
+                    dispatch.Dcode = sacco;
+                    _context.Add(dispatch);
+                    _context.SaveChanges();
+                    var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                    var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.Trim().ToUpper().Equals(dispatch.DName.ToUpper()) && d.Dcode == sacco);
+
+                    _context.Gltransactions.Add(new Gltransaction
+                    {
+                        AuditId = auditId,
+                        TransDate = DateTime.Today,
+                        Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
+                        AuditTime = DateTime.Now,
+                        DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
+                        Source = dispatch.DName,
+                        TransDescript = "Sales",
+                        Transactionno = $"{auditId}{DateTime.Now}",
+                        SaccoCode = sacco,
+                        DrAccNo = debtor.AccDr,
+                        CrAccNo = debtor.AccCr,
+                    });
+                    _context.SaveChanges();
+                    _notyf.Success("Dispatch saved successfully");
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (Exception ex)
+            {
+                return View(dispatch);
             }
             return View(dispatch);
         }

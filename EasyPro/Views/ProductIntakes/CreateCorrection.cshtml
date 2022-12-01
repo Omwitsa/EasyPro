@@ -42,9 +42,17 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Intake Date</label>
-                            <input id="transDate" asp-for="TransDate" class="form-control" type="date" required/>
+                            @if (!ViewBag.setupRole)
+                            {
+                                <script type="text/javascript">
+                                    $(function () {
+                                        $("#transDate").attr("disabled", true);
+                                    });
+                                </script>
+                            }
+                                <input id="transDate" asp-for="TransDate" class="form-control" type="date" required />
                             <span asp-validation-for="TransDate" class="text-danger"></span>
-                        </div>
+                            </div>
                     </div>
                 </div>
                 <hr />
@@ -176,6 +184,7 @@
         $("#Qsupplied").val("");
         $('#mevng').val('');
         $('#DrCr').hide();
+        $("#transDate").val(today);
 
         var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {

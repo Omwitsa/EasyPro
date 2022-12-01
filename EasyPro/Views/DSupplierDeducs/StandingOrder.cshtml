@@ -94,7 +94,7 @@
         $(function () {
             $('#Sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
-                var selectVal = parseInt($("#Sno").val());
+                var selectVal = $("#Sno").val().toUpperCase();
                 var selectSupplier = suppliers.filter(p => p.Sno === selectVal);
                 if (selectSupplier[0]) {
                     $("#Names").val(selectSupplier[0].Names);

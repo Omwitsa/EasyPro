@@ -9,6 +9,7 @@ using EasyPro.Utils;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.ViewModels.UserViewModel;
 
 namespace EasyPro.Controllers
 {
@@ -70,6 +71,7 @@ namespace EasyPro.Controllers
             var userGroups = _context.Usergroups.Where(g => g.SaccoCode == sacco).ToList();
             var branches = _context.DBranch.ToList();
             var accounts = _context.Glsetups.ToList();
+            var users = _context.UserAccounts.ToList();
             var saccos = _context.DCompanies.ToList();
             if (!loggedInUser.ToLower().Equals("psigei"))
             {
@@ -77,6 +79,7 @@ namespace EasyPro.Controllers
                 branches = _context.DBranch.Where(p=>p.Bcode.ToUpper().Equals(sacco.ToUpper())).ToList();
                 accounts = _context.Glsetups.Where(p => p.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
                 saccos = _context.DCompanies.Where(p => p.Name.ToUpper().Equals(sacco.ToUpper())).ToList();
+                users = _context.UserAccounts.Where(p => p.Branchcode.ToUpper().Equals(sacco.ToUpper())).ToList();
             }
 
             ViewBag.userGroups = new SelectList(userGroups, "GroupName", "GroupName");
@@ -84,6 +87,7 @@ namespace EasyPro.Controllers
             ViewBag.dBranches = branches;
             ViewBag.accounts = new SelectList(accounts, "AccNo", "GlAccName"); 
             ViewBag.saccos = new SelectList(saccos, "Name", "Name");
+            ViewBag.users = new SelectList(saccos, "UserName", "UserName");
         }
 
         // POST: UserAccounts/Create
@@ -142,6 +146,91 @@ namespace EasyPro.Controllers
             }
             ViewBag.password = Decryptor.Decript_String(userAccount.Password);
             return View(userAccount);
+        }
+
+        // GET: UserAccounts/change branch/
+        public async Task<IActionResult> ChangeBranch(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            SetInitialValues();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var userAccount = await _context.UserAccounts.FindAsync(id);
+            if (userAccount == null)
+            {
+                return NotFound();
+            }
+
+            var viewuser = new ChangeBranchVM
+            {
+                Id = userAccount.Userid,
+                user = userAccount.UserName,
+            };
+
+            return View(viewuser);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeBranch(long id, [Bind("Id,user,Branch")] ChangeBranchVM changeBranchVM)
+        {
+            utilities.SetUpPrivileges(this);
+            if (id != changeBranchVM.Id)
+            {
+                _notyf.Error("Sorry, User not found");
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // UserName, UserLoginIDs, Password, UserGroup, PassExpire, DateCreated, SUPERUSER, AssignGl,
+                    // branchcode, levels, Authorize, Status, Branch, sign, Phone, Reset, AccessLevel
+                    var olddetails = _context.UserAccounts.FirstOrDefault(i=>i.Userid==id);
+                    olddetails.Branch = changeBranchVM.Branch;
+                    //_context.UserAccounts.Update(
+                    //{
+                    //    UserLoginIds= olddetails.UserLoginIds,
+                    //    UserName=olddetails.UserName,
+                    //    Password= olddetails.Password,
+                    //    UserGroup=olddetails.UserGroup,
+                    //    PassExpire = olddetails.PassExpire,
+                    //    DateCreated= olddetails.DateCreated,
+                    //    Superuser = olddetails.Superuser,
+                    //    AssignGl= olddetails.AssignGl,
+                    //    Branchcode = olddetails.Branchcode,
+                    //    Levels = olddetails.Levels,
+                    //    Authorize = olddetails.Authorize,
+                    //    Status = olddetails.Status,
+                    //    Branch = changeBranchVM.Branch,
+                    //    Sign = olddetails.Sign,
+                    //    Phone = olddetails.Phone,
+                    //    Reset = olddetails.Reset,
+                    //    AccessLevel = olddetails.AccessLevel,
+                    //});
+                    _context.Update(olddetails);
+                    await _context.SaveChangesAsync();
+                    _notyf.Success("User Transfered successfully");
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    _notyf.Error("Sorry, An error occurred");
+                    if (!UserAccountExists(changeBranchVM.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            _notyf.Error("Sorry, An error occurred");
+            return View(changeBranchVM);
         }
 
         // POST: UserAccounts/Edit/5

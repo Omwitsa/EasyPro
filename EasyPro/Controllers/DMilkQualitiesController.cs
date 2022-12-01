@@ -192,7 +192,7 @@ namespace EasyPro.Controllers
         private decimal GetTodaysIntake(DateTime date)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var saccobranch = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var intakes = _context.ProductIntake.Where(i => i.TransDate == date && i.Branch== saccobranch && i.SaccoCode == sacco && (i.Description == "Correction"|| i.Description == "Intake"));
             var todaysIntake = intakes.Sum(i => i.Qsupplied);
             return todaysIntake;
@@ -277,7 +277,7 @@ namespace EasyPro.Controllers
                 GetInitialValues();
                 return View();
             }
-            if (!_context.Milktransfer.Any(u=>u.Code==sacco && u.Transdate== milktransfer.Transdate))
+            if (_context.Milktransfer.Any(u=>u.Code==sacco && u.Transdate== milktransfer.Transdate))
             {
                 _notyf.Error("Sorry, Transfer already exist");
                 GetInitialValues();
@@ -290,7 +290,7 @@ namespace EasyPro.Controllers
                 milktransfer.auditid = user;
                 _context.Add(milktransfer);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(MilktransferIndex));
             }
             return View(milktransfer);
         }
