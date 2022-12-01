@@ -68,11 +68,11 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-            var userGroups = _context.Usergroups.Where(g => g.SaccoCode == sacco).ToList();
-            var branches = _context.DBranch.ToList();
-            var accounts = _context.Glsetups.ToList();
-            var users = _context.UserAccounts.ToList();
-            var saccos = _context.DCompanies.ToList();
+            var userGroups = _context.Usergroups.Where(g => g.SaccoCode == sacco).OrderBy(K => K.GroupName).ToList();
+            var branches = _context.DBranch.OrderBy(K => K.Bname).ToList();
+            var accounts = _context.Glsetups.OrderBy(K => K.GlAccName).ToList();
+            var users = _context.UserAccounts.OrderBy(K => K.UserName).ToList();
+            var saccos = _context.DCompanies.OrderBy(K=>K.Name).ToList();
             if (!loggedInUser.ToLower().Equals("psigei"))
             {
                 

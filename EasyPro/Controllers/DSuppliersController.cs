@@ -168,24 +168,24 @@ namespace EasyPro.Controllers
             sacco = sacco ?? "";
             ViewBag.sacco = sacco;
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
-            var counties = _context.County.Select(b => b.Name).ToList();
+            var counties = _context.County.OrderBy(K => K.Name).Select(b => b.Name).ToList();
             ViewBag.counties = new SelectList(counties);
-            var SubCountyName = _context.SubCounty.ToList();
+            var SubCountyName = _context.SubCounty.OrderBy(K => K.Name).ToList();
             ViewBag.SubCountyName = SubCountyName;
             ViewBag.subCounties = new SelectList(SubCountyName, "Name", "Name");
-            var WardSubCounty = _context.Ward.ToList();
+            var WardSubCounty = _context.Ward.OrderBy(K => K.Name).ToList();
             ViewBag.WardSubCounty = WardSubCounty;
             ViewBag.wards = new SelectList(WardSubCounty, "Name", "Name");
-            var locations = _context.DLocations.Where(l => l.Lcode == sacco && l.Branch == saccoBranch).Select(b => b.Lname).ToList();
+            var locations = _context.DLocations.Where(l => l.Lcode == sacco && l.Branch == saccoBranch).OrderBy(K => K.Lname).Select(b => b.Lname).ToList();
             ViewBag.locations = new SelectList(locations);
 
-            var banksname = _context.DBanks.Where(a=>a.BankCode == sacco).Select(b => b.BankName).ToList();
+            var banksname = _context.DBanks.Where(a=>a.BankCode == sacco).OrderBy(K => K.BankName).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
 
-            var brances = _context.DBranch.Where(a => a.Bcode == sacco).Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(a => a.Bcode == sacco).OrderBy(K => K.Bname).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
-            var bankbrances = _context.DBankBranch.Where(a => a.BankCode == sacco).Select(b => b.Bname).ToList();
+            var bankbrances = _context.DBankBranch.Where(a => a.BankCode == sacco).OrderBy(K => K.Bname).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
 
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();

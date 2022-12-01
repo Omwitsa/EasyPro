@@ -199,8 +199,6 @@ namespace EasyPro.Controllers
                         _notyf.Error("Sorry, Account Name already exist");
                         return View(glsetup);
                     }
-                    //var glsetups = _context.Glsetups.FirstOrDefault(i => i.Glid == Glid);
-                    //glsetup.Glid = glsetups.Glid;
                     glsetup.TransDate = DateTime.Now;
                     glsetup.NewGlopeningBalDate = DateTime.Now;
                     glsetup.AuditDate = DateTime.Now;

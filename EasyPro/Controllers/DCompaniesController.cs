@@ -32,7 +32,7 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-            var companies = _context.DCompanies.ToList();
+            var companies = _context.DCompanies.OrderByDescending(K => K.Id).ToList();
             if (!loggedInUser.ToLower().Equals("psigei"))
                 companies = _context.DCompanies.Where(i=>i.Name.ToUpper().Equals(sacco.ToUpper())).ToList();
                

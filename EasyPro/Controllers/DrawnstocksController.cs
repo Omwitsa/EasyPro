@@ -95,7 +95,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Date,Description,Quantity,Totalamount,Productid,Productname,Username,Priceeach,Month,Year,Branch,Updated,Buying,Ai,Commission")] Drawnstock drawnstock)
+        public async Task<IActionResult> Create([Bind("Id,Date,Description,Quantity,Totalamount,Productid,Productname,Username,Priceeach,Month,Year,BranchF,Branch,Updated,Buying,Ai,Commission,auditdatetime")] Drawnstock drawnstock)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -115,6 +115,13 @@ namespace EasyPro.Controllers
                 _notyf.Error("Quantity should be Greater Than Zero");
                 return RedirectToAction(nameof(Create));
             }
+            if (drawnstock.Branch == drawnstock.BranchF)
+            {
+                GetInitialValues();
+                _notyf.Error("Branch To And From should not be the same");
+                return RedirectToAction(nameof(Create));
+            }
+
             if (drawnstock.Branch == saccobranch)
             {
                 GetInitialValues();
@@ -179,6 +186,7 @@ namespace EasyPro.Controllers
                 drawnstock.Year = drawnstock.Date.GetValueOrDefault().Year + "";
                 drawnstock.Username = LoggedInUser;
                 drawnstock.Description = drawnstock.Description;
+                drawnstock.auditdatetime = DateTime.Now;
                 _context.Add(drawnstock);
                 await _context.SaveChangesAsync();
                 _notyf.Success("Product Save successfully");
@@ -271,5 +279,7 @@ namespace EasyPro.Controllers
         {
             return _context.Drawnstocks.Any(e => e.Id == id);
         }
+
+
     }
 }

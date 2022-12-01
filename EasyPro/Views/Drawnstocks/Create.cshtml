@@ -35,9 +35,9 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Drawnstock.Buying" class="control-label">Buying Price</label>
-                                <input readonly asp-for="Drawnstock.Buying" id="bprice" class="form-control" />
-                                <span asp-validation-for="Drawnstock.Buying" class="text-danger"></span>
+                                <label asp-for="Drawnstock.Priceeach" class="control-label">Selling Price</label>
+                                <input readonly asp-for="Drawnstock.Priceeach" class="form-control" />
+                                <span asp-validation-for="Drawnstock.Priceeach" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -48,6 +48,7 @@
                             <div class="nk-int-st">
                                 <label asp-for="Drawnstock.Productname" class="control-label">Product name</label>
                                 <select asp-for="Drawnstock.Productname" id="pname" class="form-control" asp-items="@ViewBag.agproductsall" required></select>
+                                <option value=""></option>
                                 <span asp-validation-for="Drawnstock.Productname" class="text-danger"></span>
                             </div>
                         </div>
@@ -55,31 +56,25 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Drawnstock.Branch" class="control-label"></label>
-                                <select asp-for="Drawnstock.Branch" id="branch" class="form-control" asp-items="@ViewBag.brances" required></select>
-                                <span asp-validation-for="Drawnstock.Branch" class="text-danger"></span>
+                                <label class="control-label">Branch From</label>
+                                <select asp-for="Drawnstock.BranchF" id="branch" class="form-control" asp-items="@ViewBag.brances" required></select>
+                                <option value=""></option>
+                                <span asp-validation-for="Drawnstock.BranchF" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="Drawnstock.Priceeach" class="control-label">Selling Price</label>
-                                <input asp-for="Drawnstock.Priceeach" id="sprice" class="form-control" />
-                                <span asp-validation-for="Drawnstock.Priceeach" class="text-danger"></span>
+                                <label class="control-label">Branch To</label>
+                                <select asp-for="Drawnstock.Branch" id="branch" class="form-control" asp-items="@ViewBag.brances" required></select>
+                                <option value=""></option>
+                                <span asp-validation-for="Drawnstock.Branch" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label class="control-label">Stock Bal</label>
-                                <input  id="sbal" class="form-control" readonly />
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
@@ -95,6 +90,14 @@
                                 <label asp-for="Drawnstock.Description" class="control-label">Description</label>
                                 <input asp-for="Drawnstock.Description" autocomplete="off" class="form-control" />
                                 <span asp-validation-for="Drawnstock.Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Stock Bal</label>
+                                <input id="sbal" class="form-control" readonly />
                             </div>
                         </div>
                     </div>
