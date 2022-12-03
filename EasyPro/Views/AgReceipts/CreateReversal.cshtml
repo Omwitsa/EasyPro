@@ -512,7 +512,7 @@
             $('#tsno').on('keyup', function () {
                 var products = @Html.Raw(Json.Serialize(Model.DTransporter));
                 var selectVal = $("#tsno").val().toUpperCase();
-                var selectProducts = products.filter(p => p.TransCode === selectVal);
+                var selectProducts = products.filter(p => p.TransCode.toUpperCase() === selectVal);
                 if (selectProducts[0]) {
                     $("#tname").val(selectProducts[0].TransName);
                     sumtotalkgsT();
@@ -521,8 +521,8 @@
 
             function sumtotalkgsT() {
                 let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
-                let selectVal = $("#tsno").val().toUpperCase();
-                let selectProducts = products.filter(p => p.Sno === selectVal);
+                var selectVal = $("#tsno").val().toUpperCase();
+                let selectProducts = products.filter(p => p.Sno.toUpperCase() === selectVal);
                 let sumqty = 0;
                 let sumDr = 0;
                 let sumCr = 0;
@@ -544,7 +544,7 @@
         });
         function getSelectedDateIntakes() {
             var zone = $('#zone').val();
-            var sno = $('#sno').val();
+            var sno = $('#sno').val().toUpperCase();
             var mevng = $('#mevng').val();
 
             $.ajax(
@@ -565,8 +565,8 @@
 
             function sumtotalkgs() {
                 let products = @Html.Raw(Json.Serialize(ViewBag.productintake));
-                let selectVal = $("#sno").val().toUpperCase();
-                let selectProducts = products.filter(p => p.Sno === selectVal);
+                var selectVal = $("#sno").val().toUpperCase();
+                let selectProducts = products.filter(p => p.Sno.toUpperCase() === selectVal);
                 let sumqty = 0;
                 let sumDr = 0;
                 let sumCr = 0;

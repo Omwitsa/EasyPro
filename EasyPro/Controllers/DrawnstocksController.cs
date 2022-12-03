@@ -102,6 +102,17 @@ namespace EasyPro.Controllers
             var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
 
+            DateTime Now = DateTime.Today;
+            DateTime startD = new DateTime(Now.Year, Now.Month, 1);
+            DateTime enDate = startD.AddMonths(1).AddDays(-1);
+
+            if (drawnstock.Date < startD)
+            {
+                _notyf.Error("Sorry, The Dispatch Date is not within the current Period");
+                return RedirectToAction(nameof(Create));
+            }
+
+
             var checkproductExist = _context.AgProducts.FirstOrDefault(a => a.saccocode == sacco && a.PName == drawnstock.Productname && a.Branch == saccobranch);
             if (checkproductExist==null)
             {
@@ -128,6 +139,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("You cannot dispatch to your Branch");
                 return RedirectToAction(nameof(Create));
             }
+
             var selectstockbal = _context.AgProducts.Where(a => a.saccocode == sacco && a.PName == drawnstock.Productname 
             && a.Branch == saccobranch).Sum(q=>q.OBal);
             double? selectstockdispatch = Convert.ToDouble(drawnstock.Quantity);

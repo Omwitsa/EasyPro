@@ -573,7 +573,7 @@
             });
             function getSelectedDateIntakes() {
                 var zone = $('#zone').val();
-                var sno = $('#sno').val();
+                var sno = $('#sno').val().toUpperCase();
                 var mevng = $('#mevng').val();
 
                 $.ajax(
@@ -593,8 +593,8 @@
             }
             function sumtotalkgs() {
                 let products = @Html.Raw(Json.Serialize(ViewBag.productintake));
-                let selectVal = $("#sno").val().toUpperCase();
-                let selectProducts = products.filter(p => p.Sno === selectVal);
+                var selectVal = $("#sno").val().toUpperCase();
+                let selectProducts = products.filter(p => p.Sno.toUpperCase() === selectVal);
                 let sumqty = 0;
                 let sumDr = 0;
                 let sumCr = 0;
@@ -625,7 +625,7 @@
                 var tpay = parseFloat($("#ttolpaid").val());
 
                 saleItems.push({
-                    Sno: $("#sno").val().toUpperCase(),
+                    Sno: $("#sno").val(),
                     sprice: sprice,
                     totalamnt: totalamnt,
                     pname: pname,
@@ -719,8 +719,8 @@
             });
 
             function checkbal() {
-                var qnty = $("#qnty").val();
-                var qntybal = $("#sbal").val();
+                var qnty = parseFloat($("#qnty").val());
+                var qntybal = parseFloat($("#sbal").val());
                 if (qnty > qntybal)
                 {
                     error.textContent = "You Quantity cannot be grater than the Balance in stock"

@@ -29,11 +29,18 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.AgSupplier1s
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
-
+        private void GetInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+           
+            var glAccounts = _context.Glsetups.Where(g => g.saccocode == sacco).ToList();
+            ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
+        }
         // GET: AgSupplier1/Details/5
         public async Task<IActionResult> Details(string id)
         {
@@ -55,6 +62,7 @@ namespace EasyPro.Controllers
         // GET: AgSupplier1/Create
         public IActionResult Create()
         {
+            GetInitialValues();
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View();
@@ -65,14 +73,14 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,SupplierId,CompanyName,ContactPerson,ContactTitle,Address,Email,Phone,Fax,saccocode")] AgSupplier1 agSupplier1)
+        public async Task<IActionResult> Create([Bind("id,SupplierId,CompanyName,ContactPerson,ContactTitle,Address,Email,Phone,Fax,saccocode,AccDr,AccCr")] AgSupplier1 agSupplier1)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (_context.AgSupplier1s.Any(i => i.SupplierId == agSupplier1.SupplierId && i.saccocode.ToUpper().Equals(sacco.ToUpper())))
             {
                 _notyf.Error("Sorry, Supplier Number code does not exist");
-                //return Json(new { data = Farmersobj });
+                GetInitialValues();
                 return View(agSupplier1);
             }
             
@@ -90,15 +98,18 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long? id)
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id == null)
             {
+                GetInitialValues();
                 return NotFound();
             }
 
             var agSupplier1 = await _context.AgSupplier1s.FindAsync(id);
             if (agSupplier1 == null)
             {
+                GetInitialValues();
                 return NotFound();
             }
             return View(agSupplier1);
@@ -109,12 +120,13 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("id,SupplierId,CompanyName,ContactPerson,ContactTitle,Address,Email,Phone,Fax,saccocode")] AgSupplier1 agSupplier1)
+        public async Task<IActionResult> Edit(long id, [Bind("id,SupplierId,CompanyName,ContactPerson,ContactTitle,Address,Email,Phone,Fax,saccocode,AccDr,AccCr")] AgSupplier1 agSupplier1)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != agSupplier1.id)
             {
+                GetInitialValues();
                 return NotFound();
             }
 
@@ -130,6 +142,7 @@ namespace EasyPro.Controllers
                 {
                     if (!AgSupplier1Exists(agSupplier1.id))
                     {
+                        GetInitialValues();
                         return NotFound();
                     }
                     else

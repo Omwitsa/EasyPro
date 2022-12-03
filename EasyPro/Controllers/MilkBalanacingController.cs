@@ -205,6 +205,7 @@ namespace EasyPro.Controllers
             }
             catch (Exception e)
             {
+                _notyf.Error("Sorry, an error occured");
                 return Json("");
             }
         }
@@ -215,10 +216,10 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.saccocode == sacco)
-                .Select(t => t.Sno.ToString());
+                .Select(t => t.Sno.ToString().ToUpper());
 
             var notTransporterSuppliers = _context.ProductIntake.Where(i => i.AuditId.ToUpper().Equals(transCode.ToUpper()) 
-                && i.SaccoCode == sacco && !transporterSuppliers.Contains(i.Sno) && i.TransDate == date)
+                && i.SaccoCode == sacco && !transporterSuppliers.Contains(i.Sno.ToUpper()) && i.TransDate == date)
                 .Select(t => t.Sno).Distinct().ToList();
 
             var intakes = _context.ProductIntake.Where(s => s.TransDate == date && s.SaccoCode == sacco && (s.Description == "Intake" || s.Description == "Correction") 

@@ -17,5 +17,7 @@ namespace EasyPro.Models
         public string Phone { get; set; }
         public string Fax { get; set; }
         public string saccocode { get; set; }
+        public string AccDr { get; set; }
+        public string AccCr { get; set; }
     }
 }

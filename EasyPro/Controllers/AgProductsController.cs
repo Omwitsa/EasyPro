@@ -51,10 +51,12 @@ namespace EasyPro.Controllers
             var glAccounts = _context.Glsetups.Where(a => a.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
 
-           
+            var agsuppliers = _context.AgSupplier1s.Where(L => L.saccocode == sacco).ToList();
+            ViewBag.agsuppliers = agsuppliers;
+
 
         }
-        
+
         // GET: AgProducts/Details/5
         public async Task<IActionResult> Details(string id)
         {
@@ -110,6 +112,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var checkproductExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PName== agProduct.PName && a.Branch == saccobranch);
             if (checkproductExist)
             {
@@ -169,6 +172,24 @@ namespace EasyPro.Controllers
                     Approved = false,
                     saccocode = sacco
                 });
+
+                var getGLS = _context.AgSupplier1s.FirstOrDefault(g => g.CompanyName.ToUpper().Equals(agProduct.SupplierId.ToUpper())
+                && g.saccocode== sacco);
+                _context.Gltransactions.Add(new Gltransaction
+                {
+                    AuditId = loggedInUser,
+                    TransDate = (DateTime)agProduct.DateEntered,
+                    Amount = (decimal)(agProduct.Pprice* (decimal)agProduct.Qin),
+                    AuditTime = DateTime.Now,
+                    DocumentNo = "Stock Receive",
+                    Source = getGLS.CompanyName,
+                    TransDescript = "Stock Receive",
+                    Transactionno = $"{loggedInUser}{DateTime.Now}",
+                    SaccoCode = sacco,
+                    DrAccNo = getGLS.AccDr,
+                    CrAccNo = getGLS.AccCr,
+                });
+
                 await _context.SaveChangesAsync();
                 _notyf.Success("Stock Added Successfully");
                 return RedirectToAction(nameof(Index));
@@ -264,6 +285,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             GetInitialValues();
             if (id != agProduct.Id)
             {
@@ -301,6 +323,24 @@ namespace EasyPro.Controllers
                         Craccno = agProduct.Craccno,
                         saccocode = sacco
                     });
+
+                    var getGLS = _context.AgSupplier1s.FirstOrDefault(g => g.CompanyName.ToUpper().Equals(agProduct.SupplierId.ToUpper())
+               && g.saccocode == sacco);
+                    _context.Gltransactions.Add(new Gltransaction
+                    {
+                        AuditId = loggedInUser,
+                        TransDate = (DateTime)agProduct.DateEntered,
+                        Amount = (decimal)(agProduct.Pprice * (decimal)agProduct.Qin),
+                        AuditTime = DateTime.Now,
+                        DocumentNo = "Stock Receive",
+                        Source = getGLS.CompanyName,
+                        TransDescript = "Stock Receive",
+                        Transactionno = $"{loggedInUser}{DateTime.Now}",
+                        SaccoCode = sacco,
+                        DrAccNo = getGLS.AccDr,
+                        CrAccNo = getGLS.AccCr,
+                    });
+
                     await _context.SaveChangesAsync();
                     _notyf.Success("Stock Edited Successfully");
                 }
@@ -350,6 +390,17 @@ namespace EasyPro.Controllers
             _context.AgProducts.Remove(agProduct);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public JsonResult SelectedDateIntake(string pname)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var todaysIntake = _context.AgSupplier1s.Where(L => L.CompanyName.ToUpper().Equals(pname.ToUpper()) && L.saccocode == sacco).ToList();
+
+            return Json(todaysIntake);
         }
 
         private bool AgProductExists(long id)

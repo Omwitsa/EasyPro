@@ -452,7 +452,7 @@ namespace EasyPro.Controllers
 
                 var collection = new ProductIntake
                 {
-                    Sno = productIntake.Sno.Trim(),
+                    Sno = productIntake.Sno.Trim().ToUpper(),
                     TransDate = DateTime.Today,
                     TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                     ProductType = productIntake.ProductType,
@@ -482,7 +482,7 @@ namespace EasyPro.Controllers
                 
                 if(!string.IsNullOrEmpty(productIntake.MornEvening))
                 {
-                            transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
+                            transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()) && t.Active
                         && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                         && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
                         && t.Morning== productIntake.MornEvening);
@@ -496,7 +496,7 @@ namespace EasyPro.Controllers
                     productIntake.Balance = productIntake.Balance - productIntake.DR;
                     collection = new ProductIntake
                     {
-                        Sno = productIntake.Sno.Trim(),
+                        Sno = productIntake.Sno.Trim().ToUpper(),
                         TransDate = DateTime.Today,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                         ProductType = productIntake.ProductType,
@@ -535,7 +535,7 @@ namespace EasyPro.Controllers
                     productIntake.DR = 0;
                     _context.ProductIntake.Add(new ProductIntake
                     {
-                        Sno = transport.TransCode.Trim(),
+                        Sno = transport.TransCode.Trim().ToUpper(),
                         TransDate = DateTime.Today,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                         ProductType = productIntake.ProductType,
@@ -636,7 +636,7 @@ namespace EasyPro.Controllers
                 var productIntakes = _context.ProductIntake.FirstOrDefault(u => u.Id == items.Id);
                 
                 var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
-                u.Sno.ToString() == items.Sno && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
+                u.Sno.ToString().ToUpper().Equals(items.Sno.ToUpper()) && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
                 
                 var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) && 
                 u.Sno.ToString() == items.Sno && u.Active);
