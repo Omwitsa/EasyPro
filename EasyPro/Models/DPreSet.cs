@@ -8,7 +8,7 @@ namespace EasyPro.Models
     public partial class DPreSet
     {
         public long Id { get; set; }
-        public long? Sno { get; set; }
+        public string Sno { get; set; }
         public string Deduction { get; set; }
         public string Remark { get; set; }
         public string StartDate { get; set; }
@@ -23,6 +23,7 @@ namespace EasyPro.Models
         public long? Status4 { get; set; }
         public long? Status5 { get; set; }
         public long? Status6 { get; set; }
+        public string saccocode { get; set; }
         public string BranchCode { get; set; }
     }
 }
