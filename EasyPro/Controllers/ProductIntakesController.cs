@@ -419,7 +419,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly select product type");
                 return RedirectToAction(nameof(Create));
             }
-            if (productIntake.Qsupplied < 1)
+            if (productIntake.Qsupplied < 0.01M)
             {
                 _notyf.Error("Sorry, Kindly provide quantity");
                 return RedirectToAction(nameof(Create));
