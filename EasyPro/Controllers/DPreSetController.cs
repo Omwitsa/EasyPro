@@ -10,6 +10,7 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
+using EasyPro.ViewModels.BonusVM;
 
 namespace EasyPro.Controllers
 {
@@ -27,20 +28,36 @@ namespace EasyPro.Controllers
         }
 
         // GET: DPreSets
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string Search)
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            return View(await _context.d_PreSets.Where(c=>c.saccocode== sacco && c.Stopped==false).ToListAsync());
+            ViewData["Getsuppliers"] = Search;
+            var suppliers = from x in _context.d_PreSets
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && !i.Stopped)
+                            select x;
+            if (!string.IsNullOrEmpty(Search))
+                suppliers = suppliers.Where(x => x.Sno.ToUpper().Contains(Search.ToUpper()) || x.Deduction.ToUpper().Contains(Search.ToUpper())
+                || x.Remark.ToUpper().Contains(Search.ToUpper()) || x.BranchCode.ToUpper().Contains(Search.ToUpper()));
+
+            //var val = await _context.d_PreSets.Where(c => c.saccocode == sacco && c.Stopped == false).ToListAsync();
+            return View(suppliers);
         }
         //
-        public async Task<IActionResult> UnaprovedIndex()
+        public async Task<IActionResult> UnaprovedIndex(string Search)
         {
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            return View(await _context.d_PreSets.Where(c => c.saccocode == sacco && c.Stopped == true).ToListAsync());
+            ViewData["Getsuppliers"] = Search;
+            var suppliers = from x in _context.d_PreSets
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Stopped) select x;
+            if (!string.IsNullOrEmpty(Search))
+                suppliers = suppliers.Where(x => x.Sno.ToUpper().Contains(Search.ToUpper()) || x.Deduction.ToUpper().Contains(Search.ToUpper()) 
+                || x.Remark.ToUpper().Contains(Search.ToUpper()) || x.BranchCode.ToUpper().Contains(Search.ToUpper()));
+
+            return View(suppliers);
         }
 
         public async Task<IActionResult> ResumeStop(long id)
@@ -85,11 +102,11 @@ namespace EasyPro.Controllers
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
 
             var dDcodes = _context.DDcodes.Where(a => a.Dcode == sacco).Select(m=>m.Description).ToList();
-            ViewBag.Description = dDcodes;
+            ViewBag.Description = new SelectList(dDcodes); 
         }
 
         [HttpPost]
-        public JsonResult Save([Bind("Id,Sno,Deduction,Remark,StartDate,Rate,Stopped,Auditdatetime,AuditId,Rated,Status,Status2,Status3,Status4,Status5,Status6,saccocode,BranchCode")] DPreSet dPreSet, bool isspecific, bool isallsup, bool isRate,bool isFixed)
+        public JsonResult Save(DateTime date,string? Sno,string Deduction, string Remark,decimal amtRate, bool isspecific, bool isallsup, bool isRate,bool isFixed)
         {
             try
             {
@@ -104,36 +121,88 @@ namespace EasyPro.Controllers
                     return Json("");
                 }
 
+                if (amtRate <= 0)
+                {
+                    _notyf.Error("Sorry, Kindly Provide Rate Amount");
+                    return Json("");
+                }
 
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-                var Sno = dPreSet.Sno;
+
                 Boolean Rated = true;
                 if (isFixed)
                     Rated = false;
-
-                var suppliers = _context.DSuppliers.Where(h=>h.Scode==sacco).ToList();
-                if (isspecific)
-                    suppliers = (List<DSupplier>)suppliers.Where(s => s.Sno.ToUpper().Equals(Sno.ToUpper()));
-                suppliers.ForEach(t =>
+                
+                if (isallsup)
                 {
-                    _context.d_PreSets.Add(new DPreSet
+                    var supplierslist = _context.d_PreSets
+                .Where(p => p.Deduction.ToUpper().Equals(Deduction.ToUpper())
+                && p.saccocode.ToUpper().Equals(sacco.ToUpper()));
+                    if (supplierslist.Any())
                     {
-                        Sno = t.Sno,
-                        Deduction = dPreSet.Deduction,
-                        Remark = dPreSet.Remark,
-                        StartDate = dPreSet.StartDate,
-                        Rate = dPreSet.Rate,
-                        Stopped = false,
-                        Auditdatetime = DateTime.Now,
-                        AuditId = loggedInUser,
-                        Rated = Rated,
-                        saccocode = sacco,
-                        BranchCode= saccobranch,
-                    });
-                });
+                        _context.d_PreSets.RemoveRange(supplierslist);
+                        _context.SaveChanges();
+                    }
 
+                    var suppliers = _context.DSuppliers.Where(h => h.Scode == sacco).ToList();
+                    suppliers.ForEach(s => {
+                            _context.Add(new DPreSet
+                            {
+                                Sno = s.Sno,
+                                Deduction = Deduction,
+                                Remark = Remark,
+                                StartDate = date,
+                                Rate = amtRate,
+                                Stopped = false,
+                                Auditdatetime = DateTime.Now,
+                                AuditId = loggedInUser,
+                                Rated = Rated,
+                                Status = 0,
+                                Status2 = 0,
+                                Status3 = 0,
+                                Status4 = 0,
+                                Status5 = 0,
+                                Status6 = 0,
+                                saccocode = sacco,
+                                BranchCode = s.Branch,
+                            });
+                        });
+                }
+                if (isspecific)
+                {
+                    var supplierslist = _context.d_PreSets
+                .Where(p => p.Deduction.ToUpper().Equals(Deduction.ToUpper())
+                && p.saccocode.ToUpper().Equals(sacco.ToUpper()) && p.Sno.ToUpper().Equals(Sno.ToUpper()));
+                    if (supplierslist.Any())
+                    {
+                        _context.d_PreSets.RemoveRange(supplierslist);
+                        _context.SaveChanges();
+                    }
+
+                    var intakess = _context.DSuppliers.FirstOrDefault(s =>s.Scode == sacco && s.Sno.ToUpper().Equals(Sno.ToUpper()));
+                        _context.Add(new DPreSet
+                        {
+                            Sno = intakess.Sno,
+                            Deduction = Deduction,
+                            Remark = Remark,
+                            StartDate = date,
+                            Rate = amtRate,
+                            Stopped = false,
+                            Auditdatetime = DateTime.Now,
+                            AuditId = loggedInUser,
+                            Rated = Rated,
+                            Status = 0,
+                            Status2 = 0,
+                            Status3 = 0,
+                            Status4 = 0,
+                            Status5 = 0,
+                            Status6 = 0,
+                            saccocode = sacco,
+                            BranchCode = intakess.Branch,
+                        });
+                }
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");
 
@@ -279,6 +348,24 @@ namespace EasyPro.Controllers
             }
             return View(dPreSet);
 
+        }
+
+        public async Task<IActionResult> Delete(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var dSupplier = await _context.d_PreSets
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (dSupplier == null)
+            {
+                return NotFound();
+            }
+
+            return View(dSupplier);
         }
 
         // POST: DPreSets/Delete/5

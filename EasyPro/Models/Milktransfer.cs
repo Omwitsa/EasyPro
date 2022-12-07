@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace EasyPro.Models
 {
     public class Milktransfer
     {
         public long Id { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? Transdate { get; set; }
         public decimal? fromStation { get; set; }
         public decimal? Tostation { get; set; }

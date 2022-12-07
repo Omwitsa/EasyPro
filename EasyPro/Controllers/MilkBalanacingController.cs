@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -65,7 +67,7 @@ namespace EasyPro.Controllers
                     var variance = supplies - qty;
                     _context.TransportersBalancings.Add(new TransportersBalancing
                     {
-                        Date = intake.Date,
+                        Date = (DateTime)intake.Date,
                         Transporter = intake.TransCode,
                         Quantity = "" + supplies,
                         ActualBal = "" + qty,
@@ -230,7 +232,7 @@ namespace EasyPro.Controllers
 
 
         [HttpPost]//editVariance
-        public JsonResult SaveVariance([FromBody] TransportersBalancing balancing )
+        public JsonResult SaveVariance([FromBody] TransportersBalancing balancing ,bool print)
         {
             try
             {
@@ -238,6 +240,11 @@ namespace EasyPro.Controllers
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+
+                // Start printing your items.
+                DateTime startDate = new DateTime(balancing.Date.Year, balancing.Date.Month, 1);
+                DateTime enDate = startDate.AddMonths(1).AddDays(-1);
+
                 if (string.IsNullOrEmpty(balancing.Transporter))
                 {
                     _notyf.Error("Sorry, Kindly select transporter");
@@ -261,13 +268,69 @@ namespace EasyPro.Controllers
                     var transportersBalancing = _context.TransportersBalancings.Find(id);
                     _context.TransportersBalancings.Remove(transportersBalancing);
                 }
-                
 
-                    balancing.Code = sacco;
+                var checkIfexist = _context.ProductIntake
+                    .Where(s => s.TransDate >= startDate && s.TransDate <= enDate && s.SaccoCode == sacco && s.Branch == saccoBranch
+                    && s.Sno == balancing.Transporter && s.ProductType == "variance").ToList();
+                checkIfexist.ForEach(g =>
+                {
+                    var id = g.Id;
+                    var intaketransportersBalancing = _context.ProductIntake.Find(id);
+                    _context.ProductIntake.RemoveRange(intaketransportersBalancing);
+                });
+
+                balancing.Code = sacco;
                     balancing.Branch = saccoBranch;
                     _context.TransportersBalancings.Add(balancing);
                
                 _context.SaveChanges();
+
+                //calc variance kgs
+                decimal systemkgs = 0;
+                decimal kgsdelivered = 0;
+                decimal Vvariance = 0;
+                var sumdeliveredkgs = _context.TransportersBalancings
+                    .Where(s => s.Date >= startDate && s.Date <= enDate && s.Code == sacco
+                    && s.Branch == saccoBranch && s.Transporter == balancing.Transporter).ToList();
+                sumdeliveredkgs.ForEach(n =>
+                {
+                    systemkgs = systemkgs + Convert.ToDecimal(n.Quantity);
+                    kgsdelivered = kgsdelivered + Convert.ToDecimal(n.ActualBal);
+                });
+
+                Vvariance = Convert.ToDecimal(kgsdelivered) - Convert.ToDecimal(systemkgs);
+                decimal? price = _context.DPrices.FirstOrDefault(h => h.SaccoCode == sacco).Price;
+                if (Vvariance < 0)
+                {
+                    var variance = Vvariance * price;
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = balancing.Transporter.ToUpper(),
+                        TransDate = enDate,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                        ProductType = "variance",
+                        Qsupplied = 0,
+                        Ppu = 0,
+                        CR = 0,
+                        DR = variance * -1,
+                        Balance = 0,
+                        Description = "Variance Balancing",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = false,
+                        Remarks = "Variance Balancing",
+                        AuditId = loggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = saccoBranch,
+                        SaccoCode = sacco,
+                        DrAccNo = "",
+                        CrAccNo = "",
+                        Posted = false
+                    });
+                }
+                _context.SaveChanges();
+                if (print)
+                    PrintP(balancing);
+
                 _notyf.Success("Saved successfully");
                 return Json("");
             }
@@ -276,6 +339,136 @@ namespace EasyPro.Controllers
                 return Json("");
             }
         }
+
+        private IActionResult PrintP(TransportersBalancing balancing)
+        {
+            PrintDocument printDocument = new PrintDocument();
+            printDocument.PrintPage += 
+                (sender, args) => printDocument_PrintPage(balancing, args);
+            printDocument.Print();
+            return Ok(200);
+        }
+
+        private void printDocument_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
+
+            TransportersBalancing items = sender as TransportersBalancing;
+            if (items != null)
+            {
+                // Start printing your items.
+                DateTime startDate = new DateTime(items.Date.Year, items.Date.Month, 1);
+                DateTime enDate = startDate.AddMonths(1).AddDays(-1);
+
+                //calc delivered kgs
+                decimal systemkgs =0;
+                decimal kgsdelivered = 0;
+                decimal Vvariance = 0;
+                var sumdeliveredkgs = _context.TransportersBalancings
+                    .Where(s => s.Date >= startDate && s.Date <= enDate && s.Code == sacco
+                    && s.Branch == saccoBranch && s.Transporter.Trim().ToUpper().Equals(items.Transporter.ToUpper())).ToList();
+                sumdeliveredkgs.ForEach(n =>
+                {
+                    systemkgs = systemkgs + Convert.ToDecimal(n.Quantity);
+                    kgsdelivered = kgsdelivered + Convert.ToDecimal(n.ActualBal);
+                });
+
+                Vvariance = Convert.ToDecimal(kgsdelivered)-Convert.ToDecimal(systemkgs) ;
+
+                string transporter = transporter = _context.DTransporters.FirstOrDefault(u => u.ParentT.ToUpper().Equals(sacco.ToUpper()) &&
+                 u.TransCode.Trim().ToUpper().Equals(items.Transporter.Trim().ToUpper()) && u.Active).TransName.ToString();
+
+                Graphics graphics = e.Graphics;
+                Font font = new Font("Times New Roman", 8);
+                float fontHeight = font.GetHeight();
+
+                int startX = 10;
+                int startY = -40;
+                int offset = 40;
+
+
+                graphics.DrawString(companies.Name, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                graphics.DrawString(companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                graphics.DrawString(companies.Town.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                graphics.DrawString("Tell: " + companies.PhoneNo.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                graphics.DrawString("Branch: " + saccoBranch, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                string line = "---------------------------------------------";
+                graphics.DrawString(line, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                graphics.DrawString("Transporters Balancing Receipt: ".PadRight(15), new Font("Times New Roman", 15), new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                var datet = items.Date.ToString("dd/MM/yyy");
+                graphics.DrawString("Date : " + datet.PadRight(15), new Font("Times New Roman", 15), new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                string sno = items.Code.PadRight(10);
+                graphics.DrawString("TransCode: " + sno, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                string name = transporter.ToString();
+                graphics.DrawString("Name: " + name, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                string kgs = string.Format("{0:.###}", items.ActualBal);
+                graphics.DrawString("Actual Delivered: " + kgs + "kgs", font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                string cummkgs = string.Format("{0:.###}", items.Quantity);
+                graphics.DrawString("Farmers Kgs: " + cummkgs + "kgs", font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                string Varriance = string.Format("{0:.###}",items.Varriance);
+                graphics.DrawString("Varriance: " + Varriance + "kgs", font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                string TVarriance = string.Format("{0:.###}", Vvariance);
+                graphics.DrawString("Total Varriance: " + TVarriance + "kgs", font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                string line1 = "---------------------------------------------";
+                graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                graphics.DrawString("Received By: " + loggedInUser, font, new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+
+                graphics.DrawString("Date: " + DateTime.Now, font, new SolidBrush(Color.Black), startX, startY + offset);
+
+                offset = offset + (int)fontHeight + 5;
+
+                string line2 = "---------------------------------------------";
+                graphics.DrawString(line2, font, new SolidBrush(Color.Black), startX, startY + offset);
+
+                offset = offset + (int)fontHeight + 5;
+                startY = startY + 20;
+                string dev = "DEVELOP BY: AMTECH TECHNOLOGIES LIMITED";
+                graphics.DrawString(dev.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+
+                offset = offset + (int)fontHeight + 5;
+                startY = startY + 20;
+                string dev1 = " ";
+                graphics.DrawString(dev1.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+                offset = offset + (int)fontHeight + 5;
+                graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
+
+            }
+        }
+
 
         [HttpPost]
         public JsonResult EditVariance([FromBody] TransportersBalancing balancing)

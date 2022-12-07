@@ -43,7 +43,7 @@
         <div class="normal-table-list mg-t-3">
             <div class="row">
                 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                    <h4 class="text-danger fa-bold"><i class="fas fa-bars"></i>Suppliers</h4>
+                    <h4 class="text-danger fa-bold">Suppliers</h4>
                 </div>
                 <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
                     <form method="get" asp-action="Index">
@@ -93,9 +93,6 @@
                                         @Html.DisplayNameFor(model => model.Rated)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.saccocode)
-                                    </th>
-                                    <th>
                                         @Html.DisplayNameFor(model => model.BranchCode)
                                     </th>
                                     <th></th>
@@ -130,13 +127,10 @@
                                             @Html.DisplayFor(modelItem => item.Rated)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.saccocode)
-                                        </td>
-                                        <td>
                                             @Html.DisplayFor(modelItem => item.BranchCode)
                                         </td>
                                         <td>
-                                            <a asp-action="Edit" class="btn btn-primary" asp-route-id="@item.Id">Edit</a>
+                                            <a asp-action="Delete" class="btn btn-danger" asp-route-id="@item.Id">Delete</a>
                                             <a asp-action="Stop" class="btn btn-info" asp-route-id="@item.Id">Stop</a>
                                         </td>
                                     </tr>

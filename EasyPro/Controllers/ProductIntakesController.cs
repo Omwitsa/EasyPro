@@ -475,7 +475,9 @@ namespace EasyPro.Controllers
                 };
                 _context.ProductIntake.Add(collection);
 
-                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
+                calcDefaultdeductions(collection );
+
+                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                 && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch);
 
@@ -602,6 +604,63 @@ namespace EasyPro.Controllers
 
             return View(productIntake);
         }
+        public void calcDefaultdeductions(ProductIntake collection )
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            DateTime sDate = new DateTime(collection.TransDate.Year, collection.TransDate.Month, 1);
+            DateTime enDate = sDate.AddMonths(1).AddDays(-1);
+
+            var Checkanydefaultdeduction = _context.d_PreSets.FirstOrDefault(l => l.Sno.ToUpper().Equals(collection.Sno.ToUpper()) && !l.Stopped
+            && l.saccocode.ToUpper().Equals(sacco.ToUpper()));
+            if (Checkanydefaultdeduction != null)
+            {
+                var totalkgs = _context.ProductIntake.Where(f => f.Sno.ToUpper().Equals(collection.Sno.ToUpper())
+                && f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= sDate && f.TransDate <= enDate
+                && f.TransactionType == TransactionType.Intake).Sum(n => n.Qsupplied);
+                var bonus = Checkanydefaultdeduction.Rate;
+                if (Checkanydefaultdeduction.Rated == true)
+                {
+                    totalkgs = (decimal)(totalkgs + collection.Qsupplied);
+                    bonus = totalkgs * Checkanydefaultdeduction.Rate;
+                }
+                var checkintake = _context.ProductIntake
+                .Where(f => f.Sno.ToUpper().Equals(collection.Sno.ToUpper())
+                && f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= sDate
+                && f.TransDate <= enDate && f.ProductType.ToUpper().Equals(Checkanydefaultdeduction.Deduction.ToUpper()));
+                if (checkintake.Any())
+                {
+                    _context.ProductIntake.RemoveRange(checkintake);
+                    _context.SaveChanges();
+                }
+
+                collection = new ProductIntake
+                {
+                    Sno = collection.Sno.Trim().ToUpper(),
+                    TransDate = enDate,
+                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    ProductType = Checkanydefaultdeduction.Deduction,
+                    Qsupplied = 0,
+                    Ppu = 0,
+                    CR = 0,
+                    DR = bonus,
+                    Balance = 0,
+                    Description = Checkanydefaultdeduction.Remark,
+                    TransactionType = TransactionType.Deduction,
+                    Remarks = Checkanydefaultdeduction.Remark,
+                    AuditId = loggedInUser,
+                    Auditdatetime = collection.Auditdatetime,
+                    Branch = collection.Branch,
+                    SaccoCode = collection.SaccoCode,
+                    DrAccNo = "0",
+                    CrAccNo = "0",
+                    Zone = collection.Zone
+                };
+                _context.ProductIntake.Add(collection);
+            }
+        }
         //start
         private IActionResult PrintP(ProductIntake collection)
         {
@@ -629,23 +688,23 @@ namespace EasyPro.Controllers
                 // cummulative kgs calc
                 var cumkg = _context.ProductIntake.Where(o=>o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && 
                 o.Sno == items.Sno && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) && 
-                o.TransDate >= startDate && o.TransDate<=enDate &&
-                (o.Description == "Intake" || o.Description == "Correction")).Sum(d=>d.Qsupplied);
+                o.TransDate >= startDate && o.TransDate<=enDate 
+                && (o.Description == "Intake" || o.Description == "Correction")).Sum(d=>d.Qsupplied);
 
 
                 var productIntakes = _context.ProductIntake.FirstOrDefault(u => u.Id == items.Id);
                 
-                var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
-                u.Sno.ToString().ToUpper().Equals(items.Sno.ToUpper()) && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
+                var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) 
+                && u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
                 
-                var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) && 
-                u.Sno.ToString() == items.Sno && u.Active);
+                var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) 
+                && u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Active);
 
                 string transporter = "SELF";
                 if (transport != null) 
                 {
-                    transporter = _context.DTransporters.FirstOrDefault(u => u.ParentT.ToUpper().Equals(sacco.ToUpper()) &&
-                u.TransCode.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()) && u.Active).TransName.ToString();
+                    transporter = _context.DTransporters.FirstOrDefault(u => u.ParentT.ToUpper().Equals(sacco.ToUpper()) 
+                    && u.TransCode.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()) && u.Active).TransName.ToString();
                 }
 
                 
@@ -661,7 +720,7 @@ namespace EasyPro.Controllers
                 graphics.DrawString(companies.Name, font, new SolidBrush(Color.Black), startX, startY+ offset);
                 offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("P.O BOX " + companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                graphics.DrawString( companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
                 graphics.DrawString(companies.Town.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
@@ -800,7 +859,7 @@ namespace EasyPro.Controllers
 
                 // cummulative kgs calc
                 var productIntakes  = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
-                o.Sno == items.Sno && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) &&
+                o.Sno.ToUpper().Equals(items.Sno.ToUpper()) && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) &&
                 o.TransDate >= startDate && o.TransDate <= enDate ).ToList();
 
                 var IntakesOnly = productIntakes.Where(o => (o.Description == "Intake" || o.Description == "Correction")).OrderBy(o=>o.TransDate);
@@ -810,11 +869,11 @@ namespace EasyPro.Controllers
                 var TotalDeductions = string.Format("{0:.###}", DeductionsOnly.Sum(l => l.DR)- DeductionsOnly.Sum(l => l.CR));
 
                 var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
-                u.Sno.ToString() == items.Sno  && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
+                u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
 
 
                 var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) &&
-                u.Sno.ToString() == items.Sno && u.Active);
+                u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Active);
 
                 string transporter = "SELF";
                 if (transport != null)
@@ -1051,11 +1110,15 @@ namespace EasyPro.Controllers
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
                 productIntake.AuditId = auditId ?? "";
                 productIntake.TransactionType = TransactionType.Deduction;
-                productIntake.TransDate = DateTime.Today;
+                productIntake.TransDate = productIntake.TransDate;
                 productIntake.SaccoCode = sacco;
                 productIntake.Qsupplied = 0;
                 productIntake.CR = 0;
-                productIntake.Description = productIntake.Remarks;
+                string re = productIntake.Remarks;
+                if (string.IsNullOrEmpty(productIntake.Remarks))
+                    re = productIntake.ProductType;
+                productIntake.Description = re;
+                productIntake.Remarks = re;
                 productIntake.Balance = utilities.GetBalance(productIntake);
                 productIntake.Zone = productIntake.Zone;
                 _context.Add(productIntake);
@@ -1120,11 +1183,15 @@ namespace EasyPro.Controllers
                 productIntake.AuditId = auditId ?? "";
                 productIntake.Qsupplied = 0;
                 productIntake.CR = 0;
-                productIntake.Description = productIntake.Remarks;
+                string re= productIntake.Remarks;
+                if (string.IsNullOrEmpty(productIntake.Remarks))
+                    re = productIntake.ProductType;
+                productIntake.Description = re;
+                productIntake.Remarks = re;
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.SaccoCode = sacco;
                 productIntake.Balance = utilities.GetBalance(productIntake);
-                productIntake.Branch = saccoBranch;
+                productIntake.Branch = transporters.Select(l=>l.Tbranch).ToString();
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
@@ -1283,6 +1350,8 @@ namespace EasyPro.Controllers
                     MornEvening = productIntake.MornEvening
                 };
                 _context.ProductIntake.Add(collection);
+
+                calcDefaultdeductions(collection );
 
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())

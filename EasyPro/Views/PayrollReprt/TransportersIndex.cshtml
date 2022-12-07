@@ -1,0 +1,190 @@
+﻿<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #00ff21;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1050px;
+        height: 200px;
+        overflow: auto;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <form asp-action="Create">
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+
+                    </div>
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <h1 style="text-align-last:center">Payroll Report</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">DateFrom</label>
+                            <input id="firstdate" type="date" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">DateTo</label>
+                            <input id="enddate" type="date" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <label class="control-label">-------</label>
+                            <a id="showtable" class="btn btn-warning">Show</a>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <label class="control-label">---</label>
+                            <a asp-controller="PayrollReprt" asp-action="DefaultIndex" class="btn btn-info">Back</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bsc-tbl-hvr table-border-style">
+                    <div class="table-responsive">
+                        <div class="divScroll">
+                            <table class="table table-hover" id="customers">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>Branch</th>
+                                    <th>Quantity</th>
+                                    <th>Gross</th>
+                                    <th>Agrovet</th>
+                                    <th>Loans</th>
+                                    <th>FSA</th>
+                                    <th>Shares</th>
+                                    <th>Advance</th>
+                                    <th>AI</th>
+                                    <th>Others</th>
+                                    <th>Tractor</th>
+                                    <th>Clinical</th>
+                                    <th>Variance</th>
+                                    <th>Carry F</th>
+                                    <th>Total Ded</th>
+                                    <th>NetPay</th>
+                                    <th>Bank Name</th>
+                                    <th>AccNo</th>
+                                    <th>Bank Branch</th>
+                                </tr>
+                                <tbody id="intakes">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="control-label">Total SPrice</label>
+                            <input value="0" id="Tselling" class="form-control" readonly />
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#firstdate").val(today);
+            $("#enddate").val(today);
+            $("#showtable").click(function () {
+                var date1 = $("#firstdate").val();
+                var date2 = $("#enddate").val();
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            populateIntake(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+            });
+
+            function populateIntake(intakes) {
+                let itemTableRows = new Array();
+                intakes.forEach(i => {
+                    var Code = i.code;
+                    var ddate = i.Endperiod;
+                    var dd1 = new Date(ddate).toLocaleDateString();
+                    itemTableRows.push(`<tr>
+                                <td>${dd1}</td>
+                                <td>${Code}</td>
+                                <td>${i.TransName}</td>
+                                <td>${i.Branch}</td>
+                                <td>${i.QntySup}</td>
+                                <td>${i.GrossPay}</td>
+                                <td>${i.Agrovet}</td>
+                                <td>${i.Tmshares}</td>
+                                <td>${i.Fsa}</td>
+                                <td>${i.Hshares}</td>
+                                <td>${i.Advance}</td>
+                                <td>${i.AI}</td>
+                                <td>${i.Others}</td>
+                                <td>${i.Tractor}</td>
+                                <td>${i.CLINICAL}</td>
+                                <td>${i.VARIANCE}</td>
+                                <td>${i.CurryForward}</td>
+                                <td>${i.Totaldeductions}</td>
+                                <td>${i.NetPay}</td>
+                                <td>${i.BankName}</td>
+                                <td>${i.AccNo}</td>
+                                <td>${i.BBranch}</td>
+                            </tr>`)
+                });
+
+                $('#intakes').html(itemTableRows);
+            }
+        });
+    </script>
+}
+

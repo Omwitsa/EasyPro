@@ -62,8 +62,12 @@ namespace EasyPro.Controllers
         }
         private void GetInitialValues()
         {
-            var Descriptionname = _context.DDcodes.Select(b => b.Description).ToList();
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+
+            var Descriptionname = _context.DDcodes.Where(d => d.Dcode == sacco).Select(b => b.Description).ToList();
             ViewBag.Description = new SelectList(Descriptionname);
+
 
             var brances = _context.DBranch.Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
@@ -106,7 +110,7 @@ namespace EasyPro.Controllers
             return View(dSupplierDeduc);
         }
 
-        // GET: DSupplierDeducs/Edit/5
+        // GET: DSupplierDeducs/Edit/5 
         public async Task<IActionResult> Edit(long? id)
         {
             utilities.SetUpPrivileges(this);
@@ -199,7 +203,82 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            return View(await _context.StandingOrder.Where(o => o.SaccoCode == sacco).ToListAsync());
+            return View(await _context.StandingOrder.Where(o => o.SaccoCode == sacco && !o.Status).OrderByDescending(m=>m.Id).ToListAsync());
+        }
+
+        public async Task<IActionResult> GetStandingOrderStop()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            return View(await _context.StandingOrder.Where(o => o.SaccoCode == sacco && o.Status).OrderByDescending(m => m.Id).ToListAsync());
+        }
+        public async Task<IActionResult> Stop(long id)
+        {
+            utilities.SetUpPrivileges(this);
+            var dPreSet = await _context.StandingOrder.FindAsync(id);
+            if (id != dPreSet.Id)
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    dPreSet.Status = true;
+                    _context.Update(dPreSet);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!DPreSetExists(dPreSet.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(GetStandingOrder));
+            }
+            return View(dPreSet);
+        }
+
+        public async Task<IActionResult> ResumeStop(long id)
+        {
+            utilities.SetUpPrivileges(this);
+            var StandingOrder = await _context.StandingOrder.FindAsync(id);
+            if (id != StandingOrder.Id)
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    StandingOrder.Status = false;
+                    _context.Update(StandingOrder);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!DPreSetExists(StandingOrder.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(GetStandingOrderStop));
+            }
+            return View(StandingOrder);
+
+        }
+        private bool DPreSetExists(long id)
+        {
+            return _context.StandingOrder.Any(e => e.Id == id);
         }
 
         public IActionResult StandingOrder()
@@ -213,6 +292,12 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
+
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+
+            var Descriptionname = _context.DDcodes.Where(d => d.Dcode == sacco).Select(b => b.Description).ToList();
+            ViewBag.Description = new SelectList(Descriptionname);
+
             var suppliers = _context.DSuppliers
                 .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.suppliers = suppliers;
@@ -268,37 +353,52 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var activeorders = _context.StandingOrder.Where(o => o.StartDate <= DateTime.Today && o.EndDate >= DateTime.Today && o.SaccoCode == sacco).ToList();
+
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            var activeorders = _context.StandingOrder.Where(o => o.StartDate <= endDate && o.SaccoCode == sacco && !o.Status).ToList();
             activeorders.ForEach(o =>
             {
-                var exists = _context.ProductIntake.Any(i => i.Sno == o.Sno && i.TransDate <= DateTime.Today 
-                && o.EndDate >= DateTime.Today && i.Remarks == "Standing Order" 
+                var exists = _context.ProductIntake.Any(i => i.Sno == o.Sno && i.TransDate >= startDate && i.TransDate <= endDate
+                && i.Remarks == "Standing Order" 
                 && i.Description == o.Description && i.SaccoCode == sacco);
                 if (!exists)
                 {
-                    _context.ProductIntake.Add(new ProductIntake
+                    var check = _context.ProductIntake.Where(m => m.Sno.ToUpper().Equals(o.Sno.ToUpper()) && m.Description.ToUpper().Equals(o.Zone.ToUpper())
+                    && m.SaccoCode== sacco && m.Remarks == "Standing Order" ).Sum(g => g.DR);
+                    if(o.Duration> check)
                     {
-                        Sno = o.Sno,
-                        TransDate = DateTime.Today,
-                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                        ProductType = o?.Description ?? "",
-                        Qsupplied = 0,
-                        Ppu = 0,
-                        CR = 0,
-                        DR = o.Amount,
-                        Balance = 0,
-                        Description = o?.Description ?? "",
-                        TransactionType = TransactionType.Deduction,
-                        Paid = false,
-                        Remarks = "Standing Order",
-                        AuditId = auditId,
-                        Auditdatetime = DateTime.Now,
-                        Branch = "",
-                        SaccoCode = sacco,
-                        DrAccNo = "",
-                        CrAccNo = "",
-                        Posted = false
-                    });
+                        decimal deductamount = (decimal)(o.Duration - check);
+                        if (deductamount < o.Amount)
+                            deductamount = deductamount;
+                        else
+                            deductamount = (decimal)o.Amount;
+
+                        _context.ProductIntake.Add(new ProductIntake
+                        {
+                            Sno = o.Sno.ToUpper(),
+                            TransDate = endDate,
+                            TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                            ProductType = o?.Zone ?? "",
+                            Qsupplied = 0,
+                            Ppu = 0,
+                            CR = 0,
+                            DR = deductamount,
+                            Balance = 0,
+                            Description = o?.Description ?? "",
+                            TransactionType = TransactionType.Deduction,
+                            Paid = false,
+                            Remarks = "Standing Order",
+                            AuditId = auditId,
+                            Auditdatetime = DateTime.Now,
+                            Branch = "",
+                            SaccoCode = sacco,
+                            DrAccNo = "",
+                            CrAccNo = "",
+                            Posted = false
+                        });
+                    }
                 }
             });
 

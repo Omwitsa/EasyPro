@@ -11,6 +11,7 @@ namespace EasyPro.Models
         public long Id { get; set; }
         public string TransCode { get; set; }
         public decimal? ActualKg { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? Date { get; set; }
         public DateTime? AuditDate { get; set; }
         public string SaccoCode { get; set; }
