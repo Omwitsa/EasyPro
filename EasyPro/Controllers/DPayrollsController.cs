@@ -153,6 +153,23 @@ namespace EasyPro.Controllers
                 }
                
             }
+
+            var checkgls = _context.Gltransactions
+               .Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= startDate
+               && f.TransDate <= endDate && (f.TransDescript.ToUpper().Equals("Bonus".ToUpper())|| f.TransDescript.ToUpper().Equals("Shares".ToUpper())));
+            if (checkgls.Any())
+            {
+                _context.Gltransactions.RemoveRange(checkgls);
+            }
+
+            var checksharespaid = _context.DShares.Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                            && f.TransDate >= startDate && f.TransDate <= endDate && f.Type == "Checkoff"
+                            && f.Pmode == "Checkoff");
+            if (checksharespaid.Any())
+            {
+                _context.DShares.RemoveRange(checksharespaid);
+                
+            }
             _context.SaveChanges();
 
             var branchNames1 = _context.DBranch.Where(b => b.Bcode == sacco)
@@ -396,34 +413,92 @@ namespace EasyPro.Controllers
                              && (f.TransactionType == TransactionType.Intake || f.TransactionType == TransactionType.Correction)
                              && f.Branch.ToUpper().Equals(branchName.ToUpper())).Sum(n => n.Qsupplied);
                         var bonus = Checkanydefaultdeduction.Rate;
+                        
                         if (Checkanydefaultdeduction.Rated == true)
                         {
                             totalkgs = (decimal)(totalkgs);
                             bonus = totalkgs * Checkanydefaultdeduction.Rate;
                         }
-
-
-                        _context.ProductIntake.Add(new ProductIntake
+                        var glbonus = bonus;
+                        if (Checkanydefaultdeduction.Deduction.ToUpper().Equals("Shares".ToUpper()))
                         {
-                            Sno = g.Key.Trim().ToUpper(),
-                            TransDate = endDate,
-                            TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                            ProductType = Checkanydefaultdeduction.Deduction,
-                            Qsupplied = 0,
-                            Ppu = 0,
-                            CR = 0,
-                            DR = bonus,
-                            Balance = 0,
-                            Description = Checkanydefaultdeduction.Remark,
-                            TransactionType = TransactionType.Deduction,
-                            Remarks = Checkanydefaultdeduction.Remark,
-                            AuditId = loggedInUser,
-                            Auditdatetime = DateTime.Now,
-                            Branch = branchName,
-                            SaccoCode = sacco,
-                            DrAccNo = "0",
-                            CrAccNo = "0"
-                        });
+                            var sharespaid = _context.DShares.Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
+                            && f.TransDate >= startDate && f.TransDate <= endDate && f.Type!= "Checkoff" && f.Pmode!= "Checkoff"
+                            && f.Sno.ToUpper().Equals(g.Key.ToUpper())).Sum(m => m.Amount);
+                            if (sharespaid>0)
+                            {
+                                if( sharespaid < bonus)
+                                {
+                                    bonus = bonus - sharespaid;
+                                    glbonus = bonus;
+
+                                    _context.DShares.Add(new DShare
+                                    {
+                                        Sno = g.Key.Trim().ToUpper(),
+                                        Type = "Checkoff",
+                                        Pmode = "Checkoff",
+                                        Amount = (decimal)bonus,
+                                        Period = DateTime.Today.Month.ToString(),
+                                        TransDate = endDate,
+                                        AuditDateTime = DateTime.Now,
+                                        SaccoCode = sacco,
+                                        zone = Checkanydefaultdeduction.BranchCode,
+                                        AuditId = loggedInUser,
+                                    }) ;
+                                }
+                                else
+                                {
+                                    bonus = 0;
+                                    glbonus = sharespaid;
+                                }
+
+                                
+
+                            }
+
+                        }
+
+                        if(bonus > 0)
+                        {
+                            _context.ProductIntake.Add(new ProductIntake
+                            {
+                                Sno = g.Key.Trim().ToUpper(),
+                                TransDate = endDate,
+                                TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                                ProductType = Checkanydefaultdeduction.Deduction,
+                                Qsupplied = 0,
+                                Ppu = 0,
+                                CR = 0,
+                                DR = bonus,
+                                Balance = 0,
+                                Description = Checkanydefaultdeduction.Remark,
+                                TransactionType = TransactionType.Deduction,
+                                Remarks = Checkanydefaultdeduction.Remark,
+                                AuditId = loggedInUser,
+                                Auditdatetime = DateTime.Now,
+                                Branch = branchName,
+                                SaccoCode = sacco,
+                                DrAccNo = "0",
+                                CrAccNo = "0"
+                            });
+                        }
+                        var glsforbonus = _context.DDcodes.FirstOrDefault(m => m.Description.ToUpper().Equals(Checkanydefaultdeduction.Deduction.ToUpper()));
+
+                            _context.Gltransactions.Add(new Gltransaction
+                            {
+                                AuditId = loggedInUser,
+                                TransDate = endDate,
+                                Amount = (decimal)glbonus,
+                                AuditTime = DateTime.Now,
+                                Source = g.Key.Trim().ToUpper(),
+                                TransDescript = Checkanydefaultdeduction.Deduction,
+                                Transactionno = $"{loggedInUser}{DateTime.Now}",
+                                SaccoCode = sacco,
+                                DrAccNo = glsforbonus.Dedaccno,
+                                CrAccNo = glsforbonus.Contraacc,
+                            });
+                       
+                        
 
                     };
                 }

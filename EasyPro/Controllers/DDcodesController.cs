@@ -64,7 +64,7 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).ToList();
+            var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).OrderBy(m => m.GlAccName).ToList();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
         }
 

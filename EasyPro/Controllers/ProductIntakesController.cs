@@ -636,6 +636,16 @@ namespace EasyPro.Controllers
                     _context.SaveChanges();
                 }
 
+                var checkgls = _context.Gltransactions
+                .Where(f => f.Source.ToUpper().Equals(collection.Sno.ToUpper())
+                && f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= sDate
+                && f.TransDate <= enDate && f.TransDescript.ToUpper().Equals("BONUS".ToUpper()));
+                if (checkgls.Any())
+                {
+                    _context.Gltransactions.RemoveRange(checkgls);
+                    _context.SaveChanges();
+                }
+
                 collection = new ProductIntake
                 {
                     Sno = collection.Sno.Trim().ToUpper(),
@@ -659,6 +669,23 @@ namespace EasyPro.Controllers
                     Zone = collection.Zone
                 };
                 _context.ProductIntake.Add(collection);
+
+                var glsforbonus = _context.DDcodes.FirstOrDefault(m=>m.Description.ToUpper().Equals(Checkanydefaultdeduction.Deduction.ToUpper()));
+
+                _context.Gltransactions.Add(new Gltransaction
+                {
+                    AuditId = loggedInUser,
+                    TransDate = enDate,
+                    Amount = (decimal)bonus,
+                    AuditTime = DateTime.Now,
+                    Source = collection.Sno.Trim().ToUpper(),
+                    TransDescript = "Bonus",
+                    Transactionno = $"{loggedInUser}{DateTime.Now}",
+                    SaccoCode = sacco,
+                    DrAccNo = glsforbonus.Dedaccno,
+                    CrAccNo = glsforbonus.Contraacc,
+                });
+
             }
         }
         //start
@@ -669,8 +696,6 @@ namespace EasyPro.Controllers
             printDocument.Print();
             return Ok(200);
         }
-
-
         private void printDocument_PrintPage(object sender, PrintPageEventArgs e)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
