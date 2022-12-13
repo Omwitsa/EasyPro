@@ -12,6 +12,7 @@ namespace EasyPro.ViewModels
     {
         public string Sno { get; set; }
         public string SupName { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? TransDate { get; set; }
         public string ProductType { get; set; }
         public decimal? Qsupplied { get; set; }

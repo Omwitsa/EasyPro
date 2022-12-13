@@ -584,25 +584,92 @@ namespace EasyPro.Controllers
                         Code = sacco
                     });
                 }
-
                 if (productIntake.Print)
                     PrintP(collection);
 
                 _context.SaveChanges();
                 // _notyf.Success("Intake saved successfully");
-
                 SetIntakeInitialValues();
+                //    var intakes = _context.ProductIntake
+                //.FirstOrDefault(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                //&& i.Sno == collection.Sno && i.TransDate == collection.TransDate && i.TransTime == collection.TransTime);
+                //    return RedirectToAction("createprinttest", new { id = intakes.Id });//"Details", "Event", new { id = thisEvent }
 
-                var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
-                var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
-                return View(new ProductIntakeVm
-                {
-                    Todaykgs = Todayskg,
-                    TodayBranchkgs = TodaysBranchkg
-                });
+                    var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
+                    var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+                    return View(new ProductIntakeVm
+                    {
+                        Todaykgs = Todayskg,
+                        TodayBranchkgs = TodaysBranchkg
+                    });
+                
             }
 
             return View(productIntake);
+        }
+        //public IActionResult printtest(ProductIntake collection)
+        public IActionResult createprinttest(long id)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var collection = _context.ProductIntake.FirstOrDefault(u => u.Id == id);
+            var company = _context.DCompanies.Where(u => u.Name == sacco);
+            var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode == sacco && u.Sno.ToUpper().Equals(collection.Sno.ToUpper()));
+            //intakes.ToList()
+
+            
+
+            ViewBag.company = company.Select(s => new DCompany
+            {
+                Name = s.Name,
+                Adress = s.Adress,
+                Town = s.Town,
+                PhoneNo = s.PhoneNo,
+                Email = s.Email,
+                Website = s.Website
+            }).ToList();
+
+            return View(new ViewModels.SuppliersreceiptVM.Suppliersreceipt
+            {
+                TransDate = collection.TransDate,
+                ProductType = collection.ProductType,
+                Qsupplied = collection.Qsupplied,
+            });
+        }
+        public IActionResult complainprinttest(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var collection = _context.ProductIntake.Where(u => u.Id == id);
+            return View(id);
+        }
+        [HttpPost]
+        public JsonResult getdetatils(long? id)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            var collection = _context.ProductIntake.Where(u => u.Id == id);
+
+            return Json(collection);
+        }
+        public IActionResult printtest(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var collection = _context.ProductIntake.Where(u => u.Id == id);
+            //intakes.ToList()
+            return View(collection.ToList());
         }
         public void calcDefaultdeductions(ProductIntake collection )
         {
@@ -1544,7 +1611,7 @@ namespace EasyPro.Controllers
         public IActionResult Reprint(long? id)
         {
             var collection = _context.ProductIntake.FirstOrDefault(u=>u.Id== id);
-            PrintP(collection);
+            //printtest(collection);
             return RedirectToAction(nameof(Index));
         }
         // GET: ProductIntakes/Edit/5

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace EasyPro.Models
+namespace EasyPro.ViewModels
 {
-    public class milkcontrol2
+    public class MilkBranchControlListVM
     {
         public long Id { get; set; }
         public decimal? Intake { get; set; }
@@ -20,7 +22,7 @@ namespace EasyPro.Models
         public decimal? Tostation { get; set; }
         public string code { get; set; }
         public string Branch { get; set; }
-        [NotMapped]
-        public string Total { get; set; }
+        public decimal Total { get; set; }
+        public decimal Varriance { get; set; }
     }
 }

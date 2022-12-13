@@ -1,0 +1,133 @@
+﻿@model IEnumerable<EasyPro.ViewModels.SuppliersreceiptVM.Suppliersreceipt>
+<div class="row">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <form method="post" action="" id="myfrm">
+
+        <input type="text" id="Name" readonly><br>
+        <input type="text" id="Adress" readonly><br>
+        <input type="text" id="Town" readonly><br>
+        <input type="text" id="PhoneNo" readonly><br>
+        <input type="text" id="Email" readonly><br>
+        <input type="text" id="Website" readonly><br>
+        @*<table id="customer">
+            <thead>
+                <tr>
+                    <th>
+                    </th>
+                    <th>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="detail">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Sno)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table><br>*@
+        <table border="1" cellpadding="3" class="table table-hover" id="customers">
+            <thead>
+                <tr>
+                    <th>
+                        Date
+                    </th>
+                    <th>
+                        Product
+                    </th>
+                    <th>
+                        Kgs
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="details">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TransDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProductType)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Qsupplied)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>Receive By:
+        <input type="text" value="Evans" readonly><br>
+        ..DEVELOPED BY AMTECH TECHNOLOGIES LTD..
+
+    </form>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+<script type="text/javascript">
+        $(function () {
+            var selectsuppliers = @Html.Raw(Json.Serialize(ViewBag.company));
+            if (selectsuppliers[0]) {
+                $("#names").val(selectsuppliers[0].Name);
+                $("#Adress").val(selectsuppliers[0].Adress);
+                $("#Town").val(selectsuppliers[0].Town);
+                $("#PhoneNo").val(selectsuppliers[0].PhoneNo);
+                $("#Email").val(selectsuppliers[0].Email);
+                $("#Website").val(selectsuppliers[0].Website);
+            }
+
+            var printdata = document.getElementById('myfrm');
+            window.resizeTo(90, 60);
+            newwin = window.open("");
+            newwin.document.write(printdata.outerHTML);
+            newwin.print();
+            newwin.close();
+            //let url = "../Create";
+            //window.location.replace(url);
+
+
+        });
+        function getdetails() {
+            var id = $("#defaultid").val();
+            $.ajax(
+                {
+                    type: 'POST',
+                    url: "getdetatils?id="+ id,
+                    contentType: 'application/json',
+                    data: JSON.stringify({ sno: sno }),
+                    success: function (response) {
+                        populateIntake(response)
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+        }
+
+        function populateIntake(intakes) {
+            let itemTableRows = new Array();
+            intakes.forEach(i => {
+                //debugger;
+                var ddate = i.TransDate;
+                var dd1 = new Date(ddate).toLocaleDateString();
+                itemTableRows.push(`<tr>
+                                <td>${dd1}</td>
+                                <td>${i.ProductType}</td>
+                                <td>${i.Qsupplied}</td>
+                            </tr>`)
+            });
+
+            $('#details').html(itemTableRows);
+        }
+</script>
+}
