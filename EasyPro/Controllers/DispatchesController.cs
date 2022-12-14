@@ -30,8 +30,11 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             return View(await _context.Dispatch
-                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== "MAIN")
+                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== "MAIN"
+                && i.Transdate >= startDate && i.Transdate <= endDate)
                 .OrderByDescending(s=>s.Transdate).ToListAsync());
         }
 
@@ -40,8 +43,11 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             return View(await _context.Dispatch
-                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch != "MAIN")
+                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch != "MAIN" 
+                && i.Transdate>= startDate && i.Transdate<= endDate)
                 .OrderByDescending(s => s.Transdate).ToListAsync());
         }
 
