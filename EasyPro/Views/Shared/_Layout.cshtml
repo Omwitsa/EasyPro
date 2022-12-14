@@ -213,17 +213,20 @@
                                             <li>
                                                 <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
                                             </li>
-                                            <li>
-                                                <a asp-controller="DMilkQualities" asp-action="Index">Milk Test</a>
-                                            </li>
+                                            @if (!ViewBag.isTanyakina)
+                                            {
+                                                <li>
+                                                    <a asp-controller="DMilkQualities" asp-action="Index">Milk Test</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="DispatchBalancing" asp-action="Index">Variance Balancing</a>
+                                                </li>
+                                            }
                                             <li>
                                                 <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Milk Transfer</a>
                                             </li>
                                             <li>
                                                 <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Milk Control</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="DispatchBalancing" asp-action="Index">Variance Balancing</a>
                                             </li>
                                             <li>
                                                 <a asp-controller="DMilkQualities" asp-action="MilkControll">Main Milk Control</a>
@@ -548,18 +551,23 @@
                                 <li>
                                     <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="DMilkQualities" asp-action="Index">Milk Test</a>
-                                </li>
+
                                 <li>
                                     <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Milk Transfer</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Milk Control</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="DispatchBalancing" asp-action="Index">Variance Balancing</a>
-                                </li>
+                                @if (!ViewBag.isTanyakina)
+                                {
+                                    <li>
+                                        <a asp-controller="DMilkQualities" asp-action="Index">Milk Test</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="DispatchBalancing" asp-action="Index">Variance Balancing</a>
+                                    </li>
+                                }
+
                                 <li>
                                     <a asp-controller="DMilkQualities" asp-action="MilkControll">Main Milk Control</a>
                                 </li>

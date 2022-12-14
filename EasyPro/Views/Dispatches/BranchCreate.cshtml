@@ -10,7 +10,7 @@
                 <h2>Create Branch New Dispatch</h2>
             </div>
             <hr />
-            <form asp-action="Create">
+            <form asp-action="BranchCreate">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -48,6 +48,24 @@
                                 <label asp-for="Dispatchkgs" class="control-label">Dispatch kgs</label>
                                 <input asp-for="Dispatchkgs" class="form-control" />
                                 <span asp-validation-for="Dispatchkgs" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Remarks" class="control-label"></label>
+                                <input id="intake" asp-for="Remarks" class="form-control" />
+                                <span asp-validation-for="Remarks" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                
                             </div>
                         </div>
                     </div>

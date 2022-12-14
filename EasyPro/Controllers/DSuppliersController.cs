@@ -165,6 +165,7 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             sacco = sacco ?? "";
             ViewBag.sacco = sacco;
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
@@ -176,14 +177,21 @@ namespace EasyPro.Controllers
             var WardSubCounty = _context.Ward.OrderBy(K => K.Name).ToList();
             ViewBag.WardSubCounty = WardSubCounty;
             ViewBag.wards = new SelectList(WardSubCounty, "Name", "Name");
-            var locations = _context.DLocations.Where(l => l.Lcode == sacco && l.Branch == saccoBranch).OrderBy(K => K.Lname).Select(b => b.Lname).ToList();
-            ViewBag.locations = new SelectList(locations);
+            var brances = _context.DBranch.Where(a => a.Bcode == sacco).OrderBy(K => K.Bname).ToList();
+
+            var locations = _context.DLocations.Where(l => l.Lcode == sacco).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                locations = locations.Where(t => t.Branch == saccoBranch).ToList();
+                brances = brances.Where(l=>l.Bname== saccoBranch).ToList();
+            }
+
+            ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
+            ViewBag.locations = new SelectList(locations.OrderBy(K => K.Lname).Select(b => b.Lname));
 
             var banksname = _context.DBanks.Where(a=>a.BankCode == sacco).OrderBy(K => K.BankName).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
-
-            var brances = _context.DBranch.Where(a => a.Bcode == sacco).OrderBy(K => K.Bname).Select(b => b.Bname).ToList();
-            ViewBag.brances = new SelectList(brances);
 
             var bankbrances = _context.DBankBranch.Where(a => a.BankCode == sacco).OrderBy(K => K.Bname).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
@@ -230,13 +238,22 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var dSupplierExists = _context.DSuppliers.Any(i => (i.Sno == dSupplier.Sno || i.IdNo == dSupplier.IdNo)
+            var dSupplierExists = _context.DSuppliers.Any(i => i.Sno == dSupplier.Sno
             && i.Scode == sacco && i.Branch == saccoBranch && i.Zone== dSupplier.Zone);
             if (dSupplierExists)
             {
                 //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)
                 GetInitialValues();
-                _notyf.Error("Sorry, The Supplier already exist");
+                _notyf.Error("Sorry, The Supplier Number already exist");
+                return View();
+            }
+            var dSupplierExistsIDNo = _context.DSuppliers.Any(i => i.IdNo == dSupplier.IdNo
+            && i.Scode == sacco && i.Branch == saccoBranch && i.Zone == dSupplier.Zone);
+            if (dSupplierExistsIDNo)
+            {
+                //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)
+                GetInitialValues();
+                _notyf.Error("Sorry, The Supplier IDNo already exist");
                 return View();
             }
             //}

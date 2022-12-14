@@ -50,9 +50,10 @@ namespace EasyPro.Controllers
             var MilkBranchListVM = new List<MilkBranchControlListVM>();
             if(rejects.Count > 0)
             {
-                rejects.ForEach(l =>
+                var transGroups = rejects.GroupBy(t => t.transdate).ToList();
+                transGroups.ForEach(l =>
                 {
-                    var intakes = rejects.FirstOrDefault();
+                    var intakes = l.FirstOrDefault();
                     MilkBranchListVM.Add(new MilkBranchControlListVM
                     {
                         Id = intakes.Id,
@@ -62,10 +63,11 @@ namespace EasyPro.Controllers
                         Tostation = intakes.Tostation,
                         Total=((decimal)(intakes.Bf+ intakes.Intake+ intakes.Tostation)),
                         FromStation = intakes.FromStation,
+                        SQuantity= intakes.SQuantity,
                         Reject = intakes.Reject,
                         Spillage = intakes.Spillage,
                         cfa = intakes.cfa,
-                        Varriance = ((decimal)((intakes.FromStation + intakes.Reject + intakes.Spillage + intakes.cfa) - (intakes.Bf + intakes.Intake + intakes.Tostation))),
+                        Varriance = ((decimal)((intakes.FromStation + intakes.Reject + intakes.Spillage+ intakes.SQuantity + intakes.cfa) - (intakes.Bf + intakes.Intake + intakes.Tostation))),
                         Branch= intakes.Branch,
                     });
                     _context.SaveChanges();
@@ -81,11 +83,26 @@ namespace EasyPro.Controllers
             var startDate = month.AddMonths(0);
             var endDate = month.AddMonths(1).AddDays(-1);
             utilities.SetUpPrivileges(this);
-            GetInitialValues();
+            
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            ViewBag.brances = saccoBranch;
             var dispatches = _context.Dispatch.Where(k=>k.Dcode == sacco && k.Branch==saccoBranch && k.Transdate== DateTime.Today).Sum(l=>l.Dispatchkgs);
-            return View(new milkcontrol2 { SQuantity = dispatches });
+            return View(new milkcontrol2 { Branch = saccoBranch });
+        }
+        public IActionResult MilkBranchBalancingEnquiry()
+        {
+            var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var startDate = month.AddMonths(0);
+            var endDate = month.AddMonths(1).AddDays(-1);
+            utilities.SetUpPrivileges(this);
+
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var brances = _context.DBranch.Where(a => a.Bcode == sacco).OrderBy(K => K.Bname).Select(b => b.Bname).ToList();
+            ViewBag.brances = new SelectList(brances);
+            var dispatches = _context.Dispatch.Where(k => k.Dcode == sacco && k.Branch == saccoBranch && k.Transdate == DateTime.Today).Sum(l => l.Dispatchkgs);
+            return View(ViewBag.brances);
         }
         public IActionResult MilkControll()
         {
@@ -123,19 +140,21 @@ namespace EasyPro.Controllers
                     MilkControlVmlist.Add(new MilkControlVm
                     {
                         Id = intake.Id,
-                        Intake = Intakekg,
                         transdate = intake.transdate,
+                        Bf = Bfkg,
+                        Intake = Intakekg,
+                        Tostation = Tostationkg,
+                        Total = ((decimal)(Bfkg + Intakekg + Tostationkg)),
+                        FromStation = FromStationkg,
                         SQuantity = SQuantitykg,
                         Reject = Rejectkg,
-                        cfa = cfakg,
                         Spillage = Spillagekg,
-                        Bf = Bfkg,
-                        FromStation = FromStationkg,
-                        Tostation = Tostationkg,
+                        cfa = cfakg,
+                        Varriance = ((FromStationkg + SQuantitykg + Rejectkg + cfakg + Spillagekg) -(Bfkg + Intakekg + Tostationkg)),
+                        Branch = "MAIN",
                         code = sacco,
                         auditid = LoggedInUser,
-                        Branch = "MAIN",
-                        Varriance = (Intakekg - (SQuantitykg + Rejectkg + cfakg + Spillagekg))
+                        
                     });
                     _context.SaveChanges();
                 });
@@ -160,8 +179,32 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
-            return View(milkcontrolslist);
+            var MilkBranchListVM = new List<MilkBranchControlListVM>();
+            if (milkcontrolslist.Count > 0)
+            {
+                milkcontrolslist.ForEach(l =>
+                {
+                    var intakes = milkcontrolslist.FirstOrDefault();
+                    MilkBranchListVM.Add(new MilkBranchControlListVM
+                    {
+                        Id = intakes.Id,
+                        transdate = intakes.transdate,
+                        Bf = intakes.Bf,
+                        Intake = intakes.Intake,
+                        Tostation = intakes.Tostation,
+                        Total = ((decimal)(intakes.Bf + intakes.Intake + intakes.Tostation)),
+                        FromStation = intakes.FromStation,
+                        SQuantity = intakes.SQuantity,
+                        Reject = intakes.Reject,
+                        Spillage = intakes.Spillage,
+                        cfa = intakes.cfa,
+                        Varriance = ((decimal)((intakes.FromStation + intakes.Reject + intakes.Spillage + intakes.SQuantity + intakes.cfa) - (intakes.Bf + intakes.Intake + intakes.Tostation))),
+                        Branch = intakes.Branch,
+                    });
+                    _context.SaveChanges();
+                });
+            }
+            return View(MilkBranchListVM);
         }
 
         [HttpPost]
@@ -206,7 +249,8 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var rejects = _context.Milktransfer.Where(i => i.Code.ToUpper().Equals(sacco.ToUpper()) && i.Transdate>= startDate && i.Transdate<= endDate).ToList();
+            var rejects = _context.Milktransfer.Where(i => i.Code.ToUpper().Equals(sacco.ToUpper()) && i.Transdate>= startDate 
+            && i.Transdate<= endDate).ToList();
             rejects = rejects.OrderByDescending(y=>y.Transdate).ToList();
             return View(rejects);
         }
@@ -216,7 +260,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var dispatches = _context.Dispatch.Where(k => k.Dcode == sacco && k.Branch == branch
+            var dispatches = _context.Dispatch.Where(k => k.Dcode == sacco && k.Branch == saccoBranch
             && k.Transdate == transDate).Sum(l => l.Dispatchkgs);
             return Json(dispatches);
         }

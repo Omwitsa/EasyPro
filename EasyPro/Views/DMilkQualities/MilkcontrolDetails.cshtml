@@ -1,4 +1,5 @@
-﻿@model IEnumerable<EasyPro.Models.milkcontrol2>
+﻿@*@model IEnumerable<EasyPro.Models.milkcontrol2>*@
+@model IEnumerable<EasyPro.ViewModels.MilkBranchControlListVM>
 
 @{
     ViewData["Title"] = "MilkcontrolDetails";
@@ -62,28 +63,35 @@
                                         @Html.DisplayNameFor(model => model.transdate)
                                     </th>
                                     <th>
+                                        BF(Kgs)
+                                    </th>
+                                    <th>
                                         @Html.DisplayNameFor(model => model.Intake)
                                     </th>
                                     <th>
-                                        Quantity(Kgs)
+                                        Dispatch TO(Kgs)
+                                    </th>
+                                    <th>
+                                        Total(Kgs)
+                                    </th>
+                                    <th>
+                                        Dispatch From(Kgs)
+                                    </th>
+                                    <th>
+                                        Sold(Kgs)
                                     </th>
                                     <th>
                                         Reject(Kgs)
+                                    </th>
+
+                                    <th>
+                                        Spillage(Kgs)
                                     </th>
                                     <th>
                                         CF(Kgs)
                                     </th>
                                     <th>
-                                        Spillage(Kgs)
-                                    </th>
-                                    <th>
-                                        BF(Kgs)
-                                    </th>
-                                    <th>
-                                        FromStation(Kgs)
-                                    </th>
-                                    <th>
-                                        Tostation(Kgs)
+                                        Varriance(Kgs)
                                     </th>
                                     <th>
                                         @Html.DisplayNameFor(model => model.Branch)
@@ -93,38 +101,44 @@
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.transdate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Intake)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.SQuantity)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Reject)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.cfa)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Spillage)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Bf)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.FromStation)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Tostation)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Branch)
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.transdate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Bf)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Intake)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Tostation)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Total)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.FromStation)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.SQuantity)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Reject)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Spillage)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.cfa)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Varriance)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Branch)
+                                        </td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>

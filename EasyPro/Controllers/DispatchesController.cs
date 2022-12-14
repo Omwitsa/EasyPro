@@ -96,7 +96,7 @@ namespace EasyPro.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BranchCreate([Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,auditid")] Dispatch dispatch)
+        public async Task<IActionResult> BranchCreate([Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,Remarks,auditid")] Dispatch dispatch)
         {
             try
             {
@@ -105,12 +105,12 @@ namespace EasyPro.Controllers
                 var branch = HttpContext.Session.GetString(StrValues.Branch);
                 var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco 
                 && i.Transdate == dispatch.Transdate && i.Branch == branch);
-                if (locations)
-                {
-                    _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
-                    GetInitialValues();
-                    return View();
-                }
+                //if (locations)
+                //{
+                //    _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
+                //    GetInitialValues();
+                //    return View();
+                //}
                 //if(dispatch.TIntake < dispatch.Dispatchkgs)
                 //{
                 //    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
@@ -161,19 +161,19 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,auditid")] Dispatch dispatch)
+        public async Task<IActionResult> Create([Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,Remarks,auditid")] Dispatch dispatch)
         {
             try
             {
                 utilities.SetUpPrivileges(this);
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                 var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco &&i.Branch=="MAIN" && i.Transdate == dispatch.Transdate);
-                if (locations)
-                {
-                    _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
-                    GetInitialValues();
-                    return View();
-                }
+                //if (locations)
+                //{
+                //    _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
+                //    GetInitialValues();
+                //    return View();
+                //}
                 //if(dispatch.TIntake < dispatch.Dispatchkgs)
                 //{
                 //    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
