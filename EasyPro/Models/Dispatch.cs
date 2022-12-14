@@ -16,6 +16,7 @@ namespace EasyPro.Models
         [Required]
         public decimal TIntake { get; set; }
         public string auditid { get; set; }
+        public string Branch { get; set; }
 
     }
 }

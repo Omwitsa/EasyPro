@@ -41,9 +41,9 @@ namespace EasyPro.Controllers
         private void SetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var customers = _context.Customers.Where(c => c.SaccoCode == sacco).ToList();
+            var customers = _context.Customers.Where(c => c.SaccoCode == sacco).OrderBy(m => m.Name).ToList();
             ViewBag.customers = new SelectList(customers, "Name", "Name");
-            var products = _context.CProducts.Where(c => c.SaccoCode == sacco).ToList();
+            var products = _context.CProducts.Where(c => c.SaccoCode == sacco).OrderBy(m => m.Name).ToList();
             ViewBag.products = products;
             ViewBag.productNames = new SelectList(products, "Name", "Name");
         }

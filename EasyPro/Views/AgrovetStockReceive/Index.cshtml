@@ -144,7 +144,6 @@
             function populateIntake(intakes) {
                 let itemTableRows = new Array();
                 intakes.forEach(i => {
-                    //debugger;
                     var ddate = i.DateEntered;
                     var buying = i.Qin * i.Pprice;
                     var dd1 = new Date(ddate).toLocaleDateString();

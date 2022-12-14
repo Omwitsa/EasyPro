@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EasyPro.Models.milkcontrol2>
+﻿@model IEnumerable<EasyPro.ViewModels.MilkBranchControlListVM>
 
 @{
     ViewData["Title"] = "RejectsIndex";
@@ -42,10 +42,10 @@
         <div class="normal-table-list mg-t-30">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                    <h3 class="text-danger fa-bold">Rejects List</h3>
+                    <h3 class="text-danger fa-bold">Branch Milk Control List</h3>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-
+                    <a asp-action="printtest" class="btn btn-primary">print test</a>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <a asp-action="RejectsCreate" class="btn btn-primary">Create New</a>
@@ -58,31 +58,35 @@
                             <thead>
                                 <tr>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Intake)
-                                    </th>
-                                    <th>
                                         @Html.DisplayNameFor(model => model.transdate)
-                                    </th>
-                                    <th>
-                                        Quantity(Kgs)
-                                    </th>
-                                    <th>
-                                        Reject(Kgs)
-                                    </th>
-                                    <th>
-                                        CF(Kgs)
-                                    </th>
-                                    <th>
-                                        Spillage(Kgs)
                                     </th>
                                     <th>
                                         BF(Kgs)
                                     </th>
                                     <th>
-                                        FromStation(Kgs)
+                                        @Html.DisplayNameFor(model => model.Intake)
                                     </th>
                                     <th>
-                                        Tostation(Kgs)
+                                        Dispatch TO(Kgs)
+                                    </th>
+                                    <th>
+                                        Total(Kgs)
+                                    </th>
+                                    <th>
+                                        Dispatch From(Kgs)
+                                    </th>
+                                    <th>
+                                        Reject(Kgs)
+                                    </th>
+
+                                    <th>
+                                        Spillage(Kgs)
+                                    </th>
+                                    <th>
+                                        CF(Kgs)
+                                    </th>
+                                    <th>
+                                        Varriance(Kgs)
                                     </th>
                                     <th>
                                         @Html.DisplayNameFor(model => model.Branch)
@@ -95,31 +99,34 @@
                                 {
                                 <tr>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Intake)
-                                    </td>
-                                    <td>
                                         @Html.DisplayFor(modelItem => item.transdate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.SQuantity)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Reject)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.cfa)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Spillage)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.Bf)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.FromStation)
+                                        @Html.DisplayFor(modelItem => item.Intake)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.Tostation)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Total)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.FromStation)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Reject)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Spillage)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.cfa)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Varriance)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.Branch)

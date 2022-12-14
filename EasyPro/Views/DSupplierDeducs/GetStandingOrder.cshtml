@@ -37,15 +37,17 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                     <h3 class="text-danger fa-bold">Standing Orders</h3>
                 </div>
-                
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                     <a asp-action="ProcessStandingOrder" class="btn btn-primary">Process Standing Order</a>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                     <a asp-action="StandingOrder" class="btn btn-primary">Create New</a>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <a asp-action="GetStandingOrderStop" class="btn btn-primary">Stoped StandingOrdes</a>
                 </div>
             </div>
 
@@ -62,49 +64,52 @@
                                         @Html.DisplayNameFor(model => model.TransDate)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.StartDate)
+                                        StandingOrder 
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.EndDate)
+                                        Maximum Amount
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Amount)
+                                        Amount
                                     </th>
                                     <th>
                                         @Html.DisplayNameFor(model => model.Description)
                                     </th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Sno)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.TransDate)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.StartDate)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.EndDate)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Amount)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Description)
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sno)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Zone)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Duration)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Amount)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Description)
+                                    </td>
+                                    <td class="col-4">
+                                        <a asp-action="Stop" class="btn btn-info" asp-route-id="@item.Id">Stop</a>
+                                    </td>
+                                </tr>
                                 }
                             </tbody>
                         </table>
                     </div>
                 </div>
-                
             </div>
-            </div>
+        </div>
     </div>
 </div>

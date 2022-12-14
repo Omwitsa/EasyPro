@@ -15,6 +15,7 @@ namespace EasyPro.ViewModels
         public decimal? GrossPay { get; set; }
         public decimal? Transport { get; set; }
         public decimal? Registration { get; set; }
+        public decimal? Fsa { get; set; }
         public decimal? Advance { get; set; }
         public decimal? Others { get; set; }
         public decimal? Netpay { get; set; }

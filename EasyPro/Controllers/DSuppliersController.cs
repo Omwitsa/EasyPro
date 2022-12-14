@@ -188,13 +188,8 @@ namespace EasyPro.Controllers
             var bankbrances = _context.DBankBranch.Where(a => a.BankCode == sacco).OrderBy(K => K.Bname).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
 
-            var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
-            ViewBag.zones = new SelectList(zones);
-
-            if (!string.IsNullOrEmpty(zones.ToString()))
-                ViewBag.checkiftoenable = 1;
-            else
-                ViewBag.checkiftoenable = 0;
+            var routes = _context.Routes.Where(a => a.scode == sacco ).OrderBy(m => m.Name).Select(b => b.Name).ToList();
+            ViewBag.routes = new SelectList(routes);
 
 
             List<SelectListItem> gender = new()

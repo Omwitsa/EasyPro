@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EasyPro.Models
 {
@@ -19,5 +20,7 @@ namespace EasyPro.Models
         public decimal? Tostation { get; set; }
         public string code { get; set; }
         public string Branch { get; set; }
+        [NotMapped]
+        public string Total { get; set; }
     }
 }

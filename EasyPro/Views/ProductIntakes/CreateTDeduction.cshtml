@@ -107,7 +107,7 @@
                         $('#transCode').on('keyup', function () {
 
                             var products = @Html.Raw(Json.Serialize(Model.DTransporters));
-                            var selectVal = $("#transCode").val();
+                            var selectVal = $("#transCode").val().toUpperCase();
                             var selectProducts = products.filter(p => p.TransCode === selectVal);
                                 if (selectProducts[0]) {
                                     $("#name").val(selectProducts[0].TransName);

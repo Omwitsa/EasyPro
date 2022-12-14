@@ -16,6 +16,7 @@ namespace EasyPro.Models
         public string CertNo { get; set; }
         public string Locations { get; set; }
         [Required]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? TregDate { get; set; }
         public string Email { get; set; }
         [Required]

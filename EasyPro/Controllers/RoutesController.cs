@@ -31,7 +31,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            return View(await _context.Routes.ToListAsync());
+            return View(await _context.Routes.Where(k=>k.scode==sacco).ToListAsync());
         }
 
         // GET: Routes/Details/5

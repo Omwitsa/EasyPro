@@ -33,7 +33,7 @@ namespace EasyPro.Controllers
         public IActionResult Create(string sno)
         {
             utilities.SetUpPrivileges(this);
-            ViewBag.sno = sno;
+            ViewBag.sno = sno ?? "0";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var suppliers = _context.DSuppliers
                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
@@ -95,9 +95,9 @@ namespace EasyPro.Controllers
                 utilities.SetUpPrivileges(this);
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
 
-                var flmd = _context.FLMD.FirstOrDefault(f => f.Sno == sno && f.SaccoCode == sacco);
-                var crops = _context.FLMDCrops.Where(c => c.Sno == sno && c.SaccoCode == sacco).ToList();
-                var lands = _context.FLMDLand.Where(d => d.Sno == sno && d.SaccoCode == sacco).ToList();
+                var flmd = _context.FLMD.FirstOrDefault(f => f.Sno == sno.ToUpper() && f.SaccoCode == sacco);
+                var crops = _context.FLMDCrops.Where(c => c.Sno == sno.ToUpper() && c.SaccoCode == sacco).ToList();
+                var lands = _context.FLMDLand.Where(d => d.Sno == sno.ToUpper() && d.SaccoCode == sacco).ToList();
 
                 return Json(new
                 {
@@ -164,7 +164,7 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
                 _notyf.Success("Crops saved successfully");
 
-                var fLMDCrops = _context.FLMDCrops.Where(c => c.Sno == crops.Sno && c.SaccoCode == sacco).ToList();
+                var fLMDCrops = _context.FLMDCrops.Where(c => c.Sno == crops.Sno.ToUpper() && c.SaccoCode == sacco).ToList();
                 return Json(fLMDCrops);
             }
             catch (Exception e)
@@ -188,7 +188,7 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
                 _notyf.Success("Land saved successfully");
 
-                var fLMDLands = _context.FLMDLand.Where(c => c.Sno == land.Sno && c.SaccoCode == sacco).ToList();
+                var fLMDLands = _context.FLMDLand.Where(c => c.Sno == land.Sno.ToUpper() && c.SaccoCode == sacco).ToList();
                 return Json(fLMDLands);
             }
             catch (Exception e)

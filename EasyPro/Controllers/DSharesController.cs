@@ -63,7 +63,7 @@ namespace EasyPro.Controllers
             ViewBag.suppliers = suppliers;
             var codes = _context.DDcodes.Where(a => a.Dcode == sacco).ToList();
             ViewBag.codes = new SelectList(codes, "Description", "Description");
-            var modes = new string[] { "Cash", "Checkoff", "Mpesa" };
+            var modes = new string[] { "Cash", "Mpesa" };
             ViewBag.modes = new SelectList(modes);
             return View();
         }

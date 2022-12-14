@@ -143,7 +143,7 @@ namespace EasyPro.Models
         public virtual DbSet<DPayroll> DPayrolls { get; set; }
         public virtual DbSet<DPayrollCopy> DPayrollCopies { get; set; }
         public virtual DbSet<DPeriod> DPeriods { get; set; }
-        public virtual DbSet<DPreSet> DPreSets { get; set; }
+        public virtual DbSet<DPreSet> d_PreSets { get; set; }
         public virtual DbSet<DPrice> DPrices { get; set; }
         public virtual DbSet<DPrice2> DPrice2s { get; set; }
         public virtual DbSet<DPriceBranch> DPriceBranches { get; set; }
@@ -5813,69 +5813,6 @@ namespace EasyPro.Models
                 entity.Property(e => e.EndPeriod).HasColumnType("datetime");
 
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            });
-
-            modelBuilder.Entity<DPreSet>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToTable("d_PreSets");
-
-                entity.Property(e => e.AuditId)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Auditdatetime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.BranchCode)
-                    .HasMaxLength(50)
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Deduction)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
-
-                entity.Property(e => e.Rate).HasColumnType("money");
-
-                entity.Property(e => e.Rated).HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.Remark)
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Sno).HasColumnName("SNo");
-
-                entity.Property(e => e.StartDate)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Status)
-                    .HasColumnName("status")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status2)
-                    .HasColumnName("status2")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status3)
-                    .HasColumnName("status3")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status4)
-                    .HasColumnName("status4")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status5)
-                    .HasColumnName("status5")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status6)
-                    .HasColumnName("status6")
-                    .HasDefaultValueSql("((0))");
             });
 
             modelBuilder.Entity<DPrice>(entity =>

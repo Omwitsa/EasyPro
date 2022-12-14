@@ -10,7 +10,7 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
-                        <h2>Create Branch Milk</h2>
+                        <h2>Create Branch Milk Control</h2>
                     </div>
                 </div>
                 <hr />
@@ -47,7 +47,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Quantity Sold(Kgs)</label>
-                                    <input asp-for="SQuantity" class="form-control" />
+                                    <input id="sold" asp-for="SQuantity" class="form-control" readonly />
                                     <span asp-validation-for="SQuantity" class="text-danger"></span>
                                 </div>
                             </div>
@@ -153,4 +153,44 @@
             </form>
         </div>
     </div>
- </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#transDate").val(today);
+            let suppliedItems = new Array();
+            $('#transDate').on('keyup', function (){
+                getSelectedDateIntakes1();
+            });
+            $('#branch').on('keyup', function () {
+                getSelectedDateIntakes1();
+            });
+            function getSelectedDateIntakes1() {
+                var transDate = $("#transDate").val();
+                var branch = $("#branch").val();
+                $.ajax({
+                    type: 'GET',
+                    url: "Selectedquantity?date=" + transDate + "&branch=" + branch,
+                    contentType: 'application/json',
+                    data: JSON.stringify(variance),
+                    success: function (response) {
+                        debugger
+                        //var selectsuppliers = response;
+                        //if (selectsuppliers[0]) {
+                        //    $("#sold").val(selectsuppliers[0].Names);
+                        //}
+                        $("#sold").val(0)
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            };
+        });
+    </script>
+}

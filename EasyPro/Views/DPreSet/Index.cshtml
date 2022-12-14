@@ -1,0 +1,146 @@
+﻿@model IEnumerable<EasyPro.Models.DPreSet>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #ddd;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1110px;
+        height: 500px;
+        overflow: auto;
+    }
+</style>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-3">
+            <div class="row">
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <h4 class="text-danger fa-bold">Suppliers</h4>
+                </div>
+                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                    <form method="get" asp-action="Index">
+                        <input type="search" placeholder="Search here" value="@ViewData["Getsuppliers"]" name="Search" />
+                        <button type="submit" class="btn btn-success">Search</button>
+                        <a asp-action="Index">Show All</a>
+                    </form>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    @if (ViewBag.setupRole)
+                    {
+                        <a asp-action="UnaprovedIndex" class="btn btn-primary">Stop Standing Orders</a>
+                    }
+                </div>
+            </div>
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <div class="divScroll">
+                        <table class="table table-hover" id="customers">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Sno)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Deduction)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Remark)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.StartDate)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Rate)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Stopped)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.AuditId)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Rated)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.BranchCode)
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="geeks">
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Sno)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Deduction)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Remark)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.StartDate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Rate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Stopped)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AuditId)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Rated)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.BranchCode)
+                                        </td>
+                                        <td>
+                                            <a asp-action="Delete" class="btn btn-danger" asp-route-id="@item.Id">Delete</a>
+                                            <a asp-action="Stop" class="btn btn-info" asp-route-id="@item.Id">Stop</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+

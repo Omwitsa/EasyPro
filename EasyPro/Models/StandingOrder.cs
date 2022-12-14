@@ -9,6 +9,7 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         public string Sno { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? TransDate { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
@@ -19,5 +20,6 @@ namespace EasyPro.Models
         public DateTime? Auditdatetime { get; set; }
         public string SaccoCode { get; set; }
         public string Zone { get; set; }
+        public bool Status { get; set; }
     }
 }

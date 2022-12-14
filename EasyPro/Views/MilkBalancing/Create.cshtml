@@ -149,6 +149,18 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <input id="print" type="checkbox" />
+                                <label class="control-label" for="print">Print</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                             <a id="save" class="btn btn-success">Save</a>
                         </div>
@@ -170,13 +182,21 @@
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
             let suppliedItems = new Array();
-            
+            let print = false;
             $('#name').on('change', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
                 var selectVal = $("#name").val();
                 var selectSupplier = suppliers.filter(p => p.TransName === selectVal);
                 if (selectSupplier[0]) {
                     $("#tcode").val(selectSupplier[0].TransCode);
+                }
+            });
+
+            $('input[type="checkbox"]').click(function () {
+                if ($(this).prop("checked") && $(this).attr('id') == 'print') {
+                    print = true;
+                } else {
+                    print = false;
                 }
             });
 
@@ -217,7 +237,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "saveVariance",
+                    url: "saveVariance?print=" + print,
                     contentType: 'application/json',
                     data: JSON.stringify(variance),
                     success: function (response) {

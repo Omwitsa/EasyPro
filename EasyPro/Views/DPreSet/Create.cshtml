@@ -1,0 +1,198 @@
+﻿@model EasyPro.Models.DPreSet
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="row">
+                <div class="col-4">
+                </div>
+                <h1>Default Deduction Settings</h1>
+            </div>
+                <hr />
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-sm-2 col-xs-12">
+
+                        </div>
+                        <div class="col-sm-5 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <div class="form-group">
+                                        <input name="sales" type="radio" id="allsup" />
+                                        <label class="control-label" for="allsup">All Suplliers</label>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-5 col-xs-12">
+                            <div class="form-group">
+                                <input name="sales" type="radio" id="specific" />
+                                <label class="control-label" for="specific">Specific Suplliers</label>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-sm-2 col-xs-12">
+
+                        </div>
+                        <div class="col-sm-5 col-xs-12">
+                            <div class="form-group">
+                                <input name="sales1" type="radio" id="Rate" />
+                                <label class="control-label" for="Rate">Rate Per Kg Supplied</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-5 col-xs-12">
+                            <div class="form-group">
+                                <input name="sales1" type="radio" id="Fixed" />
+                                <label class="control-label" for="Fixed">Fixed Amount per Month</label>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12" id="Snoo">
+                            <div class="form-group">
+                                <label asp-for="Sno" class="control-label"></label>
+                                <input id="Sno" asp-for="Sno" class="form-control" />
+                                <span asp-validation-for="Sno" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="StartDate" class="control-label"></label>
+                                <input id="date" type="date" asp-for="StartDate" class="form-control" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Deduction Type</label>
+                                <select id="Deduction" asp-for="Deduction" required class="form-control" asp-items="@ViewBag.Description">
+                                    <option value=""></option>
+                                </select>
+                                <span asp-validation-for="Deduction" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Remarks</label>
+                                <input id="Remark" asp-for="Remark" class="form-control" />
+                                <span asp-validation-for="Remark" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Rate" class="control-label"></label>
+                                <input id="amtRate" asp-for="Rate" value="0" class="form-control" />
+                                <span asp-validation-for="Rate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="form-group">
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a id="save" class="btn btn-success">Save</a>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+    </div>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            let isallsup = false;
+            let isspecific = false;
+            let isRate = false;
+            let isFixed = false;
+            let saleItems = new Array();
+            $("#Sno").val('');
+            $("#Snoo").hide();
+            $("#Remark").val('');
+            $("#Deduction").val('');
+            $("#amtRate").val('0');
+            $(function () {
+                $('input[type="radio"]').click(function () {
+                    if ($(this).prop("checked") && $(this).attr('id') == 'allsup') {
+                        isspecific = false;
+                        isallsup = true;
+                        $('#specific').prop('unchecked');
+                        $("#Snoo").hide();
+                        $("#Sno").val("");
+                        $("#Remark").val("");
+                    }
+
+                    if ($(this).prop("checked") && $(this).attr('id') == 'specific') {
+                        isspecific = true;
+                        isallsup = false;
+                        $('#allsup').prop('unchecked');
+                        $("#Snoo").show();
+                        $("#Sno").val('');
+                        $("#Remark").val('');
+                        
+                    }
+
+                    if ($(this).prop("checked") && $(this).attr('id') == 'Rate') {
+                        isRate = true;
+                        isFixed = false;
+                        $("#Sno").val('');
+                        $("#Remark").val('');
+                    }
+
+                    if ($(this).prop("checked") && $(this).attr('id') == 'Fixed') {
+                        isRate = false;
+                        isFixed = true;
+                        
+                        $("#Sno").val('');
+                        $("#Remark").val('');
+                    }
+                });
+
+                $('#save').on('click', function () {
+                    var date = $("#date").val();
+                    var Sno = $("#Sno").val();
+                    var Deduction = $("#Deduction").val();
+                    var Remark = $("#Remark").val();
+                    var amtRate = $("#amtRate").val();
+                    $.ajax({
+                        type: 'POST',
+                        url: "save?date=" + date + "&Sno=" + Sno + "&Deduction=" + Deduction + "&Remark=" + Remark + "&amtRate=" + amtRate + "&isallsup=" + isallsup + "&isspecific=" + isspecific + "&isRate=" + isRate + "&isFixed=" + isFixed,
+                        contentType: 'application/json',
+                        data: JSON.stringify(saleItems),
+                        success: function (response) {
+                            if (response.isRedirect) {
+                                window.location.href = response.redirectUrl;
+                            }
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                });
+
+            });
+           
+        });
+    </script>
+}
