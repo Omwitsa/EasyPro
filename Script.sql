@@ -22,3 +22,6 @@ CREATE TABLE [dbo].[d_PreSets](
 	[saccocode] [nvarchar](50) NULL
 ) ON [PRIMARY]
 GO
+
+
+add Remarks to Dispatch table
