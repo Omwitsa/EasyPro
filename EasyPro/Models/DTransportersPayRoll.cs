@@ -29,6 +29,7 @@ namespace EasyPro.Models
         public int? Yyear { get; set; }
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? EndPeriod { get; set; }
         public double? Rate { get; set; }
         public int? Frate { get; set; }

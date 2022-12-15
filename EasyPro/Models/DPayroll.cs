@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -28,6 +29,7 @@ namespace EasyPro.Models
         public string Bbranch { get; set; }
         public string Trader { get; set; }
         public string Sbranch { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? EndofPeriod { get; set; }
         public string Auditid { get; set; }
         public DateTime? Auditdatetime { get; set; }

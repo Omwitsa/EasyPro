@@ -152,13 +152,11 @@
 
             function populateIntake(intakes) {
                 let itemTableRows = new Array();
+                
                 intakes.forEach(i => {
-                    var Code = i.code;
-                    var ddate = i.Endperiod;
-                    var dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
-                                <td>${dd1}</td>
-                                <td>${Code}</td>
+                                <td>${i.EndPeriod}</td>
+                                <td>${i.Code}</td>
                                 <td>${i.TransName}</td>
                                 <td>${i.Branch}</td>
                                 <td>${i.QntySup}</td>

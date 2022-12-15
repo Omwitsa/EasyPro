@@ -140,29 +140,50 @@
                                                 <a asp-controller="DSuppliers" asp-action="Index">Farmer</a>
                                             </li>
                                             <li>
+                                                <a asp-controller="Flmd" asp-action="Index">FLMD</a>
+                                            </li>
+                                            <li>
                                                 <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
                                             </li>
-
+                                            @if (ViewBag.setupRole)
+                                            {
+                                                <li>
+                                                    <a asp-controller="Venders" asp-action="Index">Vendors</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="Customers" asp-action="Index">Customers</a>
+                                                </li>
+                                            }
                                         </ul>
                                     </li>
 
                                     <li>
                                         <a data-toggle="collapse" data-target="#mobile-deductions" href="#">Deductions</a>
                                         <ul id="mobile-deductions" class="collapse dropdown-header-top">
+                                            @if (ViewBag.setupRole)
+                                            {
+                                                <li>
+                                                    <a asp-controller="DSupplierDeducs" asp-action="GetStandingOrder">Standing Order</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="DShares" asp-action="Index">Cash Shares</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="DPreSet" asp-action="Index">Default Deductions</a>
+                                                </li>
+                                            }
                                             <li>
                                                 <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
                                             </li>
+
                                             <li>
                                                 <a asp-controller="ProductIntakes" asp-action="TDeductionList">Transporter</a>
                                             </li>
                                             <li>
-                                                <a asp-controller="DTransports" asp-action="Index">Transporter Assignment</a>
+                                                <a asp-controller="ProductIntakes" asp-action="StaffDeductionList">Staff</a>
                                             </li>
                                             <li>
-                                                <a asp-controller="DShares" asp-action="Index">Cash Shares</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="DPreSet" asp-action="Index">Default Deductions</a>
+                                                <a asp-controller="DTransports" asp-action="Index">Transporter Assignement</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -201,18 +222,27 @@
                                             <li>
                                                 <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
                                             </li>
-                                            <li>
-                                                <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="Dispatches" asp-action="Index">Dispatch</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
-                                            </li>
+
+                                            @if (!ViewBag.setupRole)
+                                            {
+                                                <li>
+                                                    <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
+                                                </li>
+
+                                                <li>
+                                                    <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Milk Transfer</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Milk Control</a>
+                                                </li>
+                                            }
+
                                             @if (!ViewBag.isTanyakina)
                                             {
                                                 <li>
@@ -222,21 +252,24 @@
                                                     <a asp-controller="DispatchBalancing" asp-action="Index">Variance Balancing</a>
                                                 </li>
                                             }
-                                            <li>
-                                                <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Milk Transfer</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Milk Control</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="DMilkQualities" asp-action="MilkControll">Main Milk Control</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="ProductIntakes" asp-action="PrintSupplierStatement">Print Sup Stat</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="ProductIntakes" asp-action="PrintSupplierStatement">Print Trans Stat</a>
-                                            </li>
+
+
+                                            @if (ViewBag.setupRole)
+                                            {
+                                                <li>
+                                                    <a asp-controller="Dispatches" asp-action="Index">Dispatch</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="Message" asp-action="Index">Send SMS</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="DMilkQualities" asp-action="MilkControll">Main Milk Control</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="DMilkQualities" asp-action="MilkBranchBalancingEnquiry">Branch Milk Enquiry</a>
+                                                </li>
+                                            }
+
                                         </ul>
                                     </li>
                                 }
@@ -476,12 +509,16 @@
                                 <li>
                                     <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="Venders" asp-action="Index">Vendors</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="Customers" asp-action="Index">Customers</a>
-                                </li>
+                                @if (ViewBag.setupRole)
+                                {
+                                    <li>
+                                        <a asp-controller="Venders" asp-action="Index">Vendors</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Customers" asp-action="Index">Customers</a>
+                                    </li>
+                                }
+
                             </ul>
                         </div>
                         <div id="store" class="tab-pane notika-tab-menu-bg animated flipInX">
@@ -505,11 +542,20 @@
                         </div>
                         <div id="deductions" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
+                                @if (ViewBag.setupRole)
+                                {
+                                    <li>
+                                        <a asp-controller="DSupplierDeducs" asp-action="GetStandingOrder">Standing Order</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="DShares" asp-action="Index">Cash Shares</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="DPreSet" asp-action="Index">Default Deductions</a>
+                                    </li>
+                                }
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="DSupplierDeducs" asp-action="GetStandingOrder">Standing Order</a>
                                 </li>
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="TDeductionList">Transporter</a>
@@ -520,12 +566,7 @@
                                 <li>
                                     <a asp-controller="DTransports" asp-action="Index">Transporter Assignement</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="DShares" asp-action="Index">Cash Shares</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="DPreSet" asp-action="Index">Default Deductions</a>
-                                </li>
+
                             </ul>
                         </div>
                         <div id="activities" class="tab-pane notika-tab-menu-bg animated flipInX">
@@ -536,28 +577,27 @@
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="Dispatches" asp-action="Index">Dispatch</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="Message" asp-action="Index">Send SMS</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
-                                </li>
 
-                                <li>
-                                    <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Milk Transfer</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Milk Control</a>
-                                </li>
+                                @if (!ViewBag.setupRole)
+                                {
+                                    <li>
+                                        <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Milk Transfer</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Milk Control</a>
+                                    </li>
+                                }
+
                                 @if (!ViewBag.isTanyakina)
                                 {
                                     <li>
@@ -568,9 +608,23 @@
                                     </li>
                                 }
 
-                                <li>
-                                    <a asp-controller="DMilkQualities" asp-action="MilkControll">Main Milk Control</a>
-                                </li>
+
+                                @if (ViewBag.setupRole)
+                                {
+                                    <li>
+                                        <a asp-controller="Dispatches" asp-action="Index">Dispatch</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Message" asp-action="Index">Send SMS</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="DMilkQualities" asp-action="MilkControll">Main Milk Control</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="DMilkQualities" asp-action="MilkBranchBalancingEnquiry">Branch Milk Enquiry</a>
+                                    </li>
+                                }
+
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="PrintSupplierStatement">Print Suppliers Statement</a>
                                 </li>
@@ -606,7 +660,7 @@
                                     <a asp-controller="Accounting" asp-action="BalanceSheet">Balance Sheet</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
+                                    <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
                                 </li>
                                 <li>
                                     <a asp-controller="AccountPayables" asp-action="GetBills">Bills</a>
@@ -725,12 +779,12 @@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTReport">Transporters</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
-                                </li>
                                 @*<li>
-            <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
-        </li>*@
+                                    <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
+                                </li>*@
+                                <li>
+                                    <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
+                                </li>
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTransportersBalReport">Transporters Balancing</a>
                                 </li>

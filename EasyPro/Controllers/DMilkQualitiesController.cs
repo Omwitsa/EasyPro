@@ -336,6 +336,47 @@ namespace EasyPro.Controllers
             return View(dMilkQuality);
         }
 
+        [HttpPost]
+        public JsonResult SuppliedProducts(string branch,DateTime date1, DateTime date2)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            var checkbranchenquiry = _context.milkcontrol2.Where(i => i.code.ToUpper().Equals(sacco.ToUpper())
+            && i.transdate >= date1 && i.transdate <= date2 && i.Branch == branch).OrderByDescending(l => l.transdate).ToList();
+            var MilkBranchListVM = new List<MilkBranchControlListVM>();
+            if (checkbranchenquiry.Count > 0)
+            {
+                var transGroups = checkbranchenquiry.GroupBy(t => t.transdate).ToList();
+                transGroups.ForEach(l =>
+                {
+                    var intakes = l.FirstOrDefault();
+                    MilkBranchListVM.Add(new MilkBranchControlListVM
+                    {
+                        Id = intakes.Id,
+                        transdate = intakes.transdate,
+                        Bf = intakes.Bf,
+                        Intake = intakes.Intake,
+                        Tostation = intakes.Tostation,
+                        Total = ((decimal)(intakes.Bf + intakes.Intake + intakes.Tostation)),
+                        FromStation = intakes.FromStation,
+                        SQuantity = intakes.SQuantity,
+                        Reject = intakes.Reject,
+                        Spillage = intakes.Spillage,
+                        cfa = intakes.cfa,
+                        Varriance = ((decimal)((intakes.FromStation + intakes.Reject + intakes.Spillage + intakes.SQuantity + intakes.cfa) - (intakes.Bf + intakes.Intake + intakes.Tostation))),
+                        Branch = intakes.Branch,
+
+                    });
+                    _context.SaveChanges();
+                });
+            }
+
+            MilkBranchListVM = MilkBranchListVM.OrderByDescending(i => i.transdate).ToList();
+            return Json(MilkBranchListVM);
+        }
+
         // GET: DMilkQualities/Create
         public IActionResult MilktransferCreate()
         {

@@ -68,6 +68,44 @@ namespace EasyPro.Controllers
             .OrderByDescending(s => s.AuditDate).ToList();
             return View(agProducts);
         }
+        [HttpPost]
+        public JsonResult Supplierpayroll(DateTime date1, DateTime date2)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            var supplierspayroll = _context.DPayrolls.Join(_context.DSuppliers,
+                t => t.Sno.Trim().ToUpper(),
+                i => i.Sno.Trim().ToUpper(),
+                (t, i) => new
+                {
+                    t.EndofPeriod,
+                    t.Sno,
+                    i.Names,
+                    t.Branch,
+                    t.KgsSupplied,
+                    t.Gpay,
+                    t.Agrovet,
+                    t.Tmshares,
+                    t.Fsa,
+                    t.Hshares,
+                    t.Advance,
+                    t.AI,
+                    t.Others,
+                    t.Tractor,
+                    t.CLINICAL,
+                    t.CurryForward,
+                    t.Tdeductions,
+                    t.Npay,
+                    t.Bank,
+                    t.AccountNumber,
+                    t.Bbranch,
+                    t.SaccoCode,
+                }).Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndofPeriod == date2).ToList();
+
+            return Json(supplierspayroll);
+        }
 
         [HttpPost]
         public JsonResult SuppliedProducts(DateTime date1, DateTime date2)
@@ -99,15 +137,14 @@ namespace EasyPro.Controllers
                     t.VARIANCE,
                     t.CurryForward,
                     t.Totaldeductions,
+                    t.NetPay,
                     t.BankName,
                     t.AccNo,
                     t.BBranch,
                     t.SaccoCode,
                 }).Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndPeriod == date2).ToList();
 
-            var intakes = transporterpayroll.GroupBy(i => i.Code.Trim().ToUpper()).ToList();
-
-            return Json(intakes);
+            return Json(transporterpayroll);
         }
     }
 }

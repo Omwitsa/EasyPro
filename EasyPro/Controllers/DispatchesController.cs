@@ -43,11 +43,12 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             return View(await _context.Dispatch
-                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch != "MAIN" 
-                && i.Transdate>= startDate && i.Transdate<= endDate)
+                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch
+                && i.Transdate>= startDate && i.Transdate<= DateTime.Today)
                 .OrderByDescending(s => s.Transdate).ToListAsync());
         }
 

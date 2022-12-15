@@ -293,6 +293,7 @@ namespace EasyPro.Controllers
                     dTransporter.Br = "A";
                     dTransporter.Freezed = "0";
                     dTransporter.ParentT = sacco;
+                    dTransporter.Tbranch = dTransporter.Tbranch;
                     _context.Update(dTransporter);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Transporter Edited successfully");

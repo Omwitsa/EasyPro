@@ -17,6 +17,6 @@
     <WebStackScaffolding_ViewDialogWidth>651</WebStackScaffolding_ViewDialogWidth>
     <NameOfLastUsedPublishProfile>D:\EASY 2022\EasyPro\EasyPro\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
     <WebStackScaffolding_LayoutPageFile />
-    <ShowAllFiles>false</ShowAllFiles>
+    <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
 </Project>
