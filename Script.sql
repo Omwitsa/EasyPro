@@ -24,4 +24,5 @@ CREATE TABLE [dbo].[d_PreSets](
 GO
 
 
-add Remarks to Dispatch table
+add Remarks, Branch to Dispatch table
+add column extension to dpayroll and dtransporterspayroll table

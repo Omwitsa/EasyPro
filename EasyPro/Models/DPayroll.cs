@@ -13,6 +13,7 @@ namespace EasyPro.Models
         public decimal? Transport { get; set; }
         public decimal? Agrovet { get; set; }
         public decimal? Bonus { get; set; }
+        public decimal? extension { get; set; }
         public decimal? Tmshares { get; set; }
         public decimal? Fsa { get; set; }
         public decimal? Hshares { get; set; }

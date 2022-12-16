@@ -59,9 +59,40 @@ namespace EasyPro.Controllers
                 && i.TransDate == DateTime.Today);
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccoBranch);
-            return View(await intakes.ToListAsync());
+            return View(await intakes.OrderByDescending(l => l.Auditdatetime).ToListAsync());
         }
-        
+        [HttpGet] 
+        public JsonResult listcorrectionIntake(DateTime date)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var intakes = _context.ProductIntake
+                .Where(i => i.TransactionType == TransactionType.Correction && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                && i.TransDate == date);
+            if (user.AccessLevel == AccessLevel.Branch)
+                intakes = intakes.Where(i => i.Branch == saccoBranch);
+            //intakes=intakes.OrderByDescending(l => l.Auditdatetime).ToList();
+            return Json(intakes.OrderByDescending(l => l.Auditdatetime).ToList());
+        }
+        [HttpGet] 
+        public JsonResult listIntake(DateTime date)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var intakes = _context.ProductIntake
+                .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                && i.TransDate == date);
+            if (user.AccessLevel == AccessLevel.Branch)
+                intakes = intakes.Where(i => i.Branch == saccoBranch);
+            //intakes=intakes.OrderByDescending(l => l.Auditdatetime).ToList();
+            return Json(intakes.OrderByDescending(l => l.Auditdatetime).ToList());
+        }
         public async Task<IActionResult> TDeductionList()
         {
             utilities.SetUpPrivileges(this);
@@ -144,7 +175,7 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccoBranch);
-            return View(await intakes.ToListAsync());
+            return View(await intakes.OrderByDescending(l => l.Auditdatetime).ToListAsync());
         }
         public async Task<IActionResult> StaffDeductionList()
         {
@@ -242,6 +273,21 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
              return Json(todaysIntake.Select(b => b.Names).ToList());
+        }
+        [HttpGet]
+        public JsonResult sumDateIntake(DateTime date)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date).Sum(p => p.Qsupplied);
+            var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+
+            return Json(new dailymilkVM
+            {
+                Todayskg= Todayskg,
+                TodaysBranchkg= TodaysBranchkg
+            });
         }
         private void SetIntakeInitialValues()
         {
@@ -1318,7 +1364,7 @@ namespace EasyPro.Controllers
                 var price = _context.DPrices
                     .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                     && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));
-                productIntake.TransDate = productIntake?.TransDate ?? DateTime.Now;
+                productIntake.TransDate = productIntake.TransDate;
                 var collection = new ProductIntake
                 {
                     Sno = productIntake.Sno.Trim(),
@@ -1496,35 +1542,35 @@ namespace EasyPro.Controllers
                 SetIntakeInitialValues();
                 //return RedirectToAction(nameof(CreateCorrection));
             }
+            
+                var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                var endDate = startDate.AddMonths(1).AddDays(-1);
+                var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
+                // cummulative kgs calc
+                var cumkg = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
+                o.Sno == productIntake.Sno && o.Branch.ToUpper().Equals(productIntake.Branch.ToUpper()) &&
+                o.TransDate >= startDate && o.TransDate <= endDate
+                && (o.Description == "Intake" || o.Description == "Correction")).Sum(d => d.Qsupplied);
 
-            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
-            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
-            // cummulative kgs calc
-            var cumkg = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
-            o.Sno == productIntake.Sno && o.Branch.ToUpper().Equals(productIntake.Branch.ToUpper()) &&
-            o.TransDate >= startDate && o.TransDate <= endDate
-            && (o.Description == "Intake" || o.Description == "Correction")).Sum(d => d.Qsupplied);
-
-            string cummkgs = string.Format("{0:.###}", cumkg + productIntake.Qsupplied);
-            var receiptDetails = new
-            {
-                companies.Name,
-                companies.Adress,
-                companies.Town,
-                companies.PhoneNo,
-                saccoBranch,
-                productIntake.Sno,
-                productIntake.SupName,
-                productIntake.Qsupplied,
-                cummkgs,
-                loggedInUser
-            };
-
-            return Json(new
-            {
-                receiptDetails,
-            });
+                string cummkgs = string.Format("{0:.###}", cumkg + productIntake.Qsupplied);
+                var receiptDetails = new
+                {
+                    companies.Name,
+                    companies.Adress,
+                    companies.Town,
+                    companies.PhoneNo,
+                    saccoBranch,
+                    productIntake.Sno,
+                    productIntake.SupName,
+                    productIntake.Qsupplied,
+                    cummkgs,
+                    loggedInUser
+                };
+                return Json(new
+                {
+                    receiptDetails,
+                });
+            
         }
 
         public IActionResult Reprint(long? id)

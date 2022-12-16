@@ -165,23 +165,23 @@
 
         $('#tcode').on('keyup', function () {
             var products = @Html.Raw(Json.Serialize(Model.DTransporter));
-            var selectVal = $("#tcode").val();
-            var selectProducts = products.filter(p => p.TransCode === selectVal);
+            var selectVal = $("#tcode").val().toUpperCase();
+            var selectProducts = products.filter(p => p.TransCode.toUpperCase() === selectVal);
             if (selectProducts[0]) {
                 $("#tname").val(selectProducts[0].TransName);
             }
         });
         $('#sno').on('keyup', function () {
-            var selectVal = $("#sno").val();
+            var selectVal = $("#sno").val().toUpperCase();
             getSelectedDateIntakes();
         });
 
         $('#zone').change(function () {
-            var selectVal = $("#sno").val();
+            var selectVal = $("#sno").val().toUpperCase();
             getSelectedDateIntakes();
         });
         $('#mevng').change(function () {
-            var selectVal = $("#sno").val();
+            var selectVal = $("#sno").val().toUpperCase();
             getSelectedDateIntakes();
         });
 
@@ -190,7 +190,7 @@
             zone = zone ? zone : "";
             var sno = $('#sno').val();
             sno = sno ? sno : "";
-            var mevng = $('#mevng').val();
+            var mevng = $('#mevng').val().toUpperCase();
             mevng = mevng ? mevng : "";
 
             $.ajax(

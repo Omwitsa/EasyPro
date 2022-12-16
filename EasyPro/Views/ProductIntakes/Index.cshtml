@@ -46,6 +46,9 @@
                     <a asp-action="Create" class="btn btn-primary">Create New</a>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <div class="form-group">
+                        <input id="transDate"  class="form-control" type="date" />
+                    </div>
                 </div>
             </div>
 
@@ -59,6 +62,9 @@
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.TransDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TransTime)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.ProductType)
@@ -84,35 +90,38 @@
                         <tbody id="geeks">
                             @foreach (var item in Model)
                             {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Sno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.TransDate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.ProductType)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Qsupplied)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Ppu)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.CR)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Description)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Remarks)
-                                    </td>
-                                    <td class="col-4">
-                                        <a asp-controller="ProductIntakes" asp-action="Reprint" asp-route-id="@item.Id">Re-Print</a>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Sno)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TransDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TransTime)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ProductType)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Qsupplied)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Ppu)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CR)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Remarks)
+                                </td>
+                                <td class="col-4">
+                                    <a asp-controller="ProductIntakes" asp-action="Reprint" asp-route-id="@item.Id">Re-Print</a>
+                                </td>
+                            </tr>
                             }
                         </tbody>
                     </table>
@@ -123,6 +132,59 @@
 </div>
 @section scripts{
     <script>
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#transDate").val(today);
+            getkgsfortheday();
+            $('#transDate').change(function () {
+                getkgsfortheday();
+            });
+            $('#transDate').on('keyup',function () {
+                getkgsfortheday();
+            });
+            $('#transDate').on('click', function () {
+                getkgsfortheday();
+            });
+            function getkgsfortheday() {
+                var date = $('#transDate').val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "listIntake?date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            populateIntake(response);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+                function populateIntake(intakes) {
+                    let itemTableRows = new Array();
+
+                    intakes.forEach(i => {
+                        var remarks = 'Intake';
+                        if (i.Remarks != null) {
+                            remarks = i.Remarks;
+                        }
+                        itemTableRows.push(`<tr>
+                                <td>${i.Sno}</td>
+                                <td>${i.TransDate}</td>
+                                <td>${i.TransTime}</td>
+                                <td>${i.ProductType}</td>
+                                <td>${i.Qsupplied}</td>
+                                <td>${i.Ppu}</td>
+                                <td>${i.CR}</td>
+                                <td>${i.Description}</td>
+                                <td>${remarks}</td>
+                            </tr>`)
+                    });
+
+                    $('#geeks').html(itemTableRows);
+                }
+            };
+        });
         $(document).ready(function () {
             $("#gfg").on("keyup", function () {
                 var value = $(this).val().toLowerCase();

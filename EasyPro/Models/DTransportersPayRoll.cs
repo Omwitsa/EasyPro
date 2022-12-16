@@ -19,6 +19,7 @@ namespace EasyPro.Models
         public decimal? Fsa { get; set; }
         public decimal? Hshares { get; set; }
         public decimal? Advance { get; set; }
+        public decimal? extension { get; set; }
         public decimal? Others { get; set; }
         public decimal? Totaldeductions { get; set; }
         public decimal? NetPay { get; set; }

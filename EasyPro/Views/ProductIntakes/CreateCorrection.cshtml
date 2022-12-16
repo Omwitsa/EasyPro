@@ -185,7 +185,6 @@
         $("#Qsupplied").val("");
         $('#mevng').val('');
         $('#DrCr').hide();
-        $("#transDate").val(today);
 
         var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
@@ -196,6 +195,9 @@
                 $('#zone1').hide();
                 $('#MorningEvening').show();
             }
+        $('#transDate').change(function () {
+        getkgsfortheday();
+        });
 
         if (products.length === 1) {
             $("#ProductType").val(products[0].Products);
@@ -223,12 +225,16 @@
         $('#Sno').on('keyup', function () {
             var selectVal =  $("#Sno").val();
             getSelectedDateIntakes();
-            }); 
-        $('#save').on('click', function () {
-                var print = $('#print').is(':checked');
+            });
+        $('#Qsupplied').on('change', function () {  
+            getSelectedforsave();
+        });
+        function getSelectedforsave() {
+              var print = $('#print').is(':checked');
                 var sms = $('#SMS').is(':checked');
                 var intake = {
                     sno: $("#Sno").val(),
+                    transDate: $("#transDate").val(),
                     supName: $("#Names").val(),
                     productType: $("#ProductType").val(),
                     ppu: $("#Ppu").val(),
@@ -248,6 +254,8 @@
                     success: function (response) {
                         $("#Sno").val('');
                         $("#Qsupplied").val(0);
+                        document.getElementById('Sno').focus();
+                        getkgsfortheday();
                         if (print){
                             var content = generateHTML(response);
                             printJS({
@@ -256,12 +264,35 @@
                                 style: '.blueText {color:blue;}'
                             });
                         }
+                        
                     },
                     failure: function (response) {
                     }
                 }).then(function () {
                     // ...
-                });
+                });  
+        };
+          function getkgsfortheday() {
+             var date = $('#transDate').val();
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: "sumDateIntake?date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        var Todayskg = response.Todayskg;
+                        var TodaysBranchkg = response.TodaysBranchkg;
+                            $("#Sn").val(Todayskg);
+                            $("#n").val(TodaysBranchkg);
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+                }); 
+        };
+        $('#save').change(function () {
+            getSelectedforsave();
             });
         function getSelectedDateIntakes() {
             var zone = $('#zone').val();
@@ -330,6 +361,9 @@
 
                 return content;
             }
+
+            
+
         });
 </script>
 }

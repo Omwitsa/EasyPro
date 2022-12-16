@@ -148,7 +148,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var suppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
+            var suppliers = _context.DSuppliers.Where(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco);
             
 
             var todaysIntake = suppliers.Select(b => b.Names).ToList();

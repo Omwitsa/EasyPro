@@ -158,7 +158,8 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 <script type="text/javascript">
-        $(function () {
+    $(function () {
+            var today = new Date().toISOString().split('T')[0];
             var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
             products = products ? products : [];
             document.getElementById('Sno').focus();
@@ -186,17 +187,16 @@
                 var selectVal = $("#ProductType").val();
                 populateFields(selectVal);
             });
-
+            $('#zone').change(function () {
+                var selectVal = $("#Sno").val();
+                getSelectedDateIntakes();
+            });
 
             $('#zone').change(function () {
                 var selectVal =  $("#Sno").val();
                 getSelectedDateIntakes();
             });
-            $('#Sno').on('keyup', function () {
-                var selectVal = $("#Sno").val();
-                getSelectedDateIntakes();
-            });
-            $('#save').on('click', function () {
+            function getSelectedforsave() {
                 var print = $('#print').is(':checked');
                 var sms = $('#SMS').is(':checked');
                 var intake = {
@@ -220,7 +220,9 @@
                     success: function (response) {
                         $("#Sno").val('');
                         $("#Qsupplied").val(0);
-                        if (print){
+                        document.getElementById('Sno').focus();
+                        getkgsfortheday();
+                        if (print) {
                             var content = generateHTML(response);
                             printJS({
                                 printable: content,
@@ -234,8 +236,37 @@
                 }).then(function () {
                     // ...
                 });
+            }
+            $('#Sno').on('keyup', function () {
+                var selectVal = $("#Sno").val();
+                getSelectedDateIntakes();
             });
 
+            $('#Qsupplied').on('change', function () {
+                getSelectedforsave();
+            });
+            $('#save').on('click', function () {
+                getSelectedforsave();
+            });
+            function getkgsfortheday() {
+                var date = today;
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "sumDateIntake?date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            var Todayskg = response.Todayskg;
+                            var TodaysBranchkg = response.TodaysBranchkg;
+                            $("#Sn").val(Todayskg);
+                            $("#n").val(TodaysBranchkg);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            };
             function getSelectedDateIntakes() {
                 $('#Names').val();
                 var sno = $('#Sno').val();
