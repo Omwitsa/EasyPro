@@ -10,6 +10,13 @@ namespace EasyPro.ViewModels
 {
     public class MilkControlVm
     {
+        public IEnumerable<MilkControlEntry> MilkControlEntries { get; set; }
+        public decimal? IntakeTotal { get; set; }
+        public decimal? SQuantityTotal { get; set; }
+        public decimal? Total { get; set; }
+    }
+    public class MilkControlEntry
+    {
         public long Id { get; set; }
         public decimal? Intake { get; set; }
         //[ModelBinder(BinderType = typeof(CustomDateTimeModelBinder))]

@@ -1,5 +1,5 @@
 ﻿@*@model IEnumerable<EasyPro.Models.milkcontrol2>*@
-@model IEnumerable<EasyPro.ViewModels.MilkBranchControlListVM>
+@model EasyPro.ViewModels.MilkBranchControlListVM
 
 @{
     ViewData["Title"] = "MilkcontrolDetails";
@@ -60,13 +60,13 @@
                             <thead>
                                 <tr>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.transdate)
+                                       transdate
                                     </th>
                                     <th>
                                         BF(Kgs)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Intake)
+                                        Intake
                                     </th>
                                     <th>
                                         Dispatch TO(Kgs)
@@ -94,12 +94,12 @@
                                         Varriance(Kgs)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Branch)
+                                        Branch
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in Model)
+                                @foreach (var item in Model.milkBranchControlLists)
                                 {
                                     <tr>
                                         <td>
@@ -140,6 +140,21 @@
                                         </td>
                                     </tr>
                                 }
+                                <tr>
+                                    <td colspan="2">Totals</td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => Model.IntakeTotal)
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => Model.Total)
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => Model.SQuantityTotal)
+                                    </td>
+                                    <td colspan="5"></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

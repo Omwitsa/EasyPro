@@ -8,6 +8,13 @@ namespace EasyPro.ViewModels
 {
     public class MilkBranchControlListVM
     {
+        public IEnumerable<MilkBranchControlList> milkBranchControlLists { get; set; }
+        public decimal? IntakeTotal { get; set; }
+        public decimal? SQuantityTotal { get; set; }
+        public decimal? Total { get; set; }
+    }
+    public class MilkBranchControlList
+    {
         public long Id { get; set; }
         public decimal? Intake { get; set; }
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]

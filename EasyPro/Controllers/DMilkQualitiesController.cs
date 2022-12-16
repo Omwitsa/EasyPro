@@ -47,14 +47,14 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var rejects = _context.milkcontrol2.Where(i => i.code.ToUpper().Equals(sacco.ToUpper()) 
             && i.transdate >= startDate && i.transdate <= endDate && i.Branch== saccoBranch).OrderByDescending(l => l.transdate).ToList();
-            var MilkBranchListVM = new List<MilkBranchControlListVM>();
+            var MilkBranchList= new List<MilkBranchControlList>();
             if(rejects.Count > 0)
             {
                 var transGroups = rejects.GroupBy(t => t.transdate).ToList();
                 transGroups.ForEach(l =>
                 {
                     var intakes = l.FirstOrDefault();
-                    MilkBranchListVM.Add(new MilkBranchControlListVM
+                    MilkBranchList.Add(new MilkBranchControlList
                     {
                         Id = intakes.Id,
                         transdate = intakes.transdate,
@@ -75,7 +75,9 @@ namespace EasyPro.Controllers
             }
             
 
-            return View(MilkBranchListVM);
+            return View(new MilkBranchControlListVM { 
+                 milkBranchControlLists = MilkBranchList,
+            });
         }
         public IActionResult RejectsCreate()
         {
@@ -121,7 +123,7 @@ namespace EasyPro.Controllers
 
             var milkcontrols = _context.milkcontrol2.Where(i => i.code.ToUpper().Equals(sacco.ToUpper())
             && i.transdate >= startdate && i.transdate <= enddate).ToList();
-            var MilkControlVmlist = new List<MilkControlVm>();
+            var MilkControlVmlist = new List<MilkControlEntry>();
             var intakes = milkcontrols.GroupBy(i => i.transdate).ToList();
             if (intakes.Count > 0)
             {
@@ -137,7 +139,7 @@ namespace EasyPro.Controllers
                     var FromStationkg = i.Sum(t => t.FromStation);
                     var Tostationkg = i.Sum(t => t.Tostation);
                     var date = intake.transdate;
-                    MilkControlVmlist.Add(new MilkControlVm
+                    MilkControlVmlist.Add(new MilkControlEntry
                     {
                         Id = intake.Id,
                         transdate = intake.transdate,
@@ -159,7 +161,16 @@ namespace EasyPro.Controllers
                     _context.SaveChanges();
                 });
             }
-            return View(MilkControlVmlist);
+
+            var intakeTotal = MilkControlVmlist.Sum(l => l.Intake);
+            var qntyTotal = MilkControlVmlist.Sum(l => l.SQuantity);
+            var total = MilkControlVmlist.Sum(l => l.Total);
+            return View(new MilkControlVm {
+                MilkControlEntries = MilkControlVmlist,
+                IntakeTotal = intakeTotal,
+                SQuantityTotal = qntyTotal,
+                Total = total
+            });
         }
 
         public IActionResult MilkcontrolDetails(long? id)
@@ -179,13 +190,13 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-            var MilkBranchListVM = new List<MilkBranchControlListVM>();
+            var MilkBranchListVM = new List<MilkBranchControlList>();
             if (milkcontrolslist.Count > 0)
             {
                 milkcontrolslist.ForEach(l =>
                 {
                     var intakes = milkcontrolslist.FirstOrDefault();
-                    MilkBranchListVM.Add(new MilkBranchControlListVM
+                    MilkBranchListVM.Add(new MilkBranchControlList
                     {
                         Id = intakes.Id,
                         transdate = intakes.transdate,
@@ -204,7 +215,16 @@ namespace EasyPro.Controllers
                     _context.SaveChanges();
                 });
             }
-            return View(MilkBranchListVM);
+            var intakeTotal = MilkBranchListVM.Sum(l => l.Intake);
+            var qntyTotal = MilkBranchListVM.Sum(l => l.SQuantity);
+            var total = MilkBranchListVM.Sum(l => l.Total);
+            return View( new MilkBranchControlListVM
+            {
+                    milkBranchControlLists=MilkBranchListVM,
+                    IntakeTotal = intakeTotal,
+                    Total = total,
+                    SQuantityTotal = qntyTotal,
+            });
         }
 
         [HttpPost]
@@ -345,14 +365,14 @@ namespace EasyPro.Controllers
 
             var checkbranchenquiry = _context.milkcontrol2.Where(i => i.code.ToUpper().Equals(sacco.ToUpper())
             && i.transdate >= date1 && i.transdate <= date2 && i.Branch == branch).OrderByDescending(l => l.transdate).ToList();
-            var MilkBranchListVM = new List<MilkBranchControlListVM>();
+            var MilkBranchListVM = new List<MilkBranchControlList>();
             if (checkbranchenquiry.Count > 0)
             {
                 var transGroups = checkbranchenquiry.GroupBy(t => t.transdate).ToList();
                 transGroups.ForEach(l =>
                 {
                     var intakes = l.FirstOrDefault();
-                    MilkBranchListVM.Add(new MilkBranchControlListVM
+                    MilkBranchListVM.Add(new MilkBranchControlList
                     {
                         Id = intakes.Id,
                         transdate = intakes.transdate,
@@ -374,7 +394,13 @@ namespace EasyPro.Controllers
             }
 
             MilkBranchListVM = MilkBranchListVM.OrderByDescending(i => i.transdate).ToList();
-            return Json(MilkBranchListVM);
+
+            return Json(new {
+                MilkBranchListVM,
+                Intake = MilkBranchListVM.Sum(l => l.Intake),
+                Total = MilkBranchListVM.Sum(l => l.Total),
+                SQuantity = MilkBranchListVM.Sum(l => l.SQuantity),
+            });
         }
 
         // GET: DMilkQualities/Create

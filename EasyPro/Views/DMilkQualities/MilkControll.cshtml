@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EasyPro.ViewModels.MilkControlVm>
+﻿@model EasyPro.ViewModels.MilkControlVm
 
 @{
     ViewData["Title"] = "MilkControll";
@@ -88,49 +88,65 @@
                                 </tr>
                             </thead>
                             <tbody id="geeks">
-                                @foreach (var item in Model)
+                                @foreach (var item in Model.MilkControlEntries)
                                 {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.transdate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Bf)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Intake)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Tostation)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Total)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.FromStation)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.SQuantity)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Reject)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Spillage)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.cfa)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Varriance)
-                                    </td>
-                                    <td>
-                                        @*<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |*@
-                                        <a class="btn-info btn-info" asp-action="MilkcontrolDetails" asp-route-id="@item.Id">Details</a> |
-                                        @*<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.transdate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Bf)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Intake)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Tostation)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Total)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.FromStation)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.SQuantity)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Reject)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Spillage)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.cfa)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Varriance)
+                                        </td>
+                                        <td>
+                                            @*<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |*@
+                                            <a class="btn-info btn-info" asp-action="MilkcontrolDetails" asp-route-id="@item.Id">Details</a> |
+                                            @*<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
+                                        </td>
+                                    </tr>
                                 }
+
+                            <tr>
+                                <td colspan="2">Totals</td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => Model.IntakeTotal)
+                                </td>
+                                <td></td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => Model.Total)
+                                </td>
+                                <td></td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => Model.SQuantityTotal)
+                                </td>
+                                <td colspan="5"></td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>

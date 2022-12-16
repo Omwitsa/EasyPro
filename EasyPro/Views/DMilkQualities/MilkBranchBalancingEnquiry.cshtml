@@ -139,10 +139,10 @@
                     });
                 //}
             }
-            function populateIntake(intakes) {
+            function populateIntake(intake) {
                 var selectVal = $("#branch").val();
                 let itemTableRows = new Array();
-                intakes.forEach(i => {
+                intake.MilkBranchListVM.forEach(i => {
                     var ddate = i.transdate;
                     var dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
@@ -159,6 +159,16 @@
                                 <td>${i.Varriance}</td>
                             </tr>`)
                 });
+
+                itemTableRows.push(`<tr>
+                                <td colspan="2">Totals</td>
+                                <td>${intake.Intake}</td>
+                                <td></td>
+                                <td>${intake.Total}</td>
+                                <td></td>
+                                <td>${intake.SQuantity}</td>
+                                <td colspan="4"></td>
+                            </tr>`)
 
                 $('#intakes').html(itemTableRows);
             }

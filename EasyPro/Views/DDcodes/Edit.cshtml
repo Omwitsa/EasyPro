@@ -23,7 +23,6 @@
                         <div class="form-group">
                             <label asp-for="Dedaccno" class="control-label"></label>
                             <select id="glAcc" asp-for="Dedaccno" class="form-control" asp-items="@ViewBag.glAccounts">
-                                <option value="" disabled selected hidden>Please select</option>
                             </select>
                             <span asp-validation-for="Dedaccno" class="text-danger"></span>
                         </div>
@@ -35,7 +34,6 @@
                         <div class="form-group">
                             <label asp-for="Contraacc" class="control-label"></label>
                             <select id="glAcc" asp-for="Contraacc" class="form-control" asp-items="@ViewBag.glAccounts">
-                                <option value="" disabled selected hidden>Please select</option>
                             </select>
                             <span asp-validation-for="Contraacc" class="text-danger"></span>
                         </div>

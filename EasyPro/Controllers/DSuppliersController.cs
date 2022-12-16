@@ -51,15 +51,33 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             sacco = sacco ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-
-            ViewData["Getsuppliers"] = Search;
             var suppliers = from x in _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval) select x;
-            if (!string.IsNullOrEmpty(Search))
-                suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
-            return View(await suppliers.AsNoTracking().ToListAsync());
+                    .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval)
+                            select x;
+            try
+            {
+                
+
+                ViewData["Getsuppliers"] = Search;
+                
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    suppliers = suppliers.Where(u => u.Branch == saccoBranch);
+                if (!string.IsNullOrEmpty(Search))
+                    suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
+
+                
+                return View(await suppliers.AsNoTracking().ToListAsync());
+            }
+            catch(Exception e)
+            {
+                _notyf.Error("Sorry, Record Not exist");
+                return RedirectToAction(nameof(UnApprovedList));
+            }
+            
         }
         public async Task<IActionResult> SaccoSupplierSummery()
         {

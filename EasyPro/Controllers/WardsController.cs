@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.ViewModels;
 
 namespace EasyPro.Controllers
 {
@@ -35,12 +36,33 @@ namespace EasyPro.Controllers
             var saccouser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-            var subcounty = _context.DCompanies.FirstOrDefault(a=>a.Name.ToUpper().Equals(sacco.ToUpper())).District;
+            var county = _context.DCompanies.FirstOrDefault(a=>a.Name.ToUpper().Equals(sacco.ToUpper())).Province;
+            var subcounty = _context.SubCounty.Where(k => k.County.ToUpper().Equals(county.ToUpper())).ToList();
             var Wards = await _context.Ward.ToListAsync();
+            var WardList = new List<WardVM>();
             if (saccouser != "psigei")
-                Wards=await _context.Ward.Where(k=>k.SubCounty.ToUpper().Equals(subcounty.ToUpper())).ToListAsync();
+            {
+                var ward = subcounty.GroupBy(m=>m.Name).ToList();
+                ward.ForEach( l => {
+                var constituency = l.FirstOrDefault();
+                Wards = _context.Ward.Where(k => k.SubCounty.ToUpper().Equals(constituency.Name.ToUpper())).ToList();
+                Wards.ForEach(m=>{ 
+                    WardList.Add(new WardVM { 
+                      Name= m.Name,
+                      CreatedBy=m.CreatedBy,
+                      Closed=m.Closed,
+                      Contact =m.Contact,
+                      CreatedOn = m.CreatedOn,
+                      SubCounty = m.SubCounty
+                    });
+                    _context.SaveChanges();
+                });
+            });
+                
+            }
+                
 
-            return View(Wards);
+            return View(WardList);
         }
 
         // GET: Wards/Details/5

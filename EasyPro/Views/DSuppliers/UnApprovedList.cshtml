@@ -37,13 +37,13 @@
         <div class="normal-table-list mg-t-30">
             <div class="row">
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                    <h3 class="text-danger fa-bold">UnApproved Suppliers</h3>
+                    <h3 class="text-danger fa-bold">Unapproved Suppliers</h3>
                 </div>
                 <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                        <form method="get" asp-action="Index">
+                        <form method="get" asp-action="UnApprovedList">
                             <input type="search" placeholder="Search here" value="@ViewData["Getsuppliers"]" name="Search" />
                             <button type="submit" class="btn btn-success">Search</button>
-                            <a asp-action="Index">Show All</a>
+                            <a asp-action="UnApprovedList">Show All</a>
                         </form>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -118,10 +118,12 @@
                                             @Html.DisplayFor(modelItem => item.Active)
                                         </td>
                                         <td class="col-4">
-                                            <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                            @*<a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
-                                        </td>
-                                    </tr>
+                                            @if (ViewBag.setupRole)
+                                            {
+                                                <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                            }
+                                       </td >
+                                    </tr >
                                 }
                             </tbody>
                         </table>
