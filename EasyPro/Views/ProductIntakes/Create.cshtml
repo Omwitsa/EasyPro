@@ -142,7 +142,6 @@
 
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        @*<button type="submit" class="btn btn-success">Save</button>*@
                         <a id="save" class="btn btn-success">Save</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -283,10 +282,8 @@
             }
 
             function generateHTML(response) {
-                var sno = $('#Sno').val();
-                var names = $('#Names').val();
-                var qnty = $('#Qsupplied').val();
                 var mevng = $('#mevng').val();
+                var date = new Date().toLocaleDateString("en-US")
                 var content = `<div class="row" id="printMe">
                                 <div class="col-xs-12 text-center">
                                      <h6>${response.receiptDetails.Adress}</h6>
@@ -295,10 +292,10 @@
                                      <h6>Branch: ${response.receiptDetails.Town}</h6>
                                      <h6>${response.receiptDetails.saccoBranch}</h6>
                                      <hr>
-                                     <p>Product Receipt For: ${response.receiptDetails.transDate}</p>
-                                     <p>SNo: ${sno}</p>
-                                     <p>Name: ${names}</p>
-                                     <p>Delivered: ${qnty}</p>
+                                     <p>Product Receipt For: ${date}</p>
+                                     <p>SNo: ${response.receiptDetails.Sno}</p>
+                                     <p>Name: ${response.receiptDetails.SupName}</p>
+                                     <p>Delivered: ${response.receiptDetails.Qsupplied}</p>
                                      <p>Cummulative: ${response.receiptDetails.cummkgs}</p>
                                      <p>Session: ${mevng}</p>
                                      <p>Received By: ${response.receiptDetails.loggedInUser}</p>
