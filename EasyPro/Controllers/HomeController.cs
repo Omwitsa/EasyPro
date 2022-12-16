@@ -36,62 +36,74 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var intakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= DateTime.Today);
-            var products = _context.DPrices.Where(p => p.SaccoCode == sacco).Select(p => p.Products.ToUpper()).Distinct().ToList();
+            //var intakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= DateTime.Today);
+            //var products = _context.DPrices.Where(p => p.SaccoCode == sacco).Select(p => p.Products.ToUpper()).Distinct().ToList();
             var intakeStatistics = new List<PoductStatistics>();
-            products.ForEach(p =>
-            {
-                var productIntakes = intakes.Where(i => i.ProductType.ToUpper().Equals(p));
-                var rate = 0;
-                if (intakes.Any())
-                    rate = (productIntakes.Count() * 100) / intakes.Count();
+            //products.ForEach(p =>
+            //{
+            //    var productIntakes = intakes.Where(i => i.ProductType.ToUpper().Equals(p));
+            //    var rate = 0;
+            //    if (intakes.Any())
+            //        rate = (productIntakes.Count() * 100) / intakes.Count();
 
-                intakeStatistics.Add(new PoductStatistics
-                {
-                    Name = p,
-                    Rate = rate
-                });
-            });
+            //    intakeStatistics.Add(new PoductStatistics
+            //    {
+            //        Name = p,
+            //        Rate = rate
+            //    });
+            //});
 
             ViewBag.intakeStatistics = intakeStatistics;
-            var suppliers = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            ViewBag.suppliers = suppliers.Count();
+            //var suppliers = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            //ViewBag.suppliers = suppliers.Count();
+            ViewBag.suppliers = 0;
+            //var activeSupNos = _context.ProductIntake.Where(p => p.TransDate >= startDate && p.TransDate <= endDate && p.SaccoCode == sacco)
+            //    .Select(p => p.Sno).ToList();
+            //var activeSuppliers = suppliers.Where(s => activeSupNos.Contains(s.Sno.ToString())).ToList();
+            //ViewBag.activeSuppliers = activeSuppliers.Count;
+            ViewBag.activeSuppliers = 0;
 
-            var activeSupNos = _context.ProductIntake.Where(p => p.TransDate >= startDate && p.TransDate <= endDate && p.SaccoCode == sacco)
-                .Select(p => p.Sno).ToList();
-            var activeSuppliers = suppliers.Where(s => activeSupNos.Contains(s.Sno.ToString())).ToList();
-            ViewBag.activeSuppliers = activeSuppliers.Count;
+            //var todatysIntake = _context.ProductIntake.Where(p => p.TransDate == DateTime.Today && p.SaccoCode == sacco);
+            //var todaySupNos = todatysIntake.Select(p => p.Sno);
+            //var failedSuppliers = suppliers.Where(s => !todaySupNos.Contains(s.Sno.ToString()));
+            //ViewBag.failedSuppliers = failedSuppliers.Count();
+            ViewBag.failedSuppliers = 0;
 
-            var todatysIntake = _context.ProductIntake.Where(p => p.TransDate == DateTime.Today && p.SaccoCode == sacco);
-            var todaySupNos = todatysIntake.Select(p => p.Sno);
-            var failedSuppliers = suppliers.Where(s => !todaySupNos.Contains(s.Sno.ToString()));
-            ViewBag.failedSuppliers = failedSuppliers.Count();
+            //var sales = _context.Dispatch.Where(d => d.Transdate == DateTime.Today && d.Dcode == sacco).Sum(d => d.Dispatchkgs);
+            //ViewBag.todaysales = sales;
+            ViewBag.todaysales = 0;
 
-            var sales = _context.Dispatch.Where(d => d.Transdate == DateTime.Today && d.Dcode == sacco).Sum(d => d.Dispatchkgs);
-            ViewBag.todaysales = sales;
-
-            var newFarmers = suppliers.Where(s => s.Regdate >= startDate && s.Regdate <= endDate);
-            ViewBag.newFarmers = newFarmers.Count();
+            //var newFarmers = suppliers.Where(s => s.Regdate >= startDate && s.Regdate <= endDate);
+            //ViewBag.newFarmers = newFarmers.Count();
+            ViewBag.newFarmers = 0;
 
             var lastMonthStartDate = startDate.AddMonths(-1);
             var lastMonthStartDateEndDate = lastMonthStartDate.AddMonths(1).AddDays(-1);
 
-            var lastMonthActiveSupNos = _context.ProductIntake.Where(p => p.TransDate >= lastMonthStartDate && p.TransDate <= lastMonthStartDateEndDate 
-            && p.SaccoCode == sacco).Select(p => p.Sno).ToList();
-            var newSupNos = newFarmers.Select(s => s.Sno.ToString()).ToList();
-            var lastMonthDomant = activeSuppliers.Where(s => !lastMonthActiveSupNos.Contains(s.Sno.ToString()) && newSupNos.Contains(s.Sno.ToString()));
-            ViewBag.lastMonthDomant = lastMonthDomant.Count();
+            //var lastMonthActiveSupNos = _context.ProductIntake.Where(p => p.TransDate >= lastMonthStartDate && p.TransDate <= lastMonthStartDateEndDate 
+            //&& p.SaccoCode == sacco).Select(p => p.Sno).ToList();
+            //var newSupNos = newFarmers.Select(s => s.Sno.ToString()).ToList();
+            //var lastMonthDomant = activeSuppliers.Where(s => !lastMonthActiveSupNos.Contains(s.Sno.ToString()) && newSupNos.Contains(s.Sno.ToString()));
+            //ViewBag.lastMonthDomant = lastMonthDomant.Count();
+            ViewBag.lastMonthDomant = 0;
 
-            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
-            ViewBag.transporters = transporters.Count();
+            //var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
+            //ViewBag.transporters = transporters.Count();
+            ViewBag.transporters = 0;
 
-            ViewBag.grossItake = intakes.Sum(i => i.CR);
-            ViewBag.advance = intakes.Where(i => i.ProductType.ToLower().Contains("advance")).Sum(i => i.DR);
-            ViewBag.transport = intakes.Where(i => i.ProductType.ToLower().Contains("transport")).Sum(i => i.DR);
-            ViewBag.agrovet = intakes.Where(i => i.ProductType.ToLower().Contains("agrovet")).Sum(i => i.DR);
-            ViewBag.bonus = intakes.Where(i => i.ProductType.ToLower().Contains("bonus")).Sum(i => i.DR);
-            ViewBag.shares = intakes.Where(i => i.ProductType.ToLower().Contains("shares")).Sum(i => i.DR);
+            //ViewBag.grossItake = intakes.Sum(i => i.CR);
+            //ViewBag.advance = intakes.Where(i => i.ProductType.ToLower().Contains("advance")).Sum(i => i.DR);
+            //ViewBag.transport = intakes.Where(i => i.ProductType.ToLower().Contains("transport")).Sum(i => i.DR);
+            //ViewBag.agrovet = intakes.Where(i => i.ProductType.ToLower().Contains("agrovet")).Sum(i => i.DR);
+            //ViewBag.bonus = intakes.Where(i => i.ProductType.ToLower().Contains("bonus")).Sum(i => i.DR);
+            //ViewBag.shares = intakes.Where(i => i.ProductType.ToLower().Contains("shares")).Sum(i => i.DR);
 
+            ViewBag.grossItake = 0;
+            ViewBag.advance = 0;
+            ViewBag.transport = 0;
+            ViewBag.agrovet = 0;
+            ViewBag.bonus = 0;
+            ViewBag.shares = 0;
             return View();
         }
 

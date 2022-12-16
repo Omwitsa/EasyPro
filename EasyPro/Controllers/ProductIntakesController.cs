@@ -25,6 +25,7 @@ using Grpc.Core;
 using PrinterUtility;
 using System.Diagnostics;
 using Stripe;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace EasyPro.Controllers
 {
@@ -402,7 +403,14 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo,Print,SMS,Zone,MornEvening")] ProductIntakeVm productIntake)
         {
+            return View(productIntake);
+        }
+
+        [HttpPost]
+        public JsonResult Save([FromBody] ProductIntakeVm productIntake)
+        {
             utilities.SetUpPrivileges(this);
+            SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -412,21 +420,21 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(productIntake.Sno))
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
-                return RedirectToAction(nameof(Create));
+                return Json("");
             }
             if (string.IsNullOrEmpty(productIntake.ProductType))
             {
                 _notyf.Error("Sorry, Kindly select product type");
-                return RedirectToAction(nameof(Create));
+                return Json("");
             }
             if (productIntake.Qsupplied < 0.01M)
             {
                 _notyf.Error("Sorry, Kindly provide quantity");
-                return RedirectToAction(nameof(Create));
+                return Json("");
             }
             var suppliers = _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode.ToUpper().Equals(sacco.ToUpper()));
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if(user.AccessLevel == AccessLevel.Branch)
+            if (user.AccessLevel == AccessLevel.Branch)
             {
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch);
             }
@@ -434,16 +442,17 @@ namespace EasyPro.Controllers
             if (supplier == null)
             {
                 _notyf.Error("Sorry, Supplier does not exist");
-                return RedirectToAction(nameof(Create));
+                return Json("");
             }
             if (!supplier.Active || !supplier.Approval)
             {
                 _notyf.Error("Sorry, Supplier must be approved and active");
-                return RedirectToAction(nameof(Create));
+                return Json("");
             }
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             if (ModelState.IsValid)
             {
-                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 productIntake.SaccoCode = sacco;
                 productIntake.TransactionType = TransactionType.Intake;
                 var price = _context.DPrices
@@ -464,7 +473,7 @@ namespace EasyPro.Controllers
                     Description = "Intake",
                     TransactionType = productIntake.TransactionType,
                     Remarks = productIntake.Remarks,
-                    AuditId = auditId,
+                    AuditId = loggedInUser,
                     Auditdatetime = productIntake.Auditdatetime,
                     Branch = productIntake.Branch,
                     SaccoCode = productIntake.SaccoCode,
@@ -475,19 +484,18 @@ namespace EasyPro.Controllers
                 };
                 _context.ProductIntake.Add(collection);
 
-                calcDefaultdeductions(collection );
+                calcDefaultdeductions(collection);
 
-                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
-                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch);
+                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
+               && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
+               && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch);
 
-                
-                if(!string.IsNullOrEmpty(productIntake.MornEvening))
+                if (!string.IsNullOrEmpty(productIntake.MornEvening))
                 {
-                            transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()) && t.Active
-                        && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                        && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
-                        && t.Morning== productIntake.MornEvening);
+                    transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()) && t.Active
+                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch
+                && t.Morning == productIntake.MornEvening);
                 }
 
                 if (transport != null)
@@ -510,13 +518,13 @@ namespace EasyPro.Controllers
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
                         Remarks = productIntake.Remarks,
-                        AuditId = auditId,
+                        AuditId = loggedInUser,
                         Auditdatetime = productIntake.Auditdatetime,
                         Branch = productIntake.Branch,
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = productIntake.DrAccNo,
                         CrAccNo = productIntake.CrAccNo,
-                        Zone=productIntake.Zone,
+                        Zone = productIntake.Zone,
                         MornEvening = productIntake.MornEvening
                     };
                     _context.ProductIntake.Add(collection);
@@ -525,7 +533,7 @@ namespace EasyPro.Controllers
                     ///CHECK IF TRANSPORTER IS PAID BY SOCIETY
                     var transporterscheck = _context.DTransporters.FirstOrDefault(h => h.ParentT.ToUpper().Equals(sacco.ToUpper())
                     && h.Tbranch.ToUpper().Equals(saccoBranch.ToUpper()));
-                    if(transport.Rate==0 && transporterscheck.Rate>0)
+                    if (transport.Rate == 0 && transporterscheck.Rate > 0)
                     {
                         productIntake.CR = productIntake.Qsupplied * (decimal)transporterscheck.Rate;
                     }
@@ -533,7 +541,7 @@ namespace EasyPro.Controllers
                     {
                         productIntake.CR = productIntake.Qsupplied * transport.Rate;
                     }
-                   
+
                     productIntake.DR = 0;
                     _context.ProductIntake.Add(new ProductIntake
                     {
@@ -549,21 +557,19 @@ namespace EasyPro.Controllers
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
                         Remarks = productIntake.Remarks,
-                        AuditId = auditId,
+                        AuditId = loggedInUser,
                         Auditdatetime = productIntake.Auditdatetime,
                         Branch = productIntake.Branch,
                         SaccoCode = productIntake.SaccoCode,
                         DrAccNo = price.TransportDrAccNo,
                         CrAccNo = price.TransportCrAccNo,
-                        Zone=productIntake.Zone,
+                        Zone = productIntake.Zone,
                         MornEvening = productIntake.MornEvening
                     });
                 }
 
                 if (productIntake.SMS)
                 {
-                    var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-                    var endDate = startDate.AddMonths(1).AddDays(-1);
                     var intakes = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
                     && s.TransDate >= startDate && s.TransDate <= endDate);
                     if (user.AccessLevel == AccessLevel.Branch)
@@ -580,33 +586,55 @@ namespace EasyPro.Controllers
                         MsgType = "Outbox",
                         Replied = false,
                         DateReceived = DateTime.Now,
-                        Source = auditId,
+                        Source = loggedInUser,
                         Code = sacco
                     });
                 }
-                if (productIntake.Print)
-                    PrintP(collection);
+                //if (productIntake.Print)
+                //    PrintP(collection);
 
                 _context.SaveChanges();
-                // _notyf.Success("Intake saved successfully");
-                SetIntakeInitialValues();
+                _notyf.Success("Intake saved successfully");
+
                 //    var intakes = _context.ProductIntake
                 //.FirstOrDefault(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 //&& i.Sno == collection.Sno && i.TransDate == collection.TransDate && i.TransTime == collection.TransTime);
                 //    return RedirectToAction("createprinttest", new { id = intakes.Id });//"Details", "Event", new { id = thisEvent }
 
-                    var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
-                    var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
-                    return View(new ProductIntakeVm
-                    {
-                        Todaykgs = Todayskg,
-                        TodayBranchkgs = TodaysBranchkg
-                    });
-                
+                //var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
+                //var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
             }
 
-            return View(productIntake);
+
+            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
+
+            // cummulative kgs calc
+            var cumkg = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
+            o.Sno == productIntake.Sno && o.Branch.ToUpper().Equals(productIntake.Branch.ToUpper()) &&
+            o.TransDate >= startDate && o.TransDate <= endDate
+            && (o.Description == "Intake" || o.Description == "Correction")).Sum(d => d.Qsupplied);
+
+            string cummkgs = string.Format("{0:.###}", cumkg + productIntake.Qsupplied);
+            var receiptDetails = new
+            {
+                companies.Name,
+                companies.Adress,
+                companies.Town,
+                companies.PhoneNo,
+                saccoBranch,
+                productIntake.Sno,
+                productIntake.SupName,
+                productIntake.Qsupplied,
+                cummkgs,
+                loggedInUser
+            };
+
+            return Json(new
+            {
+                receiptDetails,
+            });
         }
+
         //public IActionResult printtest(ProductIntake collection)
         public IActionResult createprinttest(long id)
         {
@@ -756,138 +784,7 @@ namespace EasyPro.Controllers
             }
         }
         //start
-        private IActionResult PrintP(ProductIntake collection)
-        {
-            PrintDocument printDocument = new PrintDocument();
-            printDocument.PrintPage += (sender, args) => printDocument_PrintPage(collection, args);
-            printDocument.Print();
-            return Ok(200);
-        }
-        private void printDocument_PrintPage(object sender, PrintPageEventArgs e)
-        {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
-
-            ProductIntake items = sender as ProductIntake;
-            if (items != null)
-            {
-                // Start printing your items.
-                DateTime startDate = new DateTime(items.TransDate.Year, items.TransDate.Month, 1);
-                DateTime enDate = startDate.AddMonths(1).AddDays(-1);
-
-                // cummulative kgs calc
-                var cumkg = _context.ProductIntake.Where(o=>o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && 
-                o.Sno == items.Sno && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) && 
-                o.TransDate >= startDate && o.TransDate<=enDate 
-                && (o.Description == "Intake" || o.Description == "Correction")).Sum(d=>d.Qsupplied);
-
-
-                var productIntakes = _context.ProductIntake.FirstOrDefault(u => u.Id == items.Id);
-                
-                var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) 
-                && u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
-                
-                var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) 
-                && u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Active);
-
-                string transporter = "SELF";
-                if (transport != null) 
-                {
-                    transporter = _context.DTransporters.FirstOrDefault(u => u.ParentT.ToUpper().Equals(sacco.ToUpper()) 
-                    && u.TransCode.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()) && u.Active).TransName.ToString();
-                }
-
-                
-                Graphics graphics = e.Graphics;
-                Font font = new Font("Times New Roman", 12);
-                float fontHeight = font.GetHeight();
-
-                int startX = 10;
-                int startY = -40;
-                int offset = 40;
-
-
-                graphics.DrawString(companies.Name, font, new SolidBrush(Color.Black), startX, startY+ offset);
-                offset = offset + (int)fontHeight + 5;
-
-                graphics.DrawString( companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                graphics.DrawString(companies.Town.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                graphics.DrawString("Tell: "+ companies.PhoneNo.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                graphics.DrawString("Branch: " + saccoBranch, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                string line = "---------------------------------------------";
-                graphics.DrawString(line, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                var datet = items.TransDate.ToString("dd/MM/yyy");
-                graphics.DrawString("Product Receipt For: "+ datet.PadRight(15), new Font("Times New Roman", 15), new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                string sno = items.Sno.PadRight(10);
-                graphics.DrawString("SNo: " + sno, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                string name = supplier.Names.ToString();
-                graphics.DrawString("Name: " + name, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                string kgs = string.Format("{0:.###}",items.Qsupplied);
-                graphics.DrawString("Delivered: " + kgs + "kgs", font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                string cummkgs = string.Format("{0:.###}", cumkg + items.Qsupplied);
-                graphics.DrawString("Cummulative: " + cummkgs + "kgs", font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                string session = "MORNING"; 
-                if(items.MornEvening!= null)
-                    session = items.MornEvening.ToUpper().ToString();
-                graphics.DrawString("Session: " + session, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                
-                graphics.DrawString("Transporter: ".PadLeft(10) + transporter.PadRight(10) , font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                string line1 = "---------------------------------------------";
-                graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                graphics.DrawString("Received By: "+loggedInUser, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-
-                graphics.DrawString("Date: " + DateTime.Now, font, new SolidBrush(Color.Black), startX, startY + offset);
-
-                offset = offset + (int)fontHeight + 5;
-
-                string line2 = "---------------------------------------------";
-                graphics.DrawString(line2, font, new SolidBrush(Color.Black), startX, startY + offset);
-
-                offset = offset + (int)fontHeight + 5;
-                startY = startY+ 20;
-                string dev = "DEVELOP BY: AMTECH TECHNOLOGIES LIMITED";
-                graphics.DrawString(dev.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
-
-                offset = offset + (int)fontHeight + 5;
-                startY = startY + 20;
-                string dev1 = " ";
-                graphics.DrawString(dev1.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-                graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
-
-
-            }
-        }
-
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PrintSupplierStatement([Bind("Id, Sno, TransDate, ProductType, Qsupplied, Ppu, CR, DR, Balance, Description, Remarks, AuditId, Auditdatetime, Branch, DrAccNo, CrAccNo, Print, SMS,Zone,MornEvening")] ProductIntakeVm productIntake)
@@ -922,219 +819,219 @@ namespace EasyPro.Controllers
                 return RedirectToAction(nameof(CreateCorrection));
             }
             var collection = productIntake;
-            PrintStatement(collection);
+            //PrintStatement(collection);
 
             return RedirectToAction(nameof(PrintSupplierStatement));
         }
 
-        private IActionResult PrintStatement(ProductIntakeVm collection)
-        {
-            PrintDocument printDocument = new PrintDocument();
-            printDocument.PrintPage += (sender, args) => printStatementDocument_PrintPage(collection, args);
-            printDocument.Print();
-            return Ok(200);
-        }
-        private void printStatementDocument_PrintPage(object sender, PrintPageEventArgs e)
-        {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
+        //private IActionResult PrintStatement(ProductIntakeVm collection)
+        //{
+        //    PrintDocument printDocument = new PrintDocument();
+        //    printDocument.PrintPage += (sender, args) => printStatementDocument_PrintPage(collection, args);
+        //    printDocument.Print();
+        //    return Ok(200);
+        //}
+        //private void printStatementDocument_PrintPage(object sender, PrintPageEventArgs e)
+        //{
+        //    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        //    var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        //    var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        //    var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
 
-            ProductIntakeVm items = sender as ProductIntakeVm;
-            if (items != null)
-            {
-                // Start printing your items.
-                DateTime endmonth = (DateTime)items.TransDate;
-                DateTime startDate = new DateTime(endmonth.Year, endmonth.Month, 1);
-                DateTime enDate = startDate.AddMonths(1).AddDays(-1);
+        //    ProductIntakeVm items = sender as ProductIntakeVm;
+        //    if (items != null)
+        //    {
+        //        // Start printing your items.
+        //        DateTime endmonth = (DateTime)items.TransDate;
+        //        DateTime startDate = new DateTime(endmonth.Year, endmonth.Month, 1);
+        //        DateTime enDate = startDate.AddMonths(1).AddDays(-1);
 
-                // cummulative kgs calc
-                var productIntakes  = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
-                o.Sno.ToUpper().Equals(items.Sno.ToUpper()) && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) &&
-                o.TransDate >= startDate && o.TransDate <= enDate ).ToList();
+        //        // cummulative kgs calc
+        //        var productIntakes  = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
+        //        o.Sno.ToUpper().Equals(items.Sno.ToUpper()) && o.Branch.ToUpper().Equals(items.Branch.ToUpper()) &&
+        //        o.TransDate >= startDate && o.TransDate <= enDate ).ToList();
 
-                var IntakesOnly = productIntakes.Where(o => (o.Description == "Intake" || o.Description == "Correction")).OrderBy(o=>o.TransDate);
-                var DeductionsOnly = productIntakes.Where(o => o.Description != "Intake" && o.Description != "Correction").ToList();
-                var TotalMonthKgs = string.Format("{0:.###}", IntakesOnly.Sum(l=>l.Qsupplied));
-                var Gross = string.Format("{0:.###}", IntakesOnly.Sum(l => l.CR)- IntakesOnly.Sum(l => l.DR));
-                var TotalDeductions = string.Format("{0:.###}", DeductionsOnly.Sum(l => l.DR)- DeductionsOnly.Sum(l => l.CR));
+        //        var IntakesOnly = productIntakes.Where(o => (o.Description == "Intake" || o.Description == "Correction")).OrderBy(o=>o.TransDate);
+        //        var DeductionsOnly = productIntakes.Where(o => o.Description != "Intake" && o.Description != "Correction").ToList();
+        //        var TotalMonthKgs = string.Format("{0:.###}", IntakesOnly.Sum(l=>l.Qsupplied));
+        //        var Gross = string.Format("{0:.###}", IntakesOnly.Sum(l => l.CR)- IntakesOnly.Sum(l => l.DR));
+        //        var TotalDeductions = string.Format("{0:.###}", DeductionsOnly.Sum(l => l.DR)- DeductionsOnly.Sum(l => l.CR));
 
-                var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
-                u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
-
-
-                var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) &&
-                u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Active);
-
-                string transporter = "SELF";
-                if (transport != null)
-                {
-                    transporter = _context.DTransporters.FirstOrDefault(u => u.ParentT.ToUpper().Equals(sacco.ToUpper()) &&
-                u.TransCode.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()) && u.Active).TransName.ToString();
-                }
+        //        var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
+        //        u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
 
 
-                Graphics graphics = e.Graphics;
-                Font font = new Font("Times New Roman", 12);
-                float fontHeight = font.GetHeight();
+        //        var transport = _context.DTransports.FirstOrDefault(u => u.saccocode.ToUpper().Equals(sacco.ToUpper()) &&
+        //        u.Sno.ToUpper().Equals(items.Sno.ToUpper()) && u.Active);
 
-                int startX = 10;
-                int startY = -40;
-                int offset = 40;
+        //        string transporter = "SELF";
+        //        if (transport != null)
+        //        {
+        //            transporter = _context.DTransporters.FirstOrDefault(u => u.ParentT.ToUpper().Equals(sacco.ToUpper()) &&
+        //        u.TransCode.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()) && u.Active).TransName.ToString();
+        //        }
 
 
-                graphics.DrawString(companies.Name, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        Graphics graphics = e.Graphics;
+        //        Font font = new Font("Times New Roman", 12);
+        //        float fontHeight = font.GetHeight();
 
-                graphics.DrawString(companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        int startX = 10;
+        //        int startY = -40;
+        //        int offset = 40;
 
-                graphics.DrawString(companies.Town.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("Tell: " + companies.PhoneNo.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString(companies.Name, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("Branch: " + saccoBranch, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString(companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                string line = "---------------------------------------------";
-                graphics.DrawString(line, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString(companies.Town.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                var datet = enDate.ToString("dd/MM/yyy");
-                graphics.DrawString("Supplier Statement For: " + datet.PadRight(15), new Font("Times New Roman", 14), new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("Tell: " + companies.PhoneNo.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("Transporter: ".PadLeft(10) + transporter.PadRight(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("Branch: " + saccoBranch, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                string sno = items.Sno.PadRight(10);
-                graphics.DrawString("SNo: " + sno, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        string line = "---------------------------------------------";
+        //        graphics.DrawString(line, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                string name = supplier.Names.ToString();
-                graphics.DrawString("Name: " + name, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        var datet = enDate.ToString("dd/MM/yyy");
+        //        graphics.DrawString("Supplier Statement For: " + datet.PadRight(15), new Font("Times New Roman", 14), new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                string HDate = "Date".PadLeft(3);
-                string HPrice = "Price".PadLeft(16);
-                string HQnty = "Qnty  Amount".PadLeft(17);
-                string Hsession = "Session".PadLeft(18);
-                string Heading = HDate + HPrice+ HQnty + Hsession;
-                graphics.DrawString(Heading, new Font("Times New Roman", 9), new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-                string session = "MORNING";
+        //        graphics.DrawString("Transporter: ".PadLeft(10) + transporter.PadRight(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                var intakes = IntakesOnly.GroupBy(i => i.TransDate).ToList();
-                intakes.ForEach(i => {
-                    var sessionGroups = i.GroupBy(t => t.MornEvening).ToList();
-                    sessionGroups.ForEach(t => {
-                            var intake = t.FirstOrDefault();
-                            string BDate = intake.TransDate.ToString("dd/MM/yyy").PadLeft(0);
-                            string BPrice = string.Format("{0:.###}", intake.Ppu).PadLeft(8);
-                            string BQnty = string.Format("{0:.###}", t.Sum(k=>k.Qsupplied)).PadLeft(12);
-                            string Amt = string.Format("{0:.###}", (t.Sum(k => k.Qsupplied)* intake.Ppu)).PadLeft(14);
-                            if (items.MornEvening != null)
-                                session = intake.MornEvening.ToUpper().ToString();
-                            string Bsession = session.PadLeft(16);
-                            string Body = BDate + BPrice + BQnty + Amt + Bsession;
+        //        string sno = items.Sno.PadRight(10);
+        //        graphics.DrawString("SNo: " + sno, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                            graphics.DrawString(Body, new Font("Times New Roman", 9), new SolidBrush(Color.Black), startX, startY + offset);
-                            offset = offset + (int)fontHeight + 5;
-                    });
-                });
+        //        string name = supplier.Names.ToString();
+        //        graphics.DrawString("Name: " + name, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
+
+        //        string HDate = "Date".PadLeft(3);
+        //        string HPrice = "Price".PadLeft(16);
+        //        string HQnty = "Qnty  Amount".PadLeft(17);
+        //        string Hsession = "Session".PadLeft(18);
+        //        string Heading = HDate + HPrice+ HQnty + Hsession;
+        //        graphics.DrawString(Heading, new Font("Times New Roman", 9), new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
+        //        string session = "MORNING";
+
+        //        var intakes = IntakesOnly.GroupBy(i => i.TransDate).ToList();
+        //        intakes.ForEach(i => {
+        //            var sessionGroups = i.GroupBy(t => t.MornEvening).ToList();
+        //            sessionGroups.ForEach(t => {
+        //                    var intake = t.FirstOrDefault();
+        //                    string BDate = intake.TransDate.ToString("dd/MM/yyy").PadLeft(0);
+        //                    string BPrice = string.Format("{0:.###}", intake.Ppu).PadLeft(8);
+        //                    string BQnty = string.Format("{0:.###}", t.Sum(k=>k.Qsupplied)).PadLeft(12);
+        //                    string Amt = string.Format("{0:.###}", (t.Sum(k => k.Qsupplied)* intake.Ppu)).PadLeft(14);
+        //                    if (items.MornEvening != null)
+        //                        session = intake.MornEvening.ToUpper().ToString();
+        //                    string Bsession = session.PadLeft(16);
+        //                    string Body = BDate + BPrice + BQnty + Amt + Bsession;
+
+        //                    graphics.DrawString(Body, new Font("Times New Roman", 9), new SolidBrush(Color.Black), startX, startY + offset);
+        //                    offset = offset + (int)fontHeight + 5;
+        //            });
+        //        });
                 
 
-                string bline = "---------------------------------------------";
-                graphics.DrawString(bline, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        string bline = "---------------------------------------------";
+        //        graphics.DrawString(bline, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("Total Kgs: " + TotalMonthKgs, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-                graphics.DrawString("Gross Pay Kshs: " + Gross, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("Total Kgs: " + TotalMonthKgs, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("Gross Pay Kshs: " + Gross, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString(bline, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString(bline, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("DEDUCTIONS: ".PadLeft(10), new Font("Times New Roman", 14), new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("DEDUCTIONS: ".PadLeft(10), new Font("Times New Roman", 14), new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString(bline, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString(bline, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                string DDate = "Date".PadLeft(5);
-                string DPrice = "Amount".PadLeft(16);
-                string DQnty = "Description".PadLeft(17);
-                string Deduction = DDate + DPrice + DQnty ;
-                graphics.DrawString(Deduction, new Font("Times New Roman", 10), new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-                var deduction = DeductionsOnly.GroupBy(s=>s.ProductType).ToList();
-                deduction.ForEach(i => {
-                    var deductionGroups = i.GroupBy(t => t.TransDate).ToList();
-                    deductionGroups.ForEach(t => {
-                        var deductionGroupsdetails = t.FirstOrDefault();
-                        string DBDate = deductionGroupsdetails.TransDate.ToString("dd/MM/yyy").PadLeft(0);
+        //        string DDate = "Date".PadLeft(5);
+        //        string DPrice = "Amount".PadLeft(16);
+        //        string DQnty = "Description".PadLeft(17);
+        //        string Deduction = DDate + DPrice + DQnty ;
+        //        graphics.DrawString(Deduction, new Font("Times New Roman", 10), new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
+        //        var deduction = DeductionsOnly.GroupBy(s=>s.ProductType).ToList();
+        //        deduction.ForEach(i => {
+        //            var deductionGroups = i.GroupBy(t => t.TransDate).ToList();
+        //            deductionGroups.ForEach(t => {
+        //                var deductionGroupsdetails = t.FirstOrDefault();
+        //                string DBDate = deductionGroupsdetails.TransDate.ToString("dd/MM/yyy").PadLeft(0);
 
-                        string DeductionType = (deductionGroupsdetails.ProductType.ToString()).PadLeft(15);
-                        if (DeductionType == "MILK")
-                            DeductionType = "Transport";
-                        string DDescription = (deductionGroupsdetails.Description.ToString());
-                        string FinalDDescription = DeductionType +" " + DDescription;
+        //                string DeductionType = (deductionGroupsdetails.ProductType.ToString()).PadLeft(15);
+        //                if (DeductionType == "MILK")
+        //                    DeductionType = "Transport";
+        //                string DDescription = (deductionGroupsdetails.Description.ToString());
+        //                string FinalDDescription = DeductionType +" " + DDescription;
                         
-                        var DR = t.Sum(t => t.DR);
-                        var CR = t.Sum(t => t.CR);
-                        var CombineAmount = DR-CR;
-                        if (CombineAmount != 0)
-                        {
-                            string DAmount = string.Format("{0:.###}", CombineAmount).PadLeft(10);
-                            string DBody = DBDate + DAmount + FinalDDescription;
-                            graphics.DrawString(DBody, new Font("Times New Roman", 10), new SolidBrush(Color.Black), startX, startY + offset);
-                            offset = offset + (int)fontHeight + 5;
-                        }
-                    });
-                });
+        //                var DR = t.Sum(t => t.DR);
+        //                var CR = t.Sum(t => t.CR);
+        //                var CombineAmount = DR-CR;
+        //                if (CombineAmount != 0)
+        //                {
+        //                    string DAmount = string.Format("{0:.###}", CombineAmount).PadLeft(10);
+        //                    string DBody = DBDate + DAmount + FinalDDescription;
+        //                    graphics.DrawString(DBody, new Font("Times New Roman", 10), new SolidBrush(Color.Black), startX, startY + offset);
+        //                    offset = offset + (int)fontHeight + 5;
+        //                }
+        //            });
+        //        });
 
-                graphics.DrawString("Total Deductions Kshs: " + TotalDeductions, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("Total Deductions Kshs: " + TotalDeductions, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                string line1 = "---------------------------------------------";
-                graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        string line1 = "---------------------------------------------";
+        //        graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                decimal NetPay = Convert.ToDecimal(Gross)- Convert.ToDecimal(TotalDeductions);
+        //        decimal NetPay = Convert.ToDecimal(Gross)- Convert.ToDecimal(TotalDeductions);
 
-                graphics.DrawString("Net Pay Kshs: " + NetPay, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("Net Pay Kshs: " + NetPay, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                graphics.DrawString("Bank Name: "+ supplier.Bcode, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-                graphics.DrawString("Bank AccNo: " + supplier.AccNo, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
-                graphics.DrawString("Bank Branch: " + supplier.Bbranch, font, new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("Bank Name: "+ supplier.Bcode, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("Bank AccNo: " + supplier.AccNo, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
+        //        graphics.DrawString("Bank Branch: " + supplier.Bbranch, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                string line7 = "---------------------------------------------";
-                graphics.DrawString(line7, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        string line7 = "---------------------------------------------";
+        //        graphics.DrawString(line7, font, new SolidBrush(Color.Black), startX, startY + offset);
                 
-                offset = offset + (int)fontHeight + 5;
-                string dev = "DEVELOP BY: AMTECH TECHNOLOGIES LIMITED";
-                graphics.DrawString(dev.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
+        //        string dev = "DEVELOP BY: AMTECH TECHNOLOGIES LIMITED";
+        //        graphics.DrawString(dev.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
 
-                offset = offset + (int)fontHeight + 5;
-                startY = startY + 20;
-                string dev1 = " ";
-                graphics.DrawString(dev1.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
-                offset = offset + (int)fontHeight + 5;
+        //        offset = offset + (int)fontHeight + 5;
+        //        startY = startY + 20;
+        //        string dev1 = " ";
+        //        graphics.DrawString(dev1.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+        //        offset = offset + (int)fontHeight + 5;
 
-                string line16 = "---------------------------------------------";
-                graphics.DrawString(line16, font, new SolidBrush(Color.Black), startX, startY + offset);
+        //        string line16 = "---------------------------------------------";
+        //        graphics.DrawString(line16, font, new SolidBrush(Color.Black), startX, startY + offset);
 
 
-            }
-        }
+        //    }
+        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1342,9 +1239,15 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCorrection([Bind("Id, Sno, TransDate, ProductType, Qsupplied, Ppu, CR, DR, Balance, Description, Remarks, AuditId, Auditdatetime, Branch, DrAccNo, CrAccNo, Print, SMS,Zone,MornEvening")] ProductIntakeVm productIntake)
         {
+            return View(productIntake);
+        }
+
+        [HttpPost]
+        public JsonResult SaveCorrection([FromBody] ProductIntakeVm productIntake)
+        {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             productIntake.SaccoCode = sacco;
             //var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
@@ -1352,43 +1255,43 @@ namespace EasyPro.Controllers
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
             productIntake.Description = productIntake?.Description ?? "";
             productIntake.DR = 0;
-            
+
             if (string.IsNullOrEmpty(productIntake.Sno))
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
-                return RedirectToAction(nameof(CreateCorrection));
+                return Json("");
             }
             if (string.IsNullOrEmpty(productIntake.ProductType))
             {
                 _notyf.Error("Sorry, Kindly select product type");
-                return RedirectToAction(nameof(CreateCorrection));
+                return Json("");
             }
             if (productIntake.Qsupplied == 0)
             {
                 //_notyf.Error("Sorry, Kindly provide quantity");
-                return RedirectToAction(nameof(CreateCorrection));
+                return Json("");
             }
             var suppliers = _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode == sacco);
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(auditId.ToUpper()));
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-             
+
 
             var supplier = suppliers.FirstOrDefault();
-            if (supplier == null) 
+            if (supplier == null)
             {
                 _notyf.Error("Sorry, Supplier does not exist");
-                return RedirectToAction(nameof(CreateCorrection));
+                return Json("");
             }
             if (!supplier.Active || !supplier.Approval)
             {
                 _notyf.Error("Sorry, Supplier must be approved and active");
-                return RedirectToAction(nameof(CreateCorrection));
+                return Json("");
             }
             double ch = 0;
             if (productIntake.CR < 0)
             {
-                productIntake.DR = (productIntake.CR)*-1;
+                productIntake.DR = (productIntake.CR) * -1;
                 ch = (double)productIntake.CR;
                 productIntake.CR = 0;
             }
@@ -1401,11 +1304,9 @@ namespace EasyPro.Controllers
                 productIntake.CrAccNo = "0";
             }
 
-           
-
             if (ModelState.IsValid)
-            { 
-                productIntake.AuditId = auditId ?? "";
+            {
+                productIntake.AuditId = loggedInUser ?? "";
                 productIntake.Description = "Correction";
                 productIntake.TransactionType = TransactionType.Correction;
                 productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
@@ -1432,18 +1333,18 @@ namespace EasyPro.Controllers
                     Description = productIntake.Description,
                     TransactionType = productIntake.TransactionType,
                     Remarks = productIntake.Remarks,
-                    AuditId = auditId,
+                    AuditId = loggedInUser,
                     Auditdatetime = productIntake.Auditdatetime,
                     Branch = productIntake.Branch,
                     SaccoCode = productIntake.SaccoCode,
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
-                    Zone=productIntake.Zone,
+                    Zone = productIntake.Zone,
                     MornEvening = productIntake.MornEvening
                 };
                 _context.ProductIntake.Add(collection);
 
-                calcDefaultdeductions(collection );
+                calcDefaultdeductions(collection);
 
                 var transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
@@ -1453,7 +1354,7 @@ namespace EasyPro.Controllers
                 {
                     transport = _context.DTransports.FirstOrDefault(t => t.Sno == productIntake.Sno && t.Active
                 && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch 
+                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()) && t.Branch == saccoBranch
                 && t.Morning == productIntake.MornEvening);
                 }
 
@@ -1462,12 +1363,12 @@ namespace EasyPro.Controllers
                 {
                     // Debit supplier transport amount
                     productIntake.CR = 0;
-                    productIntake.DR  = productIntake.Qsupplied * transport.Rate;
-                   
+                    productIntake.DR = productIntake.Qsupplied * transport.Rate;
+
 
                     if (ch < 0)
                     {
-                        productIntake.CR = (decimal?)((productIntake.Qsupplied * transport.Rate)*-1);
+                        productIntake.CR = (decimal?)((productIntake.Qsupplied * transport.Rate) * -1);
                         productIntake.DR = 0;
                     }
 
@@ -1486,7 +1387,7 @@ namespace EasyPro.Controllers
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
                         Remarks = productIntake.Remarks,
-                        AuditId = auditId,
+                        AuditId = loggedInUser,
                         Auditdatetime = productIntake.Auditdatetime,
                         Branch = productIntake.Branch,
                         SaccoCode = productIntake.SaccoCode,
@@ -1529,7 +1430,7 @@ namespace EasyPro.Controllers
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
                         Remarks = productIntake.Remarks,
-                        AuditId = auditId,
+                        AuditId = loggedInUser,
                         Auditdatetime = productIntake.Auditdatetime,
                         Branch = productIntake.Branch,
                         SaccoCode = productIntake.SaccoCode,
@@ -1564,49 +1465,67 @@ namespace EasyPro.Controllers
                 //    CrAccNo = productIntake.CrAccNo,
                 //});
 
-                if (productIntake.SMS)
-                {
-                    var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-                    var endDate = startDate.AddMonths(1).AddDays(-1);
-                    var intakes = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
-                    && s.TransDate >= startDate && s.TransDate <= endDate);
-                    if (user.AccessLevel == AccessLevel.Branch)
-                        intakes = intakes.Where(i => i.Branch == saccoBranch);
+                //if (productIntake.SMS)
+                //{
+                //    var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                //    var endDate = startDate.AddMonths(1).AddDays(-1);
+                //    var intakes = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
+                //    && s.TransDate >= startDate && s.TransDate <= endDate);
+                //    if (user.AccessLevel == AccessLevel.Branch)
+                //        intakes = intakes.Where(i => i.Branch == saccoBranch);
 
-                    var commulated = intakes.Sum(s => s.Qsupplied);
-                    _context.Messages.Add(new Message
-                    {
-                        Telephone = supplier.PhoneNo,
-                        Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}",
-                        ProcessTime = DateTime.Now.ToString(),
-                        MsgType = "Outbox",
-                        Replied = false,
-                        DateReceived = DateTime.Now,
-                        Source = auditId,
-                        Code = sacco
-                    });
-                }
+                //    var commulated = intakes.Sum(s => s.Qsupplied);
+                //    _context.Messages.Add(new Message
+                //    {
+                //        Telephone = supplier.PhoneNo,
+                //        Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}",
+                //        ProcessTime = DateTime.Now.ToString(),
+                //        MsgType = "Outbox",
+                //        Replied = false,
+                //        DateReceived = DateTime.Now,
+                //        Source = loggedInUser,
+                //        Code = sacco
+                //    });
+                //}
 
-                if (productIntake.Print)
-                    PrintP(collection);
+                //if (productIntake.Print)
+                //    PrintP(collection);
 
                 _context.SaveChanges();
                 //_notyf.Success("Correction saved successfully");
                 SetIntakeInitialValues();
-
-                var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == (DateTime)productIntake.TransDate).Sum(p => p.Qsupplied);
-                var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == (DateTime)productIntake.TransDate && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
-                return View(new ProductIntakeVm
-                {
-                    Todaykgs = Todayskg,
-                    TodayBranchkgs = TodaysBranchkg
-                });
                 //return RedirectToAction(nameof(CreateCorrection));
             }
 
-            return View(productIntake);
-        }
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
+            // cummulative kgs calc
+            var cumkg = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
+            o.Sno == productIntake.Sno && o.Branch.ToUpper().Equals(productIntake.Branch.ToUpper()) &&
+            o.TransDate >= startDate && o.TransDate <= endDate
+            && (o.Description == "Intake" || o.Description == "Correction")).Sum(d => d.Qsupplied);
 
+            string cummkgs = string.Format("{0:.###}", cumkg + productIntake.Qsupplied);
+            var receiptDetails = new
+            {
+                companies.Name,
+                companies.Adress,
+                companies.Town,
+                companies.PhoneNo,
+                saccoBranch,
+                productIntake.Sno,
+                productIntake.SupName,
+                productIntake.Qsupplied,
+                cummkgs,
+                loggedInUser
+            };
+
+            return Json(new
+            {
+                receiptDetails,
+            });
+        }
 
         public IActionResult Reprint(long? id)
         {

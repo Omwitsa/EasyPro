@@ -59,7 +59,7 @@
                             <input id="Names" class="form-control" readonly />
                         </div>
                     </div>
-                </div>
+                </div> 
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
@@ -93,7 +93,7 @@
                             <span asp-validation-for="CR" class="text-danger"></span>
                         </div>
                     </div>
-                </div>
+                </div> 
                 <div class="row" id="DrCr">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
@@ -114,25 +114,24 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Remarks" class="control-label"></label>
-                            <input asp-for="Remarks" class="form-control" />
-                            <span asp-validation-for="Remarks" class="text-danger"></span>
+                            <input asp-for="Remarks" id="Remarks" class="form-control" />
+                            <span asp-validation-for="Remarks"  class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 
                     </div>
                 </div>
-
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <input  asp-for="Print" type="checkbox" />
-                            <label asp-for="Print" class="control-label"></label>
+                            <input  asp-for="Print" type="checkbox" id="print" />
+                            <label asp-for="Print" for="print" class="control-label"></label>
                             <span asp-validation-for="Print" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <input asp-for="SMS" type="checkbox" />
-                            <label asp-for="SMS" class="control-label"></label>
+                            <input asp-for="SMS" type="checkbox" id="SMS" />
+                            <label asp-for="SMS" for="SMS" class="control-label"></label>
                             <span asp-validation-for="SMS" class="text-danger"></span>
                         </div>
                     </div>
@@ -143,7 +142,7 @@
 
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Save</button>
+                        <a id="save" class="btn btn-success">Save</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a asp-action="Index" class="btn btn-primary">Back to List</a>
@@ -194,9 +193,49 @@
                 getSelectedDateIntakes();
             });
             $('#Sno').on('keyup', function () {
-                var selectVal =  $("#Sno").val();
+                var selectVal = $("#Sno").val();
                 getSelectedDateIntakes();
             });
+            $('#save').on('click', function () {
+                var print = $('#print').is(':checked');
+                var sms = $('#SMS').is(':checked');
+                var intake = {
+                    sno: $("#Sno").val(),
+                    supName: $("#Names").val(),
+                    productType: $("#ProductType").val(),
+                    ppu: $("#Ppu").val(),
+                    qsupplied: $("#Qsupplied").val(),
+                    cr: $("#CR").val(),
+                    drAccNo: $("#DrAccNo").val(),
+                    crAccNo: $("#CrAccNo").val(),
+                    remarks: $("#Remarks").val(),
+                    print: print,
+                    sms: sms,
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "save",
+                    contentType: 'application/json',
+                    data: JSON.stringify(intake),
+                    success: function (response) {
+                        $("#Sno").val('');
+                        $("#Qsupplied").val(0);
+                        if (print){
+                            var content = generateHTML(response);
+                            printJS({
+                                printable: content,
+                                type: 'raw-html',
+                                style: '.blueText {color:blue;}'
+                            });
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+
             function getSelectedDateIntakes() {
                 $('#Names').val();
                 var sno = $('#Sno').val();
@@ -240,6 +279,32 @@
                 if (qty && price) {
                     $("#CR").val(qty * price);
                 }
+            }
+
+            function generateHTML(response) {
+                var mevng = $('#mevng').val();
+                var date = new Date().toLocaleDateString("en-US")
+                var content = `<div class="row" id="printMe">
+                                <div class="col-xs-12 text-center">
+                                     <h6>${response.receiptDetails.Adress}</h6>
+                                     <h6>${response.receiptDetails.Name}</h6>
+                                     <h6>Tell: ${response.receiptDetails.PhoneNo}</h6>
+                                     <h6>Branch: ${response.receiptDetails.Town}</h6>
+                                     <h6>${response.receiptDetails.saccoBranch}</h6>
+                                     <hr>
+                                     <p>Product Receipt For: ${date}</p>
+                                     <p>SNo: ${response.receiptDetails.Sno}</p>
+                                     <p>Name: ${response.receiptDetails.SupName}</p>
+                                     <p>Delivered: ${response.receiptDetails.Qsupplied}</p>
+                                     <p>Cummulative: ${response.receiptDetails.cummkgs}</p>
+                                     <p>Session: ${mevng}</p>
+                                     <p>Received By: ${response.receiptDetails.loggedInUser}</p>
+                                     <hr>
+                                     <p>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</p>
+                                </div>
+                           </div>`;
+
+                return content;
             }
 
         });
