@@ -1,4 +1,5 @@
-﻿<style>
+﻿@*@model EasyPro.ViewModels.MilkBranchControlListVM*@
+<style>
     #customers {
         font-family: Arial, Helvetica, sans-serif;
         border-collapse: collapse;
@@ -35,19 +36,27 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
+
+
+            <hr />
             <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
-
+                        <h2>Branch Milk Balancing Enquiry</h2>
                     </div>
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <h1 style="text-align-last:center">Payroll Report</h1>
+                                <label class="control-label">Branch</label>
+                                <select id="branch" Value="Select Bank" class="form-control" asp-items="@ViewBag.brances" required>
+                                    <option value=""></option>
+                                </select>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-sm-3 col-xs-12">
                         <div class="form-group">
@@ -61,18 +70,6 @@
                             <input id="enddate" type="date" class="form-control" />
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xs-12">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <label class="control-label">-------</label>
-                            <a id="showtable" class="btn btn-warning">Show</a>
-                        </div>
-                    </div>
-                    <div class="col-sm-2 col-xs-12">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <label class="control-label">---</label>
-                            <a asp-controller="PayrollReprt" asp-action="DefaultIndex" class="btn btn-info">Back</a>
-                        </div>
-                    </div>
                 </div>
                 <div class="bsc-tbl-hvr table-border-style">
                     <div class="table-responsive">
@@ -80,29 +77,20 @@
                             <table class="table table-hover" id="customers">
                                 <tr>
                                     <th>Date</th>
-                                    <th>Code</th>
-                                    <th>Product</th>
-                                    <th>SNo</th>
-                                    <th>Quantity</th>
-                                    <th>Amount</th>
-                                    <th>TransBy</th>
-                                    <th>User</th>
-                                    <th>Branch</th>
+                                    <th>Bf</th>
+                                    <th>Intake</th>
+                                    <th>ToStation</th>
+                                    <th>Total</th>
+                                    <th>FromStation</th>
+                                    <th>Sold</th>
+                                    <th>Rejects</th>
+                                    <th>Spillage</th>
+                                    <th>Cf</th>
+                                    <th>Varriance</th>
                                 </tr>
                                 <tbody id="intakes">
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4 col-xs-12">
-
-                        </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <label class="control-label">Total SPrice</label>
-                            <input value="0" id="Tselling" class="form-control" readonly />
-                        </div>
-                        <div class="col-sm-4 col-xs-12">
                         </div>
                     </div>
                 </div>
@@ -110,24 +98,36 @@
         </div>
     </div>
 </div>
-@section Scripts{
+@section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
-            $("#showtable").click(function () {
+
+            $('#branch').change(function () {
+                var selectVal = $("#branch").val();
+                getSelectedDateIntakes();
+            });
+            $('#firstdate').change(function () {
+                var selectVal = $("#branch").val();
+                getSelectedDateIntakes();
+            });
+            $('#enddate').change(function () {
+                var selectVal = $("#branch").val();
+                getSelectedDateIntakes();
+            });
+            function getSelectedDateIntakes() {
+                
+                var branch = $("#branch").val();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
-                var zone = $("#zone").val();
-                zone = zone ? zone : "";
-                $.ajax(
-                    {
+                    $.ajax({
                         type: 'POST',
-                        url: "Supplierpayroll?date1=" + date1 + "&date2=" + date2,
+                        url: "suppliedProducts?branch=" + branch +"&date1=" + date1 + "&date2=" + date2 ,
                         contentType: 'application/json',
                         success: function (response) {
                             populateIntake(response)
@@ -137,41 +137,31 @@
                     }).then(function () {
                         // ...
                     });
-            });
-
+                //}
+            }
             function populateIntake(intakes) {
+                var selectVal = $("#branch").val();
                 let itemTableRows = new Array();
                 intakes.forEach(i => {
-                    var type = "All";
+                    var ddate = i.transdate;
+                    var dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
-                                <td>${i.EndofPeriod}</td>
-                                <td>${i.Sno}</td>
-                                <td>${i.Names}</td>
-                                <td>${i.Branch}</td>
-                                <td>${i.KgsSupplied}</td>
-                                <td>${i.Gpay}</td>
-                                <td>${i.Agrovet}</td>
-                                <td>${i.Tmshares}</td>
-                                <td>${i.Fsa}</td>
-                                <td>${i.Hshares}</td>
-                                <td>${i.Advance}</td>
-                                <td>${i.AI}</td>
-                                <td>${i.Others}</td>
-                                <td>${i.Tractor}</td>
-                                <td>${i.CLINICAL}</td>
-                                <td>${i.CurryForward}</td>
-                                <td>${i.Tdeductions}</td>
-                                <td>${i.Npay}</td>
-                                <td>${i.Bank}</td>
-                                <td>${i.AccountNumber}</td>
-                                <td>${i.Bbranch}</td>
-                                <td>${type}</td>
+                                <td>${dd1}</td>
+                                <td>${i.Bf}</td>
+                                <td>${i.Intake}</td>
+                                <td>${i.Tostation}</td>
+                                <td>${i.Total}</td>
+                                <td>${i.FromStation}</td>
+                                <td>${i.SQuantity}</td>
+                                <td>${i.Reject}</td>
+                                <td>${i.Spillage}</td>
+                                <td>${i.cfa}</td>
+                                <td>${i.Varriance}</td>
                             </tr>`)
                 });
 
                 $('#intakes').html(itemTableRows);
             }
         });
-    </script>
+</script>
 }
-

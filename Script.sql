@@ -3,7 +3,7 @@ GO
 
 CREATE TABLE [dbo].[d_PreSets](
 	[Id] [bigint] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
-	[SNo] [bigint] NULL,
+	[SNo] [nvarchar](50) NULL,
 	[Deduction] [varchar](50) NULL,
 	[Remark] [varchar](150) NULL,
 	[StartDate] [varchar](50) NULL,
@@ -22,3 +22,6 @@ CREATE TABLE [dbo].[d_PreSets](
 	[saccocode] [nvarchar](50) NULL
 ) ON [PRIMARY]
 GO
+
+
+add Remarks to Dispatch table

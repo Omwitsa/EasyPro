@@ -77,17 +77,26 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var banksname = _context.DBanks.Where(i=>i.BankCode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.BankName).ToList();
             ViewBag.banksname = new SelectList(banksname);
 
-            var brances = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
-            ViewBag.brances = new SelectList(brances);
+            var brances = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            
 
             var bankbrances = _context.DBankBranch.Where(i => i.BankCode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
 
-            var locations = _context.DLocations.Where(i => i.Lcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== saccoBranch).Select(b => b.Lname).ToList();
-            ViewBag.locations = new SelectList(locations);
+            var locations = _context.DLocations.Where(l => l.Lcode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                locations = locations.Where(t => t.Branch == saccoBranch).ToList();
+                brances = brances.Where(t => t.Bname == saccoBranch).ToList();
+            }
+
+            ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
+            ViewBag.locations = new SelectList(locations.OrderBy(K => K.Lname).Select(b => b.Lname));
 
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
@@ -121,19 +130,6 @@ namespace EasyPro.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode")] DTransporter dTransporter)
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         {
             try
             {
@@ -147,12 +143,21 @@ namespace EasyPro.Controllers
                 var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
                 sacco = sacco ?? "";
                 var dTransporterExists = _context.DTransporters
-                    .Any(i => (i.TransCode == dTransporter.TransCode || i.CertNo == dTransporter.CertNo)
+                    .Any(i => i.TransCode == dTransporter.TransCode 
                     && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
                 if (dTransporterExists)
                 {
                     GetInitialValues();
-                    _notyf.Error("Transporter entered already exist");
+                    _notyf.Error("Transporter Code entered already exist");
+                    return View();
+                }
+                var dTransporterExistsIDNo = _context.DTransporters
+                    .Any(i => i.CertNo == dTransporter.CertNo
+                    && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
+                if (dTransporterExistsIDNo)
+                {
+                    GetInitialValues();
+                    _notyf.Error("Transporter IDNo entered already exist");
                     return View();
                 }
                 if (ModelState.IsValid)
@@ -288,6 +293,7 @@ namespace EasyPro.Controllers
                     dTransporter.Br = "A";
                     dTransporter.Freezed = "0";
                     dTransporter.ParentT = sacco;
+                    dTransporter.Tbranch = dTransporter.Tbranch;
                     _context.Update(dTransporter);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Transporter Edited successfully");

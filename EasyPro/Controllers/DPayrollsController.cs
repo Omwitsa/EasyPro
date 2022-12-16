@@ -46,7 +46,7 @@ namespace EasyPro.Controllers
                     Names = s.Names,
                     PhoneNo = s.PhoneNo,
                     IdNo = s.IdNo,
-                    Bank = "",
+                    Bank = s.Bcode,
                     AccNo = s.AccNo,
                     Branch = s.Branch,
                     Quantity = p.KgsSupplied,

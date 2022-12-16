@@ -23,9 +23,10 @@ namespace EasyPro.Utils
         }
         public void SetUpPrivileges(Controller controller)
         {
+            var sacco = controller.HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var group = controller.HttpContext.Session.GetString(StrValues.UserGroup) ?? "";
             var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group));
-            controller.ViewBag.sacco = controller.HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            controller.ViewBag.sacco = sacco;
             controller.ViewBag.filesRole = usergroup.Files;
             controller.ViewBag.accountsRole = usergroup.Accounts;
             controller.ViewBag.transactionsRole = usergroup.Registration;
@@ -36,6 +37,7 @@ namespace EasyPro.Utils
             controller.ViewBag.staffRole = usergroup.Staff;
             controller.ViewBag.stockRole = usergroup.Store;
             controller.ViewBag.deductionsRole = usergroup.Deductions;
+            controller.ViewBag.isTanyakina = sacco == StrValues.Tanykina;
         }
 
         public string GenerateExcelGrid(ISheet sheet, string sacco, string loggedInUser, string branch)

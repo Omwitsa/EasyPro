@@ -55,28 +55,31 @@
                                         Date
                                     </th>
                                     <th>
+                                        BF(Kgs)
+                                    </th>
+                                    <th>
                                         Intake(Kgs)
                                     </th>
                                     <th>
-                                        Quantity(Kgs)
+                                        To Station(Kgs)
                                     </th>
                                     <th>
-                                        Rejects(Kgs)
-                                    </th>
-                                    <th>
-                                        CF(Kgs)
-                                    </th>
-                                    <th>
-                                        Spillage(Kgs)
-                                    </th>
-                                    <th>
-                                        BF(Kgs)
+                                        Total(Kgs)
                                     </th>
                                     <th>
                                         From Station(Kgs)
                                     </th>
                                     <th>
-                                        To Station(Kgs)
+                                        Sold(Kgs)
+                                    </th>
+                                    <th>
+                                        Rejects(Kgs)
+                                    </th>
+                                    <th>
+                                        Spillage(Kgs)
+                                    </th>
+                                    <th>
+                                        CF(Kgs)
                                     </th>
                                     <th>
                                         Varriance(Kgs)
@@ -87,43 +90,46 @@
                             <tbody id="geeks">
                                 @foreach (var item in Model)
                                 {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.transdate)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Intake)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.SQuantity)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Reject)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.cfa)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Spillage)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Bf)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.FromStation)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Tostation)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.code)
-                                        </td>
-                                        <td>
-                                            @*<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |*@
-                                            <a class="btn-info btn-info" asp-action="MilkcontrolDetails" asp-route-id="@item.Id">Details</a> |
-                                            @*<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.transdate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Bf)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Intake)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Tostation)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Total)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.FromStation)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SQuantity)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Reject)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Spillage)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.cfa)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Varriance)
+                                    </td>
+                                    <td>
+                                        @*<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |*@
+                                        <a class="btn-info btn-info" asp-action="MilkcontrolDetails" asp-route-id="@item.Id">Details</a> |
+                                        @*<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
+                                    </td>
+                                </tr>
                                 }
                             </tbody>
                         </table>

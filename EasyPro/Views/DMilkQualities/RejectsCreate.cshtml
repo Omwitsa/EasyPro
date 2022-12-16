@@ -31,9 +31,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">From Branch</label>
-                                    <select id="branch" asp-for="Branch" class="form-control" asp-items="@ViewBag.brances" required>
-                                        <option value=""></option>
-                                    </select>
+                                    <input id="branch" asp-for="Branch" class="form-control" readonly/>
                                     <span asp-validation-for="Branch" class="text-danger"></span>
                                 </div>
                             </div>
@@ -163,27 +161,23 @@
             var today = new Date().toISOString().split('T')[0];
             $("#transDate").val(today);
             let suppliedItems = new Array();
-            $('#transDate').on('keyup', function (){
+            $('#transDate').change(function (){
                 getSelectedDateIntakes1();
             });
-            $('#branch').on('keyup', function () {
+            $('#branch').change(function () {
                 getSelectedDateIntakes1();
             });
             function getSelectedDateIntakes1() {
                 var transDate = $("#transDate").val();
-                var branch = $("#branch").val();
+                //var branch = $("#branch").val();
+                
                 $.ajax({
                     type: 'GET',
-                    url: "Selectedquantity?date=" + transDate + "&branch=" + branch,
+                    url: "Selectedquantity?transDate=" + transDate ,
                     contentType: 'application/json',
-                    data: JSON.stringify(variance),
                     success: function (response) {
-                        debugger
-                        //var selectsuppliers = response;
-                        //if (selectsuppliers[0]) {
-                        //    $("#sold").val(selectsuppliers[0].Names);
-                        //}
-                        $("#sold").val(0)
+                        
+                        $("#sold").val(response);
                     },
                     failure: function (response) {
                     }

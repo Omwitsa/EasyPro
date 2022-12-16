@@ -20,6 +20,7 @@ namespace EasyPro.ViewModels
         public decimal? cfa { get; set; }
         public decimal? Spillage { get; set; }
         public decimal? Bf { get; set; }
+        public decimal? Total { get; set; }
         public string auditid { get; set; }
         public decimal? FromStation { get; set; }
         public decimal? Tostation { get; set; }

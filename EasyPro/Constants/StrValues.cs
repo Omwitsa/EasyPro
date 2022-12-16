@@ -7,5 +7,6 @@
         static public string UserGroup = "UserGroup";
         static public string Branch = "Branch";
         static public string Ainabkoi = "AINABKOI FCS";
+        static public string Tanykina = "TANYKINA Dairy Plant Limited";
     }
 }
