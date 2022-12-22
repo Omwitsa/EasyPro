@@ -37,6 +37,7 @@ namespace EasyPro.Utils
             controller.ViewBag.staffRole = usergroup.Staff;
             controller.ViewBag.stockRole = usergroup.Store;
             controller.ViewBag.deductionsRole = usergroup.Deductions;
+            controller.ViewBag.flmd = usergroup.Flmd;
             controller.ViewBag.isTanyakina = sacco == StrValues.Tanykina;
         }
 

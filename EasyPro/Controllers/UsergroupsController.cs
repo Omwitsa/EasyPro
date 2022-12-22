@@ -63,7 +63,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Create([Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Flmd,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             try
@@ -100,6 +100,7 @@ namespace EasyPro.Controllers
                 usergroup.Deductions = usergroup?.Deductions ?? false;
                 usergroup.Staff = usergroup?.Staff ?? false;
                 usergroup.Store = usergroup?.Store ?? false;
+                usergroup.Flmd = usergroup?.Flmd ?? false;
                 usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
 
                 _context.Add(usergroup);
@@ -136,7 +137,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Flmd,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             if (id != usergroup.GroupId)
@@ -183,6 +184,7 @@ namespace EasyPro.Controllers
                     usergroup.Deductions = usergroup?.Deductions ?? false;
                     usergroup.Staff = usergroup?.Staff ?? false;
                     usergroup.Store = usergroup?.Store ?? false;
+                    usergroup.Flmd = usergroup?.Flmd ?? false;
                     usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
                     _context.Update(usergroup);
                     await _context.SaveChangesAsync();

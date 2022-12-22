@@ -1559,6 +1559,7 @@ namespace EasyPro.Controllers
                     companies.Adress,
                     companies.Town,
                     companies.PhoneNo,
+                    companies.Motto,
                     saccoBranch,
                     productIntake.Sno,
                     productIntake.SupName,

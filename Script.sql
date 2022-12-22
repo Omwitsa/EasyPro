@@ -26,3 +26,4 @@ GO
 
 add Remarks, Branch to Dispatch table
 add column extension to dpayroll and dtransporterspayroll table
+add column Flmd to USERGROUPS
