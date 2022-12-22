@@ -149,6 +149,7 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                     if (string.IsNullOrEmpty(usergroup.GroupId))
                     {
                         _notyf.Error("Sorry, Kindly provide group code");
@@ -160,20 +161,20 @@ namespace EasyPro.Controllers
                         return View(usergroup);
                     }
                     var codeExist = _context.Usergroups.Any(g => g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper())
-                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()));
+                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()) && g.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
                     if (codeExist)
                     {
                         _notyf.Error("Sorry, Group code already exist");
                         return View(usergroup);
                     }
                     var nameExist = _context.Usergroups.Any(g => g.GroupName.ToUpper().Equals(usergroup.GroupName.ToUpper())
-                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()));
+                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()) && g.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
                     if (nameExist)
                     {
                         _notyf.Error("Sorry, Group name already exist");
                         return View(usergroup);
                     }
-                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                   
                     usergroup.SaccoCode = sacco;
                     usergroup.Registration = usergroup?.Registration ?? false;
                     usergroup.Activity = usergroup?.Activity ?? false;
