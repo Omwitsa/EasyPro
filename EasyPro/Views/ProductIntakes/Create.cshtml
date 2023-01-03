@@ -242,9 +242,12 @@
                 getSelectedDateIntakes();
             });
 
-            $('#Qsupplied').on('change', function () {
-                getSelectedforsave();
+            $('#Qsupplied').keydown(function (event) {
+                if (event.which == 13) {
+                    getSelectedforsave();
+                }
             });
+
             $('#save').on('click', function () {
                 getSelectedforsave();
             });

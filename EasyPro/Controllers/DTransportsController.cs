@@ -145,6 +145,7 @@ namespace EasyPro.Controllers
         [HttpGet]
         public JsonResult SelectedDateIntake( string sno)
         {
+            sno = sno ?? "";
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";

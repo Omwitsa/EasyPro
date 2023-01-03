@@ -226,9 +226,13 @@
             var selectVal =  $("#Sno").val();
             getSelectedDateIntakes();
             });
-        $('#Qsupplied').on('change', function () {  
-            getSelectedforsave();
+        
+        $('#Qsupplied').keydown(function (event) {
+            if (event.which == 13) {
+                getSelectedforsave();
+            }
         });
+
         function getSelectedforsave() {
               var print = $('#print').is(':checked');
                 var sms = $('#SMS').is(':checked');
@@ -317,6 +321,7 @@
             $('#Qsupplied').on('keyup', function () {
                 calculatePrice();
             });
+
          function populateFields(product) {
                 var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
                 var selectProducts = products.filter(p => p.Products === product);

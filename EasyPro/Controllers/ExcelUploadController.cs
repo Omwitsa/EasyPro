@@ -129,7 +129,7 @@ namespace EasyPro.Controllers
 
                 _context.ProductIntake.Add(productIntake);
 
-                var transports = _context.DTransports.Where(t => t.Sno.ToString() == e.Sno && t.Active
+                var transports = _context.DTransports.Where(t => t.Sno == e.Sno && t.Active
                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
                 if (user.AccessLevel == AccessLevel.Branch)

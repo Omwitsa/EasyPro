@@ -579,14 +579,14 @@
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
                                 </li>
+                                <li>
+                                    <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
+                                </li>
 
                                 @if (!ViewBag.setupRole)
                                 {
                                     <li>
                                         <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
-                                    </li>
-                                    <li>
-                                        <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
                                     </li>
                                     <li>
                                         <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
