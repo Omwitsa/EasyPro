@@ -141,9 +141,7 @@
                                             <li>
                                                 <a asp-controller="DSuppliers" asp-action="Index">Farmer</a>
                                             </li>
-                                            <li>
-                                                <a asp-controller="Flmd" asp-action="Index">FLMD</a>
-                                            </li>
+
                                             <li>
                                                 <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
                                             </li>
@@ -190,6 +188,12 @@
                                         </ul>
                                     </li>
                                 }
+                                @if (ViewBag.flmd)
+                                {
+                                    <li>
+                                        <a asp-controller="Flmd" asp-action="Index">FLMD</a>
+                                    </li>
+                                }
                                 @if (ViewBag.stockRole)
                                 {
                                     <li>
@@ -224,15 +228,15 @@
                                             <li>
                                                 <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
                                             </li>
-
+                                            <li>
+                                                <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
+                                            </li>
                                             @if (!ViewBag.setupRole)
                                             {
                                                 <li>
                                                     <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
                                                 </li>
-                                                <li>
-                                                    <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
-                                                </li>
+
                                                 <li>
                                                     <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
                                                 </li>
@@ -400,7 +404,7 @@
                                             <li>
                                                 <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
                                             </li>
-                                            
+
                                             <li>
                                                 <a asp-controller="AgrovetStockReceive" asp-action="DefaultIndex">Agrovet Reports</a>
                                             </li>
@@ -433,6 +437,12 @@
                         {
                             <li>
                                 <a data-toggle="tab" href="#registration"><i class="notika-icon notika-house"></i>Registration</a>
+                            </li>
+                        }
+                        @if (ViewBag.flmd)
+                        {
+                            <li>
+                                <a data-toggle="tab" href="#flmd"><i class="notika-icon notika-house"></i>FLMD Registration</a>
                             </li>
                         }
                         @if (ViewBag.deductionsRole)
@@ -500,13 +510,17 @@
                                 </li>
                             </ul>
                         </div>
+                        <div id="flmd" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="Flmd" asp-action="Index">FLMD</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div id="registration" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
                                     <a asp-controller="DSuppliers" asp-action="Index">Farmer</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="Flmd" asp-action="Index">FLMD</a>
                                 </li>
                                 <li>
                                     <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
@@ -782,8 +796,8 @@
                                     <a asp-controller="Report" asp-action="DownloadTReport">Transporters</a>
                                 </li>
                                 @*<li>
-                                    <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
-                                </li>*@
+                    <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
+                </li>*@
                                 <li>
                                     <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
                                 </li>
@@ -802,7 +816,7 @@
                             </ul>
                         </div>
                     </div>
-                </div>
+                    </div>
             </div>
         </div>
     </div>

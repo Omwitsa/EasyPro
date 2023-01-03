@@ -63,7 +63,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Create([Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Flmd,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             try
@@ -100,6 +100,7 @@ namespace EasyPro.Controllers
                 usergroup.Deductions = usergroup?.Deductions ?? false;
                 usergroup.Staff = usergroup?.Staff ?? false;
                 usergroup.Store = usergroup?.Store ?? false;
+                usergroup.Flmd = usergroup?.Flmd ?? false;
                 usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
 
                 _context.Add(usergroup);
@@ -136,7 +137,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Flmd,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             if (id != usergroup.GroupId)
@@ -148,6 +149,7 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                     if (string.IsNullOrEmpty(usergroup.GroupId))
                     {
                         _notyf.Error("Sorry, Kindly provide group code");
@@ -159,20 +161,20 @@ namespace EasyPro.Controllers
                         return View(usergroup);
                     }
                     var codeExist = _context.Usergroups.Any(g => g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper())
-                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()));
+                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()) && g.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
                     if (codeExist)
                     {
                         _notyf.Error("Sorry, Group code already exist");
                         return View(usergroup);
                     }
                     var nameExist = _context.Usergroups.Any(g => g.GroupName.ToUpper().Equals(usergroup.GroupName.ToUpper())
-                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()));
+                    && !g.GroupId.ToUpper().Equals(usergroup.GroupId.ToUpper()) && g.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
                     if (nameExist)
                     {
                         _notyf.Error("Sorry, Group name already exist");
                         return View(usergroup);
                     }
-                    var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                   
                     usergroup.SaccoCode = sacco;
                     usergroup.Registration = usergroup?.Registration ?? false;
                     usergroup.Activity = usergroup?.Activity ?? false;
@@ -183,6 +185,7 @@ namespace EasyPro.Controllers
                     usergroup.Deductions = usergroup?.Deductions ?? false;
                     usergroup.Staff = usergroup?.Staff ?? false;
                     usergroup.Store = usergroup?.Store ?? false;
+                    usergroup.Flmd = usergroup?.Flmd ?? false;
                     usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
                     _context.Update(usergroup);
                     await _context.SaveChangesAsync();

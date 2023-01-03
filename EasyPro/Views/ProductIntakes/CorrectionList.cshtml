@@ -170,8 +170,8 @@
                         }
                         itemTableRows.push(`<tr>
                                 <td>${i.Sno}</td>
-                                <td>${i.TransDate}</td>
-                                <td>${i.TransTime}</td>
+                                <td>${i.TransDate.format('dd-m-yy')}</td>
+                                <td>${i.TransTime.format('HH:mm:ss')}</td>
                                 <td>${i.ProductType}</td>
                                 <td>${i.Qsupplied}</td>
                                 <td>${i.Ppu}</td>

@@ -12,6 +12,7 @@ namespace EasyPro.Models
         public string GroupId { get; set; }
         public string GroupName { get; set; }
         public bool Registration { get; set; }
+        public bool Flmd { get; set; }
         public bool Activity { get; set; }
         public bool Reports { get; set; }
         public bool Setup { get; set; }
@@ -22,5 +23,6 @@ namespace EasyPro.Models
         public bool Store { get; set; }
         public bool SaccoReports { get; set; }
         public string SaccoCode { get; set; }
+      
     }
 }

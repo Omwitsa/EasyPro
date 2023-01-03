@@ -25,7 +25,7 @@ namespace EasyPro.Utils
         {
             var sacco = controller.HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var group = controller.HttpContext.Session.GetString(StrValues.UserGroup) ?? "";
-            var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group));
+            var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group) && u.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
             controller.ViewBag.sacco = sacco;
             controller.ViewBag.filesRole = usergroup.Files;
             controller.ViewBag.accountsRole = usergroup.Accounts;
@@ -37,6 +37,7 @@ namespace EasyPro.Utils
             controller.ViewBag.staffRole = usergroup.Staff;
             controller.ViewBag.stockRole = usergroup.Store;
             controller.ViewBag.deductionsRole = usergroup.Deductions;
+            controller.ViewBag.flmd = usergroup.Flmd;
             controller.ViewBag.isTanyakina = sacco == StrValues.Tanykina;
         }
 
