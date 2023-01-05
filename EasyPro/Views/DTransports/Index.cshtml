@@ -29,6 +29,7 @@
             background-color: #04AA6D;
             color: white;
         }
+
     .divScroll {
         width: 1110px;
         height: 500px;
@@ -37,14 +38,25 @@
 </style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <h3 class="text-danger fa-bold">Transporters Assign To Farmers</h3>
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                @*<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
                     <h3 class="text-danger fa-bold">Transporters Assign To Farmers</h3>
+                </div>*@
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="form-group">
+                        <select id="condition" class="form-control">
+                            <option></option>
+                            <option>SNo</option>
+                            <option>TNo</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                    <input id="gfg" type="text" class="form-control"
-                           placeholder="Search here">
+                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                    <div class="form-group">
+                        <input id="filter" autocomplete="off" placeholder="Search" class="form-control" />
+                    </div>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <a asp-action="Create" class="btn btn-primary">Create New</a>
@@ -81,57 +93,79 @@
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody id="geeks">
-                                @foreach (var item in Model)
-                                {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.TransCode)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.TransName)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Sno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Names)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Rate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Startdate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Morning)
-                                    </td>
-                                    <td class="col-4">
-                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                        @*<a class="btn-info btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
-                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                    </td>
-                                </tr>
-                                }
+                            <tbody id="intakes">
                             </tbody>
+                            
                         </table>
                     </div>
                 </div>
-                
+
             </div>
-            </div>
+        </div>
     </div>
 </div>
-@section scripts{
-    <script>
-        $(document).ready(function () {
-            $("#gfg").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#geeks tr").filter(function () {
-                    $(this).toggle($(this).text()
-                        .toLowerCase().indexOf(value) > -1)
-                });
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            getSelectedDateIntakes();
+            $('#condition').click(function () {
+                getSelectedDateIntakes();
             });
+            $('#filter').on('keyup', function () {
+                getSelectedDateIntakes();
+            });
+            function getSelectedDateIntakes() {
+                var filter = $("#filter").val();
+                var condition = $("#condition").val();
+                $.ajax({
+                    type: 'POST',
+                    url: "getsuppliers?filter=" + filter + "&condition=" + condition,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        populateIntake(response)
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+                //}
+            }
+            function populateIntake(intakes) {
+                var filter = $("#filter").val();
+                var condition = $("#condition").val();
+                let itemTableRows = new Array();
+                intakes.forEach(i => {
+                    //debugger;
+                    var morning = i.Morning;
+                    var ddate = i.Startdate;
+                    var Edit = "/DTransports/Edit/" + i.Id;
+                    var Delete = "/DTransports/Delete/" + i.Id;
+                    var dd1 = new Date(ddate).toLocaleDateString();
+                    if (morning === "")
+                    {
+                        morning = "All";
+                    }
+                    var editbtn = "<a class='btn btn-success text-white' href=" + Edit + " >Edit</a >";
+                    var deletebtn = "<a class='btn btn-danger text-white' href=" + Delete + " >Delete</a >";
+                    var combine = editbtn + "|" + deletebtn;
+                    itemTableRows.push(`<tr>
+                                    <td>${i.TransCode}</td>
+                                    <td>${i.TransName}</td>
+                                    <td>${i.Sno}</td>
+                                    <td>${i.Names}</td>
+                                    <td>${i.Rate}</td>
+                                    <td>${dd1}</td>
+                                    <td>${morning}</td>
+                                    <td>${combine}</td>
+                                </tr>`)
+                });
+
+                $('#intakes').html(itemTableRows);
+            }
         });
     </script>
 }

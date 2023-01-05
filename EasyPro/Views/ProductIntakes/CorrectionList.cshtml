@@ -85,7 +85,7 @@
                             </tr>
                         </thead>
                         <tbody id="geeks">
-                            @foreach (var item in Model)
+                            @*@foreach (var item in Model)
                             {
                             <tr>
                                 <td>
@@ -122,7 +122,7 @@
                                     <a asp-controller="ProductIntakes" asp-action="Reprint" asp-route-id="@item.Id">Re-Print</a>
                                 </td>
                             </tr>
-                            }
+                            }*@
                         </tbody>
                     </table>
                 </div>
@@ -168,10 +168,14 @@
                         if (i.Remarks != '') {
                             remarks = i.Remarks;
                         }
+                        var ddate = i.TransDate;
+                        var dd1 = new Date(ddate).toLocaleDateString();
+                        var d = "/ProductIntakes/Reprint/" + i.Id;
+                        var RePrint = "<a class='btn btn-success text-white' href=" + d + "  >Re-Print</a >";
                         itemTableRows.push(`<tr>
                                 <td>${i.Sno}</td>
-                                <td>${i.TransDate.format('dd-m-yy')}</td>
-                                <td>${i.TransTime.format('HH:mm:ss')}</td>
+                                <td>${dd1}</td>
+                                <td>${i.TransTime}</td>
                                 <td>${i.ProductType}</td>
                                 <td>${i.Qsupplied}</td>
                                 <td>${i.Ppu}</td>
@@ -179,6 +183,7 @@
                                 <td>${i.DR}</td>
                                 <td>${i.Description}</td>
                                 <td>${remarks}</td>
+                                <td>${RePrint}</td>
                             </tr>`)
                     });
 

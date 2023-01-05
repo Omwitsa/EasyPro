@@ -1,0 +1,49 @@
+﻿<div class="row">
+    <div class="col-sm-2 col-lg-2 col-12">
+
+    </div>
+    <div class="col-sm-8 col-lg-8 col-12">
+        <div style="padding:8px;margin:8px">
+            <input class="form-control border-0" id="myInput" onkeyup="myFunction()" style="background-color:#2ebf6f;color:white;border-radius:30px;font-family:'Century Gothic'" required placeholder="Search" />
+
+        </div>
+    </div><div class="col-sm-2 col-lg-2 col-12">
+
+    </div>
+</div>
+<script>
+    function myFunction() {
+        var input, filter, ul, li, a, i, txtValue,count1;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("myUL");
+        li = ul.getElementsByTagName("tr");
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("b")[0]
+            txtValue = a.textContent || a.innerText;
+            if (a == "") {
+                a = li[i].getElementsByTagName("b")[1];
+                txtValue = a.textContent || a.innerText;
+            } 
+            else if (a == "") {
+                a = li[i].getElementsByTagName("b")[2];
+                txtValue = a.textContent || a.innerText;
+            }
+            else if (a == "") {
+                a = li[i].getElementsByTagName("b")[3];
+                txtValue = a.textContent || a.innerText;
+            }
+            else if (a == "") {
+                a = li[i].getElementsByTagName("b")[4];
+                txtValue = a.textContent || a.innerText;
+            }
+            
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    }
+
+</script>

@@ -138,6 +138,7 @@ namespace EasyPro.Controllers
                 DTransporter = transporters,
                 DSuppliers = suppliers,
             };
+
             GetInitialValues();
             //return Json(new { data = Farmersobj });
             return View(TransSuppliersobj);
@@ -455,6 +456,62 @@ namespace EasyPro.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public JsonResult getsuppliers([FromBody] DSupplier supplier, string? filter, string? condition)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            var Transporterssuppliers = _context.DTransports.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                Transporterssuppliers = Transporterssuppliers.Where(i => i.Branch == saccobranch).ToList();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                if (!string.IsNullOrEmpty(condition))
+                {
+                    if (condition == "SNo")
+                    {
+                        Transporterssuppliers = Transporterssuppliers.Where(i => i.Sno.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "TNo")
+                    {
+                        Transporterssuppliers = Transporterssuppliers.Where(i => i.TransCode.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                }
+            }
+            Transporterssuppliers = Transporterssuppliers.OrderByDescending(i => i.Startdate).Take(505).ToList();
+            var assignlist = new List<TransSuppliersVM>();
+            foreach (var intake in Transporterssuppliers)
+            {
+               // intake = intake;
+                var suppliername = _context.DSuppliers.FirstOrDefault(i => i.Sno.ToUpper().Equals(intake.Sno.ToUpper()) && i.Scode == sacco && i.Branch == intake.Branch);
+                var transportername = _context.DTransporters.FirstOrDefault(i => i.TransCode.ToUpper().Equals(intake.TransCode.ToUpper()) && i.ParentT == sacco && i.Tbranch == intake.Branch);
+                if (suppliername != null)
+                {
+                    if (transportername != null)
+                    {
+                        var morning = intake.Morning;
+                        if (string.IsNullOrEmpty(intake.Morning))
+                            morning = "All";
+                        assignlist.Add(new TransSuppliersVM
+                        { 
+                            Id= intake.Id,
+                            TransCode = intake.TransCode,
+                            TransName = transportername.TransName,
+                            Sno = intake.Sno,
+                            Names = suppliername.Names,
+                            Rate = intake.Rate,
+                            Startdate = intake.Startdate,
+                            Morning = morning
+                        });
+                    }
+                }
+            }
+            _context.SaveChanges();
+            return Json(assignlist);
+        }
         private bool DTransportExists(long id)
         {
             return _context.DTransports.Any(e => e.Id == id);

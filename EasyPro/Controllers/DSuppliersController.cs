@@ -385,6 +385,49 @@ namespace EasyPro.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public JsonResult getsuppliers([FromBody] DSupplier supplier,string? filter, string? condition)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
+            if(!string.IsNullOrEmpty(filter) )
+            {
+                if (!string.IsNullOrEmpty(condition))
+                {
+                    if (condition == "SNo")
+                    {
+                        suppliers = suppliers.Where(i => i.Sno.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "Name")
+                    {
+                        suppliers = suppliers.Where(i => i.Names.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "IdNo")
+                    {
+                        suppliers = suppliers.Where(i => i.IdNo.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "Phone")
+                    {
+                        suppliers = suppliers.Where(i => i.PhoneNo.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "AccNo")
+                    {
+                        suppliers = suppliers.Where(i => i.AccNo.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                }
+            }
+
+            suppliers = suppliers.OrderByDescending(i => i.Sno).Take(15).ToList();
+            return Json(suppliers);
+        }
+
+
         private bool DSupplierExists(long id)
         {
             return _context.DSuppliers.Any(e => e.Id == id);
