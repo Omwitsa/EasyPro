@@ -29,6 +29,8 @@
   <ItemGroup>
     <PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
+    <PackageReference Include="CrystalReports.ReportAppServer.ReportDefModel" Version="13.0.4001" />
+    <PackageReference Include="CrystalReports.Shared" Version="13.0.4001" />
     <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="FastReport.OpenSource" Version="2020.4.11" />
     <PackageReference Include="FastReport.OpenSource.Web" Version="2020.4.11" />
