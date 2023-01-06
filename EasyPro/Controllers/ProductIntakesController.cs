@@ -514,13 +514,13 @@ namespace EasyPro.Controllers
                     Qsupplied = (decimal)productIntake.Qsupplied,
                     Ppu = price.Price,
                     CR = productIntake.CR,
-                    DR = productIntake.DR,
+                    DR = 0,
                     Balance = productIntake.Balance,
                     Description = "Intake",
                     TransactionType = productIntake.TransactionType,
                     Remarks = productIntake.Remarks,
                     AuditId = loggedInUser,
-                    Auditdatetime = productIntake.Auditdatetime,
+                    Auditdatetime = DateTime.Now,
                     Branch = productIntake.Branch,
                     SaccoCode = productIntake.SaccoCode,
                     DrAccNo = productIntake.DrAccNo,
@@ -1538,7 +1538,7 @@ namespace EasyPro.Controllers
                 //    PrintP(collection);
 
                 _context.SaveChanges();
-                //_notyf.Success("Correction saved successfully");
+                _notyf.Success("Correction saved successfully");
                 SetIntakeInitialValues();
                 //return RedirectToAction(nameof(CreateCorrection));
             }

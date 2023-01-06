@@ -1,4 +1,5 @@
-﻿using ClosedXML.Excel;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ClosedXML.Excel;
 using EasyPro.Constants;
 using EasyPro.IProvider;
 using EasyPro.Models;
@@ -28,14 +29,15 @@ namespace EasyPro.Controllers
         private readonly IReportProvider _reportProvider;
         readonly IReporting _IReporting;
         private Utilities utilities;
-
+        private readonly INotyfService _notyf;
         public ReportController(IReporting iReporting, IReportProvider reportProvider,
-            MORINGAContext context)
+            MORINGAContext context, INotyfService notyf)
         {
             _IReporting = iReporting;
             _reportProvider = reportProvider;
             utilities = new Utilities(context);
             _context = context;
+            _notyf = notyf;
         }
 
         public IEnumerable<DSupplier> suppliersobj { get; set; }
@@ -119,8 +121,13 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var brances = _context.DBranch.Where(i => i.Bcode == sacco).Select(b => b.Bname).ToList();
-            ViewBag.brances = new SelectList(brances);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var brances = _context.DBranch.Where(i => i.Bcode == sacco).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                brances = brances.Where(i => i.Bname == saccoBranch).ToList();
+            ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
 
             var Transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.Transporters = new SelectList(Transporters, "TransName", "TransName");
@@ -309,6 +316,33 @@ namespace EasyPro.Controllers
             else
                 branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
             return BranchIntakeExcel(DateFrom, DateTo, filter.Branch);
+        }
+
+        [HttpPost]
+        public IActionResult BranchIntakeAudit([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            sacco = sacco ?? "";
+            var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+            var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                if (string.IsNullOrEmpty(filter.Branch))
+                {
+                    GetInitialValues();
+                    _notyf.Error("Sorry, Provide the branch Name");
+                    return RedirectToAction(nameof(DownloadcorrectionIntakeReport));
+                }
+            }
+
+            if (string.IsNullOrEmpty(filter.Branch))
+                branchobj = _context.DBranch.Where(u => u.Bcode == sacco);
+            else
+                branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
+            return BranchIntakeAuditExcel(DateFrom, DateTo, filter.Branch);
         }
         [HttpPost]
         public IActionResult correctionIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
@@ -1541,7 +1575,6 @@ namespace EasyPro.Controllers
                 }
             }
         }
-
         public IActionResult BranchIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
         {
             using (var workbook = new XLWorkbook())
@@ -1581,7 +1614,7 @@ namespace EasyPro.Controllers
                     productIntakeobj = _context.ProductIntake
                         .Where(i => i.SaccoCode == sacco && i.TransDate >= DateFro && i.Qsupplied != 0
                         && i.TransDate <= DateT && i.Branch == branch.Bname)
-                        .OrderBy(i => i.Sno);
+                        .OrderByDescending(i => i.Auditdatetime);
                     foreach (var emp in productIntakeobj)
                     {
                         var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
@@ -1618,6 +1651,108 @@ namespace EasyPro.Controllers
                     return File(content,
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         "Suppliers Branch Intake.xlsx");
+                }
+            }
+        }
+        public IActionResult BranchIntakeAuditExcel(DateTime DateFrom, DateTime DateTo, string Branch)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var DateFro = Convert.ToDateTime(DateFrom.ToString());
+                var DateT = Convert.ToDateTime(DateTo.ToString());
+                var Branchh = Branch;
+                var worksheet = workbook.Worksheets.Add("productIntakeobj");
+                var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Suppliers Branch Intake Report";
+
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "TransDate";
+                worksheet.Cell(currentRow, 4).Value = "ProductType";
+                worksheet.Cell(currentRow, 5).Value = "Qsupplied";
+                worksheet.Cell(currentRow, 6).Value = "Price";
+                worksheet.Cell(currentRow, 7).Value = "Description";
+                worksheet.Cell(currentRow, 8).Value = "Branch";
+                worksheet.Cell(currentRow, 9).Value = "User";
+                worksheet.Cell(currentRow, 10).Value = "AudiTime";
+                decimal sum = 0, sum1 = 0,sum2=0;
+                foreach (var branch in branchobj)
+                {
+                    productIntakeobj = _context.ProductIntake
+                        .Where(i => i.SaccoCode == sacco && i.TransDate >= DateFro && i.Qsupplied != 0
+                        && i.TransDate <= DateT && i.Branch == branch.Bname)
+                        .OrderByDescending(i => i.TransDate);
+                    var audituser = productIntakeobj.GroupBy(m => m.AuditId).ToList();
+                    audituser.ForEach(l => {
+                        var branchuser = l.FirstOrDefault();
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = branchuser.AuditId;
+                        var groupbydate = productIntakeobj.Where(k => k.AuditId == branchuser.AuditId)
+                        .GroupBy(p=>p.TransDate).ToList();
+                        groupbydate.ForEach(j => {
+                            var TransDate = j.FirstOrDefault();
+
+                            productIntakeobj = productIntakeobj.Where(k=>k.AuditId== branchuser.AuditId && k.TransDate== TransDate.TransDate)
+                        .OrderByDescending(i => i.Auditdatetime).ToList();
+                        foreach (var emp in productIntakeobj)
+                        {
+                            var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
+                            if (TransporterExist > 0)
+                            {
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                                var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
+                                foreach (var al in TName)
+                                    worksheet.Cell(currentRow, 2).Value = al.Names;
+                                worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                                worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                                worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
+                                worksheet.Cell(currentRow, 6).Value = emp.Ppu;
+                                worksheet.Cell(currentRow, 7).Value = emp.Description;
+                                worksheet.Cell(currentRow, 8).Value = emp.Branch;
+                                worksheet.Cell(currentRow, 9).Value = emp.AuditId;
+                                worksheet.Cell(currentRow, 10).Value = emp.Auditdatetime;
+                                sum += (emp.Qsupplied);
+                                sum1 += (emp.Qsupplied);
+                                sum2 += (emp.Qsupplied);
+                            }
+                        }
+                        });
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = branchuser.AuditId+" "+"Total Kgs";
+                        worksheet.Cell(currentRow, 5).Value = sum2;
+                        sum2 = 0;
+                    });
+                    currentRow++;
+                    worksheet.Cell(currentRow, 4).Value = "Branch Kgs";
+                    worksheet.Cell(currentRow, 5).Value = sum1;
+                    sum1 = 0;
+                }
+                currentRow++;
+                worksheet.Cell(currentRow, 4).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 5).Value = sum;
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "IntakeAuditReport.xlsx");
                 }
             }
         }
