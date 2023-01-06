@@ -99,11 +99,13 @@ namespace EasyPro.Controllers
             string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            var excelDumps = _context.ExcelDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();          
+            var excelDumps = _context.ExcelDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();   
             excelDumps.ForEach(e =>
             {
                 e.TransCode = e?.TransCode ?? "";
                 var price = _context.DPrices.FirstOrDefault(p => p.Products.ToUpper().Equals(e.ProductType.ToUpper()) && p.SaccoCode == sacco);
+                var cr = e.Quantity * price.Price;
+                var dr = 0M;
                 var productIntake = new ProductIntake
                 {
                     Sno = e.Sno,
@@ -112,8 +114,8 @@ namespace EasyPro.Controllers
                     ProductType = e.ProductType,
                     Qsupplied = e.Quantity,
                     Ppu = price.Price,
-                    CR = e.Quantity * price.Price,
-                    DR = 0,
+                    CR = cr,
+                    DR = dr,
                     Description = "Intake",
                     TransactionType = TransactionType.Intake,
                     Paid = false,
@@ -126,11 +128,6 @@ namespace EasyPro.Controllers
                     CrAccNo = price.CrAccNo,
                     DrAccNo = price.DrAccNo
                 };
-
-                if(productIntake.Sno == "2129")
-                {
-
-                }
 
                 _context.ProductIntake.Add(productIntake);
 
@@ -147,21 +144,16 @@ namespace EasyPro.Controllers
                        && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
                 }
                 var transport = transports.FirstOrDefault();
-                decimal? rate = 0;
+                decimal? rate = 1;
                 if (transport != null)
-                {
-                    transport.TransCode = transport?.TransCode ?? "";
-                    if (transport.TransCode.Trim().ToUpper().Equals(e.TransCode.Trim().ToUpper()))
-                    {
-                        rate = transport.Rate;
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(e.TransCode))
+                    rate = transport.Rate;
+                
+                var isMburugu = sacco == StrValues.Mburugu;
+                if (!string.IsNullOrEmpty(e.TransCode) || isMburugu)
                 {
                     // Debit supplier transport amount
-                    productIntake.CR = 0;
-                    productIntake.DR = productIntake.Qsupplied * rate;
+                    cr = 0;
+                    dr = (decimal)(e.Quantity * rate);
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = e.Sno,
@@ -170,8 +162,8 @@ namespace EasyPro.Controllers
                         ProductType = e.ProductType,
                         Qsupplied = e.Quantity,
                         Ppu = rate,
-                        CR = productIntake.CR,
-                        DR = productIntake.DR,
+                        CR = cr,
+                        DR = dr,
                         Balance = 0,
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
@@ -185,10 +177,9 @@ namespace EasyPro.Controllers
                         Zone = productIntake.Zone
                     });
 
-
                     // Credit transpoter transport amount
-                    productIntake.CR = productIntake.Qsupplied * rate;
-                    productIntake.DR = 0;
+                    cr = (decimal)(e.Quantity * rate);
+                    dr = 0;
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = e.TransCode.ToUpper().Trim(),
@@ -197,8 +188,8 @@ namespace EasyPro.Controllers
                         ProductType = e.ProductType,
                         Qsupplied = e.Quantity,
                         Ppu = rate,
-                        CR = productIntake.CR,
-                        DR = productIntake.DR,
+                        CR = cr,
+                        DR = dr,
                         Balance = 0,
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
