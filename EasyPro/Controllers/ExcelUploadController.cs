@@ -127,13 +127,25 @@ namespace EasyPro.Controllers
                     DrAccNo = price.DrAccNo
                 };
 
+                if(productIntake.Sno == "2129")
+                {
+
+                }
+
                 _context.ProductIntake.Add(productIntake);
 
                 var transports = _context.DTransports.Where(t => t.Sno == e.Sno && t.Active
                && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
                && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
+
                 if (user.AccessLevel == AccessLevel.Branch)
                     transports = transports.Where(t => t.Branch == saccoBranch);
+                if (!transports.Any())
+                {
+                    transports = _context.DTransports.Where(t => t.TransCode == e.TransCode
+                       && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
+                       && t.saccocode.ToUpper().Equals(productIntake.SaccoCode.ToUpper()));
+                }
                 var transport = transports.FirstOrDefault();
                 decimal? rate = 0;
                 if (transport != null)
