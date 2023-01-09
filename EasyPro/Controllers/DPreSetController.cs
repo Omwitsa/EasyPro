@@ -34,14 +34,9 @@ namespace EasyPro.Controllers
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             ViewData["Getsuppliers"] = Search;
-            var suppliers = from x in _context.d_PreSets
+            var suppliers = _context.d_PreSets
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && !i.Stopped)
-                            select x;
-            if (!string.IsNullOrEmpty(Search))
-                suppliers = suppliers.Where(x => x.Sno.ToUpper().Contains(Search.ToUpper()) || x.Deduction.ToUpper().Contains(Search.ToUpper())
-                || x.Remark.ToUpper().Contains(Search.ToUpper()) || x.BranchCode.ToUpper().Contains(Search.ToUpper()));
-
-            //var val = await _context.d_PreSets.Where(c => c.saccocode == sacco && c.Stopped == false).ToListAsync();
+                .OrderByDescending(m=>m.Auditdatetime);
             return View(suppliers);
         }
         //
@@ -51,8 +46,8 @@ namespace EasyPro.Controllers
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             ViewData["Getsuppliers"] = Search;
-            var suppliers = from x in _context.d_PreSets
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Stopped) select x;
+            var suppliers = _context.d_PreSets
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Stopped);
             if (!string.IsNullOrEmpty(Search))
                 suppliers = suppliers.Where(x => x.Sno.ToUpper().Contains(Search.ToUpper()) || x.Deduction.ToUpper().Contains(Search.ToUpper()) 
                 || x.Remark.ToUpper().Contains(Search.ToUpper()) || x.BranchCode.ToUpper().Contains(Search.ToUpper()));

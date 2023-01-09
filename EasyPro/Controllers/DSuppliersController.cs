@@ -391,11 +391,16 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var companyTanykina = HttpContext.Session.GetString(StrValues.Tanykina);
 
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
+            if(companyTanykina!="TANYKINA Dairy Plant Limited")
+            {
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
+            }
+            
             if(!string.IsNullOrEmpty(filter) )
             {
                 if (!string.IsNullOrEmpty(condition))

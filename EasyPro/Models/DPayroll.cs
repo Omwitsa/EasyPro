@@ -14,6 +14,7 @@ namespace EasyPro.Models
         public decimal? Agrovet { get; set; }
         public decimal? Bonus { get; set; }
         public decimal? extension { get; set; }
+        public decimal? SMS { get; set; }
         public decimal? Tmshares { get; set; }
         public decimal? Fsa { get; set; }
         public decimal? Hshares { get; set; }

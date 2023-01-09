@@ -18,6 +18,8 @@ namespace EasyPro.ViewModels
         [Display(Name = "Debtor")]
         public string Debtor { get; set; }
         public string Transporter { get; set; }
+        [Display(Name = "Bank Name")]
+        public string BankName { get; set; }
 
 
     }

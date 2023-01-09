@@ -208,6 +208,7 @@ namespace EasyPro.Controllers
                     var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai")|| k.ProductType.ToLower().Contains("a.i")));
                     var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
                     var extension = p.Where(k => k.ProductType.ToLower().Contains("extension work"));
+                    var SMS = p.Where(k => k.ProductType.ToLower().Contains("sms"));
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                     var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
@@ -220,7 +221,7 @@ namespace EasyPro.Controllers
                         var Tot = advance.Sum(s => s.DR) + transport.Sum(s => s.DR)
                         + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
                         + Others.Sum(s => s.DR)+ clinical.Sum(s => s.DR)+ ai.Sum(s => s.DR)+ tractor.Sum(s => s.DR)
-                        + carryforward.Sum(s => s.DR) + loan.Sum(s=>s.DR) + extension.Sum(s => s.DR);
+                        + carryforward.Sum(s => s.DR) + loan.Sum(s=>s.DR) + extension.Sum(s => s.DR)+ SMS.Sum(s=>s.DR);
                         _context.DPayrolls.Add(new DPayroll
                         {
                             Sno = supplier.Sno,
@@ -234,6 +235,7 @@ namespace EasyPro.Controllers
                             Tractor=tractor.Sum(s => s.DR),
                             Transport = transport.Sum(s => s.DR),
                             extension = extension.Sum(s => s.DR),
+                            SMS = SMS.Sum(s => s.DR),
                             Agrovet = agrovet.Sum(s => s.DR),
                             Bonus = bonus.Sum(s => s.DR),
                             Fsa = loan.Sum(s => s.DR),
@@ -289,6 +291,7 @@ namespace EasyPro.Controllers
                     var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
                     var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
                     var extension = p.Where(k => k.ProductType.ToLower().Contains("extension work"));
+                    var SMS = p.Where(k => k.ProductType.ToLower().Contains("sms"));
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                     var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
                     
@@ -303,7 +306,7 @@ namespace EasyPro.Controllers
                         var amount = p.Sum(s => s.CR);
                         var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + shares.Sum(s => s.DR)
                         + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR)
-                        + tractor.Sum(s => s.DR) + variance.Sum(s => s.DR) + carryforward.Sum(s => s.DR) + extension.Sum(s => s.DR);
+                        + tractor.Sum(s => s.DR) + variance.Sum(s => s.DR) + carryforward.Sum(s => s.DR) + extension.Sum(s => s.DR)+ SMS.Sum(s => s.DR);
                         var subsidy = 0;
                         _context.DTransportersPayRolls.Add(new DTransportersPayRoll
                         {
@@ -314,6 +317,7 @@ namespace EasyPro.Controllers
                             QntySup = (double?)p.Sum(s => s.Qsupplied),
                             Advance = advance.Sum(s => s.DR),
                             extension = extension.Sum(s => s.DR),
+                            SMS = SMS.Sum(s => s.DR),
                             CurryForward = carryforward.Sum(s => s.DR),
                             Others = Others.Sum(s => s.DR),
                             AI = ai.Sum(s => s.DR),
@@ -408,85 +412,89 @@ namespace EasyPro.Controllers
                 && l.TransDate >= startDate && l.TransDate <= endDate)).Sum(w => w.Qsupplied);
                 if (kgs > 0)
                 {
-                    var Checkanydefaultdeduction = _context.d_PreSets.FirstOrDefault(l => l.Sno == g.Key && !l.Stopped
-                && l.saccocode.ToUpper().Equals(sacco.ToUpper()) && l.BranchCode.ToUpper().Equals(branchName.ToUpper()));
-                    if (Checkanydefaultdeduction != null)
+                    var eachdeductions= _context.d_PreSets.Where(l => l.Sno == g.Key && !l.Stopped
+                 && l.saccocode.ToUpper().Equals(sacco.ToUpper()) && l.BranchCode.ToUpper().Equals(branchName.ToUpper())).ToList();
+                    var checkdeduct = eachdeductions.FirstOrDefault();
+                    if (checkdeduct != null)
                     {
-                        var totalkgs = _context.ProductIntake.Where(f => f.Sno.ToUpper().Equals(g.Key.ToUpper())
-                             && f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= startDate && f.TransDate <= endDate
-                             && (f.TransactionType == TransactionType.Intake || f.TransactionType == TransactionType.Correction)
-                             && f.Branch.ToUpper().Equals(branchName.ToUpper())).Sum(n => n.Qsupplied);
-                        var bonus = Checkanydefaultdeduction.Rate;
-                        
-                        if (Checkanydefaultdeduction.Rated == true)
-                        {
-                            totalkgs = (decimal)(totalkgs);
-                            bonus = totalkgs * Checkanydefaultdeduction.Rate;
-                        }
-                        var glbonus = bonus;
-                        if (Checkanydefaultdeduction.Deduction.ToUpper().Equals("Shares".ToUpper()))
-                        {
-                            var sharespaid = _context.DShares.Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
-                            && f.TransDate >= startDate && f.TransDate <= endDate && f.Type!= "Checkoff" && f.Pmode!= "Checkoff"
-                            && f.Sno.ToUpper().Equals(g.Key.ToUpper())).Sum(m => m.Amount);
-                            if (sharespaid>0)
+                        var eachdeductionsselect = eachdeductions.GroupBy(p => p.Deduction.Trim().ToUpper()).Distinct().ToList();
+                        eachdeductionsselect.ForEach(n => {
+                            var Checkanydefaultdeduction  = n.FirstOrDefault();
+                            var totalkgs = _context.ProductIntake.Where(f => f.Sno.ToUpper().Equals(g.Key.ToUpper())
+                           && f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= startDate && f.TransDate <= endDate
+                           && (f.TransactionType == TransactionType.Intake || f.TransactionType == TransactionType.Correction)
+                           && f.Branch.ToUpper().Equals(branchName.ToUpper())).Sum(n => n.Qsupplied);
+                            var bonus = eachdeductions.FirstOrDefault(m=>m.Deduction == Checkanydefaultdeduction.Deduction).Rate;
+
+                            if (Checkanydefaultdeduction.Rated == true)
                             {
-                                if( sharespaid < bonus)
+                                totalkgs = (decimal)(totalkgs);
+                                bonus = totalkgs * Checkanydefaultdeduction.Rate;
+                            }
+                            var glbonus = bonus;
+                            if (Checkanydefaultdeduction.Deduction.ToUpper().Equals("Shares".ToUpper()))
+                            {
+                                var sharespaid = _context.DShares.Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                                && f.TransDate >= startDate && f.TransDate <= endDate && f.Type != "Checkoff" && f.Pmode != "Checkoff"
+                                && f.Sno.ToUpper().Equals(g.Key.ToUpper())).Sum(m => m.Amount);
+                                if (sharespaid > 0)
                                 {
-                                    bonus = bonus - sharespaid;
-                                    glbonus = bonus;
-
-                                    _context.DShares.Add(new DShare
+                                    if (sharespaid < bonus)
                                     {
-                                        Sno = g.Key.Trim().ToUpper(),
-                                        Type = "Checkoff",
-                                        Pmode = "Checkoff",
-                                        Amount = (decimal)bonus,
-                                        Period = DateTime.Today.Month.ToString(),
-                                        TransDate = endDate,
-                                        AuditDateTime = DateTime.Now,
-                                        SaccoCode = sacco,
-                                        zone = Checkanydefaultdeduction.BranchCode,
-                                        AuditId = loggedInUser,
-                                    }) ;
-                                }
-                                else
-                                {
-                                    bonus = 0;
-                                    glbonus = sharespaid;
-                                }
+                                        bonus = bonus - sharespaid;
+                                        glbonus = bonus;
 
-                                
+                                        _context.DShares.Add(new DShare
+                                        {
+                                            Sno = g.Key.Trim().ToUpper(),
+                                            Type = "Checkoff",
+                                            Pmode = "Checkoff",
+                                            Amount = (decimal)bonus,
+                                            Period = DateTime.Today.Month.ToString(),
+                                            TransDate = endDate,
+                                            AuditDateTime = DateTime.Now,
+                                            SaccoCode = sacco,
+                                            zone = Checkanydefaultdeduction.BranchCode,
+                                            AuditId = loggedInUser,
+                                        });
+                                    }
+                                    else
+                                    {
+                                        bonus = 0;
+                                        glbonus = sharespaid;
+                                    }
+
+
+
+                                }
 
                             }
 
-                        }
-
-                        if(bonus > 0)
-                        {
-                            _context.ProductIntake.Add(new ProductIntake
+                            if (bonus > 0)
                             {
-                                Sno = g.Key.Trim().ToUpper(),
-                                TransDate = endDate,
-                                TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                                ProductType = Checkanydefaultdeduction.Deduction,
-                                Qsupplied = 0,
-                                Ppu = 0,
-                                CR = 0,
-                                DR = bonus,
-                                Balance = 0,
-                                Description = Checkanydefaultdeduction.Remark,
-                                TransactionType = TransactionType.Deduction,
-                                Remarks = Checkanydefaultdeduction.Remark,
-                                AuditId = loggedInUser,
-                                Auditdatetime = DateTime.Now,
-                                Branch = branchName,
-                                SaccoCode = sacco,
-                                DrAccNo = "0",
-                                CrAccNo = "0"
-                            });
-                        }
-                        var glsforbonus = _context.DDcodes.FirstOrDefault(m => m.Description.ToUpper().Equals(Checkanydefaultdeduction.Deduction.ToUpper()));
+                                _context.ProductIntake.Add(new ProductIntake
+                                {
+                                    Sno = g.Key.Trim().ToUpper(),
+                                    TransDate = endDate,
+                                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                                    ProductType = Checkanydefaultdeduction.Deduction,
+                                    Qsupplied = 0,
+                                    Ppu = 0,
+                                    CR = 0,
+                                    DR = bonus,
+                                    Balance = 0,
+                                    Description = Checkanydefaultdeduction.Remark,
+                                    TransactionType = TransactionType.Deduction,
+                                    Remarks = Checkanydefaultdeduction.Remark,
+                                    AuditId = loggedInUser,
+                                    Auditdatetime = DateTime.Now,
+                                    Branch = branchName,
+                                    SaccoCode = sacco,
+                                    DrAccNo = "0",
+                                    CrAccNo = "0"
+                                });
+                            }
+                            var glsforbonus = _context.DDcodes.FirstOrDefault(m => m.Description.ToUpper().Equals(Checkanydefaultdeduction.Deduction.ToUpper()));
 
                             _context.Gltransactions.Add(new Gltransaction
                             {
@@ -501,14 +509,10 @@ namespace EasyPro.Controllers
                                 DrAccNo = glsforbonus.Dedaccno,
                                 CrAccNo = glsforbonus.Contraacc,
                             });
-                       
-                        
-
+                        });
                     };
                 }
-                
             });
-            
         }
 
         private async Task ConsolidateTranspoterIntakes(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
@@ -554,27 +558,29 @@ namespace EasyPro.Controllers
                         var intake = s.FirstOrDefault();
                         decimal? cr = 0;
                         var dr = s.Sum(t => t.Qsupplied) * intake.Rate;
-                        
-                        _context.ProductIntake.Add(new ProductIntake
+                        if (intake.Rate > 0)
                         {
-                            Sno = intake.Sno,
-                            TransDate = endDate,
-                            TransTime = intake.TransTime,
-                            ProductType = "Transport",
-                            Qsupplied = s.Sum(t => t.Qsupplied),
-                            Ppu = intake.Rate,
-                            CR = cr,
-                            DR = dr,
-                            Description = "Transport",
-                            TransactionType = TransactionType.Deduction,
-                            Remarks = intake.Remarks,
-                            AuditId = loggedInUser,
-                            Auditdatetime = DateTime.Now,
-                            Branch = intake.Branch,
-                            SaccoCode = intake.SaccoCode,
-                            DrAccNo = intake.DrAccNo,
-                            CrAccNo = intake.CrAccNo
-                        });
+                            _context.ProductIntake.Add(new ProductIntake
+                            {
+                                Sno = intake.Sno,
+                                TransDate = endDate,
+                                TransTime = intake.TransTime,
+                                ProductType = "Transport",
+                                Qsupplied = s.Sum(t => t.Qsupplied),
+                                Ppu = intake.Rate,
+                                CR = cr,
+                                DR = dr,
+                                Description = "Transport",
+                                TransactionType = TransactionType.Deduction,
+                                Remarks = intake.Remarks,
+                                AuditId = loggedInUser,
+                                Auditdatetime = DateTime.Now,
+                                Branch = intake.Branch,
+                                SaccoCode = intake.SaccoCode,
+                                DrAccNo = intake.DrAccNo,
+                                CrAccNo = intake.CrAccNo
+                            });
+                        }
 
                         var product = intake?.ProductType ?? "";
                         var price = _context.DPrices.FirstOrDefault(p => p.Products.ToUpper().Equals(product.ToUpper()));

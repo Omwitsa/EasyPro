@@ -7,30 +7,31 @@
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Suppliers Payroll Report</h3>
+                    <h3 class="card-title">Suppliers Genaral Payroll Report</h3>
                 </div>
 
                 <div class="card-body register-card-body">
                     <div class="form-row">
                         <form asp-controller="Report" asp-antiforgery="true" asp-action="SuppliersPayrollExcel" method="post">
                             <div class="row">
-                                <div class="col-sm-6 col-xs-12">
+                                <div class="col-sm-4 col-xs-12">
+
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateFrom" class="control-label"></label>
                                         <input id="sup_payroll_from" asp-for="DateFrom" class="form-control" type="date" />
                                         <span asp-validation-for="DateFrom" class="text-danger"></span>
                                     </div>
-
                                     <button type="submit" class="btn btn-success">Export to Excel</button>
                                 </div>
-                                
-                                <div class="col-sm-6 col-xs-12">
+
+                                <div class="col-sm-4 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateTo" class="control-label"></label>
                                         <input id="sup_payroll_to" asp-for="DateTo" class="form-control" type="date" />
                                         <span asp-validation-for="DateTo" class="text-danger"></span>
                                     </div>
-
                                     <a id="sup_payroll_pdf" class="btn btn-info">Export to PDF</a>
                                 </div>
                             </div>
@@ -39,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+        <div class="col-sm-6 col-xs-6">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Transporters Payroll Report</h3>
@@ -49,7 +50,12 @@
                     <div class="form-row">
                         <form asp-controller="Report" asp-antiforgery="true" asp-action="TransportersPayrollExcel" method="post">
                             <div class="row">
-                                <div class="col-sm-6 col-xs-12">
+                                <div class="col-sm-4 col-xs-12">
+                                    <div class="form-group">
+
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateFrom" class="control-label"></label>
                                         <input id="trans_payrol_from" asp-for="DateFrom" class="form-control" type="date" />
@@ -58,8 +64,8 @@
 
                                     <button type="submit" class="btn btn-success">Export to Excel</button>
                                 </div>
-                                
-                                <div class="col-sm-6 col-xs-12">
+
+                                <div class="col-sm-4 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateTo" class="control-label"></label>
                                         <input id="trans_payrol_to" asp-for="DateTo" class="form-control" type="date" />
@@ -75,69 +81,114 @@
             </div>
         </div>
     </div>
+    <br />
+    <hr />
+    <div class="row">
+        <div class="col-sm-6 col-xs-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Payroll Report Per Banks</h3>
+                </div>
+
+                <div class="card-body register-card-body">
+                    <div class="form-row">
+                        <form asp-controller="Report" asp-antiforgery="true" asp-action="SuppliersPayrollDetail" method="post">
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Select Bank</label>
+                                        <select asp-for="BankName" class="form-control" asp-items="@ViewBag.bankname" required>
+                                            <option value="General"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateFrom" class="control-label"></label>
+                                        <input id="sup_payroll_from" asp-for="DateFrom" class="form-control" type="date" />
+                                        <span asp-validation-for="DateFrom" class="text-danger"></span>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Export to Excel</button>
+                                </div>
+
+                                <div class="col-sm-4 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateTo" class="control-label"></label>
+                                        <input id="sup_payroll_to" asp-for="DateTo" class="form-control" type="date" />
+                                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                                    </div>
+                                    @*<a id="sup_payroll_pdf" class="btn btn-info">Export to PDF</a>*@
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+        <script type="text/javascript">
+            $(function () {
+                var today = new Date().toISOString().split('T')[0];
+                $("#sup_payroll_from").val(today);
+                $("#sup_payroll_to").val(today);
+                $("#trans_payrol_from").val(today);
+                $("#trans_payrol_to").val(today);
+
+                $('#sup_payroll_pdf').on('click', function () {
+                    let from = $("#sup_payroll_from").val();
+                    let to = $("#sup_payroll_to").val();
+
+                    var filter = {
+                        dateFrom: from,
+                        dateTo: to,
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: "SuppliersPayrollPdf",
+                        contentType: 'application/json',
+                        data: JSON.stringify(filter),
+                        success: function (response) {
+                            if (response.isRedirect) {
+                                window.open(response.redirectUrl);
+                            }
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                });
+
+                $('#trans_payrol_pdf').on('click', function () {
+                    let from = $("#trans_payrol_from").val();
+                    let to = $("#trans_payrol_to").val();
+
+                    var filter = {
+                        dateFrom: from,
+                        dateTo: to,
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: "TransportersPayrollPdf",
+                        contentType: 'application/json',
+                        data: JSON.stringify(filter),
+                        success: function (response) {
+                            if (response.isRedirect) {
+                                window.open(response.redirectUrl);
+                            }
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                });
+            });
+        </script>
     }
-    <script type="text/javascript">
-        $(function () {
-            var today = new Date().toISOString().split('T')[0];
-            $("#sup_payroll_from").val(today);
-            $("#sup_payroll_to").val(today);
-            $("#trans_payrol_from").val(today);
-            $("#trans_payrol_to").val(today);
-
-            $('#sup_payroll_pdf').on('click', function () {
-                let from = $("#sup_payroll_from").val();
-                let to = $("#sup_payroll_to").val();
-
-                var filter = {
-                    dateFrom: from,
-                    dateTo: to,
-                };
-                $.ajax({
-                    type: 'POST',
-                    url: "SuppliersPayrollPdf",
-                    contentType: 'application/json',
-                    data: JSON.stringify(filter),
-                    success: function (response) {
-                        if (response.isRedirect) {
-                            window.open(response.redirectUrl);
-                        }
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
-                    // ...
-                });
-            });
-
-            $('#trans_payrol_pdf').on('click', function () {
-                let from = $("#trans_payrol_from").val();
-                let to = $("#trans_payrol_to").val();
-
-                var filter = {
-                    dateFrom: from,
-                    dateTo: to,
-                };
-                $.ajax({
-                    type: 'POST',
-                    url: "TransportersPayrollPdf",
-                    contentType: 'application/json',
-                    data: JSON.stringify(filter),
-                    success: function (response) {
-                        if (response.isRedirect) {
-                            window.open(response.redirectUrl);
-                        }
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
-                    // ...
-                });
-            });
-        });
-    </script>
-}

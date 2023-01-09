@@ -13,10 +13,10 @@ namespace EasyPro.Models
         public string Deduction { get; set; }
         public string Remark { get; set; }
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime? StartDate { get; set; }
+        public DateTime StartDate { get; set; }
         public decimal? Rate { get; set; }
         public bool Stopped { get; set; }
-        public DateTime? Auditdatetime { get; set; }
+        public DateTime Auditdatetime { get; set; }
         public string AuditId { get; set; }
         public bool? Rated { get; set; }
         public long? Status { get; set; }

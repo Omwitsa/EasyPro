@@ -27,3 +27,5 @@ GO
 add Remarks, Branch to Dispatch table
 add column extension to dpayroll and dtransporterspayroll table
 add column Flmd to USERGROUPS
+add column SMS to dpayroll and dtransporterspayroll table
+change startdate type to datetime in d_PreSets

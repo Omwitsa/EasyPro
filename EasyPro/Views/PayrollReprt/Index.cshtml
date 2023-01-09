@@ -62,16 +62,14 @@
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <label class="control-label">-------</label>
+                            <label class="control-label">----</label>
                             <a id="showtable" class="btn btn-warning">Show</a>
-                        </div>
                     </div>
-                    <div class="col-sm-2 col-xs-12">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <label class="control-label">---</label>
+                    <div class="col-sm-1 col-xs-12">
                             <a asp-controller="PayrollReprt" asp-action="DefaultIndex" class="btn btn-info">Back</a>
-                        </div>
+                    </div>
+                    <div class="col-sm-1 col-xs-12">
+                        <a id="download" class="btn btn-info">Download</a>
                     </div>
                 </div>
                 <div class="bsc-tbl-hvr table-border-style">
@@ -119,6 +117,18 @@
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
+            $("#download").click(function () {
+                var date1 = $("#firstdate").val();
+                var date2 = $("#enddate").val();
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: "/Report/SuppliersPayrollExcel?DateFrom=" + date1 + "&DateTo=" + date2,
+                        contentType: 'application/json',
+                    }).then(function () {
+                        // ...
+                    });
+            });
             $("#showtable").click(function () {
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
