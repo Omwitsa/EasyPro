@@ -81,11 +81,11 @@ namespace EasyPro.Utils
                     LoggedInUser = loggedInUser,
                     SaccoCode = sacco,
                     Branch = branch,
-                    Sno = row.GetCell(0).ToString(),
-                    ProductType = row.GetCell(1).ToString(),
+                    Sno = row.GetCell(0)?.ToString() ?? "",
+                    ProductType = row.GetCell(1)?.ToString() ?? "",
                     Quantity = qnty,
                     TransDate = transDate,
-                    TransCode = row.GetCell(4).ToString()
+                    TransCode = row.GetCell(4)?.ToString() ?? ""
                 });
                 
                 sb.AppendLine("</tr>");

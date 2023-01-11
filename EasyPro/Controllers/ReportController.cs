@@ -208,7 +208,6 @@ namespace EasyPro.Controllers
             dpayrollobj = _context.DPayrolls
                 .Where(p => p.EndofPeriod >= filter.DateFrom && p.EndofPeriod <= filter.DateTo && p.SaccoCode == sacco)
                 .OrderBy(s => s.Sno);
-            
             return suppliersPayrollExcel();
         }
 

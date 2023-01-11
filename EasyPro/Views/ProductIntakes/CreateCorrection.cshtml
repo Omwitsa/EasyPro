@@ -234,6 +234,7 @@
         });
 
         function getSelectedforsave() {
+            debugger
               var print = $('#print').is(':checked');
                 var sms = $('#SMS').is(':checked');
                 var intake = {
@@ -295,9 +296,11 @@
 
                 }); 
         };
-        $('#save').change(function () {
+
+         $('#save').on('click', function () {
             getSelectedforsave();
-            });
+        });
+
         function getSelectedDateIntakes() {
             var zone = $('#zone').val();
             var sno = $('#Sno').val();
