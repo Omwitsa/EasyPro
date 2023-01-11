@@ -260,10 +260,24 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+           
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco).Select(b => b.Names).ToList();
             
             return Json(todaysIntake);
+        }
+
+        [HttpGet]
+        public JsonResult checkifalreadyexist(string sno,DateTime date)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var checkifdelievedtoday = _context.ProductIntake.Where(L => L.SaccoCode == sacco 
+            && L.Branch== saccoBranch && L.TransDate == date).Select(b => b.Sno).ToList();
+            ViewBag.checkifexist = new SelectList(checkifdelievedtoday);
+
+            return Json(ViewBag.checkifexist);
         }
         [HttpGet]
         public JsonResult SelectedName( string sno)
@@ -400,6 +414,9 @@ namespace EasyPro.Controllers
                 ViewBag.checkiftoenable = 1;
             else
                 ViewBag.checkiftoenable = 0;
+
+            //var checkifdelievedtoday = _context.ProductIntake.Where(L => L.SaccoCode == sacco
+            //&& L.Branch == saccoBranch && L.TransDate == date).ToList();
 
 
             List<SelectListItem> gender = new()

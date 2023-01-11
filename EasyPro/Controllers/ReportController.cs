@@ -578,6 +578,7 @@ namespace EasyPro.Controllers
             var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
             var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
             productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
+            
             return DeductionsExcel();
         }
 
@@ -611,7 +612,7 @@ namespace EasyPro.Controllers
             var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
             var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
 
-            productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
+            productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco).OrderBy(n=>n.TransDate);
             return TDeductionsExcel();
         }
 
@@ -2156,7 +2157,8 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
                 currentRow = 5;
-                worksheet.Cell(currentRow, 2).Value = "Suppliers Deductions Report";
+                var enddate = productIntakeobj.FirstOrDefault();
+                worksheet.Cell(currentRow, 2).Value = "Suppliers Deductions Report For: "+ enddate.TransDate.ToString("dd/MM/yyy");
 
                 currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
@@ -2165,41 +2167,55 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 4).Value = "ProductType";
                 worksheet.Cell(currentRow, 5).Value = "Amount";
                 worksheet.Cell(currentRow, 6).Value = "Remarks";
-                int sum = 0, sum2 = 0;
-                sum2 = productIntakeobj.Count();
+                worksheet.Cell(currentRow, 7).Value = "Station";
+                decimal? sum2 = 0;
                 productIntakeobj = productIntakeobj.OrderBy(p => p.Branch).ToList();
                 var branches = productIntakeobj.GroupBy(b => b.Branch).ToList();
                 branches.ForEach(s =>
                 {
+                    
                     var branchname = s.FirstOrDefault();
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = branchname.Branch;
-                    var suppliers = productIntakeobj.Where(k => k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
+                    
+                    var supplierslist = productIntakeobj.Where(k => k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
                     .OrderBy(h => h.Sno).ToList();
-                    sum = suppliers.Count();
-                    foreach (var emp in productIntakeobj)
-                    {
-                        var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
-                        if (TransporterExist > 0)
+                    var dedutciontype = supplierslist.GroupBy(d=>d.ProductType).ToList();
+                    dedutciontype.ForEach(w => {
+                        var deduction = w.FirstOrDefault();
+                        decimal? sum = 0;
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = deduction.ProductType;
+                        var suppliers = supplierslist.Where(r=>r.ProductType.ToUpper().Equals(deduction.ProductType.ToUpper()));
+                        foreach (var emp in suppliers)
                         {
-                            currentRow++;
-                            worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                            var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
-                            foreach (var ann in TName)
-                                worksheet.Cell(currentRow, 2).Value = ann.Names;
-                            worksheet.Cell(currentRow, 3).Value = emp.TransDate;
-                            worksheet.Cell(currentRow, 4).Value = emp.ProductType;
-                            worksheet.Cell(currentRow, 5).Value = emp.DR;
-                            worksheet.Cell(currentRow, 6).Value = emp.Remarks;
-                        }
-                    }
+                            var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
+                            if (TransporterExist > 0)
+                            {
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                                var TName = _context.DSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == sacco);
+                                worksheet.Cell(currentRow, 2).Value = TName.Names;
+                                worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                                worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                                worksheet.Cell(currentRow, 5).Value = emp.DR;
+                                worksheet.Cell(currentRow, 6).Value = emp.Remarks;
+                                worksheet.Cell(currentRow, 7).Value = emp.Branch;
+                                sum += emp.DR;
 
-                currentRow++;
-                worksheet.Cell(currentRow, 1).Value = "No of Suppliers:";
-                worksheet.Cell(currentRow, 2).Value = sum;
+                            }
+                        }
+
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = "Total "+ deduction.ProductType  + " Amount: ";
+                        worksheet.Cell(currentRow, 2).Value = sum;
+                        sum2 += sum;
+                    });
+               
             });
             currentRow++;
-            worksheet.Cell(currentRow, 1).Value = "Total Suppliers:";
+            currentRow++;
+            worksheet.Cell(currentRow, 1).Value = "Grand Total Amount: ";
             worksheet.Cell(currentRow, 2).Value = sum2;
             using (var stream = new MemoryStream())
                 {
@@ -2230,7 +2246,8 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
                 currentRow = 5;
-                worksheet.Cell(currentRow, 2).Value = "Transporters Deductions Report";
+                var enddate = productIntakeobj.FirstOrDefault();
+                worksheet.Cell(currentRow, 2).Value = "Transporters Deductions Report For: "+ enddate.TransDate.ToString("dd/MM/yyy");
 
                 currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "TCode";
@@ -2239,24 +2256,54 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 4).Value = "ProductType";
                 worksheet.Cell(currentRow, 5).Value = "Amount";
                 worksheet.Cell(currentRow, 6).Value = "Remarks";
-                decimal? sum = 0;
-                foreach (var emp in productIntakeobj)
-                {
-                    var TransporterExist = _context.DTransporters.Where(u => u.TransCode == emp.Sno).Count();
-                    if (TransporterExist > 0)
+                worksheet.Cell(currentRow, 7).Value = "Station";
+                decimal? sum =0;
+
+                productIntakeobj = productIntakeobj.OrderBy(p => p.Branch).ToList();
+                var branches = productIntakeobj.GroupBy(b => b.Branch).ToList();
+                branches.ForEach(s => {
+
+                    
+                    var branchname = s.FirstOrDefault();
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = branchname.Branch;
+                    var transporterslist = productIntakeobj.Where(k => k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
+                    .OrderBy(h => h.Sno).ToList();
+                    var dedutciontype = transporterslist.GroupBy(d => d.ProductType).ToList();
+                    dedutciontype.ForEach(w =>
                     {
+                        decimal? sum1 = 0;
+                        var deduction = w.FirstOrDefault();
+                        decimal? sum = 0;
                         currentRow++;
-                        worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                        var TName = _context.DTransporters.Where(u => u.TransCode == emp.Sno && u.ParentT == sacco);
-                        foreach (var ann in TName)
-                            worksheet.Cell(currentRow, 2).Value = ann.TransName;
-                        worksheet.Cell(currentRow, 3).Value = emp.TransDate;
-                        worksheet.Cell(currentRow, 4).Value = emp.ProductType;
-                        worksheet.Cell(currentRow, 5).Value = emp.DR;
-                        worksheet.Cell(currentRow, 6).Value = emp.Remarks.ToString();
-                        sum += (emp.DR);
-                    }
-                }
+                        worksheet.Cell(currentRow, 2).Value = deduction.ProductType;
+                        var transporters = transporterslist.Where(r => r.ProductType.ToUpper().Equals(deduction.ProductType.ToUpper()));
+                        foreach (var emp in transporters)
+                        {
+                            var TransporterExist = _context.DTransporters.Where(u => u.TransCode == emp.Sno).Count();
+                            if (TransporterExist > 0)
+                            {
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                                var TName = _context.DTransporters.FirstOrDefault(u => u.TransCode == emp.Sno && u.ParentT == sacco);
+                                worksheet.Cell(currentRow, 2).Value = TName.TransName;
+                                worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                                worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                                worksheet.Cell(currentRow, 5).Value = emp.DR;
+                                worksheet.Cell(currentRow, 6).Value = emp.Remarks.ToString();
+                                worksheet.Cell(currentRow, 7).Value = emp.Branch;
+                                sum1 += emp.DR;
+                            }
+                        }
+
+                        currentRow++;
+                        worksheet.Cell(currentRow, 4).Value = "Total " + deduction.ProductType + " Amount: ";
+                        worksheet.Cell(currentRow, 5).Value = sum1;
+                        sum += sum1;
+                    });
+                        
+                });
+                
                 currentRow++;
                 worksheet.Cell(currentRow, 4).Value = "Total Amount";
                 worksheet.Cell(currentRow, 5).Value = sum;

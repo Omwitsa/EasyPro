@@ -196,7 +196,12 @@
                 var selectVal =  $("#Sno").val();
                 getSelectedDateIntakes();
             });
-            function getSelectedforsave() {
+        function getSelectedforsave() {
+
+                //if (!checkifdelivered()) {
+                //    return;
+                //}
+
                 var print = $('#print').is(':checked');
                 var sms = $('#SMS').is(':checked');
                 var intake = {
@@ -236,7 +241,36 @@
                 }).then(function () {
                     // ...
                 });
+        }
+        function checkifalreadyexist() {
+            //goselect();
+            var sno = $('#Sno').val();
+            var date = today;
+            var response2;
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        return response;
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+                });
+        }
+        function checkifdelivered() {
+            const response = confirm("Already Delivered today, Do you want to continue?");
+            if (response) {
+                //alert("Ok was pressed");
+                return true;
+            } else {
+                //alert("Cancel was pressed");
+                return false;
             }
+        }
             $('#Sno').on('keyup', function () {
                 var selectVal = $("#Sno").val();
                 getSelectedDateIntakes();
@@ -244,11 +278,12 @@
 
             $('#Qsupplied').keydown(function (event) {
                 if (event.which == 13) {
+                    checkifalreadyexist();
                     getSelectedforsave();
                 }
             });
 
-            $('#save').on('click', function () {
+        $('#save').on('click', function () {
                 getSelectedforsave();
             });
             function getkgsfortheday() {
@@ -290,9 +325,8 @@
                     });
             }
 
-
-            $('#Qsupplied').on('keyup', function () {
-                calculatePrice();
+        $('#Qsupplied').on('keyup', function () {
+            calculatePrice();
             });
 
             function populateFields(product) {

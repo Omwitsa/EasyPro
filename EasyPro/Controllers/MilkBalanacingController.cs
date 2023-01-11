@@ -217,7 +217,7 @@ namespace EasyPro.Controllers
             transCode = transCode ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.saccocode == sacco)
+            var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.Active && t.saccocode == sacco)
                 .Select(t => t.Sno);
 
             var notTransporterSuppliers = _context.ProductIntake.Where(i => i.AuditId.ToUpper().Equals(transCode.ToUpper()) 
@@ -225,7 +225,7 @@ namespace EasyPro.Controllers
                 .Select(t => t.Sno).Distinct().ToList();
 
             var intakes = _context.ProductIntake.Where(s => s.TransDate == date && s.SaccoCode == sacco && (s.Description == "Intake" || s.Description == "Correction") 
-            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno)) ).ToList();
+            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno)) ).OrderByDescending(h=>h.Auditdatetime).ToList();
 
             return intakes;
         }
