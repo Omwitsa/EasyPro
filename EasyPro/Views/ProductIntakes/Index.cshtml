@@ -53,81 +53,83 @@
             </div>
 
             <div class="bsc-tbl-hvr table-border-style">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="customers">
-                        <thead>
-                            <tr>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Sno)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.TransDate)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.TransTime)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.ProductType)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Qsupplied)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Ppu)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.CR)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Description)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Remarks)
-                                </th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="geeks">
-                            @*@foreach (var item in Model)
-                            {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Sno)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TransDate)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TransTime)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.ProductType)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Qsupplied)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Ppu)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.CR)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Description)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Remarks)
-                                </td>
-                                <td class="col-4">
-                                    <a asp-controller="ProductIntakes" asp-action="Reprint" asp-route-id="@item.Id">Re-Print</a>
-                                </td>
-                            </tr>
-                            }*@
-                        </tbody>
-                    </table>
+                <div class="divScroll">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="customers">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Sno)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.TransDate)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.TransTime)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.ProductType)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Qsupplied)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Ppu)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.CR)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Description)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Remarks)
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="geeks">
+                                @*@foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Sno)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TransDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TransTime)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProductType)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Qsupplied)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Ppu)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CR)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Remarks)
+                        </td>
+                        <td class="col-4">
+                            <a asp-controller="ProductIntakes" asp-action="Reprint" asp-route-id="@item.Id">Re-Print</a>
+                        </td>
+                    </tr>
+                    }*@
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+            </div>
     </div>
 </div>
 @section scripts{

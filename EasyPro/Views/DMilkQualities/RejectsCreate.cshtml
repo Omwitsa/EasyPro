@@ -45,7 +45,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Quantity Sold(Kgs)</label>
-                                    <input id="sold" asp-for="SQuantity" class="form-control" readonly />
+                                    <input id="sold" asp-for="SQuantity" class="form-control" />
                                     <span asp-validation-for="SQuantity" class="text-danger"></span>
                                 </div>
                             </div>
@@ -131,7 +131,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Intake(Kgs)</label>
-                                    <input asp-for="Intake" class="form-control" />
+                                    <input id="Intake" asp-for="Intake" class="form-control" />
                                     <span asp-validation-for="Intake" class="text-danger"></span>
                                 </div>
                             </div>
@@ -164,6 +164,9 @@
             $('#transDate').change(function (){
                 getSelectedDateIntakes1();
             });
+            $('#transDate').click(function () {
+                getSelectedDateIntakes1();
+            });
             $('#branch').change(function () {
                 getSelectedDateIntakes1();
             });
@@ -176,8 +179,8 @@
                     url: "Selectedquantity?transDate=" + transDate ,
                     contentType: 'application/json',
                     success: function (response) {
-                        
-                        $("#sold").val(response);
+                            $("#sold").val(response.dispatches);
+                            $("#Intake").val(response.intakesup);
                     },
                     failure: function (response) {
                     }
