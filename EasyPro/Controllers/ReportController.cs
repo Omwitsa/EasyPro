@@ -130,13 +130,19 @@ namespace EasyPro.Controllers
             ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
 
             var Transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
+            if (user.AccessLevel == AccessLevel.Branch)
+                Transporters = Transporters.Where(i => i.Tbranch == saccoBranch).ToList();
             ViewBag.Transporters = new SelectList(Transporters, "TransName", "TransName");
 
             var Transportersdetails = _context.DTransporters.Where(i => i.ParentT == sacco).ToList();
+            if (user.AccessLevel == AccessLevel.Branch)
+                Transportersdetails = Transportersdetails.Where(i => i.Tbranch == saccoBranch).ToList();
             ViewBag.Transportersdetails = Transportersdetails;
 
-            var bankname = _context.DPayrolls.Where(i => i.SaccoCode == sacco).OrderBy(m => m.Bank).Select(h=>h.Bank).Distinct().ToList();
-            ViewBag.bankname = new SelectList(bankname);
+            var bankname = _context.DPayrolls.Where(i => i.SaccoCode == sacco).ToList();
+            if (user.AccessLevel == AccessLevel.Branch)
+                bankname = bankname.Where(i => i.Branch == saccoBranch).ToList();
+            ViewBag.bankname = new SelectList(bankname.OrderBy(m => m.Bank).Select(h => h.Bank).Distinct());
         }
 
         [HttpPost]
