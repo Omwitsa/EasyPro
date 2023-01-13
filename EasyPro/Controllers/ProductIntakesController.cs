@@ -397,12 +397,19 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var Descriptionname = _context.DDcodes.Where(d => d.Dcode == sacco).Select(b => b.Description).ToList();
             ViewBag.Description = new SelectList(Descriptionname);
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
-            var brances = _context.DBranch.Where(b => b.Bcode == sacco).Select(b => b.Bname).ToList();
-            ViewBag.brances = new SelectList(brances);
+            var brances = _context.DBranch.Where(b => b.Bcode == sacco).ToList();
+           
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(LoggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                brances = brances.Where(i => i.Bname == saccoBranch).ToList();
+
+            ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
 
             var suppliers = _context.DSuppliers.Where(a => a.Scode == sacco).ToList();
             ViewBag.suppliers = new SelectList(suppliers);
@@ -762,6 +769,154 @@ namespace EasyPro.Controllers
             //intakes.ToList()
             return View(collection.ToList());
         }
+        
+        [HttpPost]
+        public JsonResult getsuppliersup([FromBody] DSupplier supplier, string filter, string condition, DateTime date)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var companyTanykina = HttpContext.Session.GetString(StrValues.Tanykina);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+
+            DateTime startDate = new DateTime(date.Year, date.Month, 1);
+            DateTime enDate = startDate.AddMonths(1).AddDays(-1);
+
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
+
+            var suplliersdeductions = _context.ProductIntake.Where(d => d.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && d.TransDate >= startDate && d.TransDate <= enDate && suppliers.Select(s => s.Sno.ToUpper()).Contains(d.Sno.ToUpper())
+            && d.TransactionType == TransactionType.Deduction && d.Qsupplied == 0).ToList();
+
+            var MilkBranchList = new List<ProductIntakeVm>();
+            suppliers = suppliers.Where(d => suplliersdeductions.Select(s => s.Sno.ToUpper()).Contains(d.Sno.ToUpper())).ToList();
+            if (!string.IsNullOrEmpty(filter) && !string.IsNullOrEmpty(condition))
+            {
+
+                if (condition == "SNo")
+                {
+                    suppliers = suppliers.Where(i => i.Sno.ToUpper().Contains(filter.ToUpper())).ToList();
+                }
+                if (condition == "Name")
+                {
+                    suppliers = suppliers.Where(i => i.Names.ToUpper().Contains(filter.ToUpper())).ToList();
+                }
+
+            }
+            else
+            {
+                suplliersdeductions = suplliersdeductions.Where(d => d.TransDate == date).ToList();
+            }
+
+            var grouptransporters = suppliers.GroupBy(m => m.Sno).ToList();
+            grouptransporters.ForEach(k => {
+                var transdetails = k.FirstOrDefault();
+                if (suppliers.Count > 0)
+                {
+                    var transdeductionsget = suplliersdeductions.Where(d => d.Sno.ToUpper().Equals(transdetails.Sno.ToUpper())).OrderBy(m => m.TransDate).ToList();
+
+                    if (transdeductionsget.Count > 0)
+                    {
+                        foreach (var items in transdeductionsget)
+                        {
+                            MilkBranchList.Add(new ProductIntakeVm
+                            {
+                                Sno = transdetails.Sno,
+                                SupName = transdetails.Names,
+                                TransDate = items.TransDate,
+                                ProductType = items.ProductType,
+                                DR = items.DR,
+                                Remarks = items.Remarks,
+                                Branch = items.Branch
+                            });
+                        }
+                    }
+                }
+
+            });
+
+
+            MilkBranchList = MilkBranchList.OrderByDescending(i => i.Sno).Take(15).ToList();
+            return Json(MilkBranchList);
+        }
+
+
+        [HttpPost]
+        public JsonResult getsuppliers([FromBody] DTransporter transporter, string filter, string condition, DateTime date)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var companyTanykina = HttpContext.Session.GetString(StrValues.Tanykina);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+
+            DateTime startDate = new DateTime(date.Year, date.Month, 1);
+            DateTime enDate = startDate.AddMonths(1).AddDays(-1);
+
+            var transporters = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
+            
+                if (user.AccessLevel == AccessLevel.Branch)
+                   transporters = transporters.Where(i => i.Tbranch == saccobranch).ToList();
+
+            var transdeductions = _context.ProductIntake.Where(d => d.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && d.TransDate >= startDate && d.TransDate <= enDate && transporters.Select(s=>s.TransCode.ToUpper()).Contains(d.Sno.ToUpper())
+            && d.TransactionType == TransactionType.Deduction && d.Qsupplied == 0).ToList();
+
+            var MilkBranchList = new List<ProductIntakeVm>();
+            transporters = transporters.Where(d => transdeductions.Select(s => s.Sno.ToUpper()).Contains(d.TransCode.ToUpper())).ToList();
+            if (!string.IsNullOrEmpty(filter) && !string.IsNullOrEmpty(condition))
+            {
+              
+                    if (condition == "TCode")
+                    {
+                        transporters = transporters.Where(i => i.TransCode.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "Name")
+                    {
+                        transporters = transporters.Where(i => i.TransName.ToUpper().Contains(filter.ToUpper()) ).ToList();
+                    }
+                
+            }
+            else
+            {
+                transdeductions = transdeductions.Where(d=> d.TransDate == date).ToList();
+            }
+
+            var grouptransporters = transporters.GroupBy(m => m.TransCode).ToList();
+                grouptransporters.ForEach(k => {
+                    var transdetails = k.FirstOrDefault();
+                    if (transporters.Count > 0)
+                    {
+                        var transdeductionsget = transdeductions.Where(d => d.Sno.ToUpper().Equals(transdetails.TransCode.ToUpper())).OrderBy(m => m.TransDate).ToList();
+
+                        if (transdeductionsget.Count > 0)
+                        {
+                            foreach (var items in transdeductionsget)
+                            {
+                                MilkBranchList.Add(new ProductIntakeVm
+                                {
+                                    Sno = transdetails.TransCode,
+                                    SupName = transdetails.TransName,
+                                    TransDate = items.TransDate,
+                                    ProductType = items.ProductType,
+                                    DR = items.DR,
+                                    Remarks = items.Remarks,
+                                    Branch = items.Branch
+                                });
+                            }
+                        }
+                    }
+                    
+                });
+            
+            
+            MilkBranchList = MilkBranchList.OrderByDescending(i => i.Sno).Take(15).ToList();
+            return Json(MilkBranchList);
+        }
+
         public void calcDefaultdeductions(ProductIntake collection )
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -1243,7 +1398,7 @@ namespace EasyPro.Controllers
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.SaccoCode = sacco;
                 productIntake.Balance = utilities.GetBalance(productIntake);
-                productIntake.Branch = transporters.Select(l=>l.Tbranch).ToString();
+                productIntake.Branch = productIntake.Branch;
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();

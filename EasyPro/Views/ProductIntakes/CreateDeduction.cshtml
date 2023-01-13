@@ -33,7 +33,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Deduction Date</label>
-                                    <input type="date" asp-for="ProductIntake.TransDate" class="form-control" required />
+                                    <input id="transDate" type="date" asp-for="ProductIntake.TransDate" class="form-control" required />
                                     <span asp-validation-for="ProductIntake.TransDate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -138,6 +138,8 @@
     }
 <script type="text/javascript">
     $(function () {
+        var today = new Date().toISOString().split('T')[0];
+        $("#transDate").val(today);
 
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {

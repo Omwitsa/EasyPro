@@ -77,8 +77,8 @@
 
                 <div class="row">
                     <div class="col-xs-12">
-                        <div class="divScroll">
-                            <div class="bsc-tbl-hvr table-border-style">
+                        <div class="bsc-tbl-hvr table-border-style">
+                            <div class="divScroll">
                                 <div class="table-responsive">
                                     <table class="table table-hover" id="customers">
                                         <thead>
@@ -166,7 +166,10 @@
 <script type="text/javascript">
         $(function () {
             var today = new Date().toISOString().split('T')[0];
+            debugger
             var products = $("#show").val();
+            debugger
+            $("#date").val(items.TransDate);
             populateFields();
             let suppliedItems = new Array();
             $("#actual").attr("disabled", true);
@@ -185,10 +188,10 @@
                     date: $("#date").val(),
                     tcode: $("#tcode").val(),
                 };
-
+                debugger
                 $.ajax({
                     type: 'POST',
-                    url: "/milkBalancing/getSuppliedItems",
+                    url: "getSuppliedItems",
                     contentType: 'application/json',
                     data: JSON.stringify(filter),
                     success: function (response) {
