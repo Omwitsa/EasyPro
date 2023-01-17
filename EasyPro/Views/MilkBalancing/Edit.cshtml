@@ -49,7 +49,7 @@
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Date</label>
-                            <input id="date" asp-for="Date" class="form-control" type="date" readonly />
+                            <input id="date" autocomplete="off" class="form-control" />
                             <span asp-validation-for="Date" class="text-danger"></span>
                         </div>
                     </div>
@@ -106,7 +106,6 @@
                         
                     </div>
                     </div>
-
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
@@ -166,24 +165,30 @@
 <script type="text/javascript">
         $(function () {
             var today = new Date().toISOString().split('T')[0];
-            debugger
             var products = $("#show").val();
-            debugger
-            $("#date").val(items.TransDate);
-            populateFields();
+           
             let suppliedItems = new Array();
+            var suppliers = @Html.Raw(Json.Serialize(ViewBag.TransportersBalancings));
+            var selectdate = suppliers.Date;
+            //var ddate = new Date(selectdate).toISOString().split('T')[0];
+            //.toISOString()
+            var ddate = new Date(selectdate).toLocaleDateString();
+            debugger
+            // Add a day
+            $("#date").val(ddate);
+            $("#actual").val(suppliers.ActualBal);
+            $("#rejects").val("0");
+            $("#spillage").val("0");
+            $("#totalkgs").val(suppliers.Quantity);
+            $("#varriance").val(suppliers.Varriance);
+            populateFields();
             $("#actual").attr("disabled", true);
             $('#name').on('click', function () {
-                var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
-                var selectVal = $("#name").val();
-                var selectSupplier = suppliers.filter(p => p.TransName === selectVal);
-                if (selectSupplier[0]) {
-                    $("#tcode").val(selectSupplier[0].TransCode);
-                }
+
             });
 
             function populateFields() {
-               
+
                 var filter = {
                     date: $("#date").val(),
                     tcode: $("#tcode").val(),
@@ -248,11 +253,14 @@
             let totalQnty = 0;
             function populateDetailsTable() {
                 let itemTableRows = new Array();
-
+                debugger
                 suppliedItems.forEach(j => {
+                    var date = j.TransDate;
+                    debugger
+                    var dd1 = new Date(date).toLocaleDateString();
                     itemTableRows.push(`<tr>
 				            <td>${j.Sno}</td>
-                            <td>${j.TransDate}</td>
+                            <td>${dd1}</td>
                             <td>${j.ProductType}</td>
                             <td>${j.Qsupplied}</td>
 			            </tr>`);
@@ -263,11 +271,6 @@
                 $('#balance').html(itemTableRows);
 
             }
-
-            //$('#actual').on('keyup', function () {
-            //    var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
-            //    $("#varriance").val(variance);
-            //});
         });
 </script>
 }

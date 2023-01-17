@@ -118,16 +118,12 @@ namespace EasyPro.Controllers
             }
             var transporter = _context.DTransporters.FirstOrDefault(i=>i.TransCode.ToUpper().Equals(TransportersBalancings.Transporter.ToUpper())
             && i.ParentT== TransportersBalancings.Code && i.Tbranch== TransportersBalancings.Branch);
-            
-            return View(new TransportersBalancing
-            {
-                Code = TransportersBalancings.Transporter,
-                Transporter= transporter.TransName,
-                Date= TransportersBalancings.Date,
-                Varriance = TransportersBalancings.Varriance,
-                Spillage = TransportersBalancings.Spillage,
-                Rejects= TransportersBalancings.Rejects
-            });
+
+
+            ViewBag.TransportersBalancings = TransportersBalancings;
+            //return View(ViewBag.TransportersBalancings);
+
+            return View(TransportersBalancings);
         }
         // GET: DSuppliers/Delete/5
         public async Task<IActionResult> Delete(long? id)

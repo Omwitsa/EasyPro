@@ -850,7 +850,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 1).Value = emp.Code;
                     var TName = _context.DTransporters.FirstOrDefault(u => u.TransCode == emp.Code && u.ParentT == sacco);
                     worksheet.Cell(currentRow, 2).Value = TName.TransName;
-                    worksheet.Cell(currentRow, 3).Value = "'" + TName.CertNo;
+                    worksheet.Cell(currentRow, 3).Value = "" + TName.CertNo;
                     worksheet.Cell(currentRow, 4).Value = emp.QntySup;
                     worksheet.Cell(currentRow, 5).Value = emp.Amnt;
                     worksheet.Cell(currentRow, 6).Value = emp.Subsidy;
@@ -868,7 +868,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 18).Value = emp.Totaldeductions;
                     worksheet.Cell(currentRow, 19).Value = emp.NetPay;
                     worksheet.Cell(currentRow, 20).Value = emp.BankName;
-                    worksheet.Cell(currentRow, 21).Value = "'" + emp.AccNo;
+                    worksheet.Cell(currentRow, 21).Value = "" + emp.AccNo;
                     worksheet.Cell(currentRow, 22).Value = emp.Branch;
                 }
                 currentRow++;
@@ -1091,7 +1091,7 @@ namespace EasyPro.Controllers
                     //long.TryParse(emp.Sno, out long sno);
                     var TName = _context.DSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == sacco);
                     worksheet.Cell(currentRow, 2).Value = TName.Names;
-                    worksheet.Cell(currentRow, 3).Value = "'" + emp.IdNo;
+                    worksheet.Cell(currentRow, 3).Value = "" + emp.IdNo;
                     worksheet.Cell(currentRow, 4).Value = emp.Transport;
                     worksheet.Cell(currentRow, 5).Value = emp.Agrovet;
                     worksheet.Cell(currentRow, 6).Value = emp.Bonus;
@@ -1110,7 +1110,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 19).Value = emp.Gpay;
                     worksheet.Cell(currentRow, 20).Value = emp.Npay;
                     worksheet.Cell(currentRow, 21).Value = emp.Bank;
-                    worksheet.Cell(currentRow, 22).Value = "'" + emp.AccountNumber;
+                    worksheet.Cell(currentRow, 22).Value =  emp.AccountNumber;
                     worksheet.Cell(currentRow, 23).Value = emp.Bbranch;
                     worksheet.Cell(currentRow, 24).Value = emp.Branch;
                 }
