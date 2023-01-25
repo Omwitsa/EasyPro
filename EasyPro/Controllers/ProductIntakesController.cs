@@ -273,11 +273,9 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var checkifdelievedtoday = _context.ProductIntake.Where(L => L.SaccoCode == sacco 
-            && L.Branch== saccoBranch && L.TransDate == date).Select(b => b.Sno).ToList();
-            ViewBag.checkifexist = new SelectList(checkifdelievedtoday);
-
-            return Json(ViewBag.checkifexist);
+            var checkifdelievedtoday = _context.ProductIntake.Any(L => L.SaccoCode == sacco 
+            && L.Branch== saccoBranch && L.TransDate == date);
+            return Json(checkifdelievedtoday);
         }
         [HttpGet]
         public JsonResult SelectedName( string sno)

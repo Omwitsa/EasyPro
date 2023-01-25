@@ -207,16 +207,6 @@
             var selectVal = $("#ProductType").val();
             populateFields(selectVal);
         });
-            @*$('#ProductType').on('change', function () {
-                var selectVal = $("#ProductType").val();
-                var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
-                var selectProducts = products.filter(p => p.Products === selectVal);
-                if (selectProducts[0]) {
-                    $("#CR").val();
-                    $("#Qsupplied").val();
-                    $("#Ppu").val(selectProducts[0].Price);
-                }
-            });*@
 
         $('#zone').change(function () {
             var selectVal =  $("#Sno").val();
@@ -225,11 +215,11 @@
         $('#Sno').on('keyup', function () {
             var selectVal =  $("#Sno").val();
             getSelectedDateIntakes();
-            });
+        });
         
         $('#Qsupplied').keydown(function (event) {
             if (event.which == 13) {
-                getSelectedforsave();
+                checkifalreadyexist();
             }
         });
 
@@ -277,7 +267,39 @@
                     // ...
                 });  
         };
-          function getkgsfortheday() {
+        function checkifalreadyexist() {
+            //goselect();
+            var sno = $('#Sno').val();
+            var date = $('#transDate').val();
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response) {
+                            checkifdelivered();
+                        } else {
+                            getSelectedforsave();
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+                });
+        }
+        function checkifdelivered() {
+            const response = confirm("Already Delivered today, Do you want to continue?");
+            if (response) {
+                getSelectedforsave();
+                return true;
+            } else {
+                $('#Qsupplied').val("");
+                return false;
+            }
+        }
+        function getkgsfortheday() {
              var date = $('#transDate').val();
             $.ajax(
                 {
@@ -297,8 +319,8 @@
                 }); 
         };
 
-         $('#save').on('click', function () {
-            getSelectedforsave();
+        $('#save').on('click', function () {
+             checkifalreadyexist();
         });
 
         function getSelectedDateIntakes() {
@@ -321,9 +343,9 @@
                 });
         }
 
-            $('#Qsupplied').on('keyup', function () {
-                calculatePrice();
-            });
+        $('#Qsupplied').on('keyup', function () {
+            calculatePrice();
+        });
 
          function populateFields(product) {
                 var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
@@ -336,15 +358,14 @@
                     $("#CrAccNo").val(selectProducts[0].CrAccNo);
                 }
             }
-            function calculatePrice() {
+         function calculatePrice() {
                 var qty = parseFloat($("#Qsupplied").val());
                 var price = parseFloat($("#Ppu").val());
                 if (qty && price) {
                     $("#CR").val(qty * price);
                 }
             }
-
-            function generateHTML(response) {
+         function generateHTML(response) {
                 var mevng = $('#mevng').val();
                 var date = new Date().toLocaleDateString("en-US")
                 var content = `<div class="row" id="printMe">

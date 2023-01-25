@@ -1004,6 +1004,7 @@ namespace EasyPro.Controllers
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("dpayrollobj");
+
                 var currentRow = 1;
                 companyobj = _context.DCompanies.Where(u => u.Name == sacco);
                 foreach (var emp in companyobj)
@@ -1089,9 +1090,10 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
 
                     //long.TryParse(emp.Sno, out long sno);
+
                     var TName = _context.DSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == sacco);
                     worksheet.Cell(currentRow, 2).Value = TName.Names;
-                    worksheet.Cell(currentRow, 3).Value = "" + emp.IdNo;
+                    worksheet.Cell(currentRow, 3).Value = "'" + emp.IdNo;
                     worksheet.Cell(currentRow, 4).Value = emp.Transport;
                     worksheet.Cell(currentRow, 5).Value = emp.Agrovet;
                     worksheet.Cell(currentRow, 6).Value = emp.Bonus;
@@ -1110,7 +1112,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 19).Value = emp.Gpay;
                     worksheet.Cell(currentRow, 20).Value = emp.Npay;
                     worksheet.Cell(currentRow, 21).Value = emp.Bank;
-                    worksheet.Cell(currentRow, 22).Value =  emp.AccountNumber;
+                    worksheet.Cell(currentRow, 22).Value = "'" + emp.AccountNumber;
                     worksheet.Cell(currentRow, 23).Value = emp.Bbranch;
                     worksheet.Cell(currentRow, 24).Value = emp.Branch;
                 }
@@ -1204,7 +1206,7 @@ namespace EasyPro.Controllers
                         worksheet.Cell(currentRow, 2).Value = emp.Names;
                         worksheet.Cell(currentRow, 3).Value = emp.Regdate;
                         worksheet.Cell(currentRow, 4).Value = emp.IdNo;
-                        worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
+                        worksheet.Cell(currentRow, 5).Value = "'" + emp.PhoneNo;
                         worksheet.Cell(currentRow, 6).Value = emp.Bcode;
                         worksheet.Cell(currentRow, 7).Value = emp.AccNo;
                         worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
@@ -1296,7 +1298,7 @@ namespace EasyPro.Controllers
                         worksheet.Cell(currentRow, 2).Value = emp.Names;
                         worksheet.Cell(currentRow, 3).Value = emp.Regdate;
                         worksheet.Cell(currentRow, 4).Value = emp.IdNo;
-                        worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
+                        worksheet.Cell(currentRow, 5).Value = "'" + emp.PhoneNo;
                         worksheet.Cell(currentRow, 6).Value = emp.Bcode;
                         worksheet.Cell(currentRow, 7).Value = emp.AccNo;
                         worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
