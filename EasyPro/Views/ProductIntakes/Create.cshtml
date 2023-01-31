@@ -248,7 +248,6 @@
                     url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
                     contentType: 'application/json',
                     success: function (response) {
-                        debugger
                         if (response) {
                             checkifdelivered();
                         } else {
@@ -354,21 +353,26 @@
                 var date = new Date().toLocaleDateString("en-US")
                 var content = `<div class="row" id="printMe">
                                 <div class="col-xs-12 text-center">
-                                     <h6>${response.receiptDetails.Adress}</h6>
-                                     <h6>${response.receiptDetails.Name}</h6>
-                                     <h6>Tell: ${response.receiptDetails.PhoneNo}</h6>
-                                     <h6>Branch: ${response.receiptDetails.Town}</h6>
-                                     <h6>${response.receiptDetails.saccoBranch}</h6>
-                                     <hr>
-                                     <p>Product Receipt For: ${date}</p>
-                                     <p>SNo: ${response.receiptDetails.Sno}</p>
-                                     <p>Name: ${response.receiptDetails.SupName}</p>
-                                     <p>Delivered: ${response.receiptDetails.Qsupplied}</p>
-                                     <p>Cummulative: ${response.receiptDetails.cummkgs}</p>
-                                     <p>Session: ${mevng}</p>
-                                     <p>Received By: ${response.receiptDetails.loggedInUser}</p>
-                                     <hr>
-                                     <p>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</p>
+                                     <h4>
+                                        ${response.receiptDetails.Name}</br>
+                                        Adress: ${response.receiptDetails.Adress}</br>
+                                        Tell: ${response.receiptDetails.PhoneNo}</br>
+                                        Town: ${response.receiptDetails.Town}</br>
+                                        Branch: ${response.receiptDetails.saccoBranch}
+                                      </h4>
+                                     <h5>
+                                        *************************
+                                        Product Receipt For: ${date}</br>
+                                        SNo: ${response.receiptDetails.Sno}</br>
+                                        Name: ${response.receiptDetails.SupName}</br>
+                                        Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
+                                        Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
+                                        Session: ${response.receiptDetails.MornEvening}</br>
+                                        Received By: ${response.receiptDetails.loggedInUser}
+                                    </h5>
+                                    <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                        *************************
+                                    <hr>
                                 </div>
                            </div>`;
 

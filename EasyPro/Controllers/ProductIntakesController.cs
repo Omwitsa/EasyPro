@@ -274,7 +274,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var checkifdelievedtoday = _context.ProductIntake.Any(L => L.SaccoCode == sacco 
-            && L.Branch== saccoBranch && L.TransDate == date);
+            && L.Branch== saccoBranch && L.TransDate == date && L.Sno.ToUpper().Equals(sno.ToUpper()));
             return Json(checkifdelievedtoday);
         }
         [HttpGet]
@@ -682,7 +682,7 @@ namespace EasyPro.Controllers
             o.TransDate >= startDate && o.TransDate <= endDate
             && (o.Description == "Intake" || o.Description == "Correction")).Sum(d => d.Qsupplied);
 
-            string cummkgs = string.Format("{0:.###}", cumkg + productIntake.Qsupplied);
+            string cummkgs = string.Format("{0:.###}", cumkg);
             var receiptDetails = new
             {
                 companies.Name,
@@ -694,7 +694,8 @@ namespace EasyPro.Controllers
                 productIntake.SupName,
                 productIntake.Qsupplied,
                 cummkgs,
-                loggedInUser
+                loggedInUser,
+                MornEvening = productIntake.MornEvening ?? "Mornnig",
             };
 
             return Json(new
@@ -1722,7 +1723,7 @@ namespace EasyPro.Controllers
                 o.TransDate >= startDate && o.TransDate <= endDate
                 && (o.Description == "Intake" || o.Description == "Correction")).Sum(d => d.Qsupplied);
 
-                string cummkgs = string.Format("{0:.###}", cumkg + productIntake.Qsupplied);
+                string cummkgs = string.Format("{0:.###}", cumkg);
                 var receiptDetails = new
                 {
                     companies.Name,
@@ -1735,7 +1736,9 @@ namespace EasyPro.Controllers
                     productIntake.SupName,
                     productIntake.Qsupplied,
                     cummkgs,
-                    loggedInUser
+                    loggedInUser,
+                    MornEvening = productIntake.MornEvening ?? "Mornnig",
+                    date = productIntake.TransDate
                 };
                 return Json(new
                 {
