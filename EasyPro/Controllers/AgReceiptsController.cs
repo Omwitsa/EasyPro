@@ -557,7 +557,7 @@ namespace EasyPro.Controllers
         }
 
         // GET: AgReceipts/Create
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -569,7 +569,7 @@ namespace EasyPro.Controllers
                 .Select(b => b.RNo);
             var selectedno = count.FirstOrDefault();
             double num = Convert.ToInt32(selectedno);
-            GetInitialValuesAsync();
+            await GetInitialValuesAsync();
 
             var receipt = new AgReceipt
             {
@@ -584,7 +584,7 @@ namespace EasyPro.Controllers
             var period = DateTime.Today;
             var startDate = new DateTime(period.Year, period.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var transporters = _context.DTransporters.Where(s => s.ParentT == sacco).ToList();
+            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
             var products = _context.AgProducts.Where(p => p.saccocode == sacco).ToList();
             var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())
@@ -618,7 +618,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("RId,RNo,PCode,TDate,Amount,SNo,Qua,SBal,UserId,AuditDate,Cash,Sno1,Transby,Idno,Mobile,Remarks,Branch,Sprice,Bprice,Ai,Run,Paid,Completed,Salesrep,saccocode")] AgReceipt agReceipt)
         {
             utilities.SetUpPrivileges(this);
-            GetInitialValuesAsync();
+            await GetInitialValuesAsync();
             if (ModelState.IsValid)
             {
                 _context.Add(agReceipt);
@@ -628,7 +628,7 @@ namespace EasyPro.Controllers
             return View(agReceipt);
         }
 
-        public IActionResult CreateReversal()
+        public async Task<IActionResult> CreateReversal()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -640,7 +640,8 @@ namespace EasyPro.Controllers
                 .Select(b => b.RNo);
             var selectedno = count.FirstOrDefault();
             double num = Convert.ToInt32(selectedno);
-            GetInitialValuesAsync();
+
+            await GetInitialValuesAsync();
 
             var receipt = new AgReceipt
             {
@@ -679,6 +680,7 @@ namespace EasyPro.Controllers
                 ProductIntake = intakes
             };
             return View(agrovetsales);
+
         }
 
         [HttpPost]
@@ -686,7 +688,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CreateReversal([Bind("RId,RNo,PCode,TDate,Amount,SNo,Qua,SBal,UserId,AuditDate,Cash,Sno1,Transby,Idno,Mobile,Remarks,Branch,Sprice,Bprice,Ai,Run,Paid,Completed,Salesrep,saccocode")] AgReceipt agReceipt)
         {
             utilities.SetUpPrivileges(this);
-            GetInitialValuesAsync();
+           await GetInitialValuesAsync();
             if (ModelState.IsValid)
             {
                 _context.Add(agReceipt);
