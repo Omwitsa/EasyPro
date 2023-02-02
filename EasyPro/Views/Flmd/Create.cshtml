@@ -407,15 +407,26 @@
             $(function () {
                 let crops = new Array();
                 let lands = new Array();
+                
                 populateFlmdDetails();
+                
+
                 $('#sno').on('keyup', function () {
+                    getname();
+                });
+
+                $('#sno').on('change', function () {
+                    getname();
+                });
+
+                function getname() {
                     let sno = $("#sno").val();
                     var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
                     var selectSupplier = suppliers.filter(p => p.Sno === sno);
                     if (selectSupplier[0]) {
                         $("#names").val(selectSupplier[0].Names);
                     }
-                });
+                }
 
                 $('#save_animal').on('click', function () {
                     let sno = $("#sno").val();
@@ -662,6 +673,7 @@
                             lands = response.lands ? response.lands : [];
                             populateCropTable();
                             populateLandTable();
+                            getname();
                         },
                         failure: function (response) {
                         }

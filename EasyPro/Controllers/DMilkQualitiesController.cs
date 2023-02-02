@@ -377,7 +377,7 @@ namespace EasyPro.Controllers
 
             var checkbranchenquiry = _context.milkcontrol2.Where(i => i.code.ToUpper().Equals(sacco.ToUpper())
             && i.transdate >= date1 && i.transdate <= date2 && i.Branch == branch).OrderByDescending(l => l.transdate).ToList();
-            var MilkBranchListVM = new List<MilkBranchControlList>();
+            var MilkBranchListVM = new List<MilkBranchControlList>(); 
             if (checkbranchenquiry.Count > 0)
             {
                 var transGroups = checkbranchenquiry.GroupBy(t => t.transdate).ToList();

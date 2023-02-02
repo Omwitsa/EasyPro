@@ -102,6 +102,85 @@ namespace EasyPro.Controllers
             GetInitialValues();
             return View();
         }
+        public IActionResult FlmdData(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var startDate = month.AddMonths(0);
+            var endDate = month.AddMonths(1).AddDays(-1);
+            //if (id == null)
+            //{
+            //    return NotFound();
+            //}
+            //var milkintake2 = _context.milkcontrol2.FirstOrDefault(M => M.Id == id);
+            var flmdsup = _context.FLMD.Where(j => j.SaccoCode == sacco).Select(m => m.Sno).Distinct().ToList();
+            var getactivesup1 = _context.ProductIntake.Where(M => M.TransDate >= startDate && M.TransDate <= endDate && M.SaccoCode == sacco).ToList();
+            var getactivesup = getactivesup1.Select(m => m.Sno).Distinct().ToList();
+            var supplierslist = _context.DSuppliers.Where(M=> M.Scode == sacco && (flmdsup.Contains(M.Sno) || getactivesup.Contains(M.Sno))).ToList().OrderBy(s=>s.Sno).GroupBy(n => n.Sno).ToList();// .ToList();
+
+            if (supplierslist == null)
+            {
+                return NotFound();
+            }
+            var FlmdData = new List<farmerdetail>();
+            if (supplierslist.Count > 0)
+            {
+                supplierslist.ForEach(l =>
+                {
+                    var supplier = _context.DSuppliers.FirstOrDefault(m=>m.Sno.ToUpper().Equals(l.Key.ToUpper()));
+                    decimal milk=0,assets=0, land=0, crops=0, eductaion=0, animals=0, Total=0;
+                    var productIntakes = getactivesup1.Where(M => M.Sno.ToUpper().Equals(supplier.Sno.ToUpper())).ToList();
+                    var flmdanimalandeducation = _context.FLMD.FirstOrDefault(k=>k.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && k.SaccoCode == sacco);
+                    var flmdcrops = _context.FLMDCrops.FirstOrDefault(k=>k.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && k.SaccoCode == sacco);
+                    var flmdland = _context.FLMDLand.FirstOrDefault(k=>k.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && k.SaccoCode == sacco);
+
+                    if (productIntakes.Count>0)
+                    {
+                        milk = (productIntakes.Sum(d => d.CR) ?? 0) - (productIntakes.Sum(d => d.DR) ?? 0);
+                    }
+
+                    //animals = (decimal)(((double)flmdanimalandeducation.Sum(g => g.ExoticCattle)*40000)+((double)flmdanimalandeducation.Sum(g => g.IndigenousCattle)*20000)+((double)flmdanimalandeducation.Sum(g => g.Sheep)*6000)+((double)flmdanimalandeducation.Sum(g => g.Goats)*5000)+((double)flmdanimalandeducation.Sum(g => g.Donkeys)*4000)+((double)flmdanimalandeducation.Sum(g => g.Pigs)*8000));
+                    if (flmdanimalandeducation != null)
+                    {
+                        animals = (decimal)(((double)(flmdanimalandeducation.ExoticCattle ?? 0) * 40000) + ((double)(flmdanimalandeducation.IndigenousCattle ?? 0) * 20000) + ((double)(flmdanimalandeducation.Sheep ?? 0) * 6000) + ((double)(flmdanimalandeducation.Goats ?? 0) * 5000) + ((double)(flmdanimalandeducation.Donkeys ?? 0) * 4000) + ((double)(flmdanimalandeducation.Pigs ?? 0) * 8000));
+                        eductaion = (decimal)(((double)(flmdanimalandeducation.Graduates ?? 0) * 120000) + ((double)(flmdanimalandeducation.UnderGraduates ?? 0)* 80000) + ((double)(flmdanimalandeducation.Secondary ?? 0) * 53000) + ((double)(flmdanimalandeducation.Primary ?? 0) * 26000));
+                    }
+
+                    //eductaion = (decimal)(((double)flmdanimalandeducation.Sum(g => g.Graduates) * 120000) + ((double)flmdanimalandeducation.Sum(g => g.UnderGraduates) * 80000) + ((double)flmdanimalandeducation.Sum(g => g.Secondary) * 53000) + ((double)flmdanimalandeducation.Sum(g => g.Primary) * 26000));
+                    if (flmdland != null)
+                    {
+                        crops = 120000;
+                    }
+                        
+                    //land = (decimal)((double)flmdland.Sum(g => g.TotalAcres) * 1200000);
+                    if (flmdland != null)
+                    {
+                        land = (decimal)((double)flmdland.TotalAcres * 1200000);
+                    }
+                        
+                    assets = (animals - eductaion + crops + land) * (decimal)(0.001);
+                    Total = milk + assets;
+                    if (Total > 0)
+                    {
+                        FlmdData.Add(new farmerdetail
+                        {
+                            Sno = supplier.Sno,
+                            Name = supplier.Names,
+                            Phone = supplier.PhoneNo,
+                            MilkKgs = milk,
+                            Assets = assets,
+                            Total = Total,
+                        });
+                        _context.SaveChanges();
+                    }
+                    
+                });
+            }
+            return View(new FlmdDataVM { farmerdetails= FlmdData.OrderBy(m=>m.Sno)});
+        }
+
         public IActionResult DownloadcorrectionIntakeReport()
         {
             utilities.SetUpPrivileges(this);
@@ -643,7 +722,6 @@ namespace EasyPro.Controllers
                 isRedirect = true
             });
         }
-
         [HttpGet]
         public IActionResult IntakePdf(DateTime? dateFrom, DateTime? dateTo)
         {
@@ -656,7 +734,6 @@ namespace EasyPro.Controllers
             var pdfFile = _reportProvider.GetIntakesPdf(productIntakeobj, company, title, TransactionType.Intake);
             return File(pdfFile, "application/pdf");
         }
-
         [HttpPost]
         public IActionResult TIntake([Bind("DateFrom,DateTo")] FilterVm filter)
         {
@@ -668,7 +745,6 @@ namespace EasyPro.Controllers
             transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
             return TIntakeExcel(DateFrom, DateTo);
         }
-
         [HttpPost]
         public JsonResult TIntakePdf([FromBody] FilterVm filter)
         {
@@ -678,8 +754,6 @@ namespace EasyPro.Controllers
                 isRedirect = true
             });
         }
-
-
         [HttpGet]
         public IActionResult TIntakePdf(DateTime? dateFrom, DateTime? dateTo)
         {
