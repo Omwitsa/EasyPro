@@ -49,6 +49,9 @@ namespace EasyPro.Controllers
         public IEnumerable<DBranch> branchobj { get; set; }
         public IEnumerable<TransportersBalancing> TransportersBalancingobj { get; set; }
         public IEnumerable<DispatchBalancing> DispatchBalancingobj { get; set; }
+        public IEnumerable<FLMD> FLMDobj { get; set; }
+        public IEnumerable<FLMDCrops> FLMDCropsobj { get; set; }
+        public IEnumerable<FLMDLand> FLMDLandobj { get; set; }
 
         [HttpGet]
         public IActionResult DownloadReport()
@@ -180,6 +183,134 @@ namespace EasyPro.Controllers
             }
             return View(new FlmdDataVM { farmerdetails= FlmdData.OrderBy(m=>m.Sno)});
         }
+        [HttpPost]
+        public IActionResult FlmdDataExcel([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            suppliersobj = _context.DSuppliers
+                .Where(p => p.Scode == sacco)
+                .OrderBy(s => s.Sno);
+            return FlmdDataDownloadExcel();
+        }
+        public IActionResult FlmdDataDownloadExcel()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("suppliersobj");
+                var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Flmd Loan Register Report";
+
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "Phone No";
+                worksheet.Cell(currentRow, 4).Value = "Milk Amount";
+                worksheet.Cell(currentRow, 5).Value = "Asset Amount";
+                worksheet.Cell(currentRow, 6).Value = "Maximum Loan Amount";
+                int sum = 0, sum2 = 0;
+                sum2 = suppliersobj.Count();
+
+                var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                var startDate = month.AddMonths(0);
+                var endDate = month.AddMonths(1).AddDays(-1);
+                var flmdsup = _context.FLMD.Where(j => j.SaccoCode == sacco).Select(m => m.Sno).Distinct().ToList();
+                var getactivesup1 = _context.ProductIntake.Where(M => M.TransDate >= startDate && M.TransDate <= endDate && M.SaccoCode == sacco).ToList();
+                var getactivesup = getactivesup1.Select(m => m.Sno).Distinct().ToList();
+                var supplierslist = _context.DSuppliers.Where(M => M.Scode == sacco && (flmdsup.Contains(M.Sno) || getactivesup.Contains(M.Sno))).ToList().OrderBy(s => s.Sno).GroupBy(n => n.Sno).ToList();// .ToList();
+
+                var FlmdData = new List<farmerdetail>();
+                if (supplierslist.Count > 0)
+                {
+                    supplierslist.ForEach(l => {
+                        var supplier = _context.DSuppliers.FirstOrDefault(m => m.Sno.ToUpper().Equals(l.Key.ToUpper()));
+                        decimal milk = 0, assets = 0, land = 0, crops = 0, eductaion = 0, animals = 0, Total = 0;
+                        var productIntakes = getactivesup1.Where(M => M.Sno.ToUpper().Equals(supplier.Sno.ToUpper())).ToList();
+                        var flmdanimalandeducation = _context.FLMD.FirstOrDefault(k => k.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && k.SaccoCode == sacco);
+                        var flmdcrops = _context.FLMDCrops.FirstOrDefault(k => k.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && k.SaccoCode == sacco);
+                        var flmdland = _context.FLMDLand.FirstOrDefault(k => k.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && k.SaccoCode == sacco);
+
+                        if (productIntakes.Count > 0)
+                        {
+                            milk = (productIntakes.Sum(d => d.CR) ?? 0) - (productIntakes.Sum(d => d.DR) ?? 0);
+                        }
+
+                        //animals = (decimal)(((double)flmdanimalandeducation.Sum(g => g.ExoticCattle)*40000)+((double)flmdanimalandeducation.Sum(g => g.IndigenousCattle)*20000)+((double)flmdanimalandeducation.Sum(g => g.Sheep)*6000)+((double)flmdanimalandeducation.Sum(g => g.Goats)*5000)+((double)flmdanimalandeducation.Sum(g => g.Donkeys)*4000)+((double)flmdanimalandeducation.Sum(g => g.Pigs)*8000));
+                        if (flmdanimalandeducation != null)
+                        {
+                            animals = (decimal)(((double)(flmdanimalandeducation.ExoticCattle ?? 0) * 40000) + ((double)(flmdanimalandeducation.IndigenousCattle ?? 0) * 20000) + ((double)(flmdanimalandeducation.Sheep ?? 0) * 6000) + ((double)(flmdanimalandeducation.Goats ?? 0) * 5000) + ((double)(flmdanimalandeducation.Donkeys ?? 0) * 4000) + ((double)(flmdanimalandeducation.Pigs ?? 0) * 8000));
+                            eductaion = (decimal)(((double)(flmdanimalandeducation.Graduates ?? 0) * 120000) + ((double)(flmdanimalandeducation.UnderGraduates ?? 0) * 80000) + ((double)(flmdanimalandeducation.Secondary ?? 0) * 53000) + ((double)(flmdanimalandeducation.Primary ?? 0) * 26000));
+                        }
+
+                        //eductaion = (decimal)(((double)flmdanimalandeducation.Sum(g => g.Graduates) * 120000) + ((double)flmdanimalandeducation.Sum(g => g.UnderGraduates) * 80000) + ((double)flmdanimalandeducation.Sum(g => g.Secondary) * 53000) + ((double)flmdanimalandeducation.Sum(g => g.Primary) * 26000));
+                        if (flmdland != null)
+                        {
+                            crops = 120000;
+                        }
+
+                        //land = (decimal)((double)flmdland.Sum(g => g.TotalAcres) * 1200000);
+                        if (flmdland != null)
+                        {
+                            land = (decimal)((double)flmdland.TotalAcres * 1200000);
+                        }
+
+                        assets = (animals - eductaion + crops + land) * (decimal)(0.001);
+                        Total = milk + assets;
+                        if (Total > 0)
+                        {
+                            FlmdData.Add(new farmerdetail
+                            {
+                                Sno = supplier.Sno,
+                                Name = supplier.Names,
+                                Phone = supplier.PhoneNo,
+                                MilkKgs = milk,
+                                Assets = assets,
+                                Total = Total,
+                            });
+                            _context.SaveChanges();
+                        }
+
+                    });
+                }
+                //var FlmdDatadetails = FlmdData.GroupBy(b => b.Sno).ToList();
+                decimal totals = 0;
+                FlmdData.ForEach(c=> {
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = c.Sno;
+                    worksheet.Cell(currentRow, 2).Value = c.Name;
+                    worksheet.Cell(currentRow, 3).Value = "'"+c.Phone;
+                    worksheet.Cell(currentRow, 4).Value = c.MilkKgs;
+                    worksheet.Cell(currentRow, 5).Value = c.Assets;
+                    worksheet.Cell(currentRow, 6).Value = c.Total;
+                    totals += c.Total;
+                });
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "Total Maximum Loan:";
+                worksheet.Cell(currentRow, 6).Value = totals;
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Flmd Loan Report Register.xlsx");
+                }
+            }
+        }
+
 
         public IActionResult DownloadcorrectionIntakeReport()
         {
@@ -229,8 +360,6 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            //var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-            //var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
             suppliersobj = _context.DSuppliers.Where(u => u.Scode == sacco);
             return Excel();
         }
@@ -252,8 +381,6 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            //var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-            //var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
             transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
             return TransporterExcel();
         }
@@ -1403,6 +1530,7 @@ namespace EasyPro.Controllers
                 }
             }
         }
+       
         public IActionResult Excel()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);

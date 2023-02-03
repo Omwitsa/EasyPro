@@ -50,7 +50,9 @@
 
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                    @*<a class="btn-info btn-info" asp-action="MilkControll">Back to List</a>*@
+                    <form asp-controller="Report" asp-antiforgery="true" asp-action="FlmdDataExcel" method="post">
+                        <button type="submit" class="btn btn-success">Export to Excel</button>
+                    </form>
                 </div>
             </div>
             <div class="bsc-tbl-hvr table-border-style">

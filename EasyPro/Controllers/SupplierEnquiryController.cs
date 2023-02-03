@@ -90,6 +90,53 @@ namespace EasyPro.Controllers
              
             return Json(todaysIntake);
         }
+
+        [HttpGet]
+        public JsonResult Selectemaxloan(string sno)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+
+            var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var startDate = month.AddMonths(0);
+            var endDate = month.AddMonths(1).AddDays(-1);
+
+            var productIntakes = _context.ProductIntake.Where(M => M.TransDate >= startDate && M.Sno.ToUpper().Equals(sno.ToUpper()) && M.TransDate <= endDate && M.SaccoCode == sacco).ToList();
+            decimal milk = 0, assets = 0, land = 0, crops = 0, eductaion = 0, animals = 0, Total = 0;
+            var flmdanimalandeducation = _context.FLMD.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
+            var flmdcrops = _context.FLMDCrops.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
+            var flmdland = _context.FLMDLand.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
+
+            if (productIntakes.Count > 0)
+            {
+                milk = (productIntakes.Sum(d => d.CR) ?? 0) - (productIntakes.Sum(d => d.DR) ?? 0);
+            }
+
+            //animals = (decimal)(((double)flmdanimalandeducation.Sum(g => g.ExoticCattle)*40000)+((double)flmdanimalandeducation.Sum(g => g.IndigenousCattle)*20000)+((double)flmdanimalandeducation.Sum(g => g.Sheep)*6000)+((double)flmdanimalandeducation.Sum(g => g.Goats)*5000)+((double)flmdanimalandeducation.Sum(g => g.Donkeys)*4000)+((double)flmdanimalandeducation.Sum(g => g.Pigs)*8000));
+            if (flmdanimalandeducation != null)
+            {
+                animals = (decimal)(((double)(flmdanimalandeducation.ExoticCattle ?? 0) * 40000) + ((double)(flmdanimalandeducation.IndigenousCattle ?? 0) * 20000) + ((double)(flmdanimalandeducation.Sheep ?? 0) * 6000) + ((double)(flmdanimalandeducation.Goats ?? 0) * 5000) + ((double)(flmdanimalandeducation.Donkeys ?? 0) * 4000) + ((double)(flmdanimalandeducation.Pigs ?? 0) * 8000));
+                eductaion = (decimal)(((double)(flmdanimalandeducation.Graduates ?? 0) * 120000) + ((double)(flmdanimalandeducation.UnderGraduates ?? 0) * 80000) + ((double)(flmdanimalandeducation.Secondary ?? 0) * 53000) + ((double)(flmdanimalandeducation.Primary ?? 0) * 26000));
+            }
+
+            //eductaion = (decimal)(((double)flmdanimalandeducation.Sum(g => g.Graduates) * 120000) + ((double)flmdanimalandeducation.Sum(g => g.UnderGraduates) * 80000) + ((double)flmdanimalandeducation.Sum(g => g.Secondary) * 53000) + ((double)flmdanimalandeducation.Sum(g => g.Primary) * 26000));
+            if (flmdland != null)
+            {
+                crops = 120000;
+            }
+
+            //land = (decimal)((double)flmdland.Sum(g => g.TotalAcres) * 1200000);
+            if (flmdland != null)
+            {
+                land = (decimal)((double)flmdland.TotalAcres * 1200000);
+            }
+
+            assets = (animals - eductaion + crops + land) * (decimal)(0.001);
+            Total = milk + assets;
+
+            return Json(Total);
+        }
         public IActionResult Transporters()
         {
             utilities.SetUpPrivileges(this);
@@ -132,7 +179,7 @@ namespace EasyPro.Controllers
                 ViewBag.checkiftoenable = 0;
         }
         [HttpPost]
-        public JsonResult SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype,string zone)
+        public JsonResult SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype,string sno)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);

@@ -96,14 +96,12 @@
                      date2: $("#enddate").val(),
                      sacco:$("#sacco").val(),
                 }
-                debugger
                     $.ajax({
                         type: 'POST',
-                        url: "getdetails",
+                        url: "/DSuppliers/getdetails",
                         contentType: 'application/json',
                         data: JSON.stringify(intake),
                         success: function (response) {
-                            debugger
                             populateIntake(response)
                         },
                         failure: function (response) {
@@ -114,7 +112,8 @@
             }
             function populateIntake(intake) {
                 let itemTableRows = new Array();
-                intake.forEach(i => {
+                debugger
+                intake.CountyReports.forEach(i => {
                     itemTableRows.push(`<tr>
                                             <td>${i.Type}</td>
                                             <td>${i.Amount}</td>

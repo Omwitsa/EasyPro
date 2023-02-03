@@ -189,6 +189,7 @@ namespace EasyPro.Controllers
             var counties = _context.County.Select(c => c.Name).ToList();
             ViewBag.counties = new SelectList(counties);
             var countyPOS = _context.DCompanies.ToList().GroupBy(s => s.Province).ToList();
+            var gSuppliers = _context.DSuppliers.ToList();
             var countySaccos = new List<CountySupplierSummery>();
             var totalSuppliers = 0;
             var totalMale = 0;
@@ -201,7 +202,7 @@ namespace EasyPro.Controllers
                 var sacconame = _context.DCompanies.Where(m => m.Province.ToUpper().Equals(h.Key.ToUpper())).ToList().GroupBy(s => s.Name).ToList();
                 sacconame.ForEach(g => {
                    // var getcountySuppliers = _context.DSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList().GroupBy(s => s.Scode).ToList();
-                    var getcountySuppliers = _context.DSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList();
+                    var getcountySuppliers = gSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList();
                     //getcountySuppliers.ForEach(s => {
                         var total = getcountySuppliers.Count();
                         var male = getcountySuppliers.Where(g => g.Type.ToLower().Equals("male")).Count();
@@ -286,7 +287,7 @@ namespace EasyPro.Controllers
                     {
                         Id = intakes.Id,
                         Type = l.Key,
-                        Amount = (productIntakesdetails.Sum(v=>v.CR)- productIntakesdetails.Sum(c=>c.DR)) ?? 0,
+                        Amount = ((productIntakesdetails.Sum(v=>v.CR) ?? 0 )- (productIntakesdetails.Sum(c=>c.DR) ?? 0)),
 
                     });
                     _context.SaveChanges();
