@@ -132,7 +132,7 @@ namespace EasyPro.Controllers
                 land = (decimal)((double)flmdland.TotalAcres * 1200000);
             }
 
-            assets = (animals - eductaion + crops + land) * (decimal)(0.001);
+            assets = (animals - eductaion + crops + land) * (decimal)(0.01);
             Total = milk + assets;
 
             return Json(Total);
