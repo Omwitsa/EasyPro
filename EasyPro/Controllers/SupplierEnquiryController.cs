@@ -91,52 +91,52 @@ namespace EasyPro.Controllers
             return Json(todaysIntake);
         }
 
-        [HttpGet]
-        public JsonResult Selectemaxloan(string sno)
-        {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+        //[HttpGet]
+        //public JsonResult Selectemaxloan(string sno)
+        //{
+        //    utilities.SetUpPrivileges(this);
+        //    var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+        //    var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
 
-            var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            var startDate = month.AddMonths(0);
-            var endDate = month.AddMonths(1).AddDays(-1);
+        //    var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        //    var startDate = month.AddMonths(0);
+        //    var endDate = month.AddMonths(1).AddDays(-1);
 
-            var productIntakes = _context.ProductIntake.Where(M => M.TransDate >= startDate && M.Sno.ToUpper().Equals(sno.ToUpper()) && M.TransDate <= endDate && M.SaccoCode == sacco).ToList();
-            decimal milk = 0, assets = 0, land = 0, crops = 0, eductaion = 0, animals = 0, Total = 0;
-            var flmdanimalandeducation = _context.FLMD.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
-            var flmdcrops = _context.FLMDCrops.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
-            var flmdland = _context.FLMDLand.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
+        //    var productIntakes = _context.ProductIntake.Where(M => M.TransDate >= startDate && M.Sno.ToUpper().Equals(sno.ToUpper()) && M.TransDate <= endDate && M.SaccoCode == sacco).ToList();
+        //    decimal milk = 0, assets = 0, land = 0, crops = 0, eductaion = 0, animals = 0, Total = 0;
+        //    var flmdanimalandeducation = _context.FLMD.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
+        //    var flmdcrops = _context.FLMDCrops.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
+        //    var flmdland = _context.FLMDLand.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
 
-            if (productIntakes.Count > 0)
-            {
-                milk = (productIntakes.Sum(d => d.CR) ?? 0) - (productIntakes.Sum(d => d.DR) ?? 0);
-            }
+        //    if (productIntakes.Count > 0)
+        //    {
+        //        milk = (productIntakes.Sum(d => d.CR) ?? 0) - (productIntakes.Sum(d => d.DR) ?? 0);
+        //    }
 
-            //animals = (decimal)(((double)flmdanimalandeducation.Sum(g => g.ExoticCattle)*40000)+((double)flmdanimalandeducation.Sum(g => g.IndigenousCattle)*20000)+((double)flmdanimalandeducation.Sum(g => g.Sheep)*6000)+((double)flmdanimalandeducation.Sum(g => g.Goats)*5000)+((double)flmdanimalandeducation.Sum(g => g.Donkeys)*4000)+((double)flmdanimalandeducation.Sum(g => g.Pigs)*8000));
-            if (flmdanimalandeducation != null)
-            {
-                animals = (decimal)(((double)(flmdanimalandeducation.ExoticCattle ?? 0) * 40000) + ((double)(flmdanimalandeducation.IndigenousCattle ?? 0) * 20000) + ((double)(flmdanimalandeducation.Sheep ?? 0) * 6000) + ((double)(flmdanimalandeducation.Goats ?? 0) * 5000) + ((double)(flmdanimalandeducation.Donkeys ?? 0) * 4000) + ((double)(flmdanimalandeducation.Pigs ?? 0) * 8000));
-                eductaion = (decimal)(((double)(flmdanimalandeducation.Graduates ?? 0) * 120000) + ((double)(flmdanimalandeducation.UnderGraduates ?? 0) * 80000) + ((double)(flmdanimalandeducation.Secondary ?? 0) * 53000) + ((double)(flmdanimalandeducation.Primary ?? 0) * 26000));
-            }
+        //    //animals = (decimal)(((double)flmdanimalandeducation.Sum(g => g.ExoticCattle)*40000)+((double)flmdanimalandeducation.Sum(g => g.IndigenousCattle)*20000)+((double)flmdanimalandeducation.Sum(g => g.Sheep)*6000)+((double)flmdanimalandeducation.Sum(g => g.Goats)*5000)+((double)flmdanimalandeducation.Sum(g => g.Donkeys)*4000)+((double)flmdanimalandeducation.Sum(g => g.Pigs)*8000));
+        //    if (flmdanimalandeducation != null)
+        //    {
+        //        animals = (decimal)(((double)(flmdanimalandeducation.ExoticCattle ?? 0) * 40000) + ((double)(flmdanimalandeducation.IndigenousCattle ?? 0) * 20000) + ((double)(flmdanimalandeducation.Sheep ?? 0) * 6000) + ((double)(flmdanimalandeducation.Goats ?? 0) * 5000) + ((double)(flmdanimalandeducation.Donkeys ?? 0) * 4000) + ((double)(flmdanimalandeducation.Pigs ?? 0) * 8000));
+        //        eductaion = (decimal)(((double)(flmdanimalandeducation.Graduates ?? 0) * 120000) + ((double)(flmdanimalandeducation.UnderGraduates ?? 0) * 80000) + ((double)(flmdanimalandeducation.Secondary ?? 0) * 53000) + ((double)(flmdanimalandeducation.Primary ?? 0) * 26000));
+        //    }
 
-            //eductaion = (decimal)(((double)flmdanimalandeducation.Sum(g => g.Graduates) * 120000) + ((double)flmdanimalandeducation.Sum(g => g.UnderGraduates) * 80000) + ((double)flmdanimalandeducation.Sum(g => g.Secondary) * 53000) + ((double)flmdanimalandeducation.Sum(g => g.Primary) * 26000));
-            if (flmdland != null)
-            {
-                crops = 120000;
-            }
+        //    //eductaion = (decimal)(((double)flmdanimalandeducation.Sum(g => g.Graduates) * 120000) + ((double)flmdanimalandeducation.Sum(g => g.UnderGraduates) * 80000) + ((double)flmdanimalandeducation.Sum(g => g.Secondary) * 53000) + ((double)flmdanimalandeducation.Sum(g => g.Primary) * 26000));
+        //    if (flmdland != null)
+        //    {
+        //        crops = 120000;
+        //    }
 
-            //land = (decimal)((double)flmdland.Sum(g => g.TotalAcres) * 1200000);
-            if (flmdland != null)
-            {
-                land = (decimal)((double)flmdland.TotalAcres * 1200000);
-            }
+        //    //land = (decimal)((double)flmdland.Sum(g => g.TotalAcres) * 1200000);
+        //    if (flmdland != null)
+        //    {
+        //        land = (decimal)((double)flmdland.TotalAcres * 1200000);
+        //    }
 
-            assets = (animals - eductaion + crops + land) * (decimal)(0.01);
-            Total = milk + assets;
+        //    assets = (animals - eductaion + crops + land) * (decimal)(0.01);
+        //    Total = milk + assets;
 
-            return Json(Total);
-        }
+        //    return Json(Total);
+        //}
         public IActionResult Transporters()
         {
             utilities.SetUpPrivileges(this);
@@ -173,10 +173,10 @@ namespace EasyPro.Controllers
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
-            if (zones.Count != 0)
-                ViewBag.checkiftoenable = 1;
-            else
-                ViewBag.checkiftoenable = 0;
+            //if (zones.Count != 0)
+            //    ViewBag.checkiftoenable = 1;
+            //else
+            //    ViewBag.checkiftoenable = 0;
         }
         [HttpPost]
         public JsonResult SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype,string sno)
@@ -186,27 +186,56 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
             var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno.ToString() 
-            && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2
-            ).ToList();
+            && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2)
+                .OrderBy(i => i.TransDate).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
             if (!string.IsNullOrEmpty(producttype))
                 intakes = intakes.Where(i => i.ProductType.ToUpper().Equals(producttype.ToUpper())).ToList();
-            decimal? bal = 0;
-            intakes.ForEach(i =>
+            decimal? bal = 0; 
+            var intake = intakes.GroupBy(d =>d.TransDate).ToList();
+            var MilkEnquryVM = new List<MilkEnqury>();
+            intake.ForEach(l =>
             {
-                i.CR = i?.CR ?? 0;
-                i.DR = i?.DR ?? 0;
-                bal += i.CR - i.DR;
-                i.Balance = bal;
-                if (i.Remarks == null)
-                    i.Remarks = i.ProductType;
+                intakes = l.OrderBy(d => d.Id).ToList();
+                intakes.ForEach(i => {
+                    
+                    i.CR = i?.CR ?? 0;
+                    i.DR = i?.DR ?? 0;
+                    bal += i.CR - i.DR;
+                    i.Balance = bal;
+                    if (i.Remarks == null)
+                        i.Remarks = i.ProductType;
+                    MilkEnquryVM.Add(new MilkEnqury
+                    {
+                         TransDate =i.TransDate,
+                         ProductType =i.ProductType,
+                         Qsupplied =i.Qsupplied,
+                         CR = i.CR,
+                         DR = i.DR,
+                         Balance = bal,
+                         Description = i.Remarks,
+                         Remarks = i.Remarks,
+                        Auditdatetime= DateTime.Now,
+                    });
+                    _context.SaveChanges();
+                });
+                
             });
 
-            intakes = intakes.Where(i => i.CR > 0 || i.DR > 0).ToList();
-            intakes = intakes.OrderByDescending(i => i.TransDate).ToList();
-            return Json(intakes);
+            //intakes.ForEach(i =>
+            //{
+            //    i.CR = i?.CR ?? 0;
+            //    i.DR = i?.DR ?? 0;
+            //    bal += i.CR - i.DR;
+            //    i.Balance = bal;
+            //    if (i.Remarks == null)
+            //        i.Remarks = i.ProductType;
+            //});
+            var entries  = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
+            return Json(entries.OrderByDescending(n=>n.Auditdatetime));
+
         }
 
         [HttpPost]
