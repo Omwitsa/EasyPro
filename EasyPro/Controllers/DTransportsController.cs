@@ -182,7 +182,6 @@ namespace EasyPro.Controllers
                 TransSuppliersobj = new TransSuppliers
                 {
                     DTransport = new DTransport(),
-                    //DTransport = _context.DTransports,
                     DTransporter = transporters,
                     DSuppliers = suppliers,
                 };
@@ -209,9 +208,13 @@ namespace EasyPro.Controllers
                 dTransport.saccocode = sacco;
                 dTransport.Branch = saccoBranch;
                 _context.Add(dTransport);
-                UpdateLastKgs(dTransport);
-                if (!string.IsNullOrEmpty(dTransport.DateInactivate.ToString()))
-                    UpdateIntakeKgs(dTransport);
+                if(sacco != StrValues.Mburugu)
+                {
+                    UpdateLastKgs(dTransport);
+                    if (!string.IsNullOrEmpty(dTransport.DateInactivate.ToString()))
+                        UpdateIntakeKgs(dTransport);
+                }
+
                 await _context.SaveChangesAsync();
                 _notyf.Success("Assignment saved successfully");
                 return RedirectToAction(nameof(Index));
@@ -228,7 +231,7 @@ namespace EasyPro.Controllers
             {
                 var selectintaketobeupdated = _context.ProductIntake
                     .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.ProductType == dTransport.producttype 
-                    && i.TransDate >= dTransport.Startdate && i.Sno == dTransport.Sno.ToString() 
+                    && i.TransDate >= dTransport.Startdate && i.Sno == dTransport.Sno 
                     && i.Qsupplied != 0 && i.Branch == saccoBranch)
                     .Sum(a => a.Qsupplied);
                 if (selectintaketobeupdated > 0)
@@ -239,7 +242,7 @@ namespace EasyPro.Controllers
                     {
                         foreach (var details in intakekgs)
                         {
-                            details.Sno = dTransport.Sno.ToString();
+                            details.Sno = dTransport.Sno;
                             details.TransDate = DateTime.Today;
                             details.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                             details.ProductType = dTransport.producttype;
@@ -269,7 +272,7 @@ namespace EasyPro.Controllers
                     {
                         foreach (var transdetails in transport)
                         {
-                            transdetails.Sno = dTransport.TransCode.ToString();
+                            transdetails.Sno = dTransport.TransCode;
                             transdetails.TransDate = DateTime.Today;
                             transdetails.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                             transdetails.ProductType = dTransport.producttype;
@@ -280,7 +283,7 @@ namespace EasyPro.Controllers
                             transdetails.Ppu = price.Price;
                             transdetails.DR = 0;
                             transdetails.CR = (selectintaketobeupdated * price.Price);
-                            transdetails.Balance = GetBalance(dTransport);
+                            transdetails.Balance = 0;
                             transdetails.Description = "Transport";
                             transdetails.Paid = false;
                             transdetails.TransactionType = TransactionType.Intake;
