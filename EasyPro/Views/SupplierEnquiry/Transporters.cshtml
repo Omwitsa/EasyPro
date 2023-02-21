@@ -226,6 +226,10 @@
             $("#enddate").val(today);
 
             $("#showtable").click(function () {
+                $('#totalQty').val('');
+                $('#netpay').val('');
+                $('#totaldeductions').val('')
+                $('#grosspay').val('')
                 var sno = $("#sno").val().toUpperCase();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();

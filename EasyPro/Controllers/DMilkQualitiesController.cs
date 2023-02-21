@@ -280,9 +280,21 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            
             var dispatches = _context.Dispatch.Where(k => k.Dcode == sacco && k.Branch == saccoBranch
             && k.Transdate == transDate).Sum(l => l.Dispatchkgs);
-            return Json(dispatches);
+
+            var intakes = _context.ProductIntake.Where(k => k.SaccoCode == sacco && k.TransDate == transDate);
+            if (user.AccessLevel == AccessLevel.Branch)
+                intakes = intakes.Where(i => i.Branch == saccoBranch);
+
+            var intakesup = intakes.Sum(l => l.Qsupplied);
+            return Json(new{
+                dispatches,
+                intakesup
+            });
         }
         [HttpGet]
         public JsonResult SelectedDateIntake(DateTime date)
@@ -365,7 +377,7 @@ namespace EasyPro.Controllers
 
             var checkbranchenquiry = _context.milkcontrol2.Where(i => i.code.ToUpper().Equals(sacco.ToUpper())
             && i.transdate >= date1 && i.transdate <= date2 && i.Branch == branch).OrderByDescending(l => l.transdate).ToList();
-            var MilkBranchListVM = new List<MilkBranchControlList>();
+            var MilkBranchListVM = new List<MilkBranchControlList>(); 
             if (checkbranchenquiry.Count > 0)
             {
                 var transGroups = checkbranchenquiry.GroupBy(t => t.transdate).ToList();

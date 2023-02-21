@@ -1,0 +1,77 @@
+﻿using DinkToPdf.Contracts;
+using DinkToPdf;
+using EasyPro.IProvider;
+using EasyPro.Models;
+using System;
+using System.Linq;
+using EasyPro.Constants;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using EasyPro.ViewModels.FarmersVM;
+using Microsoft.AspNetCore.Mvc.Filters;
+
+namespace EasyPro.Provider
+{
+    public class SupplierStatement : IStatement
+    {
+        private readonly MORINGAContext _context;
+        public SupplierStatement(MORINGAContext context)
+        {
+            _context = context;
+        }
+
+        public dynamic GenerateStatement(StatementFilter filter)
+        {
+            filter.Code = filter.Code ?? "";
+            filter.Branch = filter.Branch ?? "";
+
+            var month = new DateTime(filter.Date.Year, filter.Date.Month, 1);
+            var startDate = month.AddMonths(-1);
+            var endDate = month.AddDays(-1);
+            var intakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
+            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate 
+            && i.CR > 0).ToList();
+
+            var dailyGroupedIntakes = intakes.GroupBy(i => i.TransDate).ToList();
+            var supplies = new List<dynamic>();
+            decimal totalKgs = 0;
+            decimal? grossPay = 0;
+            dailyGroupedIntakes.ForEach(i =>
+            {
+                var intake = i.FirstOrDefault();
+                var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco && p.Products.ToUpper().Equals(intake.ProductType.ToUpper()));
+                var qty = i.Sum(p => p.Qsupplied);
+                supplies.Add(new
+                {
+                    date = i.Key,
+                    qnty = qty,
+                    price.Price,
+                    payable = qty * price.Price
+                });
+                totalKgs += qty;
+                grossPay += (qty * price.Price);
+            });
+
+            var deductions = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
+            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate
+            && i.DR > 0).ToList();
+
+            var totalDeductions = deductions.Sum(d => d.DR);
+
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == filter.Code && s.Scode == filter.Sacco && s.Branch == filter.Branch);
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
+            return new
+            {
+                supplies,
+                totalKgs,
+                grossPay,
+                deductions,
+                totalDeductions,
+                netPay = grossPay - totalDeductions,
+                supplier,
+                company
+            };
+        }
+    }
+}

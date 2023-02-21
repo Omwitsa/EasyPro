@@ -340,7 +340,6 @@ namespace EasyPro.Controllers
                             Branch = transporter.Tbranch
                         });
                     }
-
                 });
             }
             _context.SaveChanges();

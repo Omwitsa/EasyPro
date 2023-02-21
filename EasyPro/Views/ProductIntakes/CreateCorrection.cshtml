@@ -207,16 +207,6 @@
             var selectVal = $("#ProductType").val();
             populateFields(selectVal);
         });
-            @*$('#ProductType').on('change', function () {
-                var selectVal = $("#ProductType").val();
-                var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
-                var selectProducts = products.filter(p => p.Products === selectVal);
-                if (selectProducts[0]) {
-                    $("#CR").val();
-                    $("#Qsupplied").val();
-                    $("#Ppu").val(selectProducts[0].Price);
-                }
-            });*@
 
         $('#zone').change(function () {
             var selectVal =  $("#Sno").val();
@@ -225,16 +215,15 @@
         $('#Sno').on('keyup', function () {
             var selectVal =  $("#Sno").val();
             getSelectedDateIntakes();
-            });
+        });
         
         $('#Qsupplied').keydown(function (event) {
             if (event.which == 13) {
-                getSelectedforsave();
+                checkifalreadyexist();
             }
         });
 
         function getSelectedforsave() {
-            debugger
               var print = $('#print').is(':checked');
                 var sms = $('#SMS').is(':checked');
                 var intake = {
@@ -277,7 +266,39 @@
                     // ...
                 });  
         };
-          function getkgsfortheday() {
+        function checkifalreadyexist() {
+            //goselect();
+            var sno = $('#Sno').val();
+            var date = $('#transDate').val();
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response) {
+                            checkifdelivered();
+                        } else {
+                            getSelectedforsave();
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+                });
+        }
+        function checkifdelivered() {
+            const response = confirm("Already Delivered today, Do you want to continue?");
+            if (response) {
+                getSelectedforsave();
+                return true;
+            } else {
+                $('#Qsupplied').val("");
+                return false;
+            }
+        }
+        function getkgsfortheday() {
              var date = $('#transDate').val();
             $.ajax(
                 {
@@ -297,8 +318,8 @@
                 }); 
         };
 
-         $('#save').on('click', function () {
-            getSelectedforsave();
+        $('#save').on('click', function () {
+             checkifalreadyexist();
         });
 
         function getSelectedDateIntakes() {
@@ -321,9 +342,9 @@
                 });
         }
 
-            $('#Qsupplied').on('keyup', function () {
-                calculatePrice();
-            });
+        $('#Qsupplied').on('keyup', function () {
+            calculatePrice();
+        });
 
          function populateFields(product) {
                 var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
@@ -336,44 +357,41 @@
                     $("#CrAccNo").val(selectProducts[0].CrAccNo);
                 }
             }
-            function calculatePrice() {
+         function calculatePrice() {
                 var qty = parseFloat($("#Qsupplied").val());
                 var price = parseFloat($("#Ppu").val());
                 if (qty && price) {
                     $("#CR").val(qty * price);
                 }
             }
-
-            function generateHTML(response) {
+         function generateHTML(response) {
                 var mevng = $('#mevng').val();
-                var date = new Date().toLocaleDateString("en-US")
-                var content = `<div class="row" id="printMe">
-                                        <div class="col-xs-12 text-left mt-2" style="font-size: 13px">
-                                             <div><strong>${response.receiptDetails.Name}</strong></div>
-                                             <div><strong>${response.receiptDetails.Adress}</strong></div>
-                                             <div><strong>Tell: ${response.receiptDetails.PhoneNo}</strong></div>
-                                             <div><strong>${response.receiptDetails.Town}</strong></div>
-                                             <hr>
-                                             <div><strong>Branch: ${response.receiptDetails.saccoBranch}</strong></div>
-                                             <hr>
-                                             <div><span style="font-size: 12px">Receipt For: ${date}</span></div>
-                                             <div>SNo: <span style="font-size: 12px">${response.receiptDetails.Sno}</span></div>
-                                             <div>Name: <span style="font-size: 12px">${response.receiptDetails.SupName}</span></div>
-                                             <div>Delivered: ${response.receiptDetails.Qsupplied} kgs</div>
-                                             <div>Cummulative: ${response.receiptDetails.cummkgs} kgs</div>
-                                             <div>Session: ${mevng}</div>
-                                             <div>Received By: ${response.receiptDetails.loggedInUser }</div>
-                                             <div>Motto:<span style="font-size: 11px"> ${response.receiptDetails.Motto }</span></div>
-                                             <div>Date:<span style="font-size: 11px"> </span></div>
-                                             <div>${'*********************************'}</div>
-                                             <div><strong><span style="font-size: 9px">DEVELOP BY: AMTECH TECHNOLOGIES LTD</span></strong></div>
-                                             <div>${'*********************************'}</div>
-                                             <hr>
-                                             <div>${'*********************************'}</div>
-                                             <hr>
-                                             <hr>
-                                        </div>
-                                   </div>`;
+             var ddate = response.receiptDetails.date;
+             var date = new Date(ddate).toLocaleDateString();
+             var content = `<div class="row" id="printMe">
+                                    <div class="col-xs-12 text-center">
+                                     <h4>
+                                        ${response.receiptDetails.Name}</br>
+                                        Adress: ${response.receiptDetails.Adress}</br>
+                                        Tell: ${response.receiptDetails.PhoneNo}</br>
+                                        Town: ${response.receiptDetails.Town}</br>
+                                        Branch: ${response.receiptDetails.saccoBranch}
+                                      </h4>
+                                     <h5>
+                                        *************************
+                                        Product Receipt For: <span style="font-size: 11px">${date}</span></br>
+                                        SNo: ${response.receiptDetails.Sno}</br>
+                                        Name: ${response.receiptDetails.SupName}</br>
+                                        Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
+                                        Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
+                                        Session: ${response.receiptDetails.MornEvening}</br>
+                                        Received By: ${response.receiptDetails.loggedInUser}
+                                    </h5>
+                                    <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                        *************************
+                                    <hr>
+                                </div>
+                              </div>`;
                 return content;
             }
         });

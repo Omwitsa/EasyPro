@@ -36,7 +36,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            GetInitialValues();
+            await GetInitialValuesAsync();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -48,7 +48,7 @@ namespace EasyPro.Controllers
 
             return View(await receipts.OrderByDescending(s => s.AuditDate).ToListAsync());
         }
-        private void GetInitialValues()
+        private async Task GetInitialValuesAsync()
         {
             DateTime endmonth = DateTime.Now;
             DateTime startDate = new DateTime(endmonth.Year, endmonth.Month, 1);
@@ -61,8 +61,9 @@ namespace EasyPro.Controllers
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var branches = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.branches = new SelectList(branches, "");
-            var productintake = _context.ProductIntake.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && 
-            i.Branch == saccobranch && i.TransDate>=startDate && i.TransDate<= enDate).ToList();
+
+            var productintake = await _context.ProductIntake.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && i.Branch == saccobranch && i.TransDate >= startDate && i.TransDate <= enDate).ToListAsync();
             ViewBag.productintake = productintake;
             var employees = _context.Employees.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             var staffs = new List<EmployeeDetVm>();
@@ -528,7 +529,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
-                GetInitialValues();
+                GetInitialValuesAsync();
                 return NotFound();
             }
 
@@ -556,7 +557,7 @@ namespace EasyPro.Controllers
         }
 
         // GET: AgReceipts/Create
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -568,7 +569,7 @@ namespace EasyPro.Controllers
                 .Select(b => b.RNo);
             var selectedno = count.FirstOrDefault();
             double num = Convert.ToInt32(selectedno);
-            GetInitialValues();
+            await GetInitialValuesAsync();
 
             var receipt = new AgReceipt
             {
@@ -583,7 +584,7 @@ namespace EasyPro.Controllers
             var period = DateTime.Today;
             var startDate = new DateTime(period.Year, period.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var transporters = _context.DTransporters.Where(s => s.ParentT == sacco).ToList();
+            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
             var products = _context.AgProducts.Where(p => p.saccocode == sacco).ToList();
             var intakes = _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())
@@ -617,7 +618,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("RId,RNo,PCode,TDate,Amount,SNo,Qua,SBal,UserId,AuditDate,Cash,Sno1,Transby,Idno,Mobile,Remarks,Branch,Sprice,Bprice,Ai,Run,Paid,Completed,Salesrep,saccocode")] AgReceipt agReceipt)
         {
             utilities.SetUpPrivileges(this);
-            GetInitialValues();
+            await GetInitialValuesAsync();
             if (ModelState.IsValid)
             {
                 _context.Add(agReceipt);
@@ -627,7 +628,7 @@ namespace EasyPro.Controllers
             return View(agReceipt);
         }
 
-        public IActionResult CreateReversal()
+        public async Task<IActionResult> CreateReversal()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -639,7 +640,8 @@ namespace EasyPro.Controllers
                 .Select(b => b.RNo);
             var selectedno = count.FirstOrDefault();
             double num = Convert.ToInt32(selectedno);
-            GetInitialValues();
+
+            await GetInitialValuesAsync();
 
             var receipt = new AgReceipt
             {
@@ -678,6 +680,7 @@ namespace EasyPro.Controllers
                 ProductIntake = intakes
             };
             return View(agrovetsales);
+
         }
 
         [HttpPost]
@@ -685,7 +688,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> CreateReversal([Bind("RId,RNo,PCode,TDate,Amount,SNo,Qua,SBal,UserId,AuditDate,Cash,Sno1,Transby,Idno,Mobile,Remarks,Branch,Sprice,Bprice,Ai,Run,Paid,Completed,Salesrep,saccocode")] AgReceipt agReceipt)
         {
             utilities.SetUpPrivileges(this);
-            GetInitialValues();
+           await GetInitialValuesAsync();
             if (ModelState.IsValid)
             {
                 _context.Add(agReceipt);
@@ -707,7 +710,7 @@ namespace EasyPro.Controllers
                 .Select(b => b.RNo);
             var selectedno = count.FirstOrDefault();
             double num = Convert.ToInt32(selectedno);
-            GetInitialValues();
+            GetInitialValuesAsync();
 
             if (id == null)
             {
@@ -743,7 +746,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             if (id != agReceipt.RId)
             {
-                GetInitialValues();
+                GetInitialValuesAsync();
                 return NotFound();
             }
 
@@ -774,7 +777,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Delete(long? id)
         {
             utilities.SetUpPrivileges(this);
-            GetInitialValues();
+            GetInitialValuesAsync();
             if (id == null)
             {
                 return NotFound();
@@ -795,7 +798,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            GetInitialValues();
+            GetInitialValuesAsync();
             utilities.SetUpPrivileges(this);
             var agReceipt = await _context.AgReceipts.FindAsync(id);
             _context.AgReceipts.Remove(agReceipt);
@@ -805,7 +808,7 @@ namespace EasyPro.Controllers
 
         private bool AgReceiptExists(long id)
         {
-            GetInitialValues();
+            GetInitialValuesAsync();
             return _context.AgReceipts.Any(e => e.RId == id);
         }
     }

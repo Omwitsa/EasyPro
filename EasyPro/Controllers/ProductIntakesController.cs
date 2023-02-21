@@ -26,6 +26,10 @@ using PrinterUtility;
 using System.Diagnostics;
 using Stripe;
 using DocumentFormat.OpenXml.Spreadsheet;
+using EasyPro.IProvider;
+using EasyPro.Provider;
+using NPOI.SS.Formula.Functions;
+using static EasyPro.ViewModels.AccountingVm;
 
 namespace EasyPro.Controllers
 {
@@ -241,18 +245,32 @@ namespace EasyPro.Controllers
         public IActionResult PrintSupplierStatement()
         {
             utilities.SetUpPrivileges(this);
-            SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            DateTime Now = DateTime.Today;
-            DateTime startDate = new DateTime(Now.Year, Now.Month, 1);
-            DateTime enDate = startDate.AddMonths(1).AddDays(-1);
-            var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
-            var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
-            return View(new ProductIntakeVm
+            var branches = _context.DBranch.Where(s => s.Bcode== sacco)
+                .Select(s => s.Bname).ToList();
+
+            ViewBag.branches = new SelectList(branches);
+
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
+            ViewBag.suppliers = suppliers.Select(s => new DSupplier
             {
-                TransDate = enDate
-            });
+                Sno = s.Sno,
+                Names = s.Names,
+            }).ToList();
+
+            return View();
+        }
+
+        // string code, string branch, DateTime date
+        [HttpPost]
+        public JsonResult PrintSupplierStatement([FromBody] StatementFilter filter)
+        {
+            utilities.SetUpPrivileges(this);
+            SetIntakeInitialValues();
+            filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var statement = new SupplierStatement(_context);
+            var statementResp = statement.GenerateStatement(filter);
+            return Json(statementResp);
         }
 
         [HttpGet]
@@ -260,10 +278,22 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+           
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco).Select(b => b.Names).ToList();
             
             return Json(todaysIntake);
+        }
+
+        [HttpGet]
+        public JsonResult checkifalreadyexist(string sno,DateTime date)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var checkifdelievedtoday = _context.ProductIntake.Any(L => L.SaccoCode == sacco 
+            && L.Branch== saccoBranch && L.TransDate == date && L.Sno.ToUpper().Equals(sno.ToUpper()));
+            return Json(checkifdelievedtoday);
         }
         [HttpGet]
         public JsonResult SelectedName( string sno)
@@ -383,12 +413,19 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var Descriptionname = _context.DDcodes.Where(d => d.Dcode == sacco).Select(b => b.Description).ToList();
             ViewBag.Description = new SelectList(Descriptionname);
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
-            var brances = _context.DBranch.Where(b => b.Bcode == sacco).Select(b => b.Bname).ToList();
-            ViewBag.brances = new SelectList(brances);
+            var brances = _context.DBranch.Where(b => b.Bcode == sacco).ToList();
+           
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(LoggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                brances = brances.Where(i => i.Bname == saccoBranch).ToList();
+
+            ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
 
             var suppliers = _context.DSuppliers.Where(a => a.Scode == sacco).ToList();
             ViewBag.suppliers = new SelectList(suppliers);
@@ -400,6 +437,9 @@ namespace EasyPro.Controllers
                 ViewBag.checkiftoenable = 1;
             else
                 ViewBag.checkiftoenable = 0;
+
+            //var checkifdelievedtoday = _context.ProductIntake.Where(L => L.SaccoCode == sacco
+            //&& L.Branch == saccoBranch && L.TransDate == date).ToList();
 
 
             List<SelectListItem> gender = new()
@@ -660,7 +700,7 @@ namespace EasyPro.Controllers
             o.TransDate >= startDate && o.TransDate <= endDate
             && (o.Description == "Intake" || o.Description == "Correction")).Sum(d => d.Qsupplied);
 
-            string cummkgs = string.Format("{0:.###}", cumkg + productIntake.Qsupplied);
+            string cummkgs = string.Format("{0:.###}", cumkg);
             var receiptDetails = new
             {
                 companies.Name,
@@ -672,7 +712,8 @@ namespace EasyPro.Controllers
                 productIntake.SupName,
                 productIntake.Qsupplied,
                 cummkgs,
-                loggedInUser
+                loggedInUser,
+                MornEvening = productIntake.MornEvening ?? "Mornnig",
             };
 
             return Json(new
@@ -745,6 +786,154 @@ namespace EasyPro.Controllers
             //intakes.ToList()
             return View(collection.ToList());
         }
+        
+        [HttpPost]
+        public JsonResult getsuppliersup([FromBody] DSupplier supplier, string filter, string condition, DateTime date)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var companyTanykina = HttpContext.Session.GetString(StrValues.Tanykina);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+
+            DateTime startDate = new DateTime(date.Year, date.Month, 1);
+            DateTime enDate = startDate.AddMonths(1).AddDays(-1);
+
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
+
+            var suplliersdeductions = _context.ProductIntake.Where(d => d.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && d.TransDate >= startDate && d.TransDate <= enDate && suppliers.Select(s => s.Sno.ToUpper()).Contains(d.Sno.ToUpper())
+            && d.TransactionType == TransactionType.Deduction && d.Qsupplied == 0).ToList();
+
+            var MilkBranchList = new List<ProductIntakeVm>();
+            suppliers = suppliers.Where(d => suplliersdeductions.Select(s => s.Sno.ToUpper()).Contains(d.Sno.ToUpper())).ToList();
+            if (!string.IsNullOrEmpty(filter) && !string.IsNullOrEmpty(condition))
+            {
+
+                if (condition == "SNo")
+                {
+                    suppliers = suppliers.Where(i => i.Sno.ToUpper().Contains(filter.ToUpper())).ToList();
+                }
+                if (condition == "Name")
+                {
+                    suppliers = suppliers.Where(i => i.Names.ToUpper().Contains(filter.ToUpper())).ToList();
+                }
+
+            }
+            else
+            {
+                suplliersdeductions = suplliersdeductions.Where(d => d.TransDate == date).ToList();
+            }
+
+            var grouptransporters = suppliers.GroupBy(m => m.Sno).ToList();
+            grouptransporters.ForEach(k => {
+                var transdetails = k.FirstOrDefault();
+                if (suppliers.Count > 0)
+                {
+                    var transdeductionsget = suplliersdeductions.Where(d => d.Sno.ToUpper().Equals(transdetails.Sno.ToUpper())).OrderBy(m => m.TransDate).ToList();
+
+                    if (transdeductionsget.Count > 0)
+                    {
+                        foreach (var items in transdeductionsget)
+                        {
+                            MilkBranchList.Add(new ProductIntakeVm
+                            {
+                                Sno = transdetails.Sno,
+                                SupName = transdetails.Names,
+                                TransDate = items.TransDate,
+                                ProductType = items.ProductType,
+                                DR = items.DR,
+                                Remarks = items.Remarks,
+                                Branch = items.Branch
+                            });
+                        }
+                    }
+                }
+
+            });
+
+
+            MilkBranchList = MilkBranchList.OrderByDescending(i => i.Sno).Take(15).ToList();
+            return Json(MilkBranchList);
+        }
+
+
+        [HttpPost]
+        public JsonResult getsuppliers([FromBody] DTransporter transporter, string filter, string condition, DateTime date)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var companyTanykina = HttpContext.Session.GetString(StrValues.Tanykina);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+
+            DateTime startDate = new DateTime(date.Year, date.Month, 1);
+            DateTime enDate = startDate.AddMonths(1).AddDays(-1);
+
+            var transporters = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
+            
+                if (user.AccessLevel == AccessLevel.Branch)
+                   transporters = transporters.Where(i => i.Tbranch == saccobranch).ToList();
+
+            var transdeductions = _context.ProductIntake.Where(d => d.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && d.TransDate >= startDate && d.TransDate <= enDate && transporters.Select(s=>s.TransCode.ToUpper()).Contains(d.Sno.ToUpper())
+            && d.TransactionType == TransactionType.Deduction && d.Qsupplied == 0).ToList();
+
+            var MilkBranchList = new List<ProductIntakeVm>();
+            transporters = transporters.Where(d => transdeductions.Select(s => s.Sno.ToUpper()).Contains(d.TransCode.ToUpper())).ToList();
+            if (!string.IsNullOrEmpty(filter) && !string.IsNullOrEmpty(condition))
+            {
+              
+                    if (condition == "TCode")
+                    {
+                        transporters = transporters.Where(i => i.TransCode.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "Name")
+                    {
+                        transporters = transporters.Where(i => i.TransName.ToUpper().Contains(filter.ToUpper()) ).ToList();
+                    }
+                
+            }
+            else
+            {
+                transdeductions = transdeductions.Where(d=> d.TransDate == date).ToList();
+            }
+
+            var grouptransporters = transporters.GroupBy(m => m.TransCode).ToList();
+                grouptransporters.ForEach(k => {
+                    var transdetails = k.FirstOrDefault();
+                    if (transporters.Count > 0)
+                    {
+                        var transdeductionsget = transdeductions.Where(d => d.Sno.ToUpper().Equals(transdetails.TransCode.ToUpper())).OrderBy(m => m.TransDate).ToList();
+
+                        if (transdeductionsget.Count > 0)
+                        {
+                            foreach (var items in transdeductionsget)
+                            {
+                                MilkBranchList.Add(new ProductIntakeVm
+                                {
+                                    Sno = transdetails.TransCode,
+                                    SupName = transdetails.TransName,
+                                    TransDate = items.TransDate,
+                                    ProductType = items.ProductType,
+                                    DR = items.DR,
+                                    Remarks = items.Remarks,
+                                    Branch = items.Branch
+                                });
+                            }
+                        }
+                    }
+                    
+                });
+            
+            
+            MilkBranchList = MilkBranchList.OrderByDescending(i => i.Sno).Take(15).ToList();
+            return Json(MilkBranchList);
+        }
+
         public void calcDefaultdeductions(ProductIntake collection )
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -831,45 +1020,6 @@ namespace EasyPro.Controllers
         }
         //start
        
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> PrintSupplierStatement([Bind("Id, Sno, TransDate, ProductType, Qsupplied, Ppu, CR, DR, Balance, Description, Remarks, AuditId, Auditdatetime, Branch, DrAccNo, CrAccNo, Print, SMS,Zone,MornEvening")] ProductIntakeVm productIntake)
-        {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            
-            var sno = productIntake.Sno;
-            long.TryParse(productIntake.Sno, out long supno);
-
-            if (supno < 1)
-            {
-                _notyf.Error("Sorry, Kindly provide supplier No.");
-                return RedirectToAction(nameof(CreateCorrection));
-            }
-            var suppliers = _context.DSuppliers.Where(s => s.Sno == sno && s.Scode == sacco);
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(auditId.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-
-            var supplier = suppliers.FirstOrDefault();
-            if (supplier == null)
-            {
-                _notyf.Error("Sorry, Supplier does not exist");
-                return RedirectToAction(nameof(CreateCorrection));
-            }
-            if (!supplier.Active || !supplier.Approval)
-            {
-                _notyf.Error("Sorry, Supplier must be approved and active");
-                return RedirectToAction(nameof(CreateCorrection));
-            }
-            var collection = productIntake;
-            //PrintStatement(collection);
-
-            return RedirectToAction(nameof(PrintSupplierStatement));
-        }
-
         //private IActionResult PrintStatement(ProductIntakeVm collection)
         //{
         //    PrintDocument printDocument = new PrintDocument();
@@ -1226,7 +1376,7 @@ namespace EasyPro.Controllers
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.SaccoCode = sacco;
                 productIntake.Balance = utilities.GetBalance(productIntake);
-                productIntake.Branch = transporters.Select(l=>l.Tbranch).ToString();
+                productIntake.Branch = productIntake.Branch;
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
@@ -1552,7 +1702,7 @@ namespace EasyPro.Controllers
                 o.TransDate >= startDate && o.TransDate <= endDate
                 && (o.Description == "Intake" || o.Description == "Correction")).Sum(d => d.Qsupplied);
 
-                string cummkgs = string.Format("{0:.###}", cumkg + productIntake.Qsupplied);
+                string cummkgs = string.Format("{0:.###}", cumkg);
                 var receiptDetails = new
                 {
                     companies.Name,
@@ -1565,7 +1715,9 @@ namespace EasyPro.Controllers
                     productIntake.SupName,
                     productIntake.Qsupplied,
                     cummkgs,
-                    loggedInUser
+                    loggedInUser,
+                    MornEvening = productIntake.MornEvening ?? "Mornnig",
+                    date = productIntake.TransDate
                 };
                 return Json(new
                 {

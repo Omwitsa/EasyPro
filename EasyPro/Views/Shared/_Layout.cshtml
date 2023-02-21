@@ -231,7 +231,7 @@
                                             <li>
                                                 <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
                                             </li>
-                                            @if (!ViewBag.setupRole)
+                                            @if (!ViewBag.setupRole && !ViewBag.isTanyakina)
                                             {
                                                 <li>
                                                     <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
@@ -398,8 +398,23 @@
                                             <li>
                                                 <a asp-controller="Report" asp-action="DownloadReport">Suppliers</a>
                                             </li>
+                                            @if (ViewBag.saccoReportsRole)
+                                            {
+                                                <li>
+                                                    <a asp-controller="DSuppliers" asp-action="SaccoSupplierSummery">Suppliers Summary</a>
+                                                </li>
+                                            }
+                                            @if (ViewBag.saccoReportsRole)
+                                            {
+                                                <li>
+                                                    <a asp-controller="DSuppliers" asp-action="SaccoSupplierSummerycounty">Suppliers Per County</a>
+                                                </li>
+                                            }
                                             <li>
                                                 <a asp-controller="Report" asp-action="DownloadTReport">Transporters</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="Report" asp-action="FlmdData">FLMD Report</a>
                                             </li>
                                             <li>
                                                 <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
@@ -792,15 +807,24 @@
                                         <a asp-controller="DSuppliers" asp-action="SaccoSupplierSummery">Suppliers Summary</a>
                                     </li>
                                 }
+                                @if (ViewBag.saccoReportsRole)
+                                {
+                                    <li>
+                                        <a asp-controller="DSuppliers" asp-action="SaccoSupplierSummerycounty">Suppliers Per County</a>
+                                    </li>
+                                }
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTReport">Transporters</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Report" asp-action="FlmdData">FLMD Report</a>
                                 </li>
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
                                 </li>
                                 @*<li>
-                                    <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
-                                </li>*@
+            <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
+        </li>*@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTransportersBalReport">Transporters Balancing</a>
                                 </li>

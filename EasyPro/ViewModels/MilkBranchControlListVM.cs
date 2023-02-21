@@ -32,4 +32,17 @@ namespace EasyPro.ViewModels
         public decimal Total { get; set; }
         public decimal Varriance { get; set; }
     }
+    public class MilkEnqury
+    {
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        public DateTime? TransDate { get; set; }
+        public string ProductType { get; set; }
+        public decimal? Qsupplied { get; set; }
+        public decimal? CR { get; set; }
+        public decimal? DR { get; set; }
+        public decimal? Balance { get; set; }
+        public string Description { get; set; }
+        public string Remarks { get; set; }
+        public DateTime Auditdatetime { get; set; }
+    }
 }

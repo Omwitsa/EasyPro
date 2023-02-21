@@ -282,6 +282,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, error occured while editing, try again");
                 return NotFound();
             }
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
 
@@ -293,7 +294,7 @@ namespace EasyPro.Controllers
                     dTransporter.Br = "A";
                     dTransporter.Freezed = "0";
                     dTransporter.ParentT = sacco;
-                    dTransporter.Tbranch = dTransporter.Tbranch;
+                    dTransporter.Tbranch = saccobranch;
                     _context.Update(dTransporter);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Transporter Edited successfully");

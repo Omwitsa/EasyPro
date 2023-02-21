@@ -84,40 +84,80 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var counties = _context.County.Select(c => c.Name).ToList();
             ViewBag.counties = new SelectList(counties);
-            var countySuppliers = _context.DSuppliers.ToList().GroupBy(s => s.County).ToList();
+            var countyPOS = _context.DCompanies.ToList().GroupBy(s => s.Province).ToList();
             var countySaccos = new List<CountySupplierSummery>();
             var totalSuppliers = 0;
             var totalMale = 0;
             var totalFemale = 0;
-
-            countySuppliers.ForEach(c =>
-            {
+            countyPOS.ForEach(h=> {
                 var saccoSuppliers = new List<SaccoSupplierSummery>();
                 var totalCountySuppliers = 0;
                 var totalCountyMale = 0;
                 var totalCountyFemale = 0;
-               
-                var groupedSuppliers = c.ToList().GroupBy(s => s.Scode).ToList();
-                groupedSuppliers.ForEach(s =>
-                {
-                    var total = s.Count();
-                    var male = s.Where(g => g.Type.ToLower().Equals("male")).Count();
-                    var female = s.Where(g => g.Type.ToLower().Equals("female")).Count();
-                    totalCountySuppliers += total;
-                    totalCountyMale += male;
-                    totalCountyFemale += female;
-                    saccoSuppliers.Add(new SaccoSupplierSummery
-                    {
-                        Sacco = s.Key,
-                        Suppliers = total,
-                        Male = male,
-                        Female = female
-                    });
+                var sacconame = _context.DCompanies.Where(m=>m.Province.ToUpper().Equals(h.Key.ToUpper())).ToList().GroupBy(s => s.Name).ToList();
+                sacconame.ForEach(g=> {
+                    //var getcountySuppliers = _context.DSuppliers.Where(j=>j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList().GroupBy(s => s.Scode).ToList();
+                    var getcountySuppliers = _context.DSuppliers.Where(j=>j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList();
+                    //getcountySuppliers.ForEach(s=> {
+                        var total = getcountySuppliers.Count();
+                        var male = getcountySuppliers.Where(g => g.Type.ToLower().Equals("male")).Count();
+                        var female = getcountySuppliers.Where(g => g.Type.ToLower().Equals("female")).Count();
+                        totalCountySuppliers += total;
+                        totalCountyMale += male;
+                        totalCountyFemale += female;
+                        saccoSuppliers.Add(new SaccoSupplierSummery
+                        {
+                            Sacco = g.Key,
+                            Suppliers = total,
+                            Male = male,
+                            Female = female
+                        });
+                    //});
+
                 });
+                //var countySuppliers = _context.DSuppliers.ToList().GroupBy(s => s.Scode).ToList();
+                //countySuppliers.ForEach(c =>
+                //{
+                //    var saccoSuppliers = new List<SaccoSupplierSummery>();
+                //    var totalCountySuppliers = 0;
+                //    var totalCountyMale = 0;
+                //    var totalCountyFemale = 0;
+               
+                //    var groupedSuppliers = c.ToList().GroupBy(s => s.Scode).ToList();
+                //    groupedSuppliers.ForEach(s =>
+                //    {
+                //        var total = s.Count();
+                //        var male = s.Where(g => g.Type.ToLower().Equals("male")).Count();
+                //        var female = s.Where(g => g.Type.ToLower().Equals("female")).Count();
+                //        totalCountySuppliers += total;
+                //        totalCountyMale += male;
+                //        totalCountyFemale += female;
+                //        saccoSuppliers.Add(new SaccoSupplierSummery
+                //        {
+                //            Sacco = s.Key,
+                //            Suppliers = total,
+                //            Male = male,
+                //            Female = female
+                //        });
+                //    });
+
+                //    countySaccos.Add(new CountySupplierSummery
+                //    {
+                //        County = c.Key,
+                //        suppliers = saccoSuppliers,
+                //        TotalSupplies = totalCountySuppliers,
+                //        TotalMale = totalCountyMale,
+                //        TotalFemale = totalCountyFemale
+                //    });
+
+                //    totalSuppliers += totalCountySuppliers;
+                //    totalMale += totalCountyMale;
+                //    totalFemale += totalCountyFemale;
+                //});
 
                 countySaccos.Add(new CountySupplierSummery
                 {
-                    County = c.Key,
+                    County = h.Key,
                     suppliers = saccoSuppliers,
                     TotalSupplies = totalCountySuppliers,
                     TotalMale = totalCountyMale,
@@ -127,6 +167,7 @@ namespace EasyPro.Controllers
                 totalSuppliers += totalCountySuppliers;
                 totalMale += totalCountyMale;
                 totalFemale += totalCountyFemale;
+
             });
 
             var supplierSummery = new SupplierSummeryVm
@@ -138,7 +179,72 @@ namespace EasyPro.Controllers
             };
             return View(supplierSummery);
         }
+        public async Task<IActionResult> SaccoSupplierSummerycounty()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
+            var counties = _context.County.Select(c => c.Name).ToList();
+            ViewBag.counties = new SelectList(counties);
+            var countyPOS = _context.DCompanies.ToList().GroupBy(s => s.Province).ToList();
+            var gSuppliers = _context.DSuppliers.ToList();
+            var countySaccos = new List<CountySupplierSummery>();
+            var totalSuppliers = 0;
+            var totalMale = 0;
+            var totalFemale = 0;
+            countyPOS.ForEach(h => {
+                var saccoSuppliers = new List<SaccoSupplierSummery>();
+                var totalCountySuppliers = 0;
+                var totalCountyMale = 0;
+                var totalCountyFemale = 0;
+                var sacconame = _context.DCompanies.Where(m => m.Province.ToUpper().Equals(h.Key.ToUpper())).ToList().GroupBy(s => s.Name).ToList();
+                sacconame.ForEach(g => {
+                   // var getcountySuppliers = _context.DSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList().GroupBy(s => s.Scode).ToList();
+                    var getcountySuppliers = gSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList();
+                    //getcountySuppliers.ForEach(s => {
+                        var total = getcountySuppliers.Count();
+                        var male = getcountySuppliers.Where(g => g.Type.ToLower().Equals("male")).Count();
+                        var female = getcountySuppliers.Where(g => g.Type.ToLower().Equals("female")).Count();
+                        totalCountySuppliers += total;
+                        totalCountyMale += male;
+                        totalCountyFemale += female;
+                        saccoSuppliers.Add(new SaccoSupplierSummery
+                        {
+                            Sacco = g.Key,
+                            Suppliers = total,
+                            Male = male,
+                            Female = female
+                        });
+                    //});
+
+                });
+
+                countySaccos.Add(new CountySupplierSummery
+                {
+                    County = h.Key,
+                    suppliers = saccoSuppliers,
+                    TotalSupplies = totalCountySuppliers,
+                    TotalMale = totalCountyMale,
+                    TotalFemale = totalCountyFemale
+                });
+
+                totalSuppliers += totalCountySuppliers;
+                totalMale += totalCountyMale;
+                totalFemale += totalCountyFemale;
+
+            });
+
+            var supplierSummery = new SupplierSummeryVm
+            {
+                countySuppliers = countySaccos,
+                TotalSupplies = totalSuppliers,
+                TotalMale = totalMale,
+                TotalFemale = totalFemale
+            };
+            return View(supplierSummery);
+        }
         public async Task<IActionResult> SaccoSuppliers(string id)
         {
 
@@ -147,7 +253,56 @@ namespace EasyPro.Controllers
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(id.ToUpper()));
             return View(suppliers);
         }
+        public async Task<IActionResult> SaccoSuppliersdetails(string id)
+        {
 
+            utilities.SetUpPrivileges(this);
+            ViewBag.sacco = id;
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(id.ToUpper()));
+            return View();
+        }
+        [HttpPost] 
+        public JsonResult getdetails([FromBody] CountyReportsVM CountyReport)
+        {
+            //var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            var month = new DateTime(CountyReport.date2.Year, CountyReport.date2.Month, 1);
+            var startDate = month.AddMonths(-1);
+            var endDate = month.AddDays(-1);
+
+
+            var checkbranchenquiry = _context.ProductIntake.Where(i => i.SaccoCode.ToUpper().Equals(CountyReport.sacco.ToUpper())
+            && i.TransDate >= startDate && i.TransDate <= CountyReport.date2 && i.Description!= "Transport").OrderByDescending(l => l.ProductType).ToList();
+            var CountyReports = new List<ProductIntakelist>();
+            if (checkbranchenquiry.Count > 0)
+            {
+                var transGroups = checkbranchenquiry.GroupBy(t => t.ProductType).ToList();
+                transGroups.ForEach(l =>
+                {
+                    var intakes = l.FirstOrDefault();
+                    var productIntakesdetails = checkbranchenquiry.Where(b=>b.ProductType.ToUpper().Equals(intakes.ProductType.ToUpper())).ToList();
+                    CountyReports.Add(new ProductIntakelist
+                    {
+                        Id = intakes.Id,
+                        Type = l.Key,
+                        Amount = ((productIntakesdetails.Sum(v=>v.CR) ?? 0 )- (productIntakesdetails.Sum(c=>c.DR) ?? 0)),
+
+                    });
+                    _context.SaveChanges();
+                });
+            }
+
+            CountyReports = CountyReports.ToList();
+
+            return Json(new
+            {
+                CountyReports,
+                Expense = checkbranchenquiry.Sum(l => l.DR),
+                Income = checkbranchenquiry.Sum(l => l.CR),
+            });
+        }
         // GET: DSuppliers/Details/5
         public async Task<IActionResult> Details(long? id)
         {

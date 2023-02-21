@@ -1,5 +1,4 @@
-﻿@model EasyPro.ViewModels.ProductIntakeVm
-@{
+﻿@{
     ViewData["Title"] = "PrintSupplierStatement";
 }
 <div class="row">
@@ -13,12 +12,7 @@
                     </div>
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label class="control-label">Zone</label>
-                                <select id="zone" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones">
-                                    <option value=""></option>
-                                </select>
-                            </div>
+                          
                         </div>
                     </div>
                 </div>
@@ -29,10 +23,9 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Branch</label>
-                                    <select id="branch" asp-for="Branch" class="form-control" asp-items="@ViewBag.Branch" required>
+                                    <select id="branch" class="form-control" asp-items="@ViewBag.branches" required>
                                         <option value=""></option>
                                     </select>
-                                    <span asp-validation-for="Branch" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -45,21 +38,19 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">End Month Date</label>
-                                    <input id="date" type="date" asp-for="TransDate" class="form-control" required />
-                                    <span asp-validation-for="TransDate" class="text-danger"></span>
+                                    <input id="date" type="date" class="form-control" required />
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> 
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Suppler Number</label>
-                                    <input id="sno" asp-for="Sno" class="form-control" required />
-                                    <span asp-validation-for="Sno" class="text-danger"></span>
+                                    <input id="sno" class="form-control" required />
                                 </div>
                             </div>
                         </div>
@@ -74,54 +65,107 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> 
                 <hr />
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Print</button>
+                        <a id="print" class="btn btn-success">Print</a>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script type="text/javascript">
-    $(function () {
-            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
-            if (checkiftoenable === 0) {
-                $('#zone1').hide();
-            }
-            else {
-                $('#zone1').show();
-               
-        }
-        $('#sno').on('keyup', function () {
-            getSelectedDateIntakes();
-        });
-        $('#zone').change(function () {
-            getSelectedDateIntakes();
-        });
-        function getSelectedDateIntakes() {
-            var zone = $("#zone").val();
-            var sno = $("#sno").val().toUpperCase();
-            $.ajax(
-                {
-                    type: 'GET',
-                    url: "SelectedName?zone=" + zone + "&sno=" + sno,
-                    contentType: 'application/json',
-                    success: function (response) {
-                        $("#name").val(response);
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            $('#sno').on('keyup', function () {
+                var sno = $("#sno").val();
+                var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
+                var suppliers = suppliers.filter(p => p.Sno === sno);
+                if (suppliers[0]) {
+                    $("#name").val(suppliers[0].Names);
+                }
+            });
 
+            $('#print').on('click', function () {
+                var branch = $("#branch").val();
+                var date = $("#date").val();
+                var sno = $("#sno").val();
+
+                var filter = {
+                    branch: branch,
+                    date: date,
+                    code: sno,
+                };
+
+                if (sno && branch && date) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "printSupplierStatement",
+                        contentType: 'application/json',
+                        data: JSON.stringify(filter),
+                        success: function (response) {
+                            $("#branch").val('');
+                            $("#date").val('');
+                            $("#sno").val('');
+                            var content = generateHTML(response, branch);
+                            printJS({
+                                printable: content,
+                                type: 'raw-html',
+                                style: '.blueText {color:blue;}'
+                            });
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            });
+
+            function generateHTML(response, branch) {
+                var mevng = $('#mevng').val();
+                var date = new Date().toLocaleDateString("en-US");
+                var supplierSummery = response.supplies.map(s => {
+                    let transDate = new Date(s.date).toLocaleDateString();
+                    return `<tr>
+                                        <td>${transDate}</td>
+                                        <td>${s.qnty}</td>
+                                        <td>${s.Price}</td>
+                                        <td>${s.payable}</td>
+                                    </tr>`;
                 });
-        }
+                var htmlSupplierSummery = supplierSummery.join('');
+                debugger
+                var content = `<div class="row" id="printMe">
+                                        <div class="col-xs-12 text-center">
+                                             <h4>
+                                                ${response.company.Name}</br>
+                                                Adress: ${response.company.Adress}</br>
+                                                Tell: ${response.company.PhoneNo}</br>
+                                                Town: ${response.company.Town}</br>
+                                                Branch: ${branch}
+                                              </h4>
+                                             <h5>
+                                                *************************
+                                                
+                                            </h5>
+                                            <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                                **i***********************
+                                            <hr>
+                                        </div>
+                                   </div>`;
+
+                return content;
+            }
         });
     </script>
 }
+

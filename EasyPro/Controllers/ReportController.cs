@@ -49,6 +49,9 @@ namespace EasyPro.Controllers
         public IEnumerable<DBranch> branchobj { get; set; }
         public IEnumerable<TransportersBalancing> TransportersBalancingobj { get; set; }
         public IEnumerable<DispatchBalancing> DispatchBalancingobj { get; set; }
+        public IEnumerable<FLMD> FLMDobj { get; set; }
+        public IEnumerable<FLMDCrops> FLMDCropsobj { get; set; }
+        public IEnumerable<FLMDLand> FLMDLandobj { get; set; }
 
         [HttpGet]
         public IActionResult DownloadReport()
@@ -102,6 +105,174 @@ namespace EasyPro.Controllers
             GetInitialValues();
             return View();
         }
+        public IActionResult FlmdData(long? id)
+        {
+            utilities.SetUpPrivileges(this);
+           
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var startDate = month.AddMonths(0);
+            var endDate = month.AddMonths(1).AddDays(-1);
+            string sno = null;
+            var flmdData = Gedflmdfarmers(startDate, endDate,sno);
+            return View(new FlmdDataVM { farmerdetails= flmdData.OrderBy(m=>m.Sno)});
+        }
+
+        [HttpGet]
+        public JsonResult Selectemaxloan(string sno)
+        {
+            utilities.SetUpPrivileges(this);
+
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var startDate = month.AddMonths(0);
+            var endDate = month.AddMonths(1).AddDays(-1);
+            var flmdData = Gedflmdfarmers(startDate, endDate,sno);
+            return Json(flmdData.Sum(b=>b.Total));
+        }
+        private List<farmerdetail> Gedflmdfarmers(DateTime startDate, DateTime endDate, string? sno)
+        {
+            decimal Total = 0;
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+
+            var flmdsup = _context.FLMD.Where(j => j.SaccoCode == sacco).Select(m => m.Sno).Distinct().ToList();
+            var getactivesup1 = _context.ProductIntake.Where(M => M.TransDate >= startDate && M.TransDate <= endDate && M.SaccoCode == sacco).ToList();
+            var getactivesup = getactivesup1.Select(m => m.Sno).Distinct().ToList();
+            var supplierslist = _context.DSuppliers.Where(M => M.Scode == sacco && (flmdsup.Contains(M.Sno) || getactivesup.Contains(M.Sno))).ToList().OrderBy(s => s.Sno).GroupBy(n => n.Sno).ToList();// .ToList();
+
+            
+                //return false;
+            //}
+            var FlmdData = new List<farmerdetail>();
+            if (supplierslist.Count > 0)
+            {
+                supplierslist.ForEach(l =>
+                {
+                    var supplier = _context.DSuppliers.FirstOrDefault(m => m.Scode == sacco && m.Sno.ToUpper().Equals(l.Key.ToUpper()));
+                    decimal milk = 0, assets = 0, land = 0, crops = 0, eductaion = 0, animals = 0;
+                    var productIntakes = getactivesup1.Where(M => M.Sno.ToUpper().Equals(supplier.Sno.ToUpper())).ToList();
+                    var flmdanimalandeducation = _context.FLMD.FirstOrDefault(k => k.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && k.SaccoCode == sacco);
+                    var flmdcrops = _context.FLMDCrops.FirstOrDefault(k => k.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && k.SaccoCode == sacco);
+                    var flmdland = _context.FLMDLand.FirstOrDefault(k => k.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && k.SaccoCode == sacco);
+
+                    if (productIntakes.Count > 0)
+                    {
+                        milk = (productIntakes.Sum(d => d.CR) ?? 0) - (productIntakes.Sum(d => d.DR) ?? 0);
+                    }
+
+                    //animals = (decimal)(((double)flmdanimalandeducation.Sum(g => g.ExoticCattle)*40000)+((double)flmdanimalandeducation.Sum(g => g.IndigenousCattle)*20000)+((double)flmdanimalandeducation.Sum(g => g.Sheep)*6000)+((double)flmdanimalandeducation.Sum(g => g.Goats)*5000)+((double)flmdanimalandeducation.Sum(g => g.Donkeys)*4000)+((double)flmdanimalandeducation.Sum(g => g.Pigs)*8000));
+                    if (flmdanimalandeducation != null)
+                    {
+                        animals = (decimal)(((double)(flmdanimalandeducation.ExoticCattle ?? 0) * 40000) + ((double)(flmdanimalandeducation.IndigenousCattle ?? 0) * 20000) + ((double)(flmdanimalandeducation.Sheep ?? 0) * 6000) + ((double)(flmdanimalandeducation.Goats ?? 0) * 5000) + ((double)(flmdanimalandeducation.Donkeys ?? 0) * 4000) + ((double)(flmdanimalandeducation.Pigs ?? 0) * 8000));
+                        eductaion = (decimal)(((double)(flmdanimalandeducation.Graduates ?? 0) * 120000) + ((double)(flmdanimalandeducation.UnderGraduates ?? 0) * 80000) + ((double)(flmdanimalandeducation.Secondary ?? 0) * 53000) + ((double)(flmdanimalandeducation.Primary ?? 0) * 26000));
+                    }
+
+                    //eductaion = (decimal)(((double)flmdanimalandeducation.Sum(g => g.Graduates) * 120000) + ((double)flmdanimalandeducation.Sum(g => g.UnderGraduates) * 80000) + ((double)flmdanimalandeducation.Sum(g => g.Secondary) * 53000) + ((double)flmdanimalandeducation.Sum(g => g.Primary) * 26000));
+                    if (flmdland != null)
+                    {
+                        crops = 120000;
+                    }
+
+                    //land = (decimal)((double)flmdland.Sum(g => g.TotalAcres) * 1200000);
+                    if (flmdland != null)
+                    {
+                        land = (decimal)((double)flmdland.TotalAcres * 1200000);
+                    }
+
+                    assets = (animals - eductaion + crops + land) * (decimal)(0.01);
+                    Total = milk + assets;
+                    if (Total > 0)
+                    {
+                        FlmdData.Add(new farmerdetail
+                        {
+                            Sno = supplier.Sno,
+                            Name = supplier.Names,
+                            Phone = supplier.PhoneNo,
+                            MilkKgs = milk,
+                            Assets = assets,
+                            Total = Total,
+                        });
+                        _context.SaveChanges();
+                    }
+
+                });
+            }
+            return FlmdData;
+
+        }
+
+        [HttpPost]
+        public IActionResult FlmdDataExcel([Bind("DateFrom,DateTo")] FilterVm filter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+            suppliersobj = _context.DSuppliers
+                .Where(p => p.Scode == sacco)
+                .OrderBy(s => s.Sno);
+            return FlmdDataDownloadExcel();
+        }
+        public IActionResult FlmdDataDownloadExcel()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("suppliersobj");
+                var currentRow = 1;
+                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+                foreach (var emp in companyobj)
+                {
+                    worksheet.Cell(currentRow, 2).Value = emp.Name;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Town;
+                    currentRow++;
+                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                }
+                currentRow = 5;
+                worksheet.Cell(currentRow, 2).Value = "Flmd Loan Register Report";
+
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "Phone No";
+                worksheet.Cell(currentRow, 4).Value = "Milk Amount";
+                worksheet.Cell(currentRow, 5).Value = "Asset Amount";
+                worksheet.Cell(currentRow, 6).Value = "Maximum Loan Amount";
+                int sum = 0, sum2 = 0;
+                sum2 = suppliersobj.Count();
+
+                var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                var startDate = month.AddMonths(0);
+                var endDate = month.AddMonths(1).AddDays(-1);
+                string sno = null;
+                var flmdData = Gedflmdfarmers(startDate, endDate,sno);
+                decimal totals = 0;
+                flmdData.ForEach(c=> {
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = c.Sno;
+                    worksheet.Cell(currentRow, 2).Value = c.Name;
+                    worksheet.Cell(currentRow, 3).Value = "'"+c.Phone;
+                    worksheet.Cell(currentRow, 4).Value = c.MilkKgs;
+                    worksheet.Cell(currentRow, 5).Value = c.Assets;
+                    worksheet.Cell(currentRow, 6).Value = c.Total;
+                    totals += c.Total;
+                });
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "Total Maximum Loan:";
+                worksheet.Cell(currentRow, 6).Value = totals;
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Flmd Loan Report Register.xlsx");
+                }
+            }
+        }
+
+
         public IActionResult DownloadcorrectionIntakeReport()
         {
             utilities.SetUpPrivileges(this);
@@ -130,13 +301,19 @@ namespace EasyPro.Controllers
             ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
 
             var Transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
+            if (user.AccessLevel == AccessLevel.Branch)
+                Transporters = Transporters.Where(i => i.Tbranch == saccoBranch).ToList();
             ViewBag.Transporters = new SelectList(Transporters, "TransName", "TransName");
 
             var Transportersdetails = _context.DTransporters.Where(i => i.ParentT == sacco).ToList();
+            if (user.AccessLevel == AccessLevel.Branch)
+                Transportersdetails = Transportersdetails.Where(i => i.Tbranch == saccoBranch).ToList();
             ViewBag.Transportersdetails = Transportersdetails;
 
-            var bankname = _context.DPayrolls.Where(i => i.SaccoCode == sacco).OrderBy(m => m.Bank).Select(h=>h.Bank).Distinct().ToList();
-            ViewBag.bankname = new SelectList(bankname);
+            var bankname = _context.DPayrolls.Where(i => i.SaccoCode == sacco).ToList();
+            if (user.AccessLevel == AccessLevel.Branch)
+                bankname = bankname.Where(i => i.Branch == saccoBranch).ToList();
+            ViewBag.bankname = new SelectList(bankname.OrderBy(m => m.Bank).Select(h => h.Bank).Distinct());
         }
 
         [HttpPost]
@@ -144,8 +321,6 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            //var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-            //var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
             suppliersobj = _context.DSuppliers.Where(u => u.Scode == sacco);
             return Excel();
         }
@@ -167,8 +342,6 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
-            //var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-            //var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
             transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
             return TransporterExcel();
         }
@@ -577,6 +750,7 @@ namespace EasyPro.Controllers
             var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
             var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
             productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
+            
             return DeductionsExcel();
         }
 
@@ -610,7 +784,7 @@ namespace EasyPro.Controllers
             var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
             var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
 
-            productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
+            productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco).OrderBy(n=>n.TransDate);
             return TDeductionsExcel();
         }
 
@@ -636,7 +810,6 @@ namespace EasyPro.Controllers
                 isRedirect = true
             });
         }
-
         [HttpGet]
         public IActionResult IntakePdf(DateTime? dateFrom, DateTime? dateTo)
         {
@@ -649,7 +822,6 @@ namespace EasyPro.Controllers
             var pdfFile = _reportProvider.GetIntakesPdf(productIntakeobj, company, title, TransactionType.Intake);
             return File(pdfFile, "application/pdf");
         }
-
         [HttpPost]
         public IActionResult TIntake([Bind("DateFrom,DateTo")] FilterVm filter)
         {
@@ -661,7 +833,6 @@ namespace EasyPro.Controllers
             transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
             return TIntakeExcel(DateFrom, DateTo);
         }
-
         [HttpPost]
         public JsonResult TIntakePdf([FromBody] FilterVm filter)
         {
@@ -671,8 +842,6 @@ namespace EasyPro.Controllers
                 isRedirect = true
             });
         }
-
-
         [HttpGet]
         public IActionResult TIntakePdf(DateTime? dateFrom, DateTime? dateTo)
         {
@@ -843,7 +1012,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 1).Value = emp.Code;
                     var TName = _context.DTransporters.FirstOrDefault(u => u.TransCode == emp.Code && u.ParentT == sacco);
                     worksheet.Cell(currentRow, 2).Value = TName.TransName;
-                    worksheet.Cell(currentRow, 3).Value = "'" + TName.CertNo;
+                    worksheet.Cell(currentRow, 3).Value = "" + TName.CertNo;
                     worksheet.Cell(currentRow, 4).Value = emp.QntySup;
                     worksheet.Cell(currentRow, 5).Value = emp.Amnt;
                     worksheet.Cell(currentRow, 6).Value = emp.Subsidy;
@@ -861,7 +1030,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 18).Value = emp.Totaldeductions;
                     worksheet.Cell(currentRow, 19).Value = emp.NetPay;
                     worksheet.Cell(currentRow, 20).Value = emp.BankName;
-                    worksheet.Cell(currentRow, 21).Value = "'" + emp.AccNo;
+                    worksheet.Cell(currentRow, 21).Value = "" + emp.AccNo;
                     worksheet.Cell(currentRow, 22).Value = emp.Branch;
                 }
                 currentRow++;
@@ -997,6 +1166,7 @@ namespace EasyPro.Controllers
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("dpayrollobj");
+
                 var currentRow = 1;
                 companyobj = _context.DCompanies.Where(u => u.Name == sacco);
                 foreach (var emp in companyobj)
@@ -1082,6 +1252,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
 
                     //long.TryParse(emp.Sno, out long sno);
+
                     var TName = _context.DSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == sacco);
                     worksheet.Cell(currentRow, 2).Value = TName.Names;
                     worksheet.Cell(currentRow, 3).Value = "'" + emp.IdNo;
@@ -1197,7 +1368,7 @@ namespace EasyPro.Controllers
                         worksheet.Cell(currentRow, 2).Value = emp.Names;
                         worksheet.Cell(currentRow, 3).Value = emp.Regdate;
                         worksheet.Cell(currentRow, 4).Value = emp.IdNo;
-                        worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
+                        worksheet.Cell(currentRow, 5).Value = "'" + emp.PhoneNo;
                         worksheet.Cell(currentRow, 6).Value = emp.Bcode;
                         worksheet.Cell(currentRow, 7).Value = emp.AccNo;
                         worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
@@ -1289,7 +1460,7 @@ namespace EasyPro.Controllers
                         worksheet.Cell(currentRow, 2).Value = emp.Names;
                         worksheet.Cell(currentRow, 3).Value = emp.Regdate;
                         worksheet.Cell(currentRow, 4).Value = emp.IdNo;
-                        worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
+                        worksheet.Cell(currentRow, 5).Value = "'" + emp.PhoneNo;
                         worksheet.Cell(currentRow, 6).Value = emp.Bcode;
                         worksheet.Cell(currentRow, 7).Value = emp.AccNo;
                         worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
@@ -1320,6 +1491,7 @@ namespace EasyPro.Controllers
                 }
             }
         }
+       
         public IActionResult Excel()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2155,7 +2327,8 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
                 currentRow = 5;
-                worksheet.Cell(currentRow, 2).Value = "Suppliers Deductions Report";
+                var enddate = productIntakeobj.FirstOrDefault();
+                worksheet.Cell(currentRow, 2).Value = "Suppliers Deductions Report For: "+ enddate.TransDate.ToString("dd/MM/yyy");
 
                 currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
@@ -2164,41 +2337,55 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 4).Value = "ProductType";
                 worksheet.Cell(currentRow, 5).Value = "Amount";
                 worksheet.Cell(currentRow, 6).Value = "Remarks";
-                int sum = 0, sum2 = 0;
-                sum2 = productIntakeobj.Count();
+                worksheet.Cell(currentRow, 7).Value = "Station";
+                decimal? sum2 = 0;
                 productIntakeobj = productIntakeobj.OrderBy(p => p.Branch).ToList();
                 var branches = productIntakeobj.GroupBy(b => b.Branch).ToList();
                 branches.ForEach(s =>
                 {
+                    
                     var branchname = s.FirstOrDefault();
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = branchname.Branch;
-                    var suppliers = productIntakeobj.Where(k => k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
+                    
+                    var supplierslist = productIntakeobj.Where(k => k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
                     .OrderBy(h => h.Sno).ToList();
-                    sum = suppliers.Count();
-                    foreach (var emp in productIntakeobj)
-                    {
-                        var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
-                        if (TransporterExist > 0)
+                    var dedutciontype = supplierslist.GroupBy(d=>d.ProductType).ToList();
+                    dedutciontype.ForEach(w => {
+                        var deduction = w.FirstOrDefault();
+                        decimal? sum = 0;
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = deduction.ProductType;
+                        var suppliers = supplierslist.Where(r=>r.ProductType.ToUpper().Equals(deduction.ProductType.ToUpper()));
+                        foreach (var emp in suppliers)
                         {
-                            currentRow++;
-                            worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                            var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
-                            foreach (var ann in TName)
-                                worksheet.Cell(currentRow, 2).Value = ann.Names;
-                            worksheet.Cell(currentRow, 3).Value = emp.TransDate;
-                            worksheet.Cell(currentRow, 4).Value = emp.ProductType;
-                            worksheet.Cell(currentRow, 5).Value = emp.DR;
-                            worksheet.Cell(currentRow, 6).Value = emp.Remarks;
-                        }
-                    }
+                            var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
+                            if (TransporterExist > 0)
+                            {
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                                var TName = _context.DSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == sacco);
+                                worksheet.Cell(currentRow, 2).Value = TName.Names;
+                                worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                                worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                                worksheet.Cell(currentRow, 5).Value = emp.DR;
+                                worksheet.Cell(currentRow, 6).Value = emp.Remarks;
+                                worksheet.Cell(currentRow, 7).Value = emp.Branch;
+                                sum += emp.DR;
 
-                currentRow++;
-                worksheet.Cell(currentRow, 1).Value = "No of Suppliers:";
-                worksheet.Cell(currentRow, 2).Value = sum;
+                            }
+                        }
+
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = "Total "+ deduction.ProductType  + " Amount: ";
+                        worksheet.Cell(currentRow, 2).Value = sum;
+                        sum2 += sum;
+                    });
+               
             });
             currentRow++;
-            worksheet.Cell(currentRow, 1).Value = "Total Suppliers:";
+            currentRow++;
+            worksheet.Cell(currentRow, 1).Value = "Grand Total Amount: ";
             worksheet.Cell(currentRow, 2).Value = sum2;
             using (var stream = new MemoryStream())
                 {
@@ -2229,7 +2416,8 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
                 currentRow = 5;
-                worksheet.Cell(currentRow, 2).Value = "Transporters Deductions Report";
+                var enddate = productIntakeobj.FirstOrDefault();
+                worksheet.Cell(currentRow, 2).Value = "Transporters Deductions Report For: "+ enddate.TransDate.ToString("dd/MM/yyy");
 
                 currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "TCode";
@@ -2238,24 +2426,54 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 4).Value = "ProductType";
                 worksheet.Cell(currentRow, 5).Value = "Amount";
                 worksheet.Cell(currentRow, 6).Value = "Remarks";
-                decimal? sum = 0;
-                foreach (var emp in productIntakeobj)
-                {
-                    var TransporterExist = _context.DTransporters.Where(u => u.TransCode == emp.Sno).Count();
-                    if (TransporterExist > 0)
+                worksheet.Cell(currentRow, 7).Value = "Station";
+                decimal? sum =0;
+
+                productIntakeobj = productIntakeobj.OrderBy(p => p.Branch).ToList();
+                var branches = productIntakeobj.GroupBy(b => b.Branch).ToList();
+                branches.ForEach(s => {
+
+                    
+                    var branchname = s.FirstOrDefault();
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = branchname.Branch;
+                    var transporterslist = productIntakeobj.Where(k => k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
+                    .OrderBy(h => h.Sno).ToList();
+                    var dedutciontype = transporterslist.GroupBy(d => d.ProductType).ToList();
+                    dedutciontype.ForEach(w =>
                     {
+                        decimal? sum1 = 0;
+                        var deduction = w.FirstOrDefault();
+                        decimal? sum = 0;
                         currentRow++;
-                        worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                        var TName = _context.DTransporters.Where(u => u.TransCode == emp.Sno && u.ParentT == sacco);
-                        foreach (var ann in TName)
-                            worksheet.Cell(currentRow, 2).Value = ann.TransName;
-                        worksheet.Cell(currentRow, 3).Value = emp.TransDate;
-                        worksheet.Cell(currentRow, 4).Value = emp.ProductType;
-                        worksheet.Cell(currentRow, 5).Value = emp.DR;
-                        worksheet.Cell(currentRow, 6).Value = emp.Remarks.ToString();
-                        sum += (emp.DR);
-                    }
-                }
+                        worksheet.Cell(currentRow, 2).Value = deduction.ProductType;
+                        var transporters = transporterslist.Where(r => r.ProductType.ToUpper().Equals(deduction.ProductType.ToUpper()));
+                        foreach (var emp in transporters)
+                        {
+                            var TransporterExist = _context.DTransporters.Where(u => u.TransCode == emp.Sno).Count();
+                            if (TransporterExist > 0)
+                            {
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                                var TName = _context.DTransporters.FirstOrDefault(u => u.TransCode == emp.Sno && u.ParentT == sacco);
+                                worksheet.Cell(currentRow, 2).Value = TName.TransName;
+                                worksheet.Cell(currentRow, 3).Value = emp.TransDate;
+                                worksheet.Cell(currentRow, 4).Value = emp.ProductType;
+                                worksheet.Cell(currentRow, 5).Value = emp.DR;
+                                worksheet.Cell(currentRow, 6).Value = emp.Remarks.ToString();
+                                worksheet.Cell(currentRow, 7).Value = emp.Branch;
+                                sum1 += emp.DR;
+                            }
+                        }
+
+                        currentRow++;
+                        worksheet.Cell(currentRow, 4).Value = "Total " + deduction.ProductType + " Amount: ";
+                        worksheet.Cell(currentRow, 5).Value = sum1;
+                        sum += sum1;
+                    });
+                        
+                });
+                
                 currentRow++;
                 worksheet.Cell(currentRow, 4).Value = "Total Amount";
                 worksheet.Cell(currentRow, 5).Value = sum;

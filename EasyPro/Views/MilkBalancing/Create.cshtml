@@ -258,16 +258,23 @@
                 let totalQnty = 0;
                 $("#balance").empty();
                 suppliedItems.forEach(j => {
+                    var date = j.TransDate;
+                    var dd1 = new Date(date).toLocaleDateString();
                     itemTableRows.push(`<tr>
 				            <td>${j.Sno}</td>
-                            <td>${j.TransDate}</td>
+                            <td>${dd1}</td>
                             <td>${j.ProductType}</td>
                             <td>${j.Qsupplied}</td>
 			            </tr>`);
 
                     totalQnty += j.Qsupplied;
                 });
-                $("#totalkgs").val(totalQnty);
+                var totalkgs = Math.round(Number(totalQnty) * 10) / 10;
+                totalkgs = totalkgs + "";
+                if (totalkgs.indexOf('.') == -1) {
+                    totalkgs = totalkgs + '.0';
+                }
+                $("#totalkgs").val(totalkgs + "");
                 $('#balance').html(itemTableRows);
                 populateVariance();
             }
@@ -283,7 +290,12 @@
                 total = total ? total : 0;
                 let variance = actual - total;
                 variance = variance.toFixed(2);
-                $("#varriance").val(variance);
+                var totalvariancekgs = Math.round(Number(variance) * 10) / 10;
+                totalvariancekgs = totalvariancekgs + "";
+                if (totalvariancekgs.indexOf('.') == -1) {
+                    totalvariancekgs = totalvariancekgs + '.0';
+                }
+                $("#varriance").val(totalvariancekgs);
             }
         });
 </script>
