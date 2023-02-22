@@ -98,11 +98,13 @@
                 var branch = $("#branch").val();
                 var date = $("#date").val();
                 var sno = $("#sno").val();
+                var name = $("#name").val();
 
                 var filter = {
                     branch: branch,
                     date: date,
                     code: sno,
+                    name: name
                 };
 
                 if (sno && branch && date) {
@@ -115,7 +117,7 @@
                             $("#branch").val('');
                             $("#date").val('');
                             $("#sno").val('');
-                            var content = generateHTML(response, branch);
+                            var content = generateHTML(response, filter);
                             printJS({
                                 printable: content,
                                 type: 'raw-html',
@@ -130,9 +132,9 @@
                 }
             });
 
-            function generateHTML(response, branch) {
+            function generateHTML(response, filter) {
                 var mevng = $('#mevng').val();
-                var date = new Date().toLocaleDateString("en-US");
+                var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
                 var supplierSummery = response.supplies.map(s => {
                     let transDate = new Date(s.date).toLocaleDateString();
                     return `<tr>
@@ -142,8 +144,42 @@
                                         <td>${s.payable}</td>
                                     </tr>`;
                 });
-                var htmlSupplierSummery = supplierSummery.join('');
-                debugger
+                var strSupplierSummery = supplierSummery.join('');
+                var htmlSupplierSummery = `<table>
+                            <thead>
+                                <tr>
+                                    <th> DATE </th>
+                                    <th> QNTY </th>
+                                    <th> PRICE </th>
+                                    <th> PAYABLE </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>${strSupplierSummery}</tbody>
+                           </table>`;
+
+                // Deductions
+                var deductionSummery = response.deductions.map(s => {
+                    let transDate = new Date(s.TransDate).toLocaleDateString();
+                    return `<tr>
+                                                <td>${transDate}</td>
+                                                <td>${s.DR}</td>
+                                                <td>${s.Description}</td>
+                                            </tr>`;
+                });
+                var strDeductionSummery = deductionSummery.join('');
+                var htmlDeductionSummery = `<table>
+                                    <thead>
+                                        <tr>
+                                            <th> DATE </th>
+                                            <th> AMOUNT </th>
+                                            <th> DESCRIPTION </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>${strDeductionSummery}</tbody>
+                                   </table>`;
+
                 var content = `<div class="row" id="printMe">
                                         <div class="col-xs-12 text-center">
                                              <h4>
@@ -151,14 +187,38 @@
                                                 Adress: ${response.company.Adress}</br>
                                                 Tell: ${response.company.PhoneNo}</br>
                                                 Town: ${response.company.Town}</br>
-                                                Branch: ${branch}
+                                                Branch: ${filter.branch}</br>
+                                                Detailed statement for ${date}
                                               </h4>
                                              <h5>
+                                                *************************</br>
+                                                Transporter: ${response.transporterName}</br>
+                                                *************************</br>
+                                                SNO: ${filter.code}</br>
+                                                Name: ${filter.name}</br>
+                                                *************************</br>
+                                                ${htmlSupplierSummery}</br>
+                                                *************************</br>
+                                                Total Kgs: ${response.totalKgs}</br>
+                                                Gross Pay Kshs: ${response.grossPay}</br>
+                                                *************************</br>
+                                                DEDUCTIONS</br>
+                                                *************************</br>
+                                                ${htmlDeductionSummery}</br>
+                                                *************************</br>
+                                                Total Deductions Kshs: ${response.totalDeductions}</br>
+                                                *************************</br>
+                                                Net Pay Kshs: ${response.netPay}</br>
+                                                *************************</br>
+                                                BANK DETAILS</br>
+                                                *************************</br>
+                                                Bank Name: ${response.supplier.Bcode}</br>
+                                                Bank Branch: ${response.supplier.Bbranch}</br>
+                                                Acc No.: ${response.supplier.AccNo}</br>
                                                 *************************
-                                                
                                             </h5>
                                             <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
-                                                **i***********************
+                                                **************************
                                             <hr>
                                         </div>
                                    </div>`;

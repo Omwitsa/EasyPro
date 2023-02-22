@@ -22,16 +22,15 @@ namespace EasyPro.Provider
             filter.Code = filter.Code ?? "";
             filter.Branch = filter.Branch ?? "";
 
-            var month = new DateTime(filter.Date.Year, filter.Date.Month, 1);
-            var startDate = month.AddMonths(-1);
-            var endDate = month.AddDays(-1);
-
+            var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             var transporterFarmers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(filter.Code.ToUpper()) 
                 && t.saccocode == filter.Sacco && t.Branch.ToUpper().Equals(filter.Branch.ToUpper()))
                 .Select(t => t.Sno).ToList();
 
             var intakes = _context.ProductIntake.Where(i => transporterFarmers.Contains(i.Sno) && i.SaccoCode == filter.Sacco
-            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate && i.CR > 0).ToList();
+            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate && i.CR > 0)
+                .OrderBy(i => i.TransDate).ToList();
 
             var supplierGroupedIntakes = intakes.GroupBy(i => i.Sno).ToList();
 
@@ -57,7 +56,7 @@ namespace EasyPro.Provider
 
             var deductions = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
             && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate
-            && i.DR > 0).ToList();
+            && i.DR > 0).OrderBy(i => i.TransDate).ToList();
 
             var totalDeductions = deductions.Sum(d => d.DR);
 

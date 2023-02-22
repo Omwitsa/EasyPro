@@ -26,12 +26,11 @@ namespace EasyPro.Provider
             filter.Code = filter.Code ?? "";
             filter.Branch = filter.Branch ?? "";
 
-            var month = new DateTime(filter.Date.Year, filter.Date.Month, 1);
-            var startDate = month.AddMonths(-1);
-            var endDate = month.AddDays(-1);
+            var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             var intakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
             && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate 
-            && i.CR > 0).ToList();
+            && i.CR > 0).OrderBy(i => i.TransDate).ToList();
 
             var dailyGroupedIntakes = intakes.GroupBy(i => i.TransDate).ToList();
             var supplies = new List<dynamic>();
@@ -55,12 +54,21 @@ namespace EasyPro.Provider
 
             var deductions = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
             && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate
-            && i.DR > 0).ToList();
+            && i.DR > 0).OrderBy(i => i.TransDate).ToList();
 
             var totalDeductions = deductions.Sum(d => d.DR);
 
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == filter.Code && s.Scode == filter.Sacco && s.Branch == filter.Branch);
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
+
+            var transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(filter.Code.ToUpper()));
+            var transporterName = "";
+            if (transport != null)
+            {
+                transport.TransCode = transport?.TransCode ?? "";
+                var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transport.TransCode.ToUpper()));
+                transporterName = transporter?.TransName ?? "";
+            }
             return new
             {
                 supplies,
@@ -70,7 +78,8 @@ namespace EasyPro.Provider
                 totalDeductions,
                 netPay = grossPay - totalDeductions,
                 supplier,
-                company
+                company,
+                transporterName
             };
         }
     }

@@ -261,7 +261,6 @@ namespace EasyPro.Controllers
             return View();
         }
 
-        // string code, string branch, DateTime date
         [HttpPost]
         public JsonResult PrintSupplierStatement([FromBody] StatementFilter filter)
         {
@@ -269,6 +268,36 @@ namespace EasyPro.Controllers
             SetIntakeInitialValues();
             filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var statement = new SupplierStatement(_context);
+            var statementResp = statement.GenerateStatement(filter);
+            return Json(statementResp);
+        }
+
+        public IActionResult PrintTransporterStatement()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var branches = _context.DBranch.Where(s => s.Bcode == sacco)
+                .Select(s => s.Bname).ToList();
+
+            ViewBag.branches = new SelectList(branches);
+
+            var transporters = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()));
+            ViewBag.transporters = transporters.Select(s => new DTransporter
+            {
+                TransName = s.TransName,
+                TransCode = s.TransCode,
+            }).ToList();
+
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult PrintTransporterStatement([FromBody] StatementFilter filter)
+        {
+            utilities.SetUpPrivileges(this);
+            SetIntakeInitialValues();
+            filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var statement = new TransporterStatement(_context);
             var statementResp = statement.GenerateStatement(filter);
             return Json(statementResp);
         }

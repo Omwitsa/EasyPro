@@ -1,0 +1,226 @@
+﻿
+@{
+    ViewData["Title"] = "PrintTransporterStatement";
+}
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <form asp-action="PrintSupplierStatement">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                        <h2>Print Supplier Statement</h2>
+                    </div>
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Branch</label>
+                                    <select id="branch" class="form-control" asp-items="@ViewBag.branches" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">End Month Date</label>
+                                    <input id="date" type="date" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transporter Code</label>
+                                    <input id="transCode" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transporter Name</label>
+                                    <input id="name" readonly class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a id="print" class="btn btn-success">Print</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            $('#transCode').on('keyup', function () {
+                var transCode = $("#transCode").val();
+                var transporters = @Html.Raw(Json.Serialize(ViewBag.transporters));
+                var transporters = transporters.filter(p => p.TransCode === transCode);
+                if (transporters[0]) {
+                    $("#name").val(transporters[0].TransName);
+                }
+            });
+
+            $('#print').on('click', function () {
+                var branch = $("#branch").val();
+                var date = $("#date").val();
+                var transCode = $("#transCode").val();
+                var name = $("#name").val();
+
+                var filter = {
+                    branch: branch,
+                    date: date,
+                    code: transCode,
+                    name: name
+                };
+
+                if (transCode && branch && date) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "printTransporterStatement",
+                        contentType: 'application/json',
+                        data: JSON.stringify(filter),
+                        success: function (response) {
+                            $("#branch").val('');
+                            $("#date").val('');
+                            $("#transCode").val('');
+                            var content = generateHTML(response, filter);
+                            printJS({
+                                printable: content,
+                                type: 'raw-html',
+                                style: '.blueText {color:blue;}'
+                            });
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            });
+
+            function generateHTML(response, filter) {
+                var mevng = $('#mevng').val();
+                var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                var transporterSummery = response.transporters.map(s => {
+                    return `<tr>
+                                <td>${s.Sno}</td>
+                                <td>${s.qnty}</td>
+                                <td>${s.payable}</td>
+                            </tr>`;
+                });
+                var strTransporterSummery = transporterSummery.join('');
+                var htmlTransporterSummery = `<table>
+                                    <thead>
+                                        <tr>
+                                            <th> SNO </th>
+                                            <th> QNTY </th>
+                                            <th> PAYABLE </th>
+                                        </tr>
+                                    </thead>
+
+                                            <tbody>${strTransporterSummery}</tbody>
+                                   </table>`;
+
+                // Deductions
+                var deductionSummery = response.deductions.map(s => {
+                    let transDate = new Date(s.TransDate).toLocaleDateString();
+                    return `<tr>
+                                                        <td>${transDate}</td>
+                                                        <td>${s.DR}</td>
+                                                        <td>${s.Description}</td>
+                                                    </tr>`;
+                });
+                var strDeductionSummery = deductionSummery.join('');
+                var htmlDeductionSummery = `<table>
+                                            <thead>
+                                                <tr>
+                                                    <th> DATE </th>
+                                                    <th> AMOUNT </th>
+                                                    <th> DESCRIPTION </th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>${strDeductionSummery}</tbody>
+                                           </table>`;
+
+                var content = `<div class="row" id="printMe">
+                                                <div class="col-xs-12 text-center">
+                                                     <h4>
+                                                        ${response.company.Name}</br>
+                                                        Adress: ${response.company.Adress}</br>
+                                                        Tell: ${response.company.PhoneNo}</br>
+                                                        Town: ${response.company.Town}</br>
+                                                        Branch: ${filter.branch}</br>
+                                                        Transport Detailed statement for ${date}
+                                                      </h4>
+                                                     <h5>
+                                                        *************************</br>
+                                                        TransCode: ${filter.code}</br>
+                                                        Name: ${filter.name}</br>
+                                                        *************************</br>
+                                                        ${htmlTransporterSummery}</br>
+                                                        *************************</br>
+                                                        Total Kgs: ${response.totalKgs}</br>
+                                                        Gross Pay Kshs: ${response.grossPay}</br>
+                                                        *************************</br>
+                                                        DEDUCTIONS</br>
+                                                        *************************</br>
+                                                        ${htmlDeductionSummery}</br>
+                                                        *************************</br>
+                                                        Total Deductions Kshs: ${response.totalDeductions}</br>
+                                                        *************************</br>
+                                                        Net Pay Kshs: ${response.netPay}</br>
+                                                        *************************</br>
+                                                        BANK DETAILS</br>
+                                                        *************************</br>
+                                                        Bank Name: ${response.transporter.Bcode}</br>
+                                                        Bank Branch: ${response.transporter.Bbranch}</br>
+                                                        Acc No.: ${response.transporter.Accno}</br>
+                                                        *************************
+                                                    </h5>
+                                                    <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                                        **************************
+                                                    <hr>
+                                                </div>
+                                           </div>`;
+
+                return content;
+            }
+        });
+    </script>
+}
+
