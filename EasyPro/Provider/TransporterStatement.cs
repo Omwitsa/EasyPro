@@ -54,12 +54,33 @@ namespace EasyPro.Provider
                 grossPay += (qty * transport.Rate);
             });
 
-            var deductions = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
+            var deductionIntakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
             && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate
             && i.DR > 0).OrderBy(i => i.TransDate).ToList();
+            var totalDeductions = deductionIntakes.Sum(d => d.DR);
 
-            var totalDeductions = deductions.Sum(d => d.DR);
+            var transportationDeductions = deductionIntakes.Where(i => i.Description == "Transport");
+            var deductions = new List<dynamic>
+            {
+                new
+                {
+                    TransDate = endDate,
+                    Description = "Transport",
+                    DR = transportationDeductions.Sum(i => i.DR)
+                }
+            };
 
+            var otherDeductions = deductionIntakes.Where(i => i.Description != "Transport").ToList();
+            otherDeductions.ForEach(i =>
+            {
+                deductions.Add(new
+                {
+                    i.TransDate,
+                    i.Description,
+                    i.DR
+                });
+            });
+            
             var transporter = _context.DTransporters.FirstOrDefault(s => s.TransCode.ToUpper().Equals(filter.Code.ToUpper()) && s.ParentT == filter.Sacco && s.Tbranch == filter.Branch);
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             return new
