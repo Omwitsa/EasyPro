@@ -296,7 +296,8 @@ namespace EasyPro.Controllers
                         intakeIds.Add(details.Id);
                     }
 
-                    var transporterEntry = sessionIntakes.FirstOrDefault(i => i.TransDate == details.TransDate && i.TransTime == details.TransTime && i.Qsupplied == details.Qsupplied && details.TransactionType == TransactionType.Deduction);
+                    var transporterEntry = sessionIntakes.FirstOrDefault(i => i.AuditId == details.AuditId && i.TransDate == details.TransDate 
+                    && i.TransTime == details.TransTime && i.Qsupplied == details.Qsupplied && details.TransactionType == TransactionType.Deduction);
                     if (transporterEntry != null)
                     {
                         intakes.Add(new ProductIntake
@@ -487,7 +488,7 @@ namespace EasyPro.Controllers
             var dTransport = await _context.DTransports.FindAsync(id);
             _context.DTransports.Remove(dTransport);
             await _context.SaveChangesAsync();
-            _notyf.Error("Data Deleted successfully");
+            _notyf.Success("Data Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 
@@ -502,47 +503,33 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 Transporterssuppliers = Transporterssuppliers.Where(i => i.Branch == saccobranch).ToList();
-            if (!string.IsNullOrEmpty(filter))
-            {
-                if (!string.IsNullOrEmpty(condition))
-                {
-                    if (condition == "SNo")
-                    {
-                        Transporterssuppliers = Transporterssuppliers.Where(i => i.Sno.ToUpper().Contains(filter.ToUpper())).ToList();
-                    }
-                    if (condition == "TNo")
-                    {
-                        Transporterssuppliers = Transporterssuppliers.Where(i => i.TransCode.ToUpper().Contains(filter.ToUpper())).ToList();
-                    }
-                }
-            }
+            if (condition == "SNo")
+                Transporterssuppliers = Transporterssuppliers.Where(i => i.Sno.ToUpper().Contains(filter.ToUpper())).ToList();
+            if (condition == "TNo")
+                Transporterssuppliers = Transporterssuppliers.Where(i => i.TransCode.ToUpper().Contains(filter.ToUpper())).ToList();
+
             Transporterssuppliers = Transporterssuppliers.OrderByDescending(i => i.Startdate).Take(505).ToList();
             var assignlist = new List<TransSuppliersVM>();
             foreach (var intake in Transporterssuppliers)
             {
                // intake = intake;
                 var suppliername = _context.DSuppliers.FirstOrDefault(i => i.Sno.ToUpper().Equals(intake.Sno.ToUpper()) && i.Scode == sacco && i.Branch == intake.Branch);
-                var transportername = _context.DTransporters.FirstOrDefault(i => i.TransCode.ToUpper().Equals(intake.TransCode.ToUpper()) && i.ParentT == sacco && i.Tbranch == intake.Branch);
-                if (suppliername != null)
+                var transportername = _context.DTransporters.FirstOrDefault(i => i.TransCode.ToUpper().Equals(intake.TransCode.Trim().ToUpper()) && i.ParentT == sacco && i.Tbranch == intake.Branch);
+                var supName = suppliername?.Names ?? "";
+                var transName = transportername?.TransName ?? "";
+                intake.Morning = string.IsNullOrEmpty(intake.Morning) ?  "All" : intake.Morning;
+                    
+                assignlist.Add(new TransSuppliersVM
                 {
-                    if (transportername != null)
-                    {
-                        var morning = intake.Morning;
-                        if (string.IsNullOrEmpty(intake.Morning))
-                            morning = "All";
-                        assignlist.Add(new TransSuppliersVM
-                        { 
-                            Id= intake.Id,
-                            TransCode = intake.TransCode,
-                            TransName = transportername.TransName,
-                            Sno = intake.Sno,
-                            Names = suppliername.Names,
-                            Rate = intake.Rate,
-                            Startdate = intake.Startdate,
-                            Morning = morning
-                        });
-                    }
-                }
+                    Id = intake.Id,
+                    TransCode = intake.TransCode,
+                    TransName = transName,
+                    Sno = intake.Sno,
+                    Names = supName,
+                    Rate = intake.Rate,
+                    Startdate = intake.Startdate,
+                    Morning = intake.Morning
+                });
             }
             _context.SaveChanges();
             return Json(assignlist);
