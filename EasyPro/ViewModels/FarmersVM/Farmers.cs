@@ -15,4 +15,12 @@ namespace EasyPro.ViewModels.FarmersVM
         public IEnumerable<DTransporter> DTransporters { get; set; }
         public IEnumerable<Employee> Employees { get; set; }
     }
+
+    public class StatementFilter
+    {
+        public string Code { get; set; }
+        public DateTime Date { get; set; }
+        public string Branch { get; set; }
+        public string Sacco { get; set; }
+    }
 }

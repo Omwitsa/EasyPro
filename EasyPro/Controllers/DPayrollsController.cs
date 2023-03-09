@@ -183,6 +183,11 @@ namespace EasyPro.Controllers
             }
             _context.SaveChanges();
 
+            var dcodes = _context.DDcodes.Where(c => c.Description.ToLower().Equals("advance") || c.Description.ToLower().Equals("transport")
+               || c.Description.ToLower().Equals("agrovet") || c.Description.ToLower().Equals("bonus") || c.Description.ToLower().Equals("shares")
+               || c.Description.ToLower().Equals("loan") || c.Description.ToLower().Equals("carry forward") || c.Description.ToLower().Equals("clinical")
+               || c.Description.ToLower().Equals("a.i") || c.Description.ToLower().Equals("ai") || c.Description.ToLower().Equals("tractor")
+               || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work")).Select(c => c.Description.ToLower()).ToList();
             foreach (var branchName in branchNames)
             {
                 var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()) 
@@ -203,7 +208,7 @@ namespace EasyPro.Controllers
                     var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
                     var loan = p.Where(k => k.ProductType.ToLower().Contains("loan"));
                     var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
-                    var Others = p.Where(k => k.ProductType.ToLower().Contains("others"));
+                    var Others = p.Where(k => !dcodes.Contains(k.ProductType.ToLower()));
                     var clinical = p.Where(k => k.ProductType.ToLower().Contains("clinical"));
                     var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai")|| k.ProductType.ToLower().Contains("a.i")));
                     var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));

@@ -26,6 +26,10 @@ using PrinterUtility;
 using System.Diagnostics;
 using Stripe;
 using DocumentFormat.OpenXml.Spreadsheet;
+using EasyPro.IProvider;
+using EasyPro.Provider;
+using NPOI.SS.Formula.Functions;
+using static EasyPro.ViewModels.AccountingVm;
 
 namespace EasyPro.Controllers
 {
@@ -241,18 +245,61 @@ namespace EasyPro.Controllers
         public IActionResult PrintSupplierStatement()
         {
             utilities.SetUpPrivileges(this);
-            SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            DateTime Now = DateTime.Today;
-            DateTime startDate = new DateTime(Now.Year, Now.Month, 1);
-            DateTime enDate = startDate.AddMonths(1).AddDays(-1);
-            var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
-            var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
-            return View(new ProductIntakeVm
+            var branches = _context.DBranch.Where(s => s.Bcode== sacco)
+                .Select(s => s.Bname).ToList();
+
+            ViewBag.branches = new SelectList(branches);
+
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
+            ViewBag.suppliers = suppliers.Select(s => new DSupplier
             {
-                TransDate = enDate
-            });
+                Sno = s.Sno,
+                Names = s.Names,
+            }).ToList();
+
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult PrintSupplierStatement([FromBody] StatementFilter filter)
+        {
+            utilities.SetUpPrivileges(this);
+            SetIntakeInitialValues();
+            filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var statement = new SupplierStatement(_context);
+            var statementResp = statement.GenerateStatement(filter);
+            return Json(statementResp);
+        }
+
+        public IActionResult PrintTransporterStatement()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var branches = _context.DBranch.Where(s => s.Bcode == sacco)
+                .Select(s => s.Bname).ToList();
+
+            ViewBag.branches = new SelectList(branches);
+
+            var transporters = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()));
+            ViewBag.transporters = transporters.Select(s => new DTransporter
+            {
+                TransName = s.TransName,
+                TransCode = s.TransCode,
+            }).ToList();
+
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult PrintTransporterStatement([FromBody] StatementFilter filter)
+        {
+            utilities.SetUpPrivileges(this);
+            SetIntakeInitialValues();
+            filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var statement = new TransporterStatement(_context);
+            var statementResp = statement.GenerateStatement(filter);
+            return Json(statementResp);
         }
 
         [HttpGet]
@@ -1003,45 +1050,6 @@ namespace EasyPro.Controllers
         }
         //start
        
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> PrintSupplierStatement([Bind("Id, Sno, TransDate, ProductType, Qsupplied, Ppu, CR, DR, Balance, Description, Remarks, AuditId, Auditdatetime, Branch, DrAccNo, CrAccNo, Print, SMS,Zone,MornEvening")] ProductIntakeVm productIntake)
-        {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            
-            var sno = productIntake.Sno;
-            long.TryParse(productIntake.Sno, out long supno);
-
-            if (supno < 1)
-            {
-                _notyf.Error("Sorry, Kindly provide supplier No.");
-                return RedirectToAction(nameof(CreateCorrection));
-            }
-            var suppliers = _context.DSuppliers.Where(s => s.Sno == sno && s.Scode == sacco);
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(auditId.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-
-            var supplier = suppliers.FirstOrDefault();
-            if (supplier == null)
-            {
-                _notyf.Error("Sorry, Supplier does not exist");
-                return RedirectToAction(nameof(CreateCorrection));
-            }
-            if (!supplier.Active || !supplier.Approval)
-            {
-                _notyf.Error("Sorry, Supplier must be approved and active");
-                return RedirectToAction(nameof(CreateCorrection));
-            }
-            var collection = productIntake;
-            //PrintStatement(collection);
-
-            return RedirectToAction(nameof(PrintSupplierStatement));
-        }
-
         //private IActionResult PrintStatement(ProductIntakeVm collection)
         //{
         //    PrintDocument printDocument = new PrintDocument();
