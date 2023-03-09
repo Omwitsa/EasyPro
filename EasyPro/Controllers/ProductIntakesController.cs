@@ -646,10 +646,11 @@ namespace EasyPro.Controllers
                     var note = "";
                     if (productIntake.ProductType.ToLower().Equals("milk"))
                         note = "Kindly observe withdrawal period after cow treatment";
+
                     _context.Messages.Add(new Message
                     {
                         Telephone = supplier.PhoneNo,
-                        Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}\n {note}",
+                        Content = $"{DateTime.Now} Dear {supplier.Names}, Your have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}\n {note}",
                         ProcessTime = DateTime.Now.ToString(),
                         MsgType = "Outbox",
                         Replied = false,
