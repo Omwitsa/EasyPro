@@ -137,10 +137,16 @@
                             <input id="enddate" type="date" class="form-control" />
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xs-12">
+                    <div class="col-sm-2 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Deductions</label>
-                            <input id="totaldeductions" class="form-control" />
+                            <input id="totaldeductions" class="form-control w3-text-green" disabled />
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Total Kgs</label>
+                            <input id="totkgs" class="form-control font-weight-bold w3-text-green" disabled />
                         </div>
                     </div>
                     <div class="col-sm-2 col-xs-12">
@@ -318,6 +324,7 @@
                 $("#netpay").val('');
                 $("#totaldeductions").val('');
                 $("#grosspay").val('');
+                $("#totkgs").val('');
                 var sno = $("#sno").val();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
@@ -358,19 +365,24 @@
                     var Total = 0;
                     var Total2 = 0;
                     var netpay = 0;
+                    var totkgs = 0;
                     intakes.forEach(i => {
                         var ddr = 0;
                         var ccr = 0;
+                        var kgs = 0;
                         ddr = i.DR;
                         ccr = i.CR;
+                        kgs = i.Qsupplied;
                         Total2 = Total2 + ddr;
                         Total = Total + ccr;
                         netpay = Total - Total2;
+                        totkgs = totkgs + kgs;
 
                     });
                     $('#netpay').val(netpay);
-                    $('#totaldeductions').val(Total2)
-                    $('#grosspay').val(Total)
+                    $('#totaldeductions').val(Total2);
+                    $('#grosspay').val(Total);
+                    $('#totkgs').val(totkgs);
                 });
 
                 $('#intakes').html(itemTableRows);
