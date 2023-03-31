@@ -196,51 +196,73 @@
                 var selectVal =  $("#Sno").val();
                 getSelectedDateIntakes();
             });
-        function getSelectedforsave() {
-                var print = $('#print').is(':checked');
-                var sms = $('#SMS').is(':checked');
-                var intake = {
-                    sno: $("#Sno").val(),
-                    supName: $("#Names").val(),
-                    productType: $("#ProductType").val(),
-                    ppu: $("#Ppu").val(),
-                    qsupplied: $("#Qsupplied").val(),
-                    cr: $("#CR").val(),
-                    drAccNo: $("#DrAccNo").val(),
-                    crAccNo: $("#CrAccNo").val(),
-                    remarks: $("#Remarks").val(),
-                    print: print,
-                    sms: sms,
-                };
-                $.ajax({
-                    type: 'POST',
-                    url: "save",
-                    contentType: 'application/json',
-                    data: JSON.stringify(intake),
-                    success: function (response) {
-                        $("#Sno").val('');
-                        $("#Qsupplied").val(0);
-                        document.getElementById('Sno').focus();
-                        getkgsfortheday();
-                        if (print) {
-                            var content = generateHTML(response);
-                            printJS({
-                                printable: content,
-                                type: 'raw-html',
-                                style: '.blueText {color:blue;}'
-                            });
-                        }
-                    },
-                    failure: function (response) {
+
+          
+            $('#Sno').on('keyup',function() {
+                    var selectVal = $("#Sno").val();
+                getSelectedDateIntakes();
+            });
+            $('#Sno').keydown(function (event) {
+                if (event.which == 13) {
+                    getSelectedDateIntakes();
+                    document.getElementById('Qsupplied').focus();
+                }
+            });
+
+            $('#Qsupplied').keydown(function (event) {
+                if (event.which == 13) {
+                    checkifalreadyexist();
+                }
+            });
+
+            $('#save').on('click', function () {
+                checkifalreadyexist();
+            });
+            function getSelectedforsave() {
+            var print = $('#print').is(':checked');
+            var sms = $('#SMS').is(':checked');
+            var intake = {
+                sno: $("#Sno").val(),
+                supName: $("#Names").val(),
+                productType: $("#ProductType").val(),
+                ppu: $("#Ppu").val(),
+                qsupplied: $("#Qsupplied").val(),
+                cr: $("#CR").val(),
+                drAccNo: $("#DrAccNo").val(),
+                crAccNo: $("#CrAccNo").val(),
+                remarks: $("#Remarks").val(),
+                print: print,
+                sms: sms,
+            };
+            $.ajax({
+                type: 'POST',
+                url: "save",
+                contentType: 'application/json',
+                data: JSON.stringify(intake),
+                success: function (response) {
+                    $("#Sno").val('');
+                    $("#Qsupplied").val(0);
+                    document.getElementById('Sno').focus();
+                    getkgsfortheday();
+                    if (print) {
+                        var content = generateHTML(response);
+                        printJS({
+                            printable: content,
+                            type: 'raw-html',
+                            style: '.blueText {color:blue;}'
+                        });
                     }
-                }).then(function () {
-                    // ...
-                });
+                },
+                failure: function (response) {
+                }
+            }).then(function () {
+                // ...
+            });
         }
-        function checkifalreadyexist() {
+            function checkifalreadyexist() {
             //goselect();
             var sno = $('#Sno').val();
-            
+
             var date = today;
             $.ajax(
                 {
@@ -260,31 +282,16 @@
 
                 });
         }
-        function checkifdelivered() {
-            const response = confirm("Already Delivered today, Do you want to continue?");
-            if (response) {
-                getSelectedforsave();
-                return true;
-            } else {
-                $('#Qsupplied').val("");
-                return false;
-            }
-        }
-            $('#Sno').on('keyup', function () {
-                var selectVal = $("#Sno").val();
-                getSelectedDateIntakes();
-            });
-
-            $('#Qsupplied').keydown(function (event) {
-                if (event.which == 13) {
-                    checkifalreadyexist();
+            function checkifdelivered() {
+                const response = confirm("Already Delivered today, Do you want to continue?");
+                if (response) {
+                    getSelectedforsave();
+                    return true;
+                } else {
+                    $('#Qsupplied').val("");
+                    return false;
                 }
-            });
-
-            $('#save').on('click', function () {
-                checkifalreadyexist();
-            });
-
+            }
             function getkgsfortheday() {
                 var date = today;
                 $.ajax(
@@ -305,7 +312,6 @@
                     });
             };
             function getSelectedDateIntakes() {
-                $('#Names').val();
                 var sno = $('#Sno').val();
                 var mevng = $('#mevng').val();
 
@@ -434,9 +440,6 @@
                 printer.addTextDouble(false, true);
                 printer.addText('* SALE RECEIPT *\n');
                 printer.addTextDouble(false, false);
-....
-....
-....
 
 }
         }

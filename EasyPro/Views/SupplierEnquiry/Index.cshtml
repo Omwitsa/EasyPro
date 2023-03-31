@@ -347,7 +347,8 @@
             });
 
             function populateIntake(intakes) {
-                var selectVal =  $("#sno").val();
+                var selectVal = $("#sno").val();
+                $('#totkgs').val('0');
                 let itemTableRows = new Array();
                 intakes.forEach(i => {
                     var ddate = i.TransDate;
@@ -365,18 +366,16 @@
                     var Total = 0;
                     var Total2 = 0;
                     var netpay = 0;
-                    var totkgs = 0;
+                    var totkgs = i.getsumkgs;
                     intakes.forEach(i => {
                         var ddr = 0;
                         var ccr = 0;
                         var kgs = 0;
                         ddr = i.DR;
                         ccr = i.CR;
-                        kgs = i.Qsupplied;
                         Total2 = Total2 + ddr;
                         Total = Total + ccr;
                         netpay = Total - Total2;
-                        totkgs = totkgs + kgs;
 
                     });
                     $('#netpay').val(netpay);

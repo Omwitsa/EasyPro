@@ -51,7 +51,7 @@ namespace EasyPro.Controllers
             utilities = new Utilities(context);
         }
         // GET: ProductIntakes
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -63,7 +63,9 @@ namespace EasyPro.Controllers
                 && i.TransDate == DateTime.Today);
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccoBranch);
-            return View(await intakes.OrderByDescending(l => l.Auditdatetime).ToListAsync());
+
+           // var intaelist = await intakes.OrderByDescending(l => l.Auditdatetime).ToListAsync();
+            return View( intakes.OrderByDescending(l => l.Auditdatetime).ToList());
         }
         [HttpGet] 
         public JsonResult listcorrectionIntake(DateTime date)
@@ -267,6 +269,63 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             SetIntakeInitialValues();
             filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+
+            if (filter.Sacco == "MBURUGU DAIRY F.C.S" && !string.IsNullOrEmpty(filter.Code))
+            {
+                var deletetransport = productIntakeslist.Where(n => n.Sno.ToUpper().Equals(filter.Code.ToUpper())
+                && n.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper())
+                && n.Description == "Transport" && n.TransactionType == TransactionType.Deduction && n.TransDate >= startDate
+                && n.TransDate <= endDate).ToList();
+                _context.RemoveRange(deletetransport);
+                //check transport rate
+
+                var getpricegls = _context.DPrices.FirstOrDefault(j => j.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper()));
+
+                var gettransportersrate = _context.DTransports.FirstOrDefault(h => h.Sno.ToUpper().Equals(filter.Code.ToUpper())
+                && h.saccocode.ToUpper().Equals(filter.Sacco.ToUpper()));
+                if (gettransportersrate != null)
+                {
+                    decimal Rate = 0;
+                    Rate = (decimal)gettransportersrate.Rate;
+
+                    var sumkgs = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper())
+                    && i.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper())
+                    && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
+                    && i.TransDate >= startDate && i.TransDate <= endDate).ToList().Sum(n => n.Qsupplied);
+                    var actualrate = Rate * sumkgs;
+
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = filter.Code.ToUpper(),
+                        TransDate = (DateTime)endDate,
+                        TransTime = DateTime.Now.TimeOfDay,
+                        ProductType = getpricegls.Products,
+                        Qsupplied = sumkgs,
+                        Ppu = Rate,
+                        CR = 0,
+                        DR = actualrate,
+                        Balance = actualrate,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Remarks = "",
+                        AuditId = loggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = filter.Branch,
+                        SaccoCode = filter.Sacco,
+                        DrAccNo = getpricegls.TransportCrAccNo,
+                        CrAccNo = getpricegls.TransportDrAccNo,
+
+                    });
+                    _context.SaveChanges();
+                }
+                
+            }
+
             var statement = new SupplierStatement(_context);
             var statementResp = statement.GenerateStatement(filter);
             return Json(statementResp);

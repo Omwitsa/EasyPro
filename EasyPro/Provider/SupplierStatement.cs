@@ -9,6 +9,7 @@ using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using EasyPro.ViewModels.FarmersVM;
+using EasyPro.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Stripe;
 
@@ -21,17 +22,20 @@ namespace EasyPro.Provider
         {
             _context = context;
         }
-
         public dynamic GenerateStatement(StatementFilter filter)
         {
             filter.Code = filter.Code ?? "";
             filter.Branch = filter.Branch ?? "";
-
+          
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var intakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
-            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate 
-            && i.CR > 0).OrderBy(i => i.TransDate).ToList();
+
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+
+            var intakes = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
+            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate
+            && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
+                .OrderBy(i => i.TransDate).ToList();
 
             var dailyGroupedIntakes = intakes.GroupBy(i => i.TransDate).ToList();
             var supplies = new List<dynamic>();
@@ -53,8 +57,8 @@ namespace EasyPro.Provider
                 grossPay += (qty * price.Price);
             });
 
-            var deductionIntakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
-            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate
+            var deductionIntakes = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
+            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate && i.TransactionType == TransactionType.Deduction
             && i.DR > 0).OrderBy(i => i.TransDate).ToList();
             var totalDeductions = deductionIntakes.Sum(d => d.DR);
 
