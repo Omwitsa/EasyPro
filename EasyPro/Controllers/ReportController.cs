@@ -412,13 +412,7 @@ namespace EasyPro.Controllers
         [HttpPost]
         public IActionResult SuppliersActive([Bind("DateFrom,DateTo")] FilterVm filter)
         {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            sacco = sacco ?? "";
-            var activeSuppliers = _context.ProductIntake.Where(i => i.TransDate >= filter.DateFrom && i.TransDate <= filter.DateTo)
-                .Select(i => i.Sno);
-            suppliersobj = _context.DSuppliers
-                .Where(u => u.Scode == sacco && activeSuppliers.Contains(u.Sno.ToString()))
-                .OrderBy(u => u.Sno);
+            
             return SuppliersActiveExcel(filter);
         }
 
@@ -1312,6 +1306,12 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             //var DateFro = Convert.ToDateTime(DateFrom.ToString());
             //var DateT = Convert.ToDateTime(DateTo.ToString());
+            var activeSuppliers = _context.ProductIntake.Where(i => i.TransDate >= filter.DateFrom && i.TransDate <= filter.DateTo)
+                .Select(i => i.Sno);
+            suppliersobj = _context.DSuppliers
+                .Where(u => u.Scode == sacco && activeSuppliers.Contains(u.Sno.ToString()))
+                .OrderBy(u => u.Sno);
+
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("suppliersobj");
@@ -1349,7 +1349,7 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 15).Value = "Active";
                 worksheet.Cell(currentRow, 16).Value = "Address";
                 worksheet.Cell(currentRow, 17).Value = "Station";
-                int sum = 0, sum2 = 0;
+                int sum , sum2 = 0;
                 sum2 = suppliersobj.Count();
                 suppliersobj = suppliersobj.OrderBy(p => p.Branch).ToList();
                 var branches = suppliersobj.GroupBy(b => b.Branch).ToList();

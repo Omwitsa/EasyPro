@@ -132,8 +132,9 @@ namespace EasyPro.Controllers
                 }
             }
 
-            var deletestandingorder = _context.ProductIntake.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
-                 && i.Remarks == "Standing Order" && i.SaccoCode == sacco);
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            var deletestandingorder = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
+                 && i.Remarks == "Standing Order" && i.SaccoCode == sacco).ToList();
             if (deletestandingorder.Any())
             {
                 _context.ProductIntake.RemoveRange(deletestandingorder);
@@ -145,8 +146,8 @@ namespace EasyPro.Controllers
             .Select(b => b.Deduction.ToUpper()).Distinct();
             foreach (var dedtype in selectdistinctdedname)
             {
-                var deletesdefaultded = _context.ProductIntake.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
-                && i.ProductType.ToUpper().Equals(dedtype.ToUpper()) && i.SaccoCode == sacco);
+                var deletesdefaultded = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
+                && i.ProductType.ToUpper().Equals(dedtype.ToUpper()) && i.SaccoCode == sacco).ToList();
                 if (deletesdefaultded.Any())
                 {
                     _context.ProductIntake.RemoveRange(deletesdefaultded);
@@ -193,7 +194,7 @@ namespace EasyPro.Controllers
                 var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()) 
                 && s.Branch.ToUpper().Equals(branchName.ToUpper())).Select(s => s.Sno);
 
-                var productIntakes = _context.ProductIntake
+                var productIntakes = productIntakeslist
                 .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
                 && supplierNos.Contains(p.Sno) && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
@@ -275,7 +276,7 @@ namespace EasyPro.Controllers
                .Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()) && s.Tbranch.ToUpper().Equals(branchName))
                .Select(s => s.TransCode.Trim().ToUpper());
 
-                var productIntakes = _context.ProductIntake
+                var productIntakes = productIntakeslist
                 .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
                 && transpoterCodes.Contains(p.Sno.Trim().ToUpper())
                 && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
@@ -406,12 +407,13 @@ namespace EasyPro.Controllers
         private void calcDefaultdeductions(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
         {
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var productIntakes = _context.ProductIntake
-                .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
-                && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
+            IQueryable<ProductIntake> productIntakeslists = _context.ProductIntake;
+            var productIntakes = productIntakeslists
+                .Where(p => p.TransDate >= startDate && p.TransDate <= endDate &&
+                p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
             var intakes = productIntakes.GroupBy(p => p.Sno.Trim().ToUpper()).ToList();
             intakes.ForEach(g => {
-                var kgs = _context.ProductIntake.Where(l => l.Sno == g.Key 
+                var kgs = productIntakeslists.Where(l => l.Sno == g.Key 
                 && (l.TransactionType == TransactionType.Intake || l.TransactionType == TransactionType.Correction
                 && l.TransDate >= startDate && l.TransDate <= endDate)).Sum(w => w.Qsupplied);
                 if (kgs > 0)
@@ -424,7 +426,7 @@ namespace EasyPro.Controllers
                         var eachdeductionsselect = eachdeductions.GroupBy(p => p.Deduction.Trim().ToUpper()).Distinct().ToList();
                         eachdeductionsselect.ForEach(n => {
                             var Checkanydefaultdeduction  = n.FirstOrDefault();
-                            var totalkgs = _context.ProductIntake.Where(f => f.Sno.ToUpper().Equals(g.Key.ToUpper())
+                            var totalkgs = productIntakeslists.Where(f => f.Sno.ToUpper().Equals(g.Key.ToUpper())
                            && f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= startDate && f.TransDate <= endDate
                            && (f.TransactionType == TransactionType.Intake || f.TransactionType == TransactionType.Correction)
                            && f.Branch.ToUpper().Equals(branchName.ToUpper())).Sum(n => n.Qsupplied);

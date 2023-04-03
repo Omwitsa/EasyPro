@@ -58,9 +58,10 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            var intakes = _context.ProductIntake
-                .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                && i.TransDate == DateTime.Today);
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            var intakes = _context.ProductIntake.Where(i => i.TransactionType == TransactionType.Intake 
+            && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
+            && i.TransDate == DateTime.Today);
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccoBranch);
 
@@ -75,6 +76,8 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+           
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
             var intakes = _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Correction && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && i.TransDate == date);
@@ -236,8 +239,9 @@ namespace EasyPro.Controllers
             SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
-            var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch==saccoBranch).Sum(p => p.Qsupplied);
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            var Todayskg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).ToList().Sum(p => p.Qsupplied);
+            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch==saccoBranch).ToList().Sum(p => p.Qsupplied);
             return View(new ProductIntakeVm { 
                 Todaykgs= Todayskg,
                 TodayBranchkgs= TodaysBranchkg
