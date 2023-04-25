@@ -54,10 +54,20 @@ namespace EasyPro.Controllers
                     Transport = p.Transport,
                     Registration = 0,
                     Advance = p.Advance,
-                    Fsa = p.Fsa,
+                    Fsa = p.Fsa, // loan
                     Others = p.Others,
-                    Netpay = p.Npay
+                    Netpay = p.Npay,
+                    Agrovet = p.Agrovet,
+                    Bonus = p.Bonus,
+                    Hshares = p.Hshares,
+                    CurryForward = p.CurryForward,
+                    Clinical = p.CLINICAL,
+                    AI = p.AI,
+                    Tractor = p.Tractor,
+                    Extension = p.extension,
+                    SMS = p.SMS,
                 }).ToListAsync();
+
             return View(payroll);
         }
 
@@ -206,7 +216,6 @@ namespace EasyPro.Controllers
                     var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
                     var loan = p.Where(k => k.ProductType.ToLower().Contains("loan"));
                     var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
-                    var Others = p.Where(k => !dcodes.Contains(k.ProductType.ToLower()) && k.TransactionType != TransactionType.Correction);
                     var clinical = p.Where(k => k.ProductType.ToLower().Contains("clinical"));
                     var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai")|| k.ProductType.ToLower().Contains("a.i")));
                     var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
@@ -215,14 +224,21 @@ namespace EasyPro.Controllers
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                     var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
+                    var Others = p.Where(k => !dcodes.Contains(k.ProductType.ToLower()) && k.TransactionType != TransactionType.Correction
+                    && !k.ProductType.ToLower().Contains("advance") && !k.ProductType.ToLower().Contains("transport")
+                    && !k.ProductType.ToLower().Contains("agrovet") && !k.ProductType.ToLower().Contains("bonus")
+                    && !k.ProductType.ToLower().Contains("shares") && !k.ProductType.ToLower().Contains("loan")
+                    && !k.ProductType.ToLower().Contains("carry forward") && !k.ProductType.ToLower().Contains("clinical")
+                    && !k.ProductType.ToLower().Contains("ai") && !k.ProductType.ToLower().Contains("a.i")
+                    && !k.ProductType.ToLower().Contains("sms"));
+
                     var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(p.Key)
                     && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch.ToUpper().Equals(branchName.ToUpper()));
                     if (supplier != null)
                     {
                         var debits = corrections.Sum(s => s.DR);
                         var credited = p.Sum(s => s.CR);
-                        var Tot = advance.Sum(s => s.DR) + transport.Sum(s => s.DR)
-                        + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
+                        var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
                         + Others.Sum(s => s.DR)+ clinical.Sum(s => s.DR)+ ai.Sum(s => s.DR)+ tractor.Sum(s => s.DR)
                         + carryforward.Sum(s => s.DR) + loan.Sum(s=>s.DR) + extension.Sum(s => s.DR)+ SMS.Sum(s=>s.DR);
 
