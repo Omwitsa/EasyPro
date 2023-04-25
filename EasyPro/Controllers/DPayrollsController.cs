@@ -208,7 +208,7 @@ namespace EasyPro.Controllers
                     var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
                     var loan = p.Where(k => k.ProductType.ToLower().Contains("loan"));
                     var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
-                    var Others = p.Where(k => !dcodes.Contains(k.ProductType.ToLower()));
+                    var Others = p.Where(k => !dcodes.Contains(k.ProductType.ToLower()) && k.TransactionType != TransactionType.Correction);
                     var clinical = p.Where(k => k.ProductType.ToLower().Contains("clinical"));
                     var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai")|| k.ProductType.ToLower().Contains("a.i")));
                     var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
