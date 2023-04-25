@@ -117,9 +117,15 @@ namespace EasyPro.Controllers
                     return View(userAccount);
                 }
 
-                _notyf.Success("User created successfully");
+               
+
+                
                 _context.Add(userAccount);
                 await _context.SaveChangesAsync();
+
+               
+                _notyf.Success("User created successfully");
+               
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

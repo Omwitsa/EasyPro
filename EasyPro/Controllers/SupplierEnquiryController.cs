@@ -54,20 +54,20 @@ namespace EasyPro.Controllers
                 PhoneNo = s.PhoneNo,
                 AccNo = s.AccNo,
                 Bbranch = s.Bbranch,
-                Zone= s.Zone
+                Zone = s.Zone
             }).ToList();
 
             return View();
         }
 
         [HttpGet]
-        public JsonResult SelectedDateIntake( string sno)
+        public JsonResult SelectedDateIntake(string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco ).ToList();
-            
+            dsuppliers = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco).ToList();
+
             ViewBag.suppliers = dsuppliers.Select(s => new DSupplier
             {
                 Sno = s.Sno,
@@ -87,7 +87,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
-             
+
             return Json(todaysIntake);
         }
 
@@ -157,7 +157,7 @@ namespace EasyPro.Controllers
                 TransName = s.TransName,
                 CertNo = s.CertNo,
                 Phoneno = s.Phoneno,
-                Bcode= s.Bcode,
+                Bcode = s.Bcode,
                 Accno = s.Accno,
                 Bbranch = s.Bbranch
             }).ToList();
@@ -178,14 +178,69 @@ namespace EasyPro.Controllers
             //else
             //    ViewBag.checkiftoenable = 0;
         }
+        
         [HttpPost]
-        public JsonResult SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype,string sno)
+        public JsonResult SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype, string sno)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
-            var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno.ToString() 
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+
+            if (sacco == "MBURUGU DAIRY F.C.S" && !string.IsNullOrEmpty(supplier.Sno))
+            {
+                var deletetransport = productIntakeslist.Where(n => n.Sno == supplier.Sno.ToString() && n.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                && n.Description == "Transport" && n.TransactionType == TransactionType.Deduction && n.TransDate >= date1 && n.TransDate <= date2).ToList();
+                _context.RemoveRange(deletetransport);
+                //check transport rate
+
+                var getpricegls = _context.DPrices.FirstOrDefault(j => j.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+
+                var gettransportersrate = _context.DTransports.FirstOrDefault(h => h.Sno == supplier.Sno.ToString()
+                && h.saccocode.ToUpper().Equals(sacco.ToUpper()));
+                if (gettransportersrate != null)
+                {
+                    decimal Rate=0;
+                    Rate = (decimal)gettransportersrate.Rate ;
+
+                    var sumkgs = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
+                    && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
+                    && i.TransDate >= date1 && i.TransDate <= date2).ToList().Sum(n => n.Qsupplied);
+                    var actualrate = Rate * sumkgs;
+
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = supplier.Sno.Trim(),
+                        TransDate = (DateTime)date2,
+                        TransTime = DateTime.Now.TimeOfDay,
+                        ProductType = getpricegls.Products,
+                        Qsupplied = sumkgs,
+                        Ppu = Rate,
+                        CR = 0,
+                        DR = actualrate,
+                        Balance = actualrate,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Remarks = "",
+                        AuditId = loggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = saccobranch,
+                        SaccoCode = sacco,
+                        DrAccNo = getpricegls.TransportCrAccNo,
+                        CrAccNo = getpricegls.TransportDrAccNo,
+
+                    });
+                    _context.SaveChanges();
+                }
+                
+            }
+
+            var getsumkgs = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
+                 && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
+                 && i.TransDate >= date1 && i.TransDate <= date2).ToList().Sum(n => n.Qsupplied);
+
+            var intakes = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
             && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2)
                 .OrderBy(i => i.TransDate).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
@@ -193,14 +248,15 @@ namespace EasyPro.Controllers
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
             if (!string.IsNullOrEmpty(producttype))
                 intakes = intakes.Where(i => i.ProductType.ToUpper().Equals(producttype.ToUpper())).ToList();
-            decimal? bal = 0; 
-            var intake = intakes.GroupBy(d =>d.TransDate).ToList();
+            decimal? bal = 0;
+            var intake = intakes.GroupBy(d => d.TransDate).ToList();
             var MilkEnquryVM = new List<MilkEnqury>();
             intake.ForEach(l =>
             {
                 intakes = l.OrderBy(d => d.Id).ToList();
-                intakes.ForEach(i => {
-                    
+                intakes.ForEach(i =>
+                {
+
                     i.CR = i?.CR ?? 0;
                     i.DR = i?.DR ?? 0;
                     bal += i.CR - i.DR;
@@ -209,19 +265,20 @@ namespace EasyPro.Controllers
                         i.Remarks = i.ProductType;
                     MilkEnquryVM.Add(new MilkEnqury
                     {
-                         TransDate =i.TransDate,
-                         ProductType =i.ProductType,
-                         Qsupplied =i.Qsupplied,
-                         CR = i.CR,
-                         DR = i.DR,
-                         Balance = bal,
-                         Description = i.Remarks,
-                         Remarks = i.Remarks,
-                        Auditdatetime= DateTime.Now,
+                        TransDate = i.TransDate,
+                        ProductType = i.ProductType,
+                        Qsupplied = i.Qsupplied,
+                        CR = i.CR,
+                        DR = i.DR,
+                        Balance = bal,
+                        Description = i.Description,
+                        Remarks = i.Remarks,
+                        Auditdatetime = DateTime.Now,
+                        getsumkgs = getsumkgs,
                     });
                     _context.SaveChanges();
                 });
-                
+
             });
 
             //intakes.ForEach(i =>
@@ -233,8 +290,8 @@ namespace EasyPro.Controllers
             //    if (i.Remarks == null)
             //        i.Remarks = i.ProductType;
             //});
-            var entries  = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
-            return Json(entries.OrderByDescending(n=>n.Auditdatetime));
+            var entries = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
+            return Json(entries.OrderByDescending(n => n.Auditdatetime));
 
         }
 
@@ -275,18 +332,18 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
             var resultsget = _context.ProductIntake.OrderByDescending(i => i.TransDate)
-                        .Where(i => i.SaccoCode == sacco && i.Branch== saccobranch
+                        .Where(i => i.SaccoCode == sacco && i.Branch == saccobranch
                     && i.TransDate >= date1 && i.TransDate <= date2).ToList();
-            var transExist =  _context.DTransporters.Any(u => u.TransCode == sno && u.Active == true && u.ParentT == sacco);
+            var transExist = _context.DTransporters.Any(u => u.TransCode == sno && u.Active == true && u.ParentT == sacco);
             if (transExist)
             {
                 var transassign = _context.DTransports
-                    .Where(u => u.TransCode == sno && u.Branch== saccobranch && u.Active == true && u.saccocode.ToUpper().Equals(sacco.ToUpper()));
-                foreach(var snoo in transassign)
+                    .Where(u => u.TransCode == sno && u.Branch == saccobranch && u.Active == true && u.saccocode.ToUpper().Equals(sacco.ToUpper()));
+                foreach (var snoo in transassign)
                 {
                     var sumkgspersupplier = _context.ProductIntake
-                        .Where(u => u.SaccoCode == sacco && u.Branch== saccobranch && u.TransDate >= date1 && u.TransDate <= date2 && u.Sno == snoo.Sno.ToString())
-                        .Sum(i=>i.CR);
+                        .Where(u => u.SaccoCode == sacco && u.Branch == saccobranch && u.TransDate >= date1 && u.TransDate <= date2 && u.Sno == snoo.Sno.ToString())
+                        .Sum(i => i.CR);
                     var all = _context.DTmpTransEnqueries;
                     DTmpTransEnqueryobj.sacco = sacco;
                     DTmpTransEnqueryobj.Sno = snoo.Sno.ToString();
@@ -295,7 +352,7 @@ namespace EasyPro.Controllers
                     DTmpTransEnqueryobj.Branch = saccobranch;
                 }
                 var intakes = _context.DTmpTransEnqueries.OrderByDescending(i => i.TransDate)
-                       .Where(i => i.Sno == sno && i.sacco.ToUpper().Equals(sacco.ToUpper()) && i.Branch== saccobranch
+                       .Where(i => i.Sno == sno && i.sacco.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch
                    && i.TransDate >= date1 && i.TransDate <= date2).ToList();
                 //resultsget = intakes;
             }
@@ -312,13 +369,13 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult ShareInquiries(string sno )
+        public JsonResult ShareInquiries(string sno)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var shares = _context.DShares.Where(s => s.Sno == sno && s.SaccoCode == sacco).ToList();
-             
-            shares = shares.OrderByDescending(s=>s.TransDate).ToList();
+
+            shares = shares.OrderByDescending(s => s.TransDate).ToList();
 
             return Json(shares);
         }

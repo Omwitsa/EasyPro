@@ -25,7 +25,38 @@ namespace EasyPro.Utils
         {
             var sacco = controller.HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var group = controller.HttpContext.Session.GetString(StrValues.UserGroup) ?? "";
-            var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group) && u.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+            var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group)
+            && u.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+
+            //create a default user group of admin for new society
+            if (usergroup == null)
+            {
+                var val = new Usergroup
+                {
+                    GroupId = group,
+                    GroupName = group,
+                    Registration = true,
+                    Activity = true,
+                    Reports = true,
+                    Setup = true,
+                    Files = true,
+                    Accounts = true,
+                    Deductions = true,
+                    SaccoReports = true,
+                    SaccoCode = sacco,
+                    Staff = true,
+                    Store = true,
+                    Flmd = true
+                };
+                _context.Usergroups.Add(val);
+                _context.SaveChanges();
+
+                usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group)
+                       && u.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+            }
+            //end 
+            
+           
             controller.ViewBag.sacco = sacco;
             controller.ViewBag.filesRole = usergroup.Files;
             controller.ViewBag.accountsRole = usergroup.Accounts;

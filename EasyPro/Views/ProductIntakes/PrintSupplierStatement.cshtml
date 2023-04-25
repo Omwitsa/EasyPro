@@ -160,6 +160,7 @@
 
                 // Deductions
                 var deductionSummery = response.deductions.map(s => {
+                    debugger
                     let transDate = new Date(s.TransDate).toLocaleDateString();
                     return `<tr>
                                                 <td>${transDate}</td>

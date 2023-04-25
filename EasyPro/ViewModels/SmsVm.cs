@@ -21,6 +21,6 @@ namespace EasyPro.ViewModels
         SpecificLocation = 3,
         SpecificTransporter = 4,
         Individual = 5,
-        SharesCat = 5,
+        SharesCat = 6,
     };
 }

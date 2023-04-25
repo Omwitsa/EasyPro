@@ -129,7 +129,7 @@ namespace EasyPro.Controllers
                         if (phone_first == "0")
                             t = t.Substring(1);
                         var phone_three = t.Substring(0, 3);
-                        if (phone_first == "254")
+                        if (phone_three == "254")
                             t = t.Substring(3);
                         var phone_four = t.Substring(0, 4);
                         if (phone_four == "+254")

@@ -51,19 +51,22 @@ namespace EasyPro.Controllers
             utilities = new Utilities(context);
         }
         // GET: ProductIntakes
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            var intakes = _context.ProductIntake
-                .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                && i.TransDate == DateTime.Today);
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            var intakes = _context.ProductIntake.Where(i => i.TransactionType == TransactionType.Intake 
+            && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
+            && i.TransDate == DateTime.Today);
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccoBranch);
-            return View(await intakes.OrderByDescending(l => l.Auditdatetime).ToListAsync());
+
+           // var intaelist = await intakes.OrderByDescending(l => l.Auditdatetime).ToListAsync();
+            return View( intakes.OrderByDescending(l => l.Auditdatetime).ToList());
         }
         [HttpGet] 
         public JsonResult listcorrectionIntake(DateTime date)
@@ -73,6 +76,8 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+           
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
             var intakes = _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Correction && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && i.TransDate == date);
@@ -234,8 +239,9 @@ namespace EasyPro.Controllers
             SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
-            var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch==saccoBranch).Sum(p => p.Qsupplied);
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            var Todayskg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).ToList().Sum(p => p.Qsupplied);
+            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch==saccoBranch).ToList().Sum(p => p.Qsupplied);
             return View(new ProductIntakeVm { 
                 Todaykgs= Todayskg,
                 TodayBranchkgs= TodaysBranchkg
@@ -267,6 +273,63 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             SetIntakeInitialValues();
             filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+
+            if (filter.Sacco == "MBURUGU DAIRY F.C.S" && !string.IsNullOrEmpty(filter.Code))
+            {
+                var deletetransport = productIntakeslist.Where(n => n.Sno.ToUpper().Equals(filter.Code.ToUpper())
+                && n.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper())
+                && n.Description == "Transport" && n.TransactionType == TransactionType.Deduction && n.TransDate >= startDate
+                && n.TransDate <= endDate).ToList();
+                _context.RemoveRange(deletetransport);
+                //check transport rate
+
+                var getpricegls = _context.DPrices.FirstOrDefault(j => j.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper()));
+
+                var gettransportersrate = _context.DTransports.FirstOrDefault(h => h.Sno.ToUpper().Equals(filter.Code.ToUpper())
+                && h.saccocode.ToUpper().Equals(filter.Sacco.ToUpper()));
+                if (gettransportersrate != null)
+                {
+                    decimal Rate = 0;
+                    Rate = (decimal)gettransportersrate.Rate;
+
+                    var sumkgs = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper())
+                    && i.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper())
+                    && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
+                    && i.TransDate >= startDate && i.TransDate <= endDate).ToList().Sum(n => n.Qsupplied);
+                    var actualrate = Rate * sumkgs;
+
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = filter.Code.ToUpper(),
+                        TransDate = (DateTime)endDate,
+                        TransTime = DateTime.Now.TimeOfDay,
+                        ProductType = getpricegls.Products,
+                        Qsupplied = sumkgs,
+                        Ppu = Rate,
+                        CR = 0,
+                        DR = actualrate,
+                        Balance = actualrate,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Remarks = "",
+                        AuditId = loggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = filter.Branch,
+                        SaccoCode = filter.Sacco,
+                        DrAccNo = getpricegls.TransportCrAccNo,
+                        CrAccNo = getpricegls.TransportDrAccNo,
+
+                    });
+                    _context.SaveChanges();
+                }
+                
+            }
+
             var statement = new SupplierStatement(_context);
             var statementResp = statement.GenerateStatement(filter);
             return Json(statementResp);
@@ -683,28 +746,46 @@ namespace EasyPro.Controllers
                     });
                 }
 
-                if (productIntake.SMS)
+                if (sacco == "EMUKA MORINGA FCS" || sacco == "USWET UMOJA DAIRIES FCS")
                 {
-                    var intakes = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
-                    && s.TransDate >= startDate && s.TransDate <= endDate);
-                    if (user.AccessLevel == AccessLevel.Branch)
-                        intakes = intakes.Where(s => s.Branch == saccoBranch);
-                    var commulated = intakes.Sum(s => s.Qsupplied);
-                    var note = "";
-                    if (productIntake.ProductType.ToLower().Equals("milk"))
-                        note = "Kindly observe withdrawal period after cow treatment";
-                    _context.Messages.Add(new Message
+                    if (productIntake.SMS)
                     {
-                        Telephone = supplier.PhoneNo,
-                        Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}\n {note}",
-                        ProcessTime = DateTime.Now.ToString(),
-                        MsgType = "Outbox",
-                        Replied = false,
-                        DateReceived = DateTime.Now,
-                        Source = loggedInUser,
-                        Code = sacco
-                    });
+                        var intakes = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
+                        && s.TransDate >= startDate && s.TransDate <= endDate);
+                        if (user.AccessLevel == AccessLevel.Branch)
+                            intakes = intakes.Where(s => s.Branch == saccoBranch);
+                        var commulated = intakes.Sum(s => s.Qsupplied);
+                        var note = "";
+                        if (productIntake.ProductType.ToLower().Equals("milk"))
+                            note = "Kindly observe withdrawal period after cow treatment";
+
+                        var phone_first = supplier.PhoneNo.Substring(0, 1);
+                        if (phone_first == "0")
+                            supplier.PhoneNo = supplier.PhoneNo.Substring(1);
+                        var phone_three = supplier.PhoneNo.Substring(0, 3);
+                        if (phone_three == "254")
+                            supplier.PhoneNo = supplier.PhoneNo.Substring(3);
+                        var phone_four = supplier.PhoneNo.Substring(0, 4);
+                        if (phone_four == "+254")
+                            supplier.PhoneNo = supplier.PhoneNo.Substring(4);
+
+                        supplier.PhoneNo = "254" + supplier.PhoneNo;
+                        var totalkgs = string.Format("{0:.0###}", commulated + productIntake.Qsupplied);
+                        _context.Messages.Add(new Message
+                        {
+                            Telephone = supplier.PhoneNo,
+                            Content = $"{DateTime.Now} Dear {supplier.Names}, You have supplied {productIntake.Qsupplied} kgs to {sacco}. Total for {DateTime.Today.ToString("MMMM/yyyy")} is {totalkgs} kgs.\n {note}",
+                            ProcessTime = DateTime.Now.ToString(),
+                            MsgType = "Outbox",
+                            Replied = false,
+                            DateReceived = DateTime.Now,
+                            Source = loggedInUser,
+                            Code = sacco
+                        });
+                    }
                 }
+
+                  
                 //if (productIntake.Print)
                 //    PrintP(collection);
 
@@ -1689,29 +1770,47 @@ namespace EasyPro.Controllers
                 //    DrAccNo = productIntake.DrAccNo,
                 //    CrAccNo = productIntake.CrAccNo,
                 //});
+             
+                if (sacco== "EMUKA MORINGA FCS" || sacco== "USWET UMOJA DAIRIES FCS")
+                {
+                    if (productIntake.SMS)
+                    {
+                        var startDate1 = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                        var endDate1 = startDate1.AddMonths(1).AddDays(-1);
+                        var intakes = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
+                        && s.TransDate >= startDate1 && s.TransDate <= endDate1);
+                        if (user.AccessLevel == AccessLevel.Branch)
+                            intakes = intakes.Where(i => i.Branch == saccoBranch);
 
-                //if (productIntake.SMS)
-                //{
-                //    var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-                //    var endDate = startDate.AddMonths(1).AddDays(-1);
-                //    var intakes = _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
-                //    && s.TransDate >= startDate && s.TransDate <= endDate);
-                //    if (user.AccessLevel == AccessLevel.Branch)
-                //        intakes = intakes.Where(i => i.Branch == saccoBranch);
+                        var commulated = intakes.Sum(s => s.Qsupplied);
 
-                //    var commulated = intakes.Sum(s => s.Qsupplied);
-                //    _context.Messages.Add(new Message
-                //    {
-                //        Telephone = supplier.PhoneNo,
-                //        Content = $"You have supplied {productIntake.Qsupplied} kgs to {sacco}. Your commulated {commulated + productIntake.Qsupplied}",
-                //        ProcessTime = DateTime.Now.ToString(),
-                //        MsgType = "Outbox",
-                //        Replied = false,
-                //        DateReceived = DateTime.Now,
-                //        Source = loggedInUser,
-                //        Code = sacco
-                //    });
-                //}
+                        var phone_first = supplier.PhoneNo.Substring(0, 1);
+                        if (phone_first == "0")
+                            supplier.PhoneNo = supplier.PhoneNo.Substring(1);
+                        var phone_three = supplier.PhoneNo.Substring(0, 3);
+                        if (phone_three == "254")
+                            supplier.PhoneNo = supplier.PhoneNo.Substring(3);
+                        var phone_four = supplier.PhoneNo.Substring(0, 4);
+                        if (phone_four == "+254")
+                            supplier.PhoneNo = supplier.PhoneNo.Substring(4);
+
+                        supplier.PhoneNo = "254" + supplier.PhoneNo;
+
+                        var totalkgs = string.Format("{0:.0###}", commulated + productIntake.Qsupplied);
+                        _context.Messages.Add(new Message
+                        {
+                            Telephone = supplier.PhoneNo,
+                            Content = $"{DateTime.Now} Dear {supplier.Names}, Your have supplied {productIntake.Qsupplied} kgs to {sacco}. Total for {DateTime.Today.ToString("MMMM/yyyy")} is {totalkgs} kgs.",
+                            ProcessTime = DateTime.Now.ToString(),
+                            MsgType = "Outbox",
+                            Replied = false,
+                            DateReceived = DateTime.Now,
+                            Source = loggedInUser,
+                            Code = sacco
+                        });
+                    }
+                }
+               
 
                 //if (productIntake.Print)
                 //    PrintP(collection);

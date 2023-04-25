@@ -44,5 +44,6 @@ namespace EasyPro.ViewModels
         public string Description { get; set; }
         public string Remarks { get; set; }
         public DateTime Auditdatetime { get; set; }
+        public decimal? getsumkgs { get; set; }
     }
 }

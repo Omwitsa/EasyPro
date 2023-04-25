@@ -37,8 +37,6 @@ namespace EasyPro.Controllers
             .OrderByDescending(s => s.Code.ToUpper()).ToList();
             return View(SalesAnalysis);
         }
-
-
         public IActionResult Index()
         {
             utilities.SetUpPrivileges(this);
