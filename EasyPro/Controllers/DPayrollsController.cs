@@ -224,13 +224,8 @@ namespace EasyPro.Controllers
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                     var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
-                    var Others = p.Where(k => !dcodes.Contains(k.ProductType.ToLower()) && k.TransactionType != TransactionType.Correction
-                    && !k.ProductType.ToLower().Contains("advance") && !k.ProductType.ToLower().Contains("transport")
-                    && !k.ProductType.ToLower().Contains("agrovet") && !k.ProductType.ToLower().Contains("bonus")
-                    && !k.ProductType.ToLower().Contains("shares") && !k.ProductType.ToLower().Contains("loan")
-                    && !k.ProductType.ToLower().Contains("carry forward") && !k.ProductType.ToLower().Contains("clinical")
-                    && !k.ProductType.ToLower().Contains("ai") && !k.ProductType.ToLower().Contains("a.i")
-                    && !k.ProductType.ToLower().Contains("sms"));
+                    var Others = p.Where(k => !dcodes.Contains(k.ProductType.ToLower()) && !k.ProductType.ToUpper().Equals("AGROVET") 
+                    && !k.ProductType.ToUpper().Equals("MILK") && k.TransactionType == TransactionType.Deduction);
 
                     var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(p.Key)
                     && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch.ToUpper().Equals(branchName.ToUpper()));
@@ -239,7 +234,7 @@ namespace EasyPro.Controllers
                         var debits = corrections.Sum(s => s.DR);
                         var credited = p.Sum(s => s.CR);
                         var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
-                        + Others.Sum(s => s.DR)+ clinical.Sum(s => s.DR)+ ai.Sum(s => s.DR)+ tractor.Sum(s => s.DR)
+                        + Others.Sum(s => s.DR)+ clinical.Sum(s => s.DR)+ ai.Sum(s => s.DR)+ tractor.Sum(s => s.DR) + transport.Sum(s => s.DR)
                         + carryforward.Sum(s => s.DR) + loan.Sum(s=>s.DR) + extension.Sum(s => s.DR)+ SMS.Sum(s=>s.DR);
 
                         _context.DPayrolls.Add(new DPayroll
