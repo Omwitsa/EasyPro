@@ -1177,8 +1177,7 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 2).Value = "Suppliers Payroll Report";
                 var EndofPeriod = dpayrollobj.FirstOrDefault();
                 worksheet.Cell(currentRow, 4).Value = EndofPeriod.EndofPeriod;
-                // SNo, Transport, Agrovet, Bonus,, HShares, Advance, TDeductions, KgsSupplied, GPay,
-                //Bank, AccountNumber, BBranch
+                
                 currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
                 worksheet.Cell(currentRow, 2).Value = "Name";
@@ -1196,14 +1195,15 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 14).Value = "AI";
                 worksheet.Cell(currentRow, 15).Value = "CurryForward";
                 worksheet.Cell(currentRow, 16).Value = "SMS";
-                worksheet.Cell(currentRow, 17).Value = "TDeductions";
-                worksheet.Cell(currentRow, 18).Value = "KgsSupplied";
-                worksheet.Cell(currentRow, 19).Value = "GPay";
-                worksheet.Cell(currentRow, 20).Value = "NPay";
-                worksheet.Cell(currentRow, 21).Value = "Bank";
-                worksheet.Cell(currentRow, 22).Value = "AccountNumber";
-                worksheet.Cell(currentRow, 23).Value = "BBranch";
-                worksheet.Cell(currentRow, 24).Value = "Station";
+                worksheet.Cell(currentRow, 17).Value = "Loan";
+                worksheet.Cell(currentRow, 18).Value = "TDeductions";
+                worksheet.Cell(currentRow, 19).Value = "KgsSupplied";
+                worksheet.Cell(currentRow, 20).Value = "GPay";
+                worksheet.Cell(currentRow, 21).Value = "NPay";
+                worksheet.Cell(currentRow, 22).Value = "Bank";
+                worksheet.Cell(currentRow, 23).Value = "AccountNumber";
+                worksheet.Cell(currentRow, 24).Value = "BBranch";
+                worksheet.Cell(currentRow, 25).Value = "Station";
 
                 decimal? Transport = 0;
                 decimal? Agrovet = 0;
@@ -1222,6 +1222,7 @@ namespace EasyPro.Controllers
                 double? KgsSupplied = 0;
                 decimal? Gpay = 0;
                 decimal? Npay = 0;
+                decimal? loans = 0;
                 foreach (var emp in dpayrollobj)
                 {
                     Transport = dpayrollobj.Sum(k => k.Transport);
@@ -1241,6 +1242,7 @@ namespace EasyPro.Controllers
                     KgsSupplied = dpayrollobj.Sum(k => k.KgsSupplied);
                     Gpay = dpayrollobj.Sum(k => k.Gpay);
                     Npay = dpayrollobj.Sum(k => k.Npay);
+                    loans = dpayrollobj.Sum(k => k.Fsa);
 
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
@@ -1263,14 +1265,15 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 14).Value = emp.AI;
                     worksheet.Cell(currentRow, 15).Value = emp.CurryForward;
                     worksheet.Cell(currentRow, 16).Value = emp.SMS;
-                    worksheet.Cell(currentRow, 17).Value = emp.Tdeductions;
-                    worksheet.Cell(currentRow, 18).Value = emp.KgsSupplied;
-                    worksheet.Cell(currentRow, 19).Value = emp.Gpay;
-                    worksheet.Cell(currentRow, 20).Value = emp.Npay;
-                    worksheet.Cell(currentRow, 21).Value = emp.Bank;
-                    worksheet.Cell(currentRow, 22).Value = "'" + emp.AccountNumber;
-                    worksheet.Cell(currentRow, 23).Value = emp.Bbranch;
-                    worksheet.Cell(currentRow, 24).Value = emp.Branch;
+                    worksheet.Cell(currentRow, 17).Value = emp.Fsa;
+                    worksheet.Cell(currentRow, 18).Value = emp.Tdeductions;
+                    worksheet.Cell(currentRow, 19).Value = emp.KgsSupplied;
+                    worksheet.Cell(currentRow, 20).Value = emp.Gpay;
+                    worksheet.Cell(currentRow, 21).Value = emp.Npay;
+                    worksheet.Cell(currentRow, 22).Value = emp.Bank;
+                    worksheet.Cell(currentRow, 23).Value = "'" + emp.AccountNumber;
+                    worksheet.Cell(currentRow, 24).Value = emp.Bbranch;
+                    worksheet.Cell(currentRow, 25).Value = emp.Branch;
                 }
                 currentRow++;
                 worksheet.Cell(currentRow, 3).Value = "Total";
@@ -1287,10 +1290,12 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 14).Value = AI;
                 worksheet.Cell(currentRow, 15).Value = CurryForward;
                 worksheet.Cell(currentRow, 16).Value = SMS;
-                worksheet.Cell(currentRow, 17).Value = Tdeductions;
-                worksheet.Cell(currentRow, 18).Value = KgsSupplied;
-                worksheet.Cell(currentRow, 19).Value = Gpay;
-                worksheet.Cell(currentRow, 20).Value = Npay;
+                worksheet.Cell(currentRow, 17).Value = loans;
+                worksheet.Cell(currentRow, 18).Value = Tdeductions;
+                worksheet.Cell(currentRow, 19).Value = KgsSupplied;
+                worksheet.Cell(currentRow, 20).Value = Gpay;
+                worksheet.Cell(currentRow, 21).Value = Npay;
+
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
