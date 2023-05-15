@@ -52,7 +52,6 @@ namespace EasyPro.Controllers
                     Quantity = p.KgsSupplied,
                     GrossPay = p.Gpay,
                     Transport = p.Transport,
-                    Registration = 0,
                     Advance = p.Advance,
                     Fsa = p.Fsa, // loan
                     Others = p.Others,
