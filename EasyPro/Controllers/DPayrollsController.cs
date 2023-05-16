@@ -277,8 +277,6 @@ namespace EasyPro.Controllers
                                 Branch = supplier.Branch
                             });
 
-
-
                         if (supplier.TransCode == "Weekly" && period.EndDate != monthsLastDate)
                         {
                             _context.DPayrolls.Add(new DPayroll
