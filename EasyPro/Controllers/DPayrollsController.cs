@@ -107,16 +107,15 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
-            //var endDate = startDate.AddMonths(1).AddDays(-1);
-            var endDate = period.EndDate;
+            var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
                 .Select(b => b.Bname.ToUpper());
-
+            
             var payrolls = _context.DPayrolls
-                .Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month
+                .Where(p => p.Yyear == period.EndDate.Year && p.Mmonth == period.EndDate.Month
                 && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
             if (payrolls.Any())
             {
@@ -124,7 +123,7 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
             }
             var transportersPayRolls = _context.DTransportersPayRolls
-                .Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month
+                .Where(p => p.Yyear == period.EndDate.Year && p.Mmonth == period.EndDate.Month
                 && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
             if (transportersPayRolls.Any())
             {
@@ -132,17 +131,17 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
             }
 
-            var advIntakes = _context.ProductIntake.Where(i => i.TransDate >= startDate && i.TransDate <= DateTime.Today && i.Remarks == StrValues.AdvancePayroll);
-            if (advIntakes.Any())
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            var advIntakes = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= DateTime.Today && i.Remarks == StrValues.AdvancePayroll);
+            if (advIntakes.Any() && period.EndDate != monthsLastDate)
             {
                 _context.ProductIntake.RemoveRange(advIntakes);
                 _context.SaveChanges();
             }
-
-            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            
             if (sacco != "MBURUGU DAIRY F.C.S")
             {
-                var transpoterIntakes = productIntakeslist.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= endDate
+                var transpoterIntakes = productIntakeslist.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= period.EndDate
                 && i.Description.ToLower().Equals("transport"));
                 if (transpoterIntakes.Any())
                 {
@@ -151,20 +150,20 @@ namespace EasyPro.Controllers
                 }
             }
 
-            var deletestandingorder = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
+            var deletestandingorder = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= period.EndDate
                  && i.Remarks == "Standing Order" && i.SaccoCode == sacco);
             if (deletestandingorder.Any())
             {
                 _context.ProductIntake.RemoveRange(deletestandingorder);
                 _context.SaveChanges();
             }
-            calcstandingorder(startDate, endDate, sacco, loggedInUser);
+            calcstandingorder(startDate, period.EndDate, sacco, loggedInUser);
 
             var selectdistinctdedname = _context.d_PreSets.Where(b => b.saccocode == sacco)
             .Select(b => b.Deduction.ToUpper()).Distinct();
             foreach (var dedtype in selectdistinctdedname)
             {
-                var deletesdefaultded = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
+                var deletesdefaultded = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= period.EndDate
                 && i.ProductType.ToUpper().Equals(dedtype.ToUpper()) && i.SaccoCode == sacco).ToList();
                 if (deletesdefaultded.Any())
                 {
@@ -174,14 +173,14 @@ namespace EasyPro.Controllers
 
             var checkgls = _context.Gltransactions
                .Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= startDate
-               && f.TransDate <= endDate && (f.TransDescript.ToUpper().Equals("Bonus".ToUpper()) || f.TransDescript.ToUpper().Equals("Shares".ToUpper())));
+               && f.TransDate <= period.EndDate && (f.TransDescript.ToUpper().Equals("Bonus".ToUpper()) || f.TransDescript.ToUpper().Equals("Shares".ToUpper())));
             if (checkgls.Any())
             {
                 _context.Gltransactions.RemoveRange(checkgls);
             }
 
             var checksharespaid = _context.DShares.Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                            && f.TransDate >= startDate && f.TransDate <= endDate && f.Type == "Checkoff"
+                            && f.TransDate >= startDate && f.TransDate <= period.EndDate && f.Type == "Checkoff"
                             && f.Pmode == "Checkoff");
             if (checksharespaid.Any())
             {
@@ -192,9 +191,9 @@ namespace EasyPro.Controllers
             foreach (var branchName in branchNames)
             {
                 //update default deductions if any like bonus
-                await calcDefaultdeductions(startDate, endDate, sacco, branchName, loggedInUser);
+                await calcDefaultdeductions(startDate, period.EndDate, sacco, branchName, loggedInUser);
                 if (sacco != "MBURUGU DAIRY F.C.S")
-                    await ConsolidateTranspoterIntakes(startDate, endDate, sacco, branchName, loggedInUser);
+                    await ConsolidateTranspoterIntakes(startDate, period.EndDate, sacco, branchName, loggedInUser);
             }
             _context.SaveChanges();
 
@@ -209,7 +208,7 @@ namespace EasyPro.Controllers
                 && s.Branch.ToUpper().Equals(branchName.ToUpper())).Select(s => s.Sno);
 
                 var productIntakes = await productIntakeslist
-                .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
+                .Where(p => p.TransDate >= startDate && p.TransDate <= period.EndDate
                 && supplierNos.Contains(p.Sno) && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToListAsync();
 
@@ -238,67 +237,106 @@ namespace EasyPro.Controllers
                     && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch.ToUpper().Equals(branchName.ToUpper()));
                     if (supplier != null)
                     {
+
                         var debits = corrections.Sum(s => s.DR);
                         var credited = p.Sum(s => s.CR);
                         var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
                         + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) + tractor.Sum(s => s.DR) + transport.Sum(s => s.DR)
                         + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR);
 
-                        _context.DPayrolls.Add(new DPayroll
+                        if(supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate)
+                            _context.DPayrolls.Add(new DPayroll
+                            {
+                                Sno = supplier.Sno,
+                                Gpay = credited,
+                                KgsSupplied = (double?)milk.Sum(s => s.Qsupplied),
+                                Advance = advance.Sum(s => s.DR),
+                                CurryForward = carryforward.Sum(s => s.DR),
+                                Others = Others.Sum(s => s.DR),
+                                CLINICAL = clinical.Sum(s => s.DR),
+                                AI = ai.Sum(s => s.DR),
+                                Tractor = tractor.Sum(s => s.DR),
+                                Transport = transport.Sum(s => s.DR),
+                                extension = extension.Sum(s => s.DR),
+                                SMS = SMS.Sum(s => s.DR),
+                                Agrovet = agrovet.Sum(s => s.DR),
+                                Bonus = bonus.Sum(s => s.DR),
+                                Fsa = loan.Sum(s => s.DR),
+                                Hshares = shares.Sum(s => s.DR),
+                                Tdeductions = Tot,
+                                Npay = credited - (debits + Tot),
+                                Yyear = period.EndDate.Year,
+                                Mmonth = period.EndDate.Month,
+                                Bank = supplier.Bcode,
+                                AccountNumber = supplier.AccNo,
+                                Bbranch = supplier.Bbranch,
+                                IdNo = supplier.IdNo,
+                                EndofPeriod = period.EndDate,
+                                SaccoCode = sacco,
+                                Auditid = loggedInUser,
+                                Branch = supplier.Branch
+                            });
+
+
+
+                        if (supplier.TransCode == "Weekly" && period.EndDate != monthsLastDate)
                         {
-                            Sno = supplier.Sno,
-                            Gpay = credited,
-                            KgsSupplied = (double?)milk.Sum(s => s.Qsupplied),
-                            Advance = advance.Sum(s => s.DR),
-                            CurryForward = carryforward.Sum(s => s.DR),
-                            Others = Others.Sum(s => s.DR),
-                            CLINICAL = clinical.Sum(s => s.DR),
-                            AI = ai.Sum(s => s.DR),
-                            Tractor = tractor.Sum(s => s.DR),
-                            Transport = transport.Sum(s => s.DR),
-                            extension = extension.Sum(s => s.DR),
-                            SMS = SMS.Sum(s => s.DR),
-                            Agrovet = agrovet.Sum(s => s.DR),
-                            Bonus = bonus.Sum(s => s.DR),
-                            Fsa = loan.Sum(s => s.DR),
-                            Hshares = shares.Sum(s => s.DR),
-                            Tdeductions = Tot,
-                            Npay = credited - (debits + Tot),
-                            Yyear = endDate.Year,
-                            Mmonth = endDate.Month,
-                            Bank = supplier.Bcode,
-                            AccountNumber = supplier.AccNo,
-                            Bbranch = supplier.Bbranch,
-                            IdNo = supplier.IdNo,
-                            EndofPeriod = endDate,
-                            SaccoCode = sacco,
-                            Auditid = loggedInUser,
-                            Branch = supplier.Branch
-                        });
-                        
-                        _context.ProductIntake.Add(new ProductIntake
-                        {
-                            Sno = supplier.Sno,
-                            TransDate = DateTime.Today,
-                            TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                            ProductType = "",
-                            Qsupplied = 0,
-                            Ppu = 0,
-                            CR = 0,
-                            DR = credited,
-                            Balance = 0,
-                            Description = "Advance",
-                            TransactionType = TransactionType.Deduction,
-                            Remarks = StrValues.AdvancePayroll,
-                            AuditId = loggedInUser,
-                            Auditdatetime = DateTime.Now,
-                            Branch = supplier.Branch,
-                            SaccoCode = sacco,
-                            DrAccNo = "",
-                            CrAccNo = "",
-                            Zone = "",
-                            MornEvening = ""
-                        });
+                            _context.DPayrolls.Add(new DPayroll
+                            {
+                                Sno = supplier.Sno,
+                                Gpay = credited,
+                                KgsSupplied = (double?)milk.Sum(s => s.Qsupplied),
+                                Advance = advance.Sum(s => s.DR),
+                                CurryForward = carryforward.Sum(s => s.DR),
+                                Others = Others.Sum(s => s.DR),
+                                CLINICAL = clinical.Sum(s => s.DR),
+                                AI = ai.Sum(s => s.DR),
+                                Tractor = tractor.Sum(s => s.DR),
+                                Transport = transport.Sum(s => s.DR),
+                                extension = extension.Sum(s => s.DR),
+                                SMS = SMS.Sum(s => s.DR),
+                                Agrovet = agrovet.Sum(s => s.DR),
+                                Bonus = bonus.Sum(s => s.DR),
+                                Fsa = loan.Sum(s => s.DR),
+                                Hshares = shares.Sum(s => s.DR),
+                                Tdeductions = Tot,
+                                Npay = credited - (debits + Tot),
+                                Yyear = period.EndDate.Year,
+                                Mmonth = period.EndDate.Month,
+                                Bank = supplier.Bcode,
+                                AccountNumber = supplier.AccNo,
+                                Bbranch = supplier.Bbranch,
+                                IdNo = supplier.IdNo,
+                                EndofPeriod = period.EndDate,
+                                SaccoCode = sacco,
+                                Auditid = loggedInUser,
+                                Branch = supplier.Branch
+                            });
+
+                            _context.ProductIntake.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                TransDate = DateTime.Today,
+                                TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                                ProductType = "",
+                                Qsupplied = 0,
+                                Ppu = 0,
+                                CR = 0,
+                                DR = credited,
+                                Balance = 0,
+                                Description = "Advance",
+                                TransactionType = TransactionType.Deduction,
+                                Remarks = StrValues.AdvancePayroll,
+                                AuditId = loggedInUser,
+                                Auditdatetime = DateTime.Now,
+                                Branch = supplier.Branch,
+                                SaccoCode = sacco,
+                                DrAccNo = "0",
+                                CrAccNo = "0",
+                                Zone = "",
+                                MornEvening = ""
+                            });
+                        }
                     }
                 });
             }
@@ -315,7 +353,7 @@ namespace EasyPro.Controllers
                .Select(s => s.TransCode.Trim().ToUpper());
 
                 var productIntakes = productIntakeslist
-                .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
+                .Where(p => p.TransDate >= startDate && p.TransDate <= period.EndDate
                 && transpoterCodes.Contains(p.Sno.Trim().ToUpper())
                 && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
@@ -373,11 +411,11 @@ namespace EasyPro.Controllers
                             Totaldeductions = Tot,
                             NetPay = (amount + subsidy) - debits - Tot,
                             BankName = transporter.Bcode,
-                            Yyear = endDate.Year,
-                            Mmonth = endDate.Month,
+                            Yyear = period.EndDate.Year,
+                            Mmonth = period.EndDate.Month,
                             AccNo = transporter.Accno,
                             BBranch = transporter.Bbranch,
-                            EndPeriod = endDate,
+                            EndPeriod = period.EndDate,
                             Rate = 0,
                             SaccoCode = sacco,
                             AuditId = loggedInUser,
