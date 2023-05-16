@@ -9,5 +9,6 @@
         static public string Ainabkoi = "AINABKOI FCS";
         static public string Tanykina = "TANYKINA Dairy Plant Limited";
         static public string Mburugu = "MBURUGU DAIRY F.C.S";
+        static public string AdvancePayroll = "Advance Payroll";
     }
 }

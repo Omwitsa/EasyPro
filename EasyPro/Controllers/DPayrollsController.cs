@@ -107,7 +107,8 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
+            //var endDate = startDate.AddMonths(1).AddDays(-1);
+            var endDate = period.EndDate;
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -128,6 +129,13 @@ namespace EasyPro.Controllers
             if (transportersPayRolls.Any())
             {
                 _context.DTransportersPayRolls.RemoveRange(transportersPayRolls);
+                _context.SaveChanges();
+            }
+
+            var advIntakes = _context.ProductIntake.Where(i => i.TransDate >= startDate && i.TransDate <= DateTime.Today && i.Remarks == StrValues.AdvancePayroll);
+            if (advIntakes.Any())
+            {
+                _context.ProductIntake.RemoveRange(advIntakes);
                 _context.SaveChanges();
             }
 
@@ -266,6 +274,30 @@ namespace EasyPro.Controllers
                             SaccoCode = sacco,
                             Auditid = loggedInUser,
                             Branch = supplier.Branch
+                        });
+                        
+                        _context.ProductIntake.Add(new ProductIntake
+                        {
+                            Sno = supplier.Sno,
+                            TransDate = DateTime.Today,
+                            TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                            ProductType = "",
+                            Qsupplied = 0,
+                            Ppu = 0,
+                            CR = 0,
+                            DR = credited,
+                            Balance = 0,
+                            Description = "Advance",
+                            TransactionType = TransactionType.Deduction,
+                            Remarks = StrValues.AdvancePayroll,
+                            AuditId = loggedInUser,
+                            Auditdatetime = DateTime.Now,
+                            Branch = supplier.Branch,
+                            SaccoCode = sacco,
+                            DrAccNo = "",
+                            CrAccNo = "",
+                            Zone = "",
+                            MornEvening = ""
                         });
                     }
                 });
