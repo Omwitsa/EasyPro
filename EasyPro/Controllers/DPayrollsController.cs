@@ -244,40 +244,7 @@ namespace EasyPro.Controllers
                         + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) + tractor.Sum(s => s.DR) + transport.Sum(s => s.DR)
                         + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR);
 
-                        if(supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate)
-                            _context.DPayrolls.Add(new DPayroll
-                            {
-                                Sno = supplier.Sno,
-                                Gpay = credited,
-                                KgsSupplied = (double?)milk.Sum(s => s.Qsupplied),
-                                Advance = advance.Sum(s => s.DR),
-                                CurryForward = carryforward.Sum(s => s.DR),
-                                Others = Others.Sum(s => s.DR),
-                                CLINICAL = clinical.Sum(s => s.DR),
-                                AI = ai.Sum(s => s.DR),
-                                Tractor = tractor.Sum(s => s.DR),
-                                Transport = transport.Sum(s => s.DR),
-                                extension = extension.Sum(s => s.DR),
-                                SMS = SMS.Sum(s => s.DR),
-                                Agrovet = agrovet.Sum(s => s.DR),
-                                Bonus = bonus.Sum(s => s.DR),
-                                Fsa = loan.Sum(s => s.DR),
-                                Hshares = shares.Sum(s => s.DR),
-                                Tdeductions = Tot,
-                                Npay = credited - (debits + Tot),
-                                Yyear = period.EndDate.Year,
-                                Mmonth = period.EndDate.Month,
-                                Bank = supplier.Bcode,
-                                AccountNumber = supplier.AccNo,
-                                Bbranch = supplier.Bbranch,
-                                IdNo = supplier.IdNo,
-                                EndofPeriod = period.EndDate,
-                                SaccoCode = sacco,
-                                Auditid = loggedInUser,
-                                Branch = supplier.Branch
-                            });
-
-                        if (supplier.TransCode == "Weekly" && period.EndDate != monthsLastDate)
+                        if(supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate))
                         {
                             _context.DPayrolls.Add(new DPayroll
                             {
@@ -311,29 +278,30 @@ namespace EasyPro.Controllers
                                 Branch = supplier.Branch
                             });
 
-                            _context.ProductIntake.Add(new ProductIntake
-                            {
-                                Sno = supplier.Sno,
-                                TransDate = DateTime.Today,
-                                TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                                ProductType = "",
-                                Qsupplied = 0,
-                                Ppu = 0,
-                                CR = 0,
-                                DR = credited,
-                                Balance = 0,
-                                Description = "Advance",
-                                TransactionType = TransactionType.Deduction,
-                                Remarks = StrValues.AdvancePayroll,
-                                AuditId = loggedInUser,
-                                Auditdatetime = DateTime.Now,
-                                Branch = supplier.Branch,
-                                SaccoCode = sacco,
-                                DrAccNo = "0",
-                                CrAccNo = "0",
-                                Zone = "",
-                                MornEvening = ""
-                            });
+                            if(period.EndDate != monthsLastDate)
+                                _context.ProductIntake.Add(new ProductIntake
+                                {
+                                    Sno = supplier.Sno,
+                                    TransDate = DateTime.Today,
+                                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                                    ProductType = "",
+                                    Qsupplied = 0,
+                                    Ppu = 0,
+                                    CR = 0,
+                                    DR = credited,
+                                    Balance = 0,
+                                    Description = "Advance",
+                                    TransactionType = TransactionType.Deduction,
+                                    Remarks = StrValues.AdvancePayroll,
+                                    AuditId = loggedInUser,
+                                    Auditdatetime = DateTime.Now,
+                                    Branch = supplier.Branch,
+                                    SaccoCode = sacco,
+                                    DrAccNo = "0",
+                                    CrAccNo = "0",
+                                    Zone = "",
+                                    MornEvening = ""
+                                });
                         }
                     }
                 });
