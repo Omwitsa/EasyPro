@@ -16,6 +16,7 @@ namespace EasyPro.ViewModels
         public string Branch { get; set; }
         public double? Quantity { get; set; }
         public decimal? GrossPay { get; set; }
+        public decimal? Registration { get; set; }
         public decimal? Transport { get; set; }
         [Display(Name = "Loan")]
         public decimal? Fsa { get; set; }

@@ -10,7 +10,6 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
-using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace EasyPro.Controllers
 {
@@ -55,6 +54,7 @@ namespace EasyPro.Controllers
                     Advance = p.Advance,
                     Fsa = p.Fsa, // loan
                     Others = p.Others,
+                    Registration = p.Registration,
                     Netpay = p.Npay,
                     Agrovet = p.Agrovet,
                     Bonus = p.Bonus,
@@ -201,7 +201,8 @@ namespace EasyPro.Controllers
                || c.Description.ToLower().Equals("agrovet") || c.Description.ToLower().Equals("bonus") || c.Description.ToLower().Equals("shares")
                || c.Description.ToLower().Equals("loan") || c.Description.ToLower().Equals("carry forward") || c.Description.ToLower().Equals("clinical")
                || c.Description.ToLower().Equals("a.i") || c.Description.ToLower().Equals("ai") || c.Description.ToLower().Equals("tractor")
-               || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work")).Select(c => c.Description.ToLower()).ToList();
+               || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work")
+               || c.Description.ToLower().Equals("registration")).Select(c => c.Description.ToLower()).ToList();
             foreach (var branchName in branchNames)
             {
                 var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())
@@ -227,6 +228,7 @@ namespace EasyPro.Controllers
                     var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
                     var extension = p.Where(k => k.ProductType.ToLower().Contains("extension work"));
                     var SMS = p.Where(k => k.ProductType.ToLower().Contains("sms"));
+                    var registration = p.Where(k => k.ProductType.ToLower().Contains("registration"));
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                     var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
@@ -242,7 +244,8 @@ namespace EasyPro.Controllers
                         var credited = p.Sum(s => s.CR);
                         var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
                         + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) + tractor.Sum(s => s.DR) + transport.Sum(s => s.DR)
-                        + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR);
+                        + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR) 
+                        + registration.Sum(s => s.DR);
 
                         if(supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate))
                         {
@@ -258,6 +261,7 @@ namespace EasyPro.Controllers
                                 AI = ai.Sum(s => s.DR),
                                 Tractor = tractor.Sum(s => s.DR),
                                 Transport = transport.Sum(s => s.DR),
+                                Registration = registration.Sum(s => s.DR),
                                 extension = extension.Sum(s => s.DR),
                                 SMS = SMS.Sum(s => s.DR),
                                 Agrovet = agrovet.Sum(s => s.DR),

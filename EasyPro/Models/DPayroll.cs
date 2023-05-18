@@ -22,6 +22,7 @@ namespace EasyPro.Models
         public decimal? Others { get; set; }
         public decimal? Tdeductions { get; set; }
         public double? KgsSupplied { get; set; }
+        public decimal? Registration { get; set; }
         public decimal? Gpay { get; set; }
         public decimal? Npay { get; set; }
         public int? Yyear { get; set; }
