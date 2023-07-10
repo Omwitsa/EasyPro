@@ -1,4 +1,4 @@
-﻿using AspNetCoreHero.ToastNotification.Abstractions;
+﻿ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;

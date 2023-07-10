@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -7,29 +8,30 @@ namespace EasyPro.Models
 {
     public partial class DShare
     {
+        [Key]
         public long Id { get; set; }
         public string Sno { get; set; }
         public decimal? Bal { get; set; }
-        public string IdNo { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
-        public string Sex { get; set; }
-        public string Loc { get; set; }
-        public string Type { get; set; }
+        public string? IdNo { get; set; }
+        public string? Code { get; set; }
+        public string? Name { get; set; }
+        public string? Sex { get; set; }
+        public string? Loc { get; set; }
+        public string? Type { get; set; }
         public DateTime? TransDate { get; set; }
-        public string Pmode { get; set; }
+        public string? Pmode { get; set; }
         public bool? Cash { get; set; }
-        public string Period { get; set; }
+        public string? Period { get; set; }
         public decimal? Amnt { get; set; }
-        public string AuditId { get; set; }
+        public string? AuditId { get; set; }
         public DateTime? AuditDateTime { get; set; }
-        public decimal Shares { get; set; }
+        public decimal? Shares { get; set; }
         public DateTime? Regdate { get; set; }
-        public string Mno { get; set; }
+        public string? Mno { get; set; }
         public decimal Amount { get; set; }
         public decimal? Premium { get; set; }
         public decimal? Spu { get; set; }
-        public string SaccoCode { get; set; }
-        public string zone { get; set; }
+        public string? SaccoCode { get; set; }
+        public string? zone { get; set; }
     }
 }

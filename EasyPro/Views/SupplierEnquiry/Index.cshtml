@@ -42,20 +42,28 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="border p-3">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
-                            <h2>Supplier Enquiry</h2>
+                        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 cmp-tb-hd">
                         </div>
                         <div class="col-lg-4 col-xs-12">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
-                                    <label class="control-label">Maximum Loan Amt</label>
+
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-xs-12" >
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 cmp-tb-hd">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
-                                    <input id="maxloan" readonly autocomplete="off" class="form-control" />
+                                    <label class="control-label">Total Shares</label>
+                                    <input id="shar" autocomplete="off" class="form-control font-weight-bold w3-text-red" disabled />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Maximum Loan Amt</label>
+                                    <input id="maxloan" readonly autocomplete="off" class="form-control font-weight-bold w3-text-green" />
                                 </div>
                             </div>
                         </div>
@@ -189,13 +197,16 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 <script type="text/javascript">
-        $(function () {
+    $(function () {
+
+
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
             $("#bname").prop("selectedIndex", -1);
             $("#zone").val('');
             document.getElementById('sno').focus();
+
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
                 $('#zone1').hide();
@@ -348,11 +359,22 @@
 
             function populateIntake(intakes) {
                 var selectVal = $("#sno").val();
+                var share = 0;
                 $('#totkgs').val('0');
+                var checkiftoenable1 = @Html.Raw(Json.Serialize(ViewBag.shares));
+                $("#shar").val(checkiftoenable1);
                 let itemTableRows = new Array();
+                share = intakes.shares;
                 intakes.forEach(i => {
                     var ddate = i.TransDate;
+                    share = i.shares;
+                    var ProductType = i.ProductType;
+                    var chek = 1;
+                    if (ProductType === null) {
+                        chek = -1;
+                    }
                     var dd1 = new Date(ddate).toLocaleDateString();
+                    if (chek>0) {
                     itemTableRows.push(`<tr>
                                 <td>${dd1}</td>
                                 <td>${i.ProductType}</td>
@@ -363,10 +385,12 @@
                                 <td>${i.Description}</td>
                                 <td>${i.Remarks}</td>
                             </tr>`)
+                    
                     var Total = 0;
                     var Total2 = 0;
                     var netpay = 0;
                     var totkgs = i.getsumkgs;
+                    
                     intakes.forEach(i => {
                         var ddr = 0;
                         var ccr = 0;
@@ -382,8 +406,10 @@
                     $('#totaldeductions').val(Total2);
                     $('#grosspay').val(Total);
                     $('#totkgs').val(totkgs);
+                    }
                 });
-
+               
+                $('#shar').val(share);
                 $('#intakes').html(itemTableRows);
             }
         });

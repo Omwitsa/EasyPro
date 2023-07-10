@@ -449,9 +449,10 @@
                 $('#save1').on('click', function () {
                     let print = $('#print').prop('checked');
                     let sms = $('#sms').prop('checked');
+                    let net = $('#Net').val();
                     $.ajax({
                         type: 'POST',
-                        url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&isCash=" + isCash + "&sms=" + sms + "&print=" + print,
+                        url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&isCash=" + isCash + "&sms=" + sms + "&print=" + print + "&net=" + net,
                         contentType: 'application/json',
                         data: JSON.stringify(saleItems),
                         success: function (response) {

@@ -36,7 +36,7 @@ namespace EasyPro.Controllers
 
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var payroll = await _context.DPayrolls.Where(i=>i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndofPeriod == endDate).Join(
+            var payroll = await _context.DPayrolls.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndofPeriod == endDate).Join(
                 _context.DSuppliers.Where(d => d.Scode.ToUpper().Equals(sacco.ToUpper())),
                 p => p.Sno.ToUpper(),
                 s => s.Sno.ToUpper(),
@@ -87,7 +87,7 @@ namespace EasyPro.Controllers
             return View();
         }
 
-       
+
 
         // POST: DPayrolls/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -106,7 +106,7 @@ namespace EasyPro.Controllers
                 .Select(b => b.Bname.ToUpper());
 
             var payrolls = _context.DPayrolls
-                .Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month 
+                .Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month
                 && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
             if (payrolls.Any())
             {
@@ -121,16 +121,20 @@ namespace EasyPro.Controllers
                 _context.DTransportersPayRolls.RemoveRange(transportersPayRolls);
                 _context.SaveChanges();
             }
-            if(sacco != "MBURUGU DAIRY F.C.S")
+
+            if (sacco != "MBURUGU DAIRY F.C.S")
             {
-                var transpoterIntakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= endDate
-                && i.Description.ToLower().Equals("transport"));
+                IQueryable<ProductIntake> newintakes = _context.ProductIntake;
+                var transpoterIntakes = newintakes.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= endDate
+                && i.Description.ToLower().Equals("transport")).ToList();
                 if (transpoterIntakes.Any())
                 {
                     _context.ProductIntake.RemoveRange(transpoterIntakes);
                     _context.SaveChanges();
                 }
             }
+
+
 
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
             var deletestandingorder = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
@@ -152,12 +156,12 @@ namespace EasyPro.Controllers
                 {
                     _context.ProductIntake.RemoveRange(deletesdefaultded);
                 }
-               
+
             }
 
             var checkgls = _context.Gltransactions
                .Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= startDate
-               && f.TransDate <= endDate && (f.TransDescript.ToUpper().Equals("Bonus".ToUpper())|| f.TransDescript.ToUpper().Equals("Shares".ToUpper())));
+               && f.TransDate <= endDate && (f.TransDescript.ToUpper().Equals("Bonus".ToUpper()) || f.TransDescript.ToUpper().Equals("Shares".ToUpper())));
             if (checkgls.Any())
             {
                 _context.Gltransactions.RemoveRange(checkgls);
@@ -169,18 +173,34 @@ namespace EasyPro.Controllers
             if (checksharespaid.Any())
             {
                 _context.DShares.RemoveRange(checksharespaid);
-                
+
             }
+
+            var branchNames2 = _context.DBranch.Where(b => b.Bcode == sacco)
+            .Select(b => b.Bname.ToUpper());
+            foreach (var branchName in branchNames2)
+            {
+                if (sacco == "MBURUGU DAIRY F.C.S")
+                    deleteTranspoterIntakes(startDate, endDate, sacco, branchName, loggedInUser);
+            }
+            
             _context.SaveChanges();
+
 
             var branchNames1 = _context.DBranch.Where(b => b.Bcode == sacco)
             .Select(b => b.Bname.ToUpper());
             foreach (var branchName in branchNames1)
             {
                 //update default deductions if any like bonus
-                calcDefaultdeductions(startDate, endDate, sacco, branchName, loggedInUser);
+                var preSet = _context.d_PreSets.FirstOrDefault(n => n.saccocode == sacco);
+                if (preSet != null)
+                    calcDefaultdeductions(startDate, endDate, sacco, branchName, loggedInUser);
+
                 if (sacco != "MBURUGU DAIRY F.C.S")
                     await ConsolidateTranspoterIntakes(startDate, endDate, sacco, branchName, loggedInUser);
+
+                if (sacco == "MBURUGU DAIRY F.C.S")
+                    clearTranspoterIntakes(startDate, endDate, sacco, branchName, loggedInUser);
             }
             _context.SaveChanges();
 
@@ -188,20 +208,26 @@ namespace EasyPro.Controllers
                || c.Description.ToLower().Equals("agrovet") || c.Description.ToLower().Equals("bonus") || c.Description.ToLower().Equals("shares")
                || c.Description.ToLower().Equals("loan") || c.Description.ToLower().Equals("carry forward") || c.Description.ToLower().Equals("clinical")
                || c.Description.ToLower().Equals("a.i") || c.Description.ToLower().Equals("ai") || c.Description.ToLower().Equals("tractor")
-               || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work")).Select(c => c.Description.ToLower()).ToList();
-            foreach (var branchName in branchNames)
-            {
-                var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()) 
-                && s.Branch.ToUpper().Equals(branchName.ToUpper())).Select(s => s.Sno);
+               || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work") || c.Description.ToLower().Equals("midpay")).Select(c => c.Description.ToLower()).ToList();
+            
+            var dbranches = _context.DBranch.Where(b => b.Bcode == sacco).ToList();
+            dbranches.GroupBy(b=>b.Bname).ToList().ForEach(v => 
+            { 
+                var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())
+                && s.Branch.ToUpper().Equals(v.Key.ToUpper())).Select(s => s.Sno.ToUpper());
 
                 var productIntakes = productIntakeslist
                 .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
-                && supplierNos.Contains(p.Sno) && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
+                && supplierNos.Contains(p.Sno.ToUpper()) && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                && p.Branch.ToUpper().Equals(v.Key.ToUpper())).ToList();
 
                 var intakes = productIntakes.GroupBy(p => p.Sno.ToUpper()).ToList();
                 intakes.ForEach(p =>
                 {
+                    if (p.Key == "3668")
+                    {
+
+                    }
                     var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
                     var transport = p.Where(k => k.Description.ToLower().Contains("transport"));
                     var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
@@ -209,9 +235,10 @@ namespace EasyPro.Controllers
                     var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
                     var loan = p.Where(k => k.ProductType.ToLower().Contains("loan"));
                     var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
-                    var Others = p.Where(k => !dcodes.Contains(k.ProductType.ToLower()));
+                    var MIDPAY = p.Where(k => k.ProductType.ToLower().Contains("midpay"));
+                    var Others = p.Where(k => k.ProductType.ToLower().Contains("others"));
                     var clinical = p.Where(k => k.ProductType.ToLower().Contains("clinical"));
-                    var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai")|| k.ProductType.ToLower().Contains("a.i")));
+                    var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai") || k.ProductType.ToLower().Contains("a.i")));
                     var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
                     var extension = p.Where(k => k.ProductType.ToLower().Contains("extension work"));
                     var SMS = p.Where(k => k.ProductType.ToLower().Contains("sms"));
@@ -220,25 +247,26 @@ namespace EasyPro.Controllers
 
                     //var payroll = new DPayroll();
                     var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(p.Key)
-                    && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch.ToUpper().Equals(branchName.ToUpper()));
+                    && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch.ToUpper().Equals(v.Key.ToUpper()));
                     if (supplier != null)
                     {
                         var debits = corrections.Sum(s => s.DR);
                         var Tot = advance.Sum(s => s.DR) + transport.Sum(s => s.DR)
                         + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
-                        + Others.Sum(s => s.DR)+ clinical.Sum(s => s.DR)+ ai.Sum(s => s.DR)+ tractor.Sum(s => s.DR)
-                        + carryforward.Sum(s => s.DR) + loan.Sum(s=>s.DR) + extension.Sum(s => s.DR)+ SMS.Sum(s=>s.DR);
+                        + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) + tractor.Sum(s => s.DR)
+                        + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR)
+                        + MIDPAY.Sum(s => s.DR);
                         _context.DPayrolls.Add(new DPayroll
                         {
-                            Sno = supplier.Sno,
-                            Gpay = p.Sum(s => s.CR),
+                            Sno = supplier.Sno.ToUpper().ToString(),
+                            Gpay = p.Where(n => n.TransactionType != TransactionType.Deduction).Sum(s => s.CR),
                             KgsSupplied = (double?)milk.Sum(s => s.Qsupplied),
                             Advance = advance.Sum(s => s.DR),
-                            CurryForward= carryforward.Sum(s => s.DR),
+                            CurryForward = carryforward.Sum(s => s.DR),
                             Others = Others.Sum(s => s.DR),
                             CLINICAL = clinical.Sum(s => s.DR),
                             AI = ai.Sum(s => s.DR),
-                            Tractor=tractor.Sum(s => s.DR),
+                            Tractor = tractor.Sum(s => s.DR),
                             Transport = transport.Sum(s => s.DR),
                             extension = extension.Sum(s => s.DR),
                             SMS = SMS.Sum(s => s.DR),
@@ -246,7 +274,9 @@ namespace EasyPro.Controllers
                             Bonus = bonus.Sum(s => s.DR),
                             Fsa = loan.Sum(s => s.DR),
                             Hshares = shares.Sum(s => s.DR),
+                            MIDPAY = (decimal)MIDPAY.Sum(s => s.DR),
                             Tdeductions = Tot,
+                            //Npay = p.Sum(s => s.CR) - debits - 89,
                             Npay = p.Sum(s => s.CR) - debits - Tot,
                             Yyear = endDate.Year,
                             Mmonth = endDate.Month,
@@ -257,19 +287,19 @@ namespace EasyPro.Controllers
                             EndofPeriod = endDate,
                             SaccoCode = sacco,
                             Auditid = loggedInUser,
-                            Branch= supplier.Branch
+                            Branch = supplier.Branch
                         });
                     }
-                    
                 });
-                
+                //_context.SaveChanges();
                 //Transporters
-            }
+            });
+            //_context.SaveChanges();
             await _context.SaveChangesAsync();
             //Transporters
             var branchTransporters = _context.DBranch.Where(b => b.Bcode == sacco)
                 .Select(b => b.Bname.ToUpper());
-            foreach(var branchName in branchTransporters)
+            foreach (var branchName in branchTransporters)
             {
                 //Transporters
                 var transpoterCodes = _context.DTransporters
@@ -290,9 +320,10 @@ namespace EasyPro.Controllers
                     var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
                     var variance = p.Where(k => k.ProductType.ToLower().Contains("variance"));
                     var Others = p.Where(k => k.ProductType.ToLower().Contains("others"));
+                    var MIDPAY = p.Where(k => k.ProductType.ToLower().Contains("midpay"));
                     var clinical = p.Where(k => k.ProductType.ToLower().Contains("clinical"));
                     var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
-                    var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai")|| k.ProductType.ToLower().Contains("a.i")));
+                    var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai") || k.ProductType.ToLower().Contains("a.i")));
                     var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
                     var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
                     var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
@@ -300,7 +331,7 @@ namespace EasyPro.Controllers
                     var SMS = p.Where(k => k.ProductType.ToLower().Contains("sms"));
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                     var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
-                    
+
                     //var payroll = new DTransportersPayRoll();
                     long.TryParse(p.Key, out long sno);
 
@@ -311,8 +342,9 @@ namespace EasyPro.Controllers
                         var debits = corrections.Sum(s => s.DR);
                         var amount = p.Sum(s => s.CR);
                         var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + shares.Sum(s => s.DR)
-                        + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR)
-                        + tractor.Sum(s => s.DR) + variance.Sum(s => s.DR) + carryforward.Sum(s => s.DR) + extension.Sum(s => s.DR)+ SMS.Sum(s => s.DR);
+                        + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR)+ MIDPAY.Sum(s=>s.DR)
+                        + tractor.Sum(s => s.DR) + variance.Sum(s => s.DR) + carryforward.Sum(s => s.DR) + extension.Sum(s => s.DR) 
+                        + SMS.Sum(s => s.DR);
                         var subsidy = 0;
                         _context.DTransportersPayRolls.Add(new DTransportersPayRoll
                         {
@@ -326,6 +358,7 @@ namespace EasyPro.Controllers
                             SMS = SMS.Sum(s => s.DR),
                             CurryForward = carryforward.Sum(s => s.DR),
                             Others = Others.Sum(s => s.DR),
+                            MIDPAY = MIDPAY.Sum(s => s.DR),
                             AI = ai.Sum(s => s.DR),
                             CLINICAL = clinical.Sum(s => s.DR),
                             Tractor = tractor.Sum(s => s.DR),
@@ -353,7 +386,78 @@ namespace EasyPro.Controllers
             _notyf.Success("Payroll processed successfully");
             return RedirectToAction(nameof(Index));
         }
+        private void deleteTranspoterIntakes(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
+        {
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            var supp = _context.DSuppliers.Where(n => n.Scode.ToUpper().Equals(sacco.ToUpper())).Select(b=>b.Sno).ToList();
 
+            var getsuppliers = productIntakeslist.Where(n => n.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && n.TransDate >= startDate
+             && n.TransDate <= endDate && n.Description == "Transport" && supp.Contains(n.Sno.ToUpper())
+             && n.TransactionType == TransactionType.Deduction).ToList();
+
+            _context.RemoveRange(getsuppliers);
+
+            //getsuppliers.ForEach(s =>
+            //{
+            //    var deletetransport = productIntakeslist.Where(n => n.Sno.ToUpper().Equals(s.ToUpper())
+            //  && n.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            //  && n.Description == "Transport" && n.TransactionType == TransactionType.Deduction && n.TransDate >= startDate
+            //  && n.TransDate <= endDate).ToList();
+            //    _context.RemoveRange(deletetransport);
+            //});
+        }
+        private void clearTranspoterIntakes(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
+        {
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+
+
+
+            var getsuppliers = productIntakeslist.Where(n => n.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && n.TransDate >= startDate
+             && n.TransDate <= endDate &&
+             (n.TransactionType == TransactionType.Correction || n.TransactionType == TransactionType.Intake))
+                .Select(b => b.Sno.ToUpper()).Distinct().ToList();
+            getsuppliers.ForEach(s =>
+            {
+                var getpricegls = _context.DPrices.FirstOrDefault(j => j.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+
+                var gettransportersrate = _context.DTransports.FirstOrDefault(h => h.Sno.ToUpper().Equals(s.ToUpper())
+                && h.saccocode.ToUpper().Equals(sacco.ToUpper()));
+                if (gettransportersrate != null)
+                {
+                    decimal Rate = 0;
+                    Rate = (decimal)gettransportersrate.Rate;
+
+                    var sumkgs = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(s.ToUpper())
+                    && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                    && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
+                    && i.TransDate >= startDate && i.TransDate <= endDate).ToList().Sum(n => n.Qsupplied);
+                    var actualrate = Rate * sumkgs;
+
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = s.ToUpper(),
+                        TransDate = (DateTime)endDate,
+                        TransTime = DateTime.Now.TimeOfDay,
+                        ProductType = getpricegls.Products,
+                        Qsupplied = sumkgs,
+                        Ppu = Rate,
+                        CR = 0,
+                        DR = actualrate,
+                        Balance = actualrate,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Remarks = "",
+                        AuditId = loggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = branchName,
+                        SaccoCode = sacco,
+                        DrAccNo = getpricegls.TransportCrAccNo,
+                        CrAccNo = getpricegls.TransportDrAccNo,
+
+                    });
+                }
+            });
+        }
         private void calcstandingorder(DateTime startDate, DateTime endDate, string sacco, string loggedInUser)
         {
             var activeorders = _context.StandingOrder.Where(o => o.StartDate <= endDate && o.SaccoCode == sacco && !o.Status).ToList();
@@ -412,25 +516,27 @@ namespace EasyPro.Controllers
                 .Where(p => p.TransDate >= startDate && p.TransDate <= endDate &&
                 p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
             var intakes = productIntakes.GroupBy(p => p.Sno.Trim().ToUpper()).ToList();
-            intakes.ForEach(g => {
-                var kgs = productIntakeslists.Where(l => l.Sno == g.Key 
+            intakes.ForEach(g =>
+            {
+                var kgs = productIntakeslists.Where(l => l.Sno == g.Key
                 && (l.TransactionType == TransactionType.Intake || l.TransactionType == TransactionType.Correction
                 && l.TransDate >= startDate && l.TransDate <= endDate)).Sum(w => w.Qsupplied);
                 if (kgs > 0)
                 {
-                    var eachdeductions= _context.d_PreSets.Where(l => l.Sno == g.Key && !l.Stopped
-                 && l.saccocode.ToUpper().Equals(sacco.ToUpper()) && l.BranchCode.ToUpper().Equals(branchName.ToUpper())).ToList();
+                    var eachdeductions = _context.d_PreSets.Where(l => l.Sno == g.Key && !l.Stopped
+                  && l.saccocode.ToUpper().Equals(sacco.ToUpper()) && l.BranchCode.ToUpper().Equals(branchName.ToUpper())).ToList();
                     var checkdeduct = eachdeductions.FirstOrDefault();
                     if (checkdeduct != null)
                     {
                         var eachdeductionsselect = eachdeductions.GroupBy(p => p.Deduction.Trim().ToUpper()).Distinct().ToList();
-                        eachdeductionsselect.ForEach(n => {
-                            var Checkanydefaultdeduction  = n.FirstOrDefault();
+                        eachdeductionsselect.ForEach(n =>
+                        {
+                            var Checkanydefaultdeduction = n.FirstOrDefault();
                             var totalkgs = productIntakeslists.Where(f => f.Sno.ToUpper().Equals(g.Key.ToUpper())
                            && f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= startDate && f.TransDate <= endDate
                            && (f.TransactionType == TransactionType.Intake || f.TransactionType == TransactionType.Correction)
                            && f.Branch.ToUpper().Equals(branchName.ToUpper())).Sum(n => n.Qsupplied);
-                            var bonus = eachdeductions.FirstOrDefault(m=>m.Deduction == Checkanydefaultdeduction.Deduction).Rate;
+                            var bonus = eachdeductions.FirstOrDefault(m => m.Deduction == Checkanydefaultdeduction.Deduction).Rate;
 
                             if (Checkanydefaultdeduction.Rated == true)
                             {
@@ -523,7 +629,7 @@ namespace EasyPro.Controllers
 
         private async Task ConsolidateTranspoterIntakes(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
         {
-            var transporterIntakes = _context.DTransports.Join(_context.ProductIntake,
+            var transporterIntakes = _context.DTransports.Where(n => n.saccocode == sacco).ToList().Join(_context.ProductIntake.Where(b => b.SaccoCode == sacco).ToList(),
                 t => t.Sno.Trim().ToUpper(),
                 i => i.Sno.Trim().ToUpper(),
                 (t, i) => new
@@ -546,14 +652,14 @@ namespace EasyPro.Controllers
                     t.Startdate,
                     t.DateInactivate,
                     i.TransactionType
-                }).Where(i => i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco 
-                && i.Branch.ToUpper().Equals(branchName.ToUpper()) 
-                && (i.TransactionType == TransactionType.Correction || i.TransactionType==TransactionType.Intake)).ToList();
+                }).Where(i => i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco
+                && i.Branch.ToUpper().Equals(branchName.ToUpper())
+                && (i.TransactionType == TransactionType.Correction || i.TransactionType == TransactionType.Intake)).ToList();
 
             var intakes = transporterIntakes.GroupBy(i => i.TransCode.Trim().ToUpper()).ToList();
             intakes.ForEach(i =>
             {
-                
+
 
                 if (!string.IsNullOrEmpty(i.Key))
                 {
@@ -593,7 +699,7 @@ namespace EasyPro.Controllers
                         // Credit transpoter transport amount
 
                         var TBprice = _context.DTransporters.FirstOrDefault(j => j.ParentT == sacco
-                         && j.Tbranch.ToUpper().Equals(branchName.ToUpper()) 
+                         && j.Tbranch.ToUpper().Equals(branchName.ToUpper())
                          && j.TransCode.ToUpper().Equals(intake.TransCode.Trim().ToUpper()));
 
                         decimal? TPrice = 0;
@@ -731,17 +837,17 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(period.Year, period.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var nextMonth = startDate.AddMonths(1);
-            
+
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
             suppliers.ForEach(s =>
             {
-                var payrolls = _context.DPayrolls.Where(p => p.SaccoCode == sacco 
+                var payrolls = _context.DPayrolls.Where(p => p.SaccoCode == sacco
                 && p.EndofPeriod == endDate && p.Sno.ToUpper().Equals(s.Sno.ToUpper())).ToList();
 
                 var netPay = payrolls.Sum(p => p.Npay);
                 var debited = _context.ProductIntake.Any(i => i.SaccoCode == sacco && i.Sno.ToUpper().Equals(s.Sno.ToUpper())
                 && i.TransDate >= nextMonth && i.Description == "Carry Forward");
-                if(netPay < 0 && !debited)
+                if (netPay < 0 && !debited)
                 {
                     _context.ProductIntake.Add(new ProductIntake
                     {

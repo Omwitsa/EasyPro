@@ -113,11 +113,11 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
-            var checkproductExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PName== agProduct.PName && a.Branch == saccobranch);
+            var checkproductExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PName.ToLower().Equals(agProduct.PName.ToLower()) && a.Branch == saccobranch);
             if (checkproductExist)
             {
                 GetInitialValues();
-                _notyf.Error("Product Already exist");
+                _notyf.Error("Product Name Already exist");
                 return View();
             }
             var checkproductExistCode = _context.AgProducts.Any(a => a.saccocode == sacco && a.PCode == agProduct.PCode && a.Branch == saccobranch);

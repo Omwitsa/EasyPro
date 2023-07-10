@@ -100,6 +100,7 @@ namespace EasyPro.Models
         public virtual DbSet<DDailySummary> DDailySummaries { get; set; }
         public virtual DbSet<DDailySummaryClerk> DDailySummaryClerks { get; set; }
         public virtual DbSet<DDcode> DDcodes { get; set; }
+        public virtual DbSet<d_DCodesQuantity> d_DCodesQuantity { get; set; }
         public virtual DbSet<DDebtor> DDebtors { get; set; }
         public virtual DbSet<DDebtors2> DDebtors2s { get; set; }
         public virtual DbSet<DDebtorsparchase> DDebtorsparchases { get; set; }
@@ -143,7 +144,7 @@ namespace EasyPro.Models
         public virtual DbSet<DPeriod> DPeriods { get; set; }
         public virtual DbSet<DPreSet> d_PreSets { get; set; }
         public virtual DbSet<DPrice> DPrices { get; set; }
-        public virtual DbSet<DPrice2> DPrice2s { get; set; }
+        public virtual DbSet<DPrice2> d_Price2 { get; set; }
         public virtual DbSet<DPriceBranch> DPriceBranches { get; set; }
         public virtual DbSet<DProductProcess> DProductProcesses { get; set; }
         public virtual DbSet<DQuality> DQualities { get; set; }
@@ -302,7 +303,6 @@ namespace EasyPro.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("Server=DESKTOP-5GQU4IS;Database=MORINGA;Trusted_Connection=True;");
             }
         }
@@ -5840,30 +5840,7 @@ namespace EasyPro.Models
                     .HasColumnName("CrAccNo");
             });
 
-            modelBuilder.Entity<DPrice2>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToTable("d_Price2");
-
-                entity.Property(e => e.Active).HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.Branch).HasMaxLength(50);
-
-                entity.Property(e => e.Date).HasColumnType("datetime");
-
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
-
-                entity.Property(e => e.Name).HasMaxLength(85);
-
-                entity.Property(e => e.Price).HasColumnType("money");
-
-                entity.Property(e => e.Sno)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.UserId).HasMaxLength(50);
-            });
+            
 
             modelBuilder.Entity<DPriceBranch>(entity =>
             {
@@ -6247,7 +6224,7 @@ namespace EasyPro.Models
                 entity.Property(e => e.Regdate).HasColumnType("datetime");
 
                 entity.Property(e => e.Sex)
-                    .HasMaxLength(1)
+                    .HasMaxLength(10)
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
@@ -6267,6 +6244,9 @@ namespace EasyPro.Models
 
                 entity.Property(e => e.Type)
                     .HasMaxLength(20)
+                    .IsUnicode(false);
+                entity.Property(e => e.SaccoCode)
+                    .HasMaxLength(100)
                     .IsUnicode(false);
             });
 

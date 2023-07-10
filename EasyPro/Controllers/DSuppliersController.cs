@@ -201,9 +201,9 @@ namespace EasyPro.Controllers
                 var totalCountyFemale = 0;
                 var sacconame = _context.DCompanies.Where(m => m.Province.ToUpper().Equals(h.Key.ToUpper())).ToList().GroupBy(s => s.Name).ToList();
                 sacconame.ForEach(g => {
-                   // var getcountySuppliers = _context.DSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList().GroupBy(s => s.Scode).ToList();
+                    //var getcountySuppliers = _context.DSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList().GroupBy(s => s.Scode).ToList();
                     var getcountySuppliers = gSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList();
-                    //getcountySuppliers.ForEach(s => {
+                    getcountySuppliers.ForEach(s => {
                         var total = getcountySuppliers.Count();
                         var male = getcountySuppliers.Where(g => g.Type.ToLower().Equals("male")).Count();
                         var female = getcountySuppliers.Where(g => g.Type.ToLower().Equals("female")).Count();
@@ -217,7 +217,7 @@ namespace EasyPro.Controllers
                             Male = male,
                             Female = female
                         });
-                    //});
+                    });
 
                 });
 
@@ -412,7 +412,7 @@ namespace EasyPro.Controllers
             }
 
             var dSupplierExists = _context.DSuppliers.Any(i => i.Sno == dSupplier.Sno
-            && i.Scode == sacco && i.Branch == saccoBranch && i.Zone== dSupplier.Zone);
+            && i.Scode == sacco && i.Branch == saccoBranch );
             if (dSupplierExists)
             {
                 //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)
@@ -421,7 +421,7 @@ namespace EasyPro.Controllers
                 return View();
             }
             var dSupplierExistsIDNo = _context.DSuppliers.Any(i => i.IdNo == dSupplier.IdNo
-            && i.Scode == sacco && i.Branch == saccoBranch && i.Zone == dSupplier.Zone);
+            && i.Scode == sacco && i.Branch == saccoBranch );
             if (dSupplierExistsIDNo)
             {
                 //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)

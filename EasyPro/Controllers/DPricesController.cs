@@ -31,7 +31,7 @@ namespace EasyPro.Controllers
             return View(await _context.DPrices
                 .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
-       
+
         // GET: DPrices/Details/5
         public async Task<IActionResult> Details(long Id)
         {
@@ -81,7 +81,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide product");
                 return View();
             }
-            if(dPrice.Price < 1)
+            if(dPrice.Price < 0)
             {
                 _notyf.Error("Sorry, Kindly provide price");
                 return View();
@@ -148,7 +148,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide product");
                 return View();
             }
-            if (dPrice.Price < 1)
+            if (dPrice.Price < 0)
             {
                 _notyf.Error("Sorry, Kindly provide price");
                 return View();

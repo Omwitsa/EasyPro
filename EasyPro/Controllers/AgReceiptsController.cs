@@ -86,7 +86,7 @@ namespace EasyPro.Controllers
         }
         //PRODUCT SALES
         [HttpPost]
-        public JsonResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool isCash, bool sms, bool print)
+        public JsonResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool isCash, bool sms, bool print, decimal net)
         {
             try
             {
@@ -117,6 +117,17 @@ namespace EasyPro.Controllers
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+
+                if(sacco == "USWET UMOJA DAIRIES FCS")
+                {
+                    var checkamount = intakes.Sum(b => b.DR);
+                   if(net< checkamount)
+                    {
+                        _notyf.Error("Sorry, Farmers NetPay is less than Amount of Product.");
+                        return Json("");
+                    }
+                }
+
                 intakes.ForEach(t =>
                 {
                     t.Description = t?.Description ?? "";

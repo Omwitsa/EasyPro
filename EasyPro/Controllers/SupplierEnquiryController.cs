@@ -173,19 +173,29 @@ namespace EasyPro.Controllers
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
+            
+
             //if (zones.Count != 0)
             //    ViewBag.checkiftoenable = 1;
             //else
             //    ViewBag.checkiftoenable = 0;
         }
-        
+        private void getshares(string sno)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            decimal shares = _context.DShares.Where(m => m.SaccoCode == sacco && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(sno.ToUpper())).ToList().Sum(x=>x.Amount);
+            ViewBag.shares = shares;
+        }
         [HttpPost]
         public JsonResult SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype, string sno)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
-
+            getshares(supplier.Sno.ToString());
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
 
             if (sacco == "MBURUGU DAIRY F.C.S" && !string.IsNullOrEmpty(supplier.Sno))
@@ -275,12 +285,22 @@ namespace EasyPro.Controllers
                         Remarks = i.Remarks,
                         Auditdatetime = DateTime.Now,
                         getsumkgs = getsumkgs,
+                        //shares= ViewBag.shares,
                     });
                     _context.SaveChanges();
                 });
 
             });
 
+            
+            var shar = ViewBag.shares;
+            if (shar > 0)
+            {
+                MilkEnquryVM.Add( new MilkEnqury
+                {
+                    shares = ViewBag.shares,
+                });
+            }
             //intakes.ForEach(i =>
             //{
             //    i.CR = i?.CR ?? 0;
@@ -290,7 +310,8 @@ namespace EasyPro.Controllers
             //    if (i.Remarks == null)
             //        i.Remarks = i.ProductType;
             //});
-            var entries = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
+            //var entries = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
+            var entries = MilkEnquryVM.ToList();
             return Json(entries.OrderByDescending(n => n.Auditdatetime));
 
         }
