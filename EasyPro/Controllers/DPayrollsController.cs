@@ -54,10 +54,20 @@ namespace EasyPro.Controllers
                     Transport = p.Transport,
                     Registration = 0,
                     Advance = p.Advance,
-                    Fsa = p.Fsa,
+                    Fsa = p.Fsa, // loan
                     Others = p.Others,
-                    Netpay = p.Npay
+                    Netpay = p.Npay,
+                    Agrovet = p.Agrovet,
+                    Bonus = p.Bonus,
+                    Hshares = p.Hshares,
+                    CurryForward = p.CurryForward,
+                    Clinical = p.CLINICAL,
+                    AI = p.AI,
+                    Tractor = p.Tractor,
+                    Extension = p.extension,
+                    SMS = p.SMS,
                 }).ToListAsync();
+
             return View(payroll);
         }
 
@@ -138,7 +148,7 @@ namespace EasyPro.Controllers
 
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
             var deletestandingorder = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
-                 && i.Remarks == "Standing Order" && i.SaccoCode == sacco).ToList();
+                 && i.Remarks == "Standing Order" && i.SaccoCode == sacco);
             if (deletestandingorder.Any())
             {
                 _context.ProductIntake.RemoveRange(deletestandingorder);
@@ -216,6 +226,7 @@ namespace EasyPro.Controllers
                 var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())
                 && s.Branch.ToUpper().Equals(v.Key.ToUpper())).Select(s => s.Sno.ToUpper());
 
+                
                 var productIntakes = productIntakeslist
                 .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
                 && supplierNos.Contains(p.Sno.ToUpper()) && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
@@ -245,7 +256,14 @@ namespace EasyPro.Controllers
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                     var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
-                    //var payroll = new DPayroll();
+                    //var Others = p.Where(k => !dcodes.Contains(k.ProductType.ToLower()) && k.TransactionType != TransactionType.Correction
+                    //&& !k.ProductType.ToLower().Contains("advance") && !k.ProductType.ToLower().Contains("transport")
+                    //&& !k.ProductType.ToLower().Contains("agrovet") && !k.ProductType.ToLower().Contains("bonus")
+                    //&& !k.ProductType.ToLower().Contains("shares") && !k.ProductType.ToLower().Contains("loan")
+                    //&& !k.ProductType.ToLower().Contains("carry forward") && !k.ProductType.ToLower().Contains("clinical")
+                    //&& !k.ProductType.ToLower().Contains("ai") && !k.ProductType.ToLower().Contains("a.i")
+                    //&& !k.ProductType.ToLower().Contains("sms"));
+
                     var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(p.Key)
                     && s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch.ToUpper().Equals(v.Key.ToUpper()));
                     if (supplier != null)
@@ -508,14 +526,16 @@ namespace EasyPro.Controllers
             _context.SaveChanges();
         }
 
-        private void calcDefaultdeductions(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
+        private async Task calcDefaultdeductions(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
         {
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            IQueryable<ProductIntake> productIntakeslists = _context.ProductIntake;
-            var productIntakes = productIntakeslists
+            var productIntakes = await _context.ProductIntake
                 .Where(p => p.TransDate >= startDate && p.TransDate <= endDate &&
-                p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
+                p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToListAsync();
+
             var intakes = productIntakes.GroupBy(p => p.Sno.Trim().ToUpper()).ToList();
+
+            IQueryable<ProductIntake> productIntakeslists = _context.ProductIntake;
             intakes.ForEach(g =>
             {
                 var kgs = productIntakeslists.Where(l => l.Sno == g.Key
@@ -575,8 +595,6 @@ namespace EasyPro.Controllers
                                         bonus = 0;
                                         glbonus = sharespaid;
                                     }
-
-
 
                                 }
 
