@@ -178,7 +178,7 @@ namespace EasyPro.Controllers
             //else
             //    ViewBag.checkiftoenable = 0;
         }
-        
+
         [HttpPost]
         public JsonResult SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype, string sno)
         {
@@ -186,61 +186,7 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
-            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
-
-            if (sacco == "MBURUGU DAIRY F.C.S" && !string.IsNullOrEmpty(supplier.Sno))
-            {
-                var deletetransport = productIntakeslist.Where(n => n.Sno == supplier.Sno.ToString() && n.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                && n.Description == "Transport" && n.TransactionType == TransactionType.Deduction && n.TransDate >= date1 && n.TransDate <= date2).ToList();
-                _context.RemoveRange(deletetransport);
-                //check transport rate
-
-                var getpricegls = _context.DPrices.FirstOrDefault(j => j.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
-
-                var gettransportersrate = _context.DTransports.FirstOrDefault(h => h.Sno == supplier.Sno.ToString()
-                && h.saccocode.ToUpper().Equals(sacco.ToUpper()));
-                if (gettransportersrate != null)
-                {
-                    decimal Rate=0;
-                    Rate = (decimal)gettransportersrate.Rate ;
-
-                    var sumkgs = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
-                    && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
-                    && i.TransDate >= date1 && i.TransDate <= date2).ToList().Sum(n => n.Qsupplied);
-                    var actualrate = Rate * sumkgs;
-
-                    _context.ProductIntake.Add(new ProductIntake
-                    {
-                        Sno = supplier.Sno.Trim(),
-                        TransDate = (DateTime)date2,
-                        TransTime = DateTime.Now.TimeOfDay,
-                        ProductType = getpricegls.Products,
-                        Qsupplied = sumkgs,
-                        Ppu = Rate,
-                        CR = 0,
-                        DR = actualrate,
-                        Balance = actualrate,
-                        Description = "Transport",
-                        TransactionType = TransactionType.Deduction,
-                        Remarks = "",
-                        AuditId = loggedInUser,
-                        Auditdatetime = DateTime.Now,
-                        Branch = saccobranch,
-                        SaccoCode = sacco,
-                        DrAccNo = getpricegls.TransportCrAccNo,
-                        CrAccNo = getpricegls.TransportDrAccNo,
-
-                    });
-                    _context.SaveChanges();
-                }
-                
-            }
-
-            var getsumkgs = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
-                 && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
-                 && i.TransDate >= date1 && i.TransDate <= date2).ToList().Sum(n => n.Qsupplied);
-
-            var intakes = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
+            var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno.ToString()
             && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2)
                 .OrderBy(i => i.TransDate).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
@@ -254,8 +200,7 @@ namespace EasyPro.Controllers
             intake.ForEach(l =>
             {
                 intakes = l.OrderBy(d => d.Id).ToList();
-                intakes.ForEach(i =>
-                {
+                intakes.ForEach(i => {
 
                     i.CR = i?.CR ?? 0;
                     i.DR = i?.DR ?? 0;
@@ -271,10 +216,9 @@ namespace EasyPro.Controllers
                         CR = i.CR,
                         DR = i.DR,
                         Balance = bal,
-                        Description = i.Description,
+                        Description = i.Remarks,
                         Remarks = i.Remarks,
                         Auditdatetime = DateTime.Now,
-                        getsumkgs = getsumkgs,
                     });
                     _context.SaveChanges();
                 });
@@ -292,7 +236,6 @@ namespace EasyPro.Controllers
             //});
             var entries = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
             return Json(entries.OrderByDescending(n => n.Auditdatetime));
-
         }
 
         [HttpPost]
