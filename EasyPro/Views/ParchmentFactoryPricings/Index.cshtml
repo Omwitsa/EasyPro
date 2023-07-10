@@ -1,0 +1,142 @@
+﻿@model IEnumerable<EasyPro.Models.ParchmentFactoryPricing>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #ddd;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1050px;
+        height: 200px;
+        overflow: auto;
+    }
+</style>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-3">
+            <div class="row">
+                <div class="col-sm-4 col-xs-12">
+
+                </div>
+                <div class="col-sm-6 col-xs-12">
+                    <h4 class="text-danger fa-bold"><i class="fas fa-bars"></i>Coffee Grading   Pricing</h4>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <a asp-action="Create" class="btn btn-primary"><i class="glyphicon glyphicon-user"></i>Create New</a>
+                </div>
+            </div>
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <div class="divScroll">
+                        <table class="table table-hover" id="customers">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Date
+                                    </th>
+                                    <th>
+                                        Factory
+                                    </th>
+                                    <th>
+                                        Partchment
+                                    </th>
+                                    <th>
+                                        Grade
+                                    </th>
+                                    <th>
+                                        Class
+                                    </th>
+                                    <th>
+                                        Price
+                                    </th>
+                                    <th>
+                                        Year
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="intakes">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script type="text/javascript">
+    $(function () {
+        getSelectedDateIntakes();
+        function getSelectedDateIntakes() {
+            $.ajax({
+                type: 'POST',
+                url: "getsuppliers",
+                contentType: 'application/json',
+                success: function (response) {
+                    populateIntake(response)
+                },
+                failure: function (response) {
+                }
+            }).then(function () {
+                // ...
+            });
+            //}
+        }
+        function populateIntake(intakes) {
+            let itemTableRows = new Array();
+            intakes.forEach(i => {
+                //debugger;
+                var ddate = i.Date;
+                var d = "/ParchmentFactoryPricings/Edit/" + i.Id;
+                var dd1 = new Date(ddate).toLocaleDateString();
+                var edit = "<a class='btn btn-success text-white' href=" + d + "  >Edit</a >";
+                itemTableRows.push(`<tr>
+                                <td>${dd1}</td>
+                                <td>${i.Factory}</td>
+                                <td>${i.Parchment}</td>
+                                <td>${i.Grading}</td>
+                                <td>${i.Class}</td>
+                                <td>${i.Price}</td>
+                                <td>${i.Year}</td>
+                                <td>${edit}</td>
+                            </tr>`)
+            });
+
+            $('#intakes').html(itemTableRows);
+        }
+    });
+</script>
+        }

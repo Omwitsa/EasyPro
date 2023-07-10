@@ -1,0 +1,72 @@
+﻿@model EasyPro.Models.ParchmentFactoryPricing
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Uitamplate.cshtml";
+}
+
+<h2>Edit</h2>
+
+<h4>ParchmentFactoryPricing</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Factory" class="control-label"></label>
+                <input asp-for="Factory" class="form-control" />
+                <span asp-validation-for="Factory" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Parchment" class="control-label"></label>
+                <input asp-for="Parchment" class="form-control" />
+                <span asp-validation-for="Parchment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Grading" class="control-label"></label>
+                <input asp-for="Grading" class="form-control" />
+                <span asp-validation-for="Grading" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Class" class="control-label"></label>
+                <input asp-for="Class" class="form-control" />
+                <span asp-validation-for="Class" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="saccocode" class="control-label"></label>
+                <input asp-for="saccocode" class="form-control" />
+                <span asp-validation-for="saccocode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Year" class="control-label"></label>
+                <input asp-for="Year" class="form-control" />
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AuditDateTime" class="control-label"></label>
+                <input asp-for="AuditDateTime" class="form-control" />
+                <span asp-validation-for="AuditDateTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

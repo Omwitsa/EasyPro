@@ -153,6 +153,11 @@ namespace EasyPro.Models
         public virtual DbSet<DRequisition> DRequisitions { get; set; }
         public virtual DbSet<DSconribution> DSconributions { get; set; }
         public virtual DbSet<DShare> DShares { get; set; }
+        public virtual DbSet<ParchmentClasses> ParchmentClasses { get; set; }
+        public virtual DbSet<Parchment> Parchment { get; set; }
+        public virtual DbSet<ParchmentGrading> ParchmentGrading { get; set; }
+        public virtual DbSet<ParchmentPricing> ParchmentPricings { get; set; }
+        public virtual DbSet<ParchmentFactoryPricing> ParchmentFactoryPricing { get; set; }
         public virtual DbSet<DSmscompany> DSmscompanies { get; set; }
         public virtual DbSet<DSmssetting> DSmssettings { get; set; }
         public virtual DbSet<DSupplier> DSuppliers { get; set; }
