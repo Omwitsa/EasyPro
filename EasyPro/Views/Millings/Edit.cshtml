@@ -1,0 +1,62 @@
+﻿@model EasyPro.Models.Coffee.Milling
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Uitamplate.cshtml";
+}
+
+<h2>Edit</h2>
+
+<h4>Milling</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Factory" class="control-label"></label>
+                <input asp-for="Factory" class="form-control" />
+                <span asp-validation-for="Factory" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="saccocode" class="control-label"></label>
+                <input asp-for="saccocode" class="form-control" />
+                <span asp-validation-for="saccocode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Category" class="control-label"></label>
+                <input asp-for="Category" class="form-control" />
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Kgs" class="control-label"></label>
+                <input asp-for="Kgs" class="form-control" />
+                <span asp-validation-for="Kgs" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Miller" class="control-label"></label>
+                <input asp-for="Miller" class="form-control" />
+                <span asp-validation-for="Miller" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AuditDateTime" class="control-label"></label>
+                <input asp-for="AuditDateTime" class="form-control" />
+                <span asp-validation-for="AuditDateTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

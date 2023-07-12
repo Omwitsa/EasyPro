@@ -18,5 +18,6 @@
     <WebStackScaffolding_LayoutPageFile>~/Views/Shared/_Uitamplate.cshtml</WebStackScaffolding_LayoutPageFile>
     <ShowAllFiles>false</ShowAllFiles>
     <NameOfLastUsedPublishProfile>D:\Newtech\SourceCode\CSharp\Easyprod\EasyPro\EasyPro\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
+    <WebStackScaffolding_DbContextDialogWidth>650</WebStackScaffolding_DbContextDialogWidth>
   </PropertyGroup>
 </Project>

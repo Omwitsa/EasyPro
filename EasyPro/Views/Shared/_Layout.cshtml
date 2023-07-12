@@ -64,6 +64,7 @@
             <!-- Float links to the right. Hide them on small screens -->
             <a class="nav-item dropdown">
                 <span><i class="notika-icon notika-logout"></i>@ViewBag.sacco</span>
+                @*<span><i class="notika-icon notika-logout"></i>@ViewBag.branch</span>*@
             </a>
 
             <div class="w3-right w3-hide-small">
@@ -484,6 +485,12 @@
                         @if (ViewBag.accountsRole)
                         {
                             <li>
+                                <a data-toggle="tab" href="#coffee"><i class="notika-icon notika-form"></i>Coffee</a>
+                            </li>
+                        }
+                        @if (ViewBag.accountsRole)
+                        {
+                            <li>
                                 <a data-toggle="tab" href="#accounts"><i class="notika-icon notika-form"></i>Accounts</a>
                             </li>
                         }
@@ -667,6 +674,31 @@
                                 </li>
                             </ul>
                         </div>
+                        
+                        <div id="coffee" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                <li>
+                                    <a asp-controller="Pulping_Drying" asp-action="Index">Pulping and Drying</a>
+                                </li>
+
+                                <li>
+                                    <a asp-controller="Millings" asp-action="Index">Milling</a>
+
+                                </li>
+                                <li>
+                                    <a asp-controller="Millings" asp-action="Millers">Millers</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Coffee" asp-action="MarketingIndex">Marketing</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Coffee" asp-action="PricingIndex">Pricing</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Coffee" asp-action="PayrollIndex">Payroll</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div id="accounts" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
@@ -832,8 +864,8 @@
                                     <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
                                 </li>
                                 @*<li>
-                                        <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
-                                    </li>*@
+                    <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
+                </li>*@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTransportersBalReport">Transporters Balancing</a>
                                 </li>

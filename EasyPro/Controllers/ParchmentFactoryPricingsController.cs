@@ -101,11 +101,23 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            parchmentFactoryPricing.Year = parchmentFactoryPricing.Date.Year.ToString();// "2023";
+            var dSupplierExists = _context.ParchmentFactoryPricing.Any(i => i.Factory == parchmentFactoryPricing.Factory
+            && i.Grading == parchmentFactoryPricing.Grading && i.Parchment == parchmentFactoryPricing.Parchment
+            && i.Class == parchmentFactoryPricing.Class && i.Year == parchmentFactoryPricing.Year.ToString());
+            if (dSupplierExists)
+            {
+                getinitials();
+                _notyf.Error("Sorry, The Product already exist");
+                return View();
+            }
+
+
             if (ModelState.IsValid)
             {
                 parchmentFactoryPricing.saccocode = sacco;
                 parchmentFactoryPricing.AuditDateTime = DateTime.Now;
-                parchmentFactoryPricing.Year = "2023";
+                parchmentFactoryPricing.Year = parchmentFactoryPricing.Date.Year.ToString();
                 _context.Add(parchmentFactoryPricing);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -137,6 +149,11 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Factory,Parchment,Grading,Class,Price,saccocode,Date,Year,AuditDateTime")] ParchmentFactoryPricing parchmentFactoryPricing)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            getinitials();
             if (id != parchmentFactoryPricing.Id)
             {
                 return NotFound();
@@ -146,6 +163,10 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    parchmentFactoryPricing.saccocode = sacco;
+                    parchmentFactoryPricing.AuditDateTime = DateTime.Now;
+                    parchmentFactoryPricing.Year = parchmentFactoryPricing.Date.Year.ToString();
+
                     _context.Update(parchmentFactoryPricing);
                     await _context.SaveChangesAsync();
                 }

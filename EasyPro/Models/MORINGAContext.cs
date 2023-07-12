@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using EasyPro.Models.Coffee;
 
 #nullable disable
 
@@ -10602,5 +10603,14 @@ namespace EasyPro.Models
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+        public DbSet<EasyPro.Models.Coffee.Pulping_Drying> Pulping_Drying { get; set; }
+
+        public DbSet<EasyPro.Models.Coffee.Marketer> Marketer { get; set; }
+
+        public DbSet<EasyPro.Models.Coffee.Milling> Milling { get; set; }
+        public DbSet<EasyPro.Models.Coffee.Millers> Millers { get; set; }
+
+        public DbSet<EasyPro.Models.Coffee.Milling_Products> Milling_Products { get; set; }
     }
 }
