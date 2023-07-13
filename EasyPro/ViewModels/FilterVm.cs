@@ -20,6 +20,7 @@ namespace EasyPro.ViewModels
         public string Transporter { get; set; }
         [Display(Name = "Bank Name")]
         public string BankName { get; set; }
+        public string County { get; set; }
 
 
     }

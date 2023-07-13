@@ -84,7 +84,7 @@
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="Ppu" class="control-label"></label>
+                            <label id="Ppu1" asp-for="Ppu" class="control-label"></label>
                             <input id="Ppu" asp-for="Ppu" class="form-control" readonly />
                             <span asp-validation-for="Ppu" class="text-danger"></span>
                         </div>
@@ -348,7 +348,14 @@
 
          function populateFields(product) {
                 var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
-                var selectProducts = products.filter(p => p.Products === product);
+             var selectProducts = products.filter(p => p.Products === product);
+             if (selectProducts[0].Price === 0) {
+                 $("#Ppu").hide();
+                 $("#Ppu1").hide();
+             } else {
+                 $("#Ppu").show();
+                 $("#Ppu1").show();
+             }
                 if (selectProducts[0]) {
                     $("#CR").val();
                     $("#Qsupplied").val();

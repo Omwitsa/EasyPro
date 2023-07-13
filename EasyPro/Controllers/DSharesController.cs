@@ -73,7 +73,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Sno,Bal,IdNo,Code,Name,Sex,Loc,Type,TransDate,Pmode,Cash,Period,Amnt,AuditId,AuditDateTime,Shares,Regdate,Mno,Amount,Premium,Spu")] DShare dShare)
+        public IActionResult Create([Bind("Id,Sno,Bal,IdNo,Code,Name,Sex,Loc,Type,TransDate,Pmode,Cash,Period,Amnt,AuditId,AuditDateTime,Shares,Regdate,Mno,Amount,Premium,Spu")] DShare dShare)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -83,6 +83,13 @@ namespace EasyPro.Controllers
             dShare.AuditDateTime = DateTime.Now;
             dShare.SaccoCode = sacco;
             dShare.AuditId = auditId;
+
+            var supplier = _context.DSuppliers.FirstOrDefault(m => m.Scode == sacco && m.Sno == dShare.Sno);
+            if(supplier == null)
+            {
+                _notyf.Error("Sorry, The Sno doe not exist");
+                return View(dShare);
+            }
 
             var dDcode = _context.DDcodes.FirstOrDefault(c => c.Description == dShare.Type && c.Dcode == sacco);
             if(dDcode == null)
@@ -100,32 +107,72 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Deduction acc not set");
                 return View(dShare);
             }
+            if (string.IsNullOrEmpty(dShare.Sno))
+            {
+                _notyf.Error("Sorry, Provide Sno");
+                return View(dShare);
+            }
+            if (dShare.Amount == 0)
+            {
+                _notyf.Error("Sorry, Provide the Amount");
+                return View(dShare);
+            }
+
 
             if (ModelState.IsValid)
             {
-                _context.Add(dShare);
-                var gltransaction = new Gltransaction
+                _context.DShares.Add(new DShare
                 {
-                    AuditId = auditId,
-                    TransDate = DateTime.Today,
+                    Sno = dShare.Sno,
+                    Bal = dShare.Amount,
+                    IdNo= supplier.IdNo,
+                    Code = dShare.Code,
+                    Name = supplier.Names,
+                    Sex = supplier.Type,
+                    Loc = supplier.Location,
+                    Type = dShare.Type,
+                    TransDate = dShare.TransDate,
+                    Pmode = dShare.Pmode,
+                    Cash = false,
+                    Period = dShare.Period,
+                    Amnt= dShare.Amnt ?? 0,
+                    AuditId = dShare.AuditId,
+                    AuditDateTime= dShare.AuditDateTime,
+                    Shares= dShare.Shares ?? 0,
+                    Regdate = supplier.Regdate,
+                    Mno = dShare.Mno,
                     Amount = dShare.Amount,
-                    AuditTime = DateTime.Now,
-                    Source = "Shares",
-                    TransDescript = "Shares",
-                    Transactionno = $"{auditId}{DateTime.Now}",
-                    SaccoCode = sacco,
-                    DrAccNo = dDcode.Dedaccno,
-                    CrAccNo = dDcode.Contraacc,
-                };
-                if(dShare.Amount < 0)
-                {
-                    gltransaction.Amount = -dShare.Amount;
-                    gltransaction.DrAccNo  = dDcode.Contraacc;
-                    gltransaction.CrAccNo = dDcode.Dedaccno;   
-                }
-                _context.Gltransactions.Add(gltransaction);
+                    Premium= dShare.Premium,
+                    Spu = dShare.Spu,
+                    SaccoCode = dShare.SaccoCode,
+                    zone = dShare.zone,
+                });
 
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
+
+                //var gltransaction = new Gltransaction
+                //{
+                //    AuditId = auditId,
+                //    TransDate = DateTime.Today,
+                //    Amount = dShare.Amount,
+                //    AuditTime = DateTime.Now,
+                //    Source = "Shares",
+                //    TransDescript = "Shares",
+                //    Transactionno = $"{auditId}{DateTime.Now}",
+                //    SaccoCode = sacco,
+                //    DrAccNo = dDcode.Dedaccno,
+                //    CrAccNo = dDcode.Contraacc,
+                //};
+
+                //if (dShare.Amount < 0)
+                //{
+                //    gltransaction.Amount = -dShare.Amount;
+                //    gltransaction.DrAccNo = dDcode.Contraacc;
+                //    gltransaction.CrAccNo = dDcode.Dedaccno;
+                //}
+                //_context.Gltransactions.Add(gltransaction);
+
+                //_context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             return View(dShare);

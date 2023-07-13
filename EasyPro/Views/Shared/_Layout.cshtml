@@ -313,6 +313,9 @@
                                                 <a asp-controller="DPrices" asp-action="Index">Pricing</a>
                                             </li>
                                             <li>
+                                                <a asp-controller="DPrice2" asp-action="Index">Farmers With Dif Prices</a>
+                                            </li>
+                                            <li>
                                                 <a asp-controller="DCompanies" asp-action="Index">Org Setup</a>
                                             </li>
                                             <li>
@@ -530,8 +533,11 @@
                                 <li>
                                     <a asp-controller="Flmd" asp-action="Index">FLMD</a>
                                 </li>
+                                <li>
+                                    <a asp-controller="Acs" asp-action="Index">ACS</a>
+                                </li>
                             </ul>
-                        </div>
+                        </div> 
                         <div id="registration" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 <li>
@@ -722,6 +728,9 @@
                                     <a asp-controller="DPrices" asp-action="Index">Pricing</a>
                                 </li>
                                 <li>
+                                    <a asp-controller="DPrice2" asp-action="Index">Farmers With Dif Prices</a>
+                                </li>
+                                <li>
                                     <a asp-controller="DCompanies" asp-action="Index">Org Setup</a>
                                 </li>
                                 <li>
@@ -820,11 +829,14 @@
                                     <a asp-controller="Report" asp-action="FlmdData">FLMD Report</a>
                                 </li>
                                 <li>
+                                    <a asp-controller="Report" asp-action="FlmdData">FLMD Report</a>
+                                </li>
+                                <li>
                                     <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
                                 </li>
                                 @*<li>
-            <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
-        </li>*@
+                                        <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
+                                    </li>*@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTransportersBalReport">Transporters Balancing</a>
                                 </li>
@@ -840,7 +852,7 @@
                             </ul>
                         </div>
                     </div>
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -848,6 +860,8 @@
 
     <div class="normal-table-area">
         <div class="container">
+            <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
             @RenderBody()
         </div>
     </div>
@@ -935,12 +949,14 @@
     ============================================ -->
     <script src="~/assets/js/main.js"></script>
     <!-- tawk chat JS
+
     ============================================ -->
     <script src="~/assets/js/tawk-chat.js"></script>
 
     <script src="~/assets/js/print.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <ejs-scripts></ejs-scripts>
     @await Component.InvokeAsync("Notyf")
     @await RenderSectionAsync("Scripts", required: false)
 </body>

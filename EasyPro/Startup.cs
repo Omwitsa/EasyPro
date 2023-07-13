@@ -56,6 +56,9 @@ namespace EasyPro
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -64,6 +67,10 @@ namespace EasyPro
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NDM0MjEzQDMxMzkyZTMxMmUzMGtBR1h5Rk56UkRXbXZ6NUFSN2M0OXc0ZXlaSEZFeGlhQlZDdW9hdDZwQUU9;NDM0MjE0QDMxMzkyZTMxMmUzMFptdlZOck5kQlRoa3JubHhkaFNSVGhjTnd3QUhGeXBBZ2tpb21VbEYxRzQ9;NDM0MjE1QDMxMzkyZTMxMmUzMGFQQloveEM4WEpNSWFYYWE3RUtzVGkyRkhJamwvQ2dtcHhRaXlaVmZUV1k9");
+
+
             app.UseFastReport();
             app.UseStaticFiles();
             app.UseSession();
@@ -74,8 +81,8 @@ namespace EasyPro
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    //pattern: "{controller=Home}/{action=Login}/{id?}");
                     pattern: "{controller=Home}/{action=Login}/{id?}");
+                   // pattern: "{controller=Home}/{action=NewUI}/{id?}");
             });
         }
     }

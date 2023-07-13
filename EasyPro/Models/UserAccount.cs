@@ -7,6 +7,7 @@ namespace EasyPro.Models
 {
     public partial class UserAccount
     {
+       
         public long Userid { get; set; }
         [Display(Name = "Names")]
         public string UserName { get; set; }

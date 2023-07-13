@@ -44,17 +44,18 @@ namespace EasyPro.Provider
             dailyGroupedIntakes.ForEach(i =>
             {
                 var intake = i.FirstOrDefault();
-                var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco && p.Products.ToUpper().Equals(intake.ProductType.ToUpper()));
+                var price = intake.Ppu;
+                //var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco && p.Products.ToUpper().Equals(intake.ProductType.ToUpper()));
                 var qty = i.Sum(p => p.Qsupplied);
                 supplies.Add(new
                 {
                     date = i.Key,
                     qnty = qty,
-                    price.Price,
-                    payable = qty * price.Price
+                   // price.Price,
+                    payable = qty * price
                 });
                 totalKgs += qty;
-                grossPay += (qty * price.Price);
+                grossPay += (qty * price);
             });
 
             var deductionIntakes = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
@@ -87,7 +88,7 @@ namespace EasyPro.Provider
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == filter.Code && s.Scode == filter.Sacco && s.Branch == filter.Branch);
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
 
-            var transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(filter.Code.ToUpper()));
+            var transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(filter.Code.ToUpper()) && t.saccocode== filter.Sacco);
             var transporterName = "";
             if (transport != null)
             {

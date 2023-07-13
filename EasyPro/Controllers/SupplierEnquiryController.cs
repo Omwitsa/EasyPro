@@ -173,10 +173,22 @@ namespace EasyPro.Controllers
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
+            
+
             //if (zones.Count != 0)
             //    ViewBag.checkiftoenable = 1;
             //else
             //    ViewBag.checkiftoenable = 0;
+        }
+
+        private void getshares(string sno)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            decimal shares = _context.DShares.Where(m => m.SaccoCode == sacco && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(sno.ToUpper())).ToList().Sum(x=>x.Amount);
+            ViewBag.shares = shares;
         }
 
         [HttpPost]
@@ -185,10 +197,17 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            getshares(supplier.Sno.ToString());
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+
+            var getsumkgs = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
+                 && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
+                 && i.TransDate >= date1 && i.TransDate <= date2).ToList().Sum(n => n.Qsupplied);
 
             var intakes = _context.ProductIntake.Where(i => i.Sno == supplier.Sno.ToString()
             && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2)
                 .OrderBy(i => i.TransDate).ToList();
+
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
@@ -219,12 +238,23 @@ namespace EasyPro.Controllers
                         Description = i.Remarks,
                         Remarks = i.Remarks,
                         Auditdatetime = DateTime.Now,
+                        getsumkgs = getsumkgs,
+                        //shares= ViewBag.shares,
                     });
                     _context.SaveChanges();
                 });
 
             });
 
+            
+            var shar = ViewBag.shares;
+            if (shar > 0)
+            {
+                MilkEnquryVM.Add( new MilkEnqury
+                {
+                    shares = ViewBag.shares,
+                });
+            }
             //intakes.ForEach(i =>
             //{
             //    i.CR = i?.CR ?? 0;
@@ -234,7 +264,8 @@ namespace EasyPro.Controllers
             //    if (i.Remarks == null)
             //        i.Remarks = i.ProductType;
             //});
-            var entries = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
+            //var entries = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
+            var entries = MilkEnquryVM.ToList();
             return Json(entries.OrderByDescending(n => n.Auditdatetime));
         }
 

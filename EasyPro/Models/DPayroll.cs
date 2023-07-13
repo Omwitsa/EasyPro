@@ -59,5 +59,6 @@ namespace EasyPro.Models
         public decimal? AI { get; set; }
         public decimal? Tractor { get; set; }
         public decimal? CurryForward { get; set; }
+        public decimal? MIDPAY { get; set; }
     }
 }
