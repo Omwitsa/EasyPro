@@ -34,12 +34,14 @@ namespace EasyPro.Controllers.Coffee
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            miller.saccocode = sacco;
             miller.AuditDateTime = DateTime.Now;
             if (ModelState.IsValid)
             {
                 _context.Add(miller);
                 await _context.SaveChangesAsync();
-               // return RedirectToAction(nameof(Index));
+                _notyf.Success("Intake saved successfully");
+                 return RedirectToAction(nameof(MillersIndex));
             }
             return View(miller);
         }
@@ -51,24 +53,43 @@ namespace EasyPro.Controllers.Coffee
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             return View();
         }
-
-            // GET: Millings
-            public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             getdefaults();
-            var millers = await _context.Milling.ToListAsync();
-            return View(millers);
+            var millers = await _context.Milling.Where(b => b.saccocode == sacco).ToListAsync();
+            return View(millers.OrderByDescending(n => n.Date));
+        }
+        // GET: Millings    
+        public async Task<IActionResult> MillersIndex()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var millers = await _context.Millers.Where(b=>b.saccocode == sacco).ToListAsync();
+            return View(millers.OrderByDescending(n=>n.Name));
         }
         private void getdefaults()
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
             var partchments = _context.Parchment.OrderBy(n => n.PName).ToList();
-            var factories = _context.DBranch.OrderBy(n => n.Bname).ToList();
+            var factories = _context.DBranch.Where(b => b.Bcode == sacco).OrderBy(n => n.Bname).ToList();
+            var Millers = _context.Millers.Where(b => b.saccocode == sacco).OrderBy(n => n.Name).ToList();
+            var Marketer = _context.MarketerReg.Where(b => b.saccocode == sacco).OrderBy(n => n.Name).ToList();
+
             ViewBag.Category = new SelectList(partchments.OrderBy(n => n.PName).Select(k => k.PName).ToList());
             ViewBag.Factory = new SelectList(factories.OrderBy(n => n.Bname).Select(k => k.Bname).ToList());
+            ViewBag.Miller = new SelectList(Millers.OrderBy(n => n.Name).Select(k => k.Name).ToList());
+            ViewBag.Marketer = new SelectList(Marketer.OrderBy(n => n.Name).Select(k => k.Name).ToList());
+
         }
 
         // GET: Millings/Details/5
@@ -107,10 +128,18 @@ namespace EasyPro.Controllers.Coffee
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Factory,saccocode,Category,Kgs,Miller,Date,AuditDateTime")] Milling milling)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            getdefaults();
+            milling.saccocode = sacco;
+            milling.AuditDateTime = DateTime.Now;
             if (ModelState.IsValid)
             {
                 _context.Add(milling);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Record saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(milling);
@@ -170,6 +199,11 @@ namespace EasyPro.Controllers.Coffee
         // GET: Millings/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
             if (id == null)
             {
                 return NotFound();
@@ -179,6 +213,7 @@ namespace EasyPro.Controllers.Coffee
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (milling == null)
             {
+                _notyf.Error("Sorry, No record to delete");
                 return NotFound();
             }
 
@@ -190,14 +225,23 @@ namespace EasyPro.Controllers.Coffee
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var milling = await _context.Milling.FindAsync(id);
             _context.Milling.Remove(milling);
             await _context.SaveChangesAsync();
+            _notyf.Success("Record Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 
         private bool MillingExists(long id)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             return _context.Milling.Any(e => e.Id == id);
         }
     }

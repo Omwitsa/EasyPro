@@ -97,8 +97,6 @@ namespace EasyPro.Controllers
             return View();
         }
 
-
-
         // POST: DPayrolls/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -108,12 +106,13 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
+            var endDate = period.EndDate;
+            var RealendDate = startDate.AddMonths(1).AddDays(-1);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
-                .Select(b => b.Bname.ToUpper());
+                .Select(b => b.Bname.ToUpper()); 
 
             var payrolls = _context.DPayrolls
                 .Where(p => p.Yyear == endDate.Year && p.Mmonth == endDate.Month
@@ -132,10 +131,18 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
             }
 
+            var checkifanydeduction = _context.ProductIntake.Where(n => n.SaccoCode == sacco && n.TransDate >= endDate && n.TransDate <= RealendDate
+            && n.Description.ToLower().Contains("midpay")).ToList();
+            if (checkifanydeduction.Any())
+            {
+                _context.ProductIntake.RemoveRange(checkifanydeduction);
+                _context.SaveChanges();
+            }
+
+            IQueryable<ProductIntake> newintakes = _context.ProductIntake;
             if (sacco != "MBURUGU DAIRY F.C.S")
             {
-                IQueryable<ProductIntake> newintakes = _context.ProductIntake;
-                var transpoterIntakes = newintakes.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= endDate
+                var transpoterIntakes = newintakes.Where(i => i.SaccoCode == sacco && i.TransDate >= endDate && i.TransDate <= RealendDate
                 && i.Description.ToLower().Equals("transport")).ToList();
                 if (transpoterIntakes.Any())
                 {
@@ -143,7 +150,6 @@ namespace EasyPro.Controllers
                     _context.SaveChanges();
                 }
             }
-
 
 
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
@@ -204,7 +210,7 @@ namespace EasyPro.Controllers
                 //update default deductions if any like bonus
                 var preSet = _context.d_PreSets.FirstOrDefault(n => n.saccocode == sacco);
                 if (preSet != null)
-                    calcDefaultdeductions(startDate, endDate, sacco, branchName, loggedInUser);
+                    await calcDefaultdeductions(startDate, endDate, sacco, branchName, loggedInUser);
 
                 if (sacco != "MBURUGU DAIRY F.C.S")
                     await ConsolidateTranspoterIntakes(startDate, endDate, sacco, branchName, loggedInUser);
@@ -274,6 +280,7 @@ namespace EasyPro.Controllers
                         + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) + tractor.Sum(s => s.DR)
                         + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR)
                         + MIDPAY.Sum(s => s.DR);
+
                         _context.DPayrolls.Add(new DPayroll
                         {
                             Sno = supplier.Sno.ToUpper().ToString(),
@@ -307,6 +314,34 @@ namespace EasyPro.Controllers
                             Auditid = loggedInUser,
                             Branch = supplier.Branch
                         });
+
+                        var checkifanydeduction = _context.ProductIntake.Where(n => n.SaccoCode == sacco && n.Branch == supplier.Branch
+                        && n.TransDate == endDate && n.Sno.ToUpper().Equals(supplier.Sno.ToUpper().ToString()) && n.Description.ToLower().Contains("midpay")).ToList();
+                        if (!checkifanydeduction.Any())
+                        {
+                            _context.ProductIntake.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno.ToUpper().ToString(),
+                                TransDate = (DateTime)endDate,
+                                TransTime = DateTime.Now.TimeOfDay,
+                                ProductType = "midpay",
+                                Qsupplied = 0,
+                                Ppu = 0,
+                                CR = 0,
+                                DR = p.Sum(s => s.CR) - debits - Tot,
+                                Balance = 0,
+                                Description = "midpay",
+                                TransactionType = TransactionType.Deduction,
+                                Remarks = "",
+                                AuditId = loggedInUser,
+                                Auditdatetime = DateTime.Now,
+                                Branch = supplier.Branch,
+                                SaccoCode = sacco,
+                                DrAccNo = "0",
+                                CrAccNo = "0",
+                            });
+                        }
+
                     }
                 });
                 //_context.SaveChanges();
@@ -325,8 +360,8 @@ namespace EasyPro.Controllers
                .Select(s => s.TransCode.Trim().ToUpper());
 
                 var productIntakes = productIntakeslist
-                .Where(p => p.TransDate >= startDate && p.TransDate <= endDate
-                && transpoterCodes.Contains(p.Sno.Trim().ToUpper())
+                .Where(p => transpoterCodes.Contains(p.Sno.Trim().ToUpper())
+                && p.TransDate >= startDate && p.TransDate <= endDate
                 && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
 

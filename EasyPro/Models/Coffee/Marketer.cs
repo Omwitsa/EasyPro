@@ -11,6 +11,7 @@ namespace EasyPro.Models.Coffee
         [Key]
         public long Id { get; set; }
         public string saccocode { get; set; }
+        public string Factory { get; set; }
         public string MarketerName { get; set; }
         public string Category { get; set; }
         public string Grade { get; set; }

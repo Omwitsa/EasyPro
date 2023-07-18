@@ -51,7 +51,8 @@ namespace EasyPro.Provider
                 {
                     date = i.Key,
                     qnty = qty,
-                   // price.Price,
+                    price = price,
+                   //price.Price,
                     payable = qty * price
                 });
                 totalKgs += qty;

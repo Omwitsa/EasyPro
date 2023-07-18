@@ -112,11 +112,13 @@
                         type: 'POST',
                         url: "printSupplierStatement",
                         contentType: 'application/json',
+
                         data: JSON.stringify(filter),
                         success: function (response) {
                             $("#branch").val('');
                             $("#date").val('');
                             $("#sno").val('');
+                            debugger
                             var content = generateHTML(response, filter);
                             printJS({
                                 printable: content,
@@ -135,12 +137,13 @@
             function generateHTML(response, filter) {
                 var mevng = $('#mevng').val();
                 var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                debugger
                 var supplierSummery = response.supplies.map(s => {
                     let transDate = new Date(s.date).toLocaleDateString();
                     return `<tr>
                                         <td>${transDate}</td>
                                         <td>${s.qnty}</td>
-                                        <td>${s.Price}</td>
+                                        <td>${s.price}</td>
                                         <td>${s.payable}</td>
                                     </tr>`;
                 });

@@ -6,8 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EasyPro.Models.Coffee
 {
-    public partial class Millers
-
+    public partial class MarketerReg
     {
         [Key]
         public long Id { get; set; }

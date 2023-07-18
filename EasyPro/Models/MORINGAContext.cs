@@ -10610,6 +10610,7 @@ namespace EasyPro.Models
 
         public DbSet<EasyPro.Models.Coffee.Milling> Milling { get; set; }
         public DbSet<EasyPro.Models.Coffee.Millers> Millers { get; set; }
+        public DbSet<EasyPro.Models.Coffee.MarketerReg> MarketerReg { get; set; }
 
         public DbSet<EasyPro.Models.Coffee.Milling_Products> Milling_Products { get; set; }
     }

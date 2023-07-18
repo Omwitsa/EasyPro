@@ -1,18 +1,17 @@
-﻿@model EasyPro.Models.Coffee.Millers
+﻿@model EasyPro.Models.Coffee.MarketerReg
 
 @{
-    ViewData["Title"] = "Millers";
-   
+    ViewData["Title"] = "MarketerRegCreate";
 }
 
 <div class="row">
     
         <div class="form-element-list mg-t-30">
             <div class="cmp-tb-hd">
-                <h2>Millers</h2>
+                <h2>Marketers</h2>
             </div>
             <hr />
-            <form asp-action="Millers">
+            <form asp-action="MarketerRegCreate">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
@@ -37,20 +36,19 @@
                         <input asp-for="Location" class="form-control" />
                         <span asp-validation-for="Location" class="text-danger"></span>
                     </div>
-
-
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Save</button>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                        </div>
                     </div>
-                </div>
             </form>
         </div>
     
+
+
 </div>
 
