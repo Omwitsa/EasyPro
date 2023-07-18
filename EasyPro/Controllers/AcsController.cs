@@ -11,18 +11,22 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 using System;
 using Syncfusion.EJ2.Linq;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using EasyPro.Models.BosaModels;
 
 namespace EasyPro.Controllers
 {
     public class AcsController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly BosaDbContext _bosaDbContext;
         private readonly INotyfService _notyf;
         private Utilities utilities;
 
-        public AcsController(MORINGAContext context, INotyfService notyf)
+        public AcsController(MORINGAContext context, INotyfService notyf, BosaDbContext bosaDbContext)
         {
             _context = context;
+            _bosaDbContext = bosaDbContext;
             _notyf = notyf;
             utilities = new Utilities(context);
         }
@@ -72,6 +76,8 @@ namespace EasyPro.Controllers
                 AverageAmount = averageAmount,
                 LiableAmount = averageAmount * 0.33M
             });
+
+           var val = _bosaDbContext.MEMBERS.FirstOrDefault(m => m.IDNo == "198");
 
             return Json(acs);
         }

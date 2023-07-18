@@ -4,6 +4,7 @@ using DinkToPdf;
 using DinkToPdf.Contracts;
 using EasyPro.IProvider;
 using EasyPro.Models;
+using EasyPro.Models.BosaModels;
 using EasyPro.Provider;
 using EasyPro.Repository;
 using Microsoft.AspNetCore.Builder;
@@ -32,6 +33,8 @@ namespace EasyPro
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddDbContext<MORINGAContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("MoringaDbConnection")));
+            services.AddDbContext<BosaDbContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("BosaDbConnection")));
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddTransient<IReporting, ReportingConcrete>();
             services.AddTransient<IReportProvider, ReportProvider>();
