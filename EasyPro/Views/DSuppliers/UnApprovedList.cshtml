@@ -101,45 +101,7 @@
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody id="geeks">
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Sno)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Regdate)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Names)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.IdNo)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.AccNo)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Location)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Branch)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.PhoneNo)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Active)
-                                        </td>
-                                        <td class="col-4">
-                                            @if (ViewBag.setupRole)
-                                            {
-                                                <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
+                            <tbody id="intakes">
                             </tbody>
                         </table>
                     </div>
@@ -178,6 +140,32 @@
                     // ...
                 });
                 //}
+            }
+            function populateIntake(intakes) {
+                var filter = $("#filter").val();
+                var condition = $("#condition").val();
+                let itemTableRows = new Array();
+                intakes.forEach(i => {
+                    //debugger;
+                    var ddate = i.Regdate;
+                    var d = "/DSuppliers/Edit/" + i.Id;
+                    var dd1 = new Date(ddate).toLocaleDateString();
+                    var edit = "<a class='btn btn-success text-white' href=" + d + "  >Edit</a >";
+                    itemTableRows.push(`<tr>
+                                <td>${i.Sno}</td>
+                                <td>${dd1}</td>
+                                <td>${i.Names}</td>
+                                <td>${i.IdNo}</td>
+                                <td>${i.AccNo}</td>
+                                <td>${i.Location}</td>
+                                <td>${i.Branch}</td>
+                                <td>${i.PhoneNo}</td>
+                                <td>${i.Active}</td>
+                                <td>${edit}</td>
+                            </tr>`)
+                });
+
+                $('#intakes').html(itemTableRows);
             }
         });
 

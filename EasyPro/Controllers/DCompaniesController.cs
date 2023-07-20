@@ -122,10 +122,10 @@ namespace EasyPro.Controllers
             ViewBag.counties = new SelectList(counties.OrderBy(n=>n.Name).ToList().Select(b => b.Name).ToList());
             var subCounties = _context.SubCounty.Where(c => !c.Closed).OrderBy(m => m.Name).ToList();
             ViewBag.subCounties = subCounties;
-            //ViewBag.subCounties = new SelectList(subCounties, "Name", "Name");
+            ViewBag.SubCountyName = new SelectList(subCounties, "Name", "Name");
             var wards = _context.Ward.Where(c => !c.Closed).OrderBy(m => m.Name).ToList();
             ViewBag.wards = wards;
-            //ViewBag.wards = new SelectList(wards, "Name", "Name");
+            ViewBag.WardSubCounty = new SelectList(wards, "Name", "Name");
             var locations = _context.DLocations.OrderBy(m => m.Lname).ToList();
             ViewBag.locations = new SelectList(locations, "Lcode", "Lname");
         }
