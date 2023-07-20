@@ -13,6 +13,7 @@ using Syncfusion.EJ2.Linq;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models.BosaModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EasyPro.Controllers
 {
@@ -34,13 +35,38 @@ namespace EasyPro.Controllers
         public IActionResult Index()
         {
             utilities.SetUpPrivileges(this);
+            var filters = new string[] { "SNO", "MemberNo" };
+            ViewBag.filters = new SelectList(filters);
             return View();
         }
 
         [HttpGet]
-        public JsonResult GetLoanLiable(string sno)
+        public JsonResult GetLoanLiable(string membership, string no)
         {
-            sno = sno ?? "";
+            no = no ?? "";
+            membership = membership ?? "";
+
+            if (string.IsNullOrEmpty(membership) || string.IsNullOrEmpty(no))
+            {
+                _notyf.Error("Sorry, Kindly Provide membership");
+                return Json("");
+            }
+            
+            var sno = no;
+            var memberNo = no;
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            if (membership == "SNO")
+            {
+                var idNo = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(no.ToUpper()) && s.Scode == sacco)?.IdNo ?? "";
+                memberNo = _bosaDbContext.MEMBERS.FirstOrDefault(m => m.IDNo== idNo)?.MemberNo ?? "";
+            }
+
+            if (membership == "MemberNo")
+            {
+                var idNo = _bosaDbContext.MEMBERS.FirstOrDefault(s => s.MemberNo.ToUpper().Equals(no.ToUpper()))?.IDNo ?? "";
+                sno = _context.DSuppliers.FirstOrDefault(m => m.IdNo == idNo)?.Sno ?? "";
+            }
+
             utilities.SetUpPrivileges(this);
 
             var today = DateTime.Today;
@@ -54,7 +80,6 @@ namespace EasyPro.Controllers
             var last3MonthStart = monthStart.AddMonths(-3);
             var last3MonthEnd = last2MonthStart.AddDays(-1);
 
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             IQueryable<ProductIntake> intakes = _context.ProductIntake.Where(i => i.Sno == sno && i.SaccoCode == sacco);
             var product = intakes.FirstOrDefault()?.ProductType ?? "";
             var lastMonthQuantity = intakes.Where(i => i.TransDate >= lastMonthStart && i.TransDate <= lastMonthEnd).Sum(i => i.Qsupplied);
@@ -74,10 +99,48 @@ namespace EasyPro.Controllers
                 Last2MonthAmount = last2MonthAmount,
                 Last3MonthAmount = last3MonthAmount,
                 AverageAmount = averageAmount,
-                LiableAmount = averageAmount * 0.33M
+                Shares = 0,
+                FlmdValue = 0,
+                LiableAmount = averageAmount * 0.33M,
             });
 
-           var val = _bosaDbContext.MEMBERS.FirstOrDefault(m => m.IDNo == "198");
+            var sharesAmount = _bosaDbContext.CONTRIB.Where(m => m.MemberNo.ToUpper().Equals(memberNo.ToUpper())).Sum(m => m.Amount);
+            acs.Add(new AcsVm
+            {
+                Name = "SACCO",
+                LastMonthAmount = 0,
+                Last2MonthAmount = 0,
+                Last3MonthAmount = 0,
+                AverageAmount = 0,
+                Shares = sharesAmount,
+                FlmdValue = 0,
+                LiableAmount = sharesAmount * 0.33M
+            });
+
+            decimal? flmdAmount = 0;
+            var fLMDs = _context.FLMD.Where(f => f.Sno == sno && f.SaccoCode == sacco);
+            flmdAmount += fLMDs.Sum(f => f.ExoticCattleValue) + fLMDs.Sum(f => f.IndigenousCattleValue) + fLMDs.Sum(f => f.IndigenousChickenValue) 
+                + fLMDs.Sum(f => f.SheepValue) + fLMDs.Sum(f => f.GoatsValue) + fLMDs.Sum(f => f.CamelsValue) + fLMDs.Sum(f => f.DonkeysValue) 
+                + fLMDs.Sum(f => f.PigsValue) + fLMDs.Sum(f => f.BeeHivesValue);
+
+            var fLMDCrops = _context.FLMDCrops.Where(f => f.Sno == sno && f.SaccoCode == sacco);
+            flmdAmount += fLMDCrops.Sum(c => c.CashCropsValue) + fLMDCrops.Sum(c => c.ConsumerCropsValue) + fLMDCrops.Sum(c => c.VegetablesValue) 
+                + fLMDCrops.Sum(c => c.AnimalFeedsValue);
+
+            var lands = _context.FLMDLand.Where(l => l.Sno == sno && l.SaccoCode == sacco);
+            flmdAmount += lands.Sum(l => l.PlotValue);
+
+            acs.Add(new AcsVm
+            {
+                Name = "FLMD",
+                LastMonthAmount = 0,
+                Last2MonthAmount = 0,
+                Last3MonthAmount = 0,
+                AverageAmount = 0,
+                Shares = 0,
+                FlmdValue = flmdAmount,
+                LiableAmount = flmdAmount * 0.33M
+            });
 
             return Json(acs);
         }

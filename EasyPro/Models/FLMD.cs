@@ -7,14 +7,23 @@ namespace EasyPro.Models
         public long Id { get; set; }
         public string Sno { get; set; }
         public int? ExoticCattle { get; set; }
+        public decimal? ExoticCattleValue { get; set; }
         public int? IndigenousCattle { get; set; }
+        public decimal? IndigenousCattleValue { get; set; }
         public int? IndigenousChicken { get; set; }
+        public decimal? IndigenousChickenValue { get; set; }
         public int? Sheep { get; set; }
+        public decimal? SheepValue { get; set; }
         public int? Goats { get; set; }
+        public decimal? GoatsValue { get; set; }
         public int? Camels { get; set; }
+        public decimal? CamelsValue { get; set; }
         public int? Donkeys { get; set; }
+        public decimal? DonkeysValue { get; set; }
         public int? Pigs { get; set; }
+        public decimal? PigsValue { get; set; }
         public int? BeeHives { get; set; }
+        public decimal? BeeHivesValue { get; set; }
         public int? Boys { get; set; }
         public int? Girls { get; set; }
         public int? Deaths { get; set; }

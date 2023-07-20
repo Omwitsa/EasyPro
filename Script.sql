@@ -18,8 +18,7 @@ CREATE TABLE [dbo].[d_SupplierCumlative](
 ) ON [PRIMARY]
 GO
 
-add column extension to dpayroll and dtransporterspayroll table
-add column Flmd to USERGROUPS
-add column SMS to dpayroll and dtransporterspayroll table
-change startdate type to datetime in d_PreSets
 
+ALTER TABLE FLMD ADD ExoticCattleValue money, IndigenousCattleValue money, IndigenousChickenValue money, SheepValue money, GoatsValue money, CamelsValue money, DonkeysValue money, PigsValue money, BeeHivesValue money
+ALTER TABLE FLMDCrops ADD CashCropsValue money, ConsumerCropsValue money, VegetablesValue money, AnimalFeedsValue money
+ALTER TABLE FLMDLand ADD PlotValue money

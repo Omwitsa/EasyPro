@@ -44,8 +44,17 @@
             <div class="row">
                 <div class="col-sm-4 col-xs-12">
                     <div class="form-group">
-                        <label class="control-label">SNO</label>
-                        <input id="sno" autocomplete="off" class="form-control" />
+                        <label class="control-label">Membership</label>
+                        <select id="membership" class="form-control" asp-items="@ViewBag.filters">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-sm-4 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">No.</label>
+                        <input id="no" autocomplete="off" class="form-control" />
                     </div>
                 </div>
                
@@ -75,7 +84,13 @@
                                     Last 3 Months Amount
                                 </th>
                                 <th>
-                                    Average Amount
+                                    Average Supply Amount
+                                </th>
+                                <th>
+                                    Shares Contribs
+                                </th>
+                                <th>
+                                    FLMD Value
                                 </th>
                                 <th>
                                     Liable Loan
@@ -100,22 +115,21 @@
         $(function () {
             let acs = new Array();
             $('#generate').on('click', function () {
-                var sno = $("#sno").val();
-                if (sno) {
-                    $.ajax({
-                        type: 'GET',
-                        url: "getLoanLiable?sno=" + sno,
-                        contentType: 'application/json',
-                        success: function (response) {
-                            acs = response ? response : [];
-                            populateDetailsTable();
-                        },
-                        failure: function (response) {
-                        }
-                    }).then(function () {
-                        // ...
-                    });
-                }
+                var no = $("#no").val();
+                var membership = $("#membership").val();
+                $.ajax({
+                    type: 'GET',
+                    url: "getLoanLiable?membership=" + membership + "&no=" + no,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        acs = response ? response : [];
+                        populateDetailsTable();
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
             });
 
             $('#save').on('click', function () {
@@ -155,8 +169,8 @@
             });
 
             function populateDetailsTable() {
-                debugger
                 let itemTableRows = new Array();
+                let total = 0;
                 acs.forEach(j => {
                     itemTableRows.push(`<tr>
                                         <td>${j.Name}</td>
@@ -164,9 +178,18 @@
                                         <td>${j.Last2MonthAmount}</td>
                                         <td>${j.Last3MonthAmount}</td>
                                         <td>${j.AverageAmount}</td>
+                                        <td>${j.Shares}</td>
+                                        <td>${j.FlmdValue}</td>
                                         <td>${j.LiableAmount}</td>
                                     </tr>`);
+                                    debugger
+                    total += j.LiableAmount;
                 });
+
+                itemTableRows.push(`<tr>
+                                        <td colspan="7">Total: </td>
+                                        <td>${total}</td>
+                                    </tr>`);
 
                 $('#details').html(itemTableRows);
             }

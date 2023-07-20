@@ -14,5 +14,6 @@ namespace EasyPro.Models.BosaModels
         }
 
         public virtual DbSet<Member> MEMBERS { get; set; }
+        public virtual DbSet<SContrib> CONTRIB { get; set; }
     }
 }

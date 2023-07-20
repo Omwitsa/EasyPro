@@ -67,14 +67,23 @@ namespace EasyPro.Controllers
                 else
                 {
                     savedFlmd.ExoticCattle = fMLD.ExoticCattle;
+                    savedFlmd.ExoticCattleValue = fMLD.ExoticCattleValue;
                     savedFlmd.IndigenousCattle = fMLD.IndigenousCattle;
+                    savedFlmd.IndigenousCattleValue = fMLD.IndigenousCattleValue;
                     savedFlmd.IndigenousChicken = fMLD.IndigenousChicken;
+                    savedFlmd.IndigenousChickenValue = fMLD.IndigenousChickenValue;
                     savedFlmd.Sheep = fMLD.Sheep;
+                    savedFlmd.SheepValue = fMLD.SheepValue;
                     savedFlmd.Goats = fMLD.Goats;
+                    savedFlmd.GoatsValue = fMLD.GoatsValue;
                     savedFlmd.Camels = fMLD.Camels;
+                    savedFlmd.CamelsValue = fMLD.CamelsValue;
                     savedFlmd.Donkeys = fMLD.Donkeys;
+                    savedFlmd.DonkeysValue = fMLD.DonkeysValue;
                     savedFlmd.Pigs = fMLD.Pigs;
+                    savedFlmd.PigsValue = fMLD.PigsValue;
                     savedFlmd.BeeHives = fMLD.BeeHives;
+                    savedFlmd.BeeHivesValue = fMLD.BeeHivesValue;
                 }
                 _context.SaveChanges();
                 _notyf.Success("Animals saved successfully");
