@@ -42,7 +42,7 @@ namespace EasyPro.Utils
                     Files = true,
                     Accounts = true,
                     Deductions = true,
-                    SaccoReports = true,
+                    SaccoReports = false,
                     SaccoCode = sacco,
                     Staff = true,
                     Store = true,

@@ -10,7 +10,7 @@ namespace EasyPro.Models
     {
         [Key]
         public long Id { get; set; }
-        public string PPricing { get; set; }
+        public double PPricing { get; set; }
         public string saccocode { get; set; }
         public string Factory { get; set; }
     }

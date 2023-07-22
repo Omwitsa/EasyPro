@@ -106,12 +106,14 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
             var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
+            var endDate = period.EndDate;
+            var RealendDate = startDate.AddMonths(1).AddDays(-1);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
                 .Select(b => b.Bname.ToUpper());
-            
+
             var payrolls = _context.DPayrolls
                 .Where(p => p.Yyear == period.EndDate.Year && p.Mmonth == period.EndDate.Month
                 && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
@@ -136,20 +138,30 @@ namespace EasyPro.Controllers
                 _context.ProductIntake.RemoveRange(advIntakes);
                 _context.SaveChanges();
             }
-            
+     
+            IQueryable<ProductIntake> newintakes = _context.ProductIntake;
             if (sacco != "MBURUGU DAIRY F.C.S")
             {
-                var transpoterIntakes = productIntakeslist.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= period.EndDate
-                && i.Description.ToLower().Equals("transport"));
+                var transpoterIntakes = newintakes.Where(i => i.SaccoCode == sacco && i.TransDate >= endDate && i.TransDate <= RealendDate
+                && i.Description.ToLower().Equals("transport")).ToList();
                 if (transpoterIntakes.Any())
                 {
                     _context.ProductIntake.RemoveRange(transpoterIntakes);
                     _context.SaveChanges();
                 }
+
+                var checkifanydeduction = _context.ProductIntake.Where(n => n.SaccoCode == sacco && n.TransDate >= endDate && n.TransDate <= RealendDate
+                && n.Description.ToLower().Contains("midpay")).ToList();
+                if (checkifanydeduction.Any())
+                {
+                    _context.ProductIntake.RemoveRange(checkifanydeduction);
+                    _context.SaveChanges();
+                }
             }
 
-            var deletestandingorder = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= period.EndDate 
-            && i.Remarks == "Standing Order" && i.SaccoCode == sacco);
+            var deletestandingorder = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
+                 && i.Remarks == "Standing Order" && i.SaccoCode == sacco);
+
             if (deletestandingorder.Any())
             {
                 _context.ProductIntake.RemoveRange(deletestandingorder);
@@ -189,7 +201,10 @@ namespace EasyPro.Controllers
             foreach (var branchName in branchNames)
             {
                 //update default deductions if any like bonus
-                await calcDefaultdeductions(startDate, period.EndDate, sacco, branchName, loggedInUser);
+                var preSet = _context.d_PreSets.FirstOrDefault(n => n.saccocode == sacco);
+                if (preSet != null)
+                    await calcDefaultdeductions(startDate, period.EndDate, sacco, branchName, loggedInUser);
+
                 if (sacco != "MBURUGU DAIRY F.C.S")
                     await ConsolidateTranspoterIntakes(startDate, period.EndDate, sacco, branchName, loggedInUser);
             }
@@ -200,7 +215,7 @@ namespace EasyPro.Controllers
                || c.Description.ToLower().Equals("loan") || c.Description.ToLower().Equals("carry forward") || c.Description.ToLower().Equals("clinical")
                || c.Description.ToLower().Equals("a.i") || c.Description.ToLower().Equals("ai") || c.Description.ToLower().Equals("tractor")
                || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work")
-               || c.Description.ToLower().Equals("registration")).Select(c => c.Description.ToLower()).ToList();
+               || c.Description.ToLower().Equals("registration") || c.Description.ToLower().Equals("midpay")).Select(c => c.Description.ToLower()).ToList();
             foreach (var branchName in branchNames)
             {
                 var supplierNos = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())
@@ -227,6 +242,7 @@ namespace EasyPro.Controllers
                     var extension = p.Where(k => k.ProductType.ToLower().Contains("extension work"));
                     var SMS = p.Where(k => k.ProductType.ToLower().Contains("sms"));
                     var registration = p.Where(k => k.ProductType.ToLower().Contains("registration"));
+                    var MIDPAY = p.Where(k => k.ProductType.ToLower().Contains("midpay"));
                     var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                     var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
@@ -243,7 +259,7 @@ namespace EasyPro.Controllers
                         var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
                         + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) + tractor.Sum(s => s.DR) + transport.Sum(s => s.DR)
                         + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR)
-                        + registration.Sum(s => s.DR);
+                        + registration.Sum(s => s.DR) + MIDPAY.Sum(s => s.DR);
 
                         if (supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate))
                         {
@@ -266,6 +282,7 @@ namespace EasyPro.Controllers
                                 Bonus = bonus.Sum(s => s.DR),
                                 Fsa = loan.Sum(s => s.DR),
                                 Hshares = shares.Sum(s => s.DR),
+                                MIDPAY = MIDPAY.Sum(s => s.DR),
                                 Tdeductions = Tot,
                                 Npay = credited - (debits + Tot),
                                 Yyear = period.EndDate.Year,
@@ -304,6 +321,31 @@ namespace EasyPro.Controllers
                                     Zone = "",
                                     MornEvening = ""
                                 });
+
+                            var checkifanydeduction = _context.ProductIntake.Where(n => n.SaccoCode == sacco && n.Branch == supplier.Branch
+                        && n.TransDate == endDate && n.Sno.ToUpper().Equals(supplier.Sno.ToUpper().ToString()) && n.Description.ToLower().Contains("midpay")).ToList();
+                            if (!checkifanydeduction.Any())
+                                _context.ProductIntake.Add(new ProductIntake
+                                {
+                                    Sno = supplier.Sno.ToUpper().ToString(),
+                                    TransDate = (DateTime)endDate,
+                                    TransTime = DateTime.Now.TimeOfDay,
+                                    ProductType = "midpay",
+                                    Qsupplied = 0,
+                                    Ppu = 0,
+                                    CR = 0,
+                                    DR = p.Sum(s => s.CR) - debits - Tot,
+                                    Balance = 0,
+                                    Description = "midpay",
+                                    TransactionType = TransactionType.Deduction,
+                                    Remarks = "",
+                                    AuditId = loggedInUser,
+                                    Auditdatetime = DateTime.Now,
+                                    Branch = supplier.Branch,
+                                    SaccoCode = sacco,
+                                    DrAccNo = "0",
+                                    CrAccNo = "0",
+                                });
                         }
                     }
                 });
@@ -324,6 +366,7 @@ namespace EasyPro.Controllers
                 var productIntakes = productIntakeslist
                 .Where(p => p.TransDate >= startDate && p.TransDate <= period.EndDate
                 && transpoterCodes.Contains(p.Sno.Trim().ToUpper())
+
                 && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToList();
 

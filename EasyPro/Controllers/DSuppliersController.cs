@@ -84,7 +84,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var counties = _context.County.Select(c => c.Name).ToList();
             ViewBag.counties = new SelectList(counties);
-            var countyPOS = _context.DCompanies.ToList().GroupBy(s => s.Province).ToList();
+            var countyPOS = _context.DCompanies.Where(n=>n.Province != null).ToList().GroupBy(s => s.Province).ToList();
             var countySaccos = new List<CountySupplierSummery>();
             var totalSuppliers = 0;
             var totalMale = 0;
@@ -188,7 +188,7 @@ namespace EasyPro.Controllers
 
             var counties = _context.County.Select(c => c.Name).ToList();
             ViewBag.counties = new SelectList(counties);
-            var countyPOS = _context.DCompanies.ToList().GroupBy(s => s.Province).ToList();
+            var countyPOS = _context.DCompanies.Where(n => n.Province != null).ToList().GroupBy(s => s.Province).ToList();
             var gSuppliers = _context.DSuppliers.ToList();
             var countySaccos = new List<CountySupplierSummery>();
             var totalSuppliers = 0;

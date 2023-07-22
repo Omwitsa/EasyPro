@@ -47,14 +47,18 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">County</label>
-                            <select asp-for="Province" id="county" class="form-control" asp-items="@ViewBag.counties"></select>
+                            <select asp-for="Province" id="county" class="form-control" asp-items="@ViewBag.counties" required>
+                                <option value=""></option>
+                            </select>
                             <span asp-validation-for="Province" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Sub-County</label>
-                            <select asp-for="District" id="sub-county" class="form-control" asp-items="@ViewBag.subCounties"></select>
+                            <select asp-for="District" id="sub-county" class="form-control" required disabled>
+                                <option value=""></option>
+                            </select>
                             <span asp-validation-for="District" class="text-danger"></span>
                         </div>
                     </div>
@@ -64,14 +68,18 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Ward</label>
-                            <select asp-for="Division" id="county" class="form-control" asp-items="@ViewBag.wards"></select>
+                            <select asp-for="Division" id="ward" class="form-control" required disabled>
+                                <option value=""></option>
+                            </select>
                             <span asp-validation-for="Division" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Location" class="control-label"></label>
-                            <select asp-for="Location" id="county" class="form-control" asp-items="@ViewBag.locations"></select>
+                            <select asp-for="Location" id="location" class="form-control" asp-items="@ViewBag.locations">
+                                <option value=""></option>
+                            </select>
                             <span asp-validation-for="Location" class="text-danger"></span>
                         </div>
                     </div>
@@ -139,6 +147,38 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+<script type="text/javascript">
+    $(function () {
+        let subcounties = @Html.Raw(Json.Serialize(ViewBag.subCounties));
+        let wards = @Html.Raw(Json.Serialize(ViewBag.wards));
+        let locations = @Html.Raw(Json.Serialize(ViewBag.locations));
+        debugger
+        $('#county').on('change', function () {
+            $('#sub-county').empty();
+            $('#sub-county').append($('<option>').val('').text(''))
+            $('#sub-county').prop('disabled', false);
+            $('#ward').prop('disabled', true);
+            let county = $("#county").val();
+            let sub_counties = subcounties.filter(p => p.County.trim() === county.trim());
+
+            $.each(sub_counties, function () {
+                $('#sub-county').append($("<option />").val(this.Name).text(this.Name));
+            });
+        });
+
+        $('#sub-county').on('change', function () {
+            $('#ward').empty();
+            $('#ward').prop('disabled', false);
+            let subCounty = $("#sub-county").val();
+            let curr_wards = wards.filter(p => p.SubCounty.trim() === subCounty.trim());
+
+            $.each(curr_wards, function () {
+                $('#ward').append($("<option />").val(this.Name).text(this.Name));
+            });
+        });
+
+    });
+</script>
+        }
 
 

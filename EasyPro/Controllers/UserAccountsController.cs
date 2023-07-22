@@ -116,9 +116,6 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, UserName already exist");
                     return View(userAccount);
                 }
-
-               
-
                 
                 _context.Add(userAccount);
                 await _context.SaveChangesAsync();
