@@ -72,6 +72,7 @@
             let assets = new Array();
             let liabilities = new Array();
             let capitals = new Array();
+            let profit = 0;
 
             $('#fromDate').on('change', function () {
                 buildBalanceSheet();
@@ -99,6 +100,7 @@
                             assets = response.assets ? response.assets : new Array();
                             liabilities = response.liabilities ? response.liabilities : new Array();
                             capitals = response.capitals ? response.capitals : new Array();
+                            profit = response.profit ? response.profit : 0;
                             populateDetailsTable();
                         },
                         failure: function (response) {
@@ -197,6 +199,17 @@
                     cr += j.Cr;
                 });
 
+                let lose = profit < 0 ? -profit : 0;
+                profit = profit < 0 ? 0 : profit;
+
+                itemTableRows.push(`<tr>
+                        <td colspan="4"><h3>Net Profit</h3></td>
+                        <td>${lose}</td>
+                        <td>${profit}</td>
+                    </tr>`);
+
+                dr += lose;
+                cr += profit;
                 itemTableRows.push(`<tr>
                     <td colspan="4"><h3></h3></td>
                     <td>${dr}</td>

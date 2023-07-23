@@ -106,8 +106,6 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
             var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
-            var endDate = period.EndDate;
-            var RealendDate = startDate.AddMonths(1).AddDays(-1);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -131,27 +129,24 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
             }
 
-            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
-            var advIntakes = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= DateTime.Today && i.Remarks == StrValues.AdvancePayroll);
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= period.EndDate);
+            var advIntakes = productIntakeslist.Where(i => i.Remarks == StrValues.AdvancePayroll);
             if (advIntakes.Any() && period.EndDate != monthsLastDate)
             {
                 _context.ProductIntake.RemoveRange(advIntakes);
                 _context.SaveChanges();
             }
      
-            IQueryable<ProductIntake> newintakes = _context.ProductIntake;
             if (sacco != "MBURUGU DAIRY F.C.S")
             {
-                var transpoterIntakes = newintakes.Where(i => i.SaccoCode == sacco && i.TransDate >= endDate && i.TransDate <= RealendDate
-                && i.Description.ToLower().Equals("transport")).ToList();
+                var transpoterIntakes = productIntakeslist.Where(i => i.Description.ToLower().Equals("transport")).ToList();
                 if (transpoterIntakes.Any())
                 {
                     _context.ProductIntake.RemoveRange(transpoterIntakes);
                     _context.SaveChanges();
                 }
 
-                var checkifanydeduction = _context.ProductIntake.Where(n => n.SaccoCode == sacco && n.TransDate >= endDate && n.TransDate <= RealendDate
-                && n.Description.ToLower().Contains("midpay")).ToList();
+                var checkifanydeduction = productIntakeslist.Where(n => n.Description.ToLower().Contains("midpay")).ToList();
                 if (checkifanydeduction.Any())
                 {
                     _context.ProductIntake.RemoveRange(checkifanydeduction);
@@ -159,9 +154,7 @@ namespace EasyPro.Controllers
                 }
             }
 
-            var deletestandingorder = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= endDate
-                 && i.Remarks == "Standing Order" && i.SaccoCode == sacco);
-
+            var deletestandingorder = productIntakeslist.Where(i => i.Remarks == "Standing Order");
             if (deletestandingorder.Any())
             {
                 _context.ProductIntake.RemoveRange(deletestandingorder);
@@ -323,12 +316,12 @@ namespace EasyPro.Controllers
                                 });
 
                             var checkifanydeduction = _context.ProductIntake.Where(n => n.SaccoCode == sacco && n.Branch == supplier.Branch
-                        && n.TransDate == endDate && n.Sno.ToUpper().Equals(supplier.Sno.ToUpper().ToString()) && n.Description.ToLower().Contains("midpay")).ToList();
+                        && n.TransDate == period.EndDate && n.Sno.ToUpper().Equals(supplier.Sno.ToUpper().ToString()) && n.Description.ToLower().Contains("midpay")).ToList();
                             if (!checkifanydeduction.Any())
                                 _context.ProductIntake.Add(new ProductIntake
                                 {
                                     Sno = supplier.Sno.ToUpper().ToString(),
-                                    TransDate = (DateTime)endDate,
+                                    TransDate = period.EndDate,
                                     TransTime = DateTime.Now.TimeOfDay,
                                     ProductType = "midpay",
                                     Qsupplied = 0,

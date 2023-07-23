@@ -95,6 +95,7 @@ namespace EasyPro.Controllers
                 try
                 {
                     var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                    var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                     if (string.IsNullOrEmpty(glsetup.AccNo))
                     {
                         _notyf.Error("Sorry, Kindly provide account No.");
@@ -121,9 +122,13 @@ namespace EasyPro.Controllers
                         return RedirectToAction(nameof(Create));
                     }
 
+                    glsetup.AuditId = loggedInUser;
                     glsetup.CurrCode = glsetup?.CurrCode ?? 0;
                     glsetup.IsSubLedger = glsetup?.IsSubLedger ?? false;
                     glsetup.saccocode = sacco;
+                    glsetup.OpeningBal = glsetup?.OpeningBal ?? 0;
+                    glsetup.NormalBal = glsetup?.NormalBal ?? "";
+
                     _context.Add(glsetup);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));

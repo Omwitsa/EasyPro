@@ -212,5 +212,97 @@ namespace EasyPro.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        public IActionResult DeductionUploadForm()
+        {
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
+
+        public ActionResult ImportDeductions()
+        {
+            utilities.SetUpPrivileges(this);
+            string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            string branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+
+            IFormFile file = Request.Form.Files[0];
+            string folderName = "UploadExcel";
+            string webRootPath = _hostingEnvironment.WebRootPath;
+            string newPath = Path.Combine(webRootPath, folderName);
+            string str_excel_grid = "";
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+            if (file.Length > 0)
+            {
+                string sFileExtension = Path.GetExtension(file.FileName).ToLower();
+                ISheet sheet;
+                string fullPath = Path.Combine(newPath, file.FileName);
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                    stream.Position = 0;
+                    if (sFileExtension == ".xls")
+                    {
+                        HSSFWorkbook hssfwb = new HSSFWorkbook(stream); //This will read the Excel 97-2000 formats  
+                        sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook  
+                    }
+                    else
+                    {
+                        XSSFWorkbook hssfwb = new XSSFWorkbook(stream); //This will read 2007 Excel format  
+                        sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook   
+                    }
+
+                    str_excel_grid = utilities.GenerateDeductionsExcelGrid(sheet, sacco, loggedInUser, branch);
+                }
+            }
+            return this.Content(str_excel_grid);
+        }
+
+        public IActionResult ApproveUploadedDeduction()
+        {
+            utilities.SetUpPrivileges(this);
+            string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+
+            var excelDumps = _context.ExcelDeductionDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
+            excelDumps.ForEach(e =>
+            {
+                var productIntake = new ProductIntake
+                {
+                    Sno = e.Sno,
+                    TransDate = e.TransDate,
+                    TransTime = e.TransDate.TimeOfDay,
+                    ProductType = e.ProductType,
+                    Qsupplied = 0,
+                    Ppu = 0,
+                    CR = 0,
+                    DR = e.Amount,
+                    Description = "Deductions",
+                    TransactionType = TransactionType.Deduction,
+                    Paid = false,
+                    Remarks = "Upload",
+                    AuditId = loggedInUser,
+                    Auditdatetime = DateTime.Now,
+                    Branch = saccoBranch,
+                    Balance = 0,
+                    SaccoCode = sacco,
+                    CrAccNo = null,
+                    DrAccNo = null
+                };
+
+                _context.ProductIntake.Add(productIntake);
+            });
+
+            if (excelDumps.Any())
+            {
+                _context.ExcelDeductionDump.RemoveRange(excelDumps);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("Index");
+        }
     }
 }

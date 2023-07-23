@@ -171,5 +171,80 @@ namespace EasyPro.Utils
             }
             throw new Exception("No network adapters with an IPv4 address in the system!");
         }
+
+        public string GenerateDeductionsExcelGrid(ISheet sheet, string sacco, string loggedInUser, string branch)
+        {
+            StringBuilder sb = new StringBuilder();
+            IRow headerRow = sheet.GetRow(0); //Get Header Row
+            int cellCount = headerRow.LastCellNum;
+            sb.Append("<table class='table table-bordered'><tr>");
+            for (int j = 0; j < cellCount; j++)
+            {
+                NPOI.SS.UserModel.ICell cell = headerRow.GetCell(j);
+                if (cell == null || string.IsNullOrWhiteSpace(cell.ToString())) continue;
+                sb.Append("<th>" + cell.ToString() + "</th>");
+            }
+            sb.AppendLine("</tr>");
+            sb.Append("<tr>");
+
+            var existingData = _context.ExcelDeductionDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
+            if (existingData.Any())
+                _context.ExcelDeductionDump.RemoveRange(existingData);
+
+            decimal totalAmount = 0;
+            var excelDumps = new List<ExcelDeductionDump>();
+            for (int i = (sheet.FirstRowNum + 1); i <= sheet.LastRowNum; i++) //Read Excel File
+            {
+                IRow row = sheet.GetRow(i);
+                if (row == null) continue;
+                if (row.Cells.All(d => d.CellType == CellType.Blank)) continue;
+                for (int j = row.FirstCellNum; j < cellCount; j++)
+                {
+                    if (row.GetCell(j) != null)
+                        sb.Append("<td>" + row.GetCell(j).ToString() + "</td>");
+                }
+
+                decimal.TryParse(row.GetCell(2).ToString(), out decimal amount);
+                totalAmount += amount;
+                var dateString = row.GetCell(3).ToString();
+                var transDate = DateTime.Parse(dateString);
+                excelDumps.Add(new ExcelDeductionDump
+                {
+                    Sno = row.GetCell(0)?.ToString() ?? "",
+                    ProductType = row.GetCell(1)?.ToString() ?? "",
+                    Amount = amount,
+                    TransDate = transDate,
+                    LoggedInUser = loggedInUser,
+                    SaccoCode = sacco,
+                    Branch = branch
+                });
+
+                sb.AppendLine("</tr>");
+            }
+
+            if (excelDumps.Any())
+            {
+                _context.ExcelDeductionDump.AddRange(excelDumps);
+                _context.SaveChanges();
+            }
+
+
+            sb.Append("<tr>");
+            for (int j = 0; j < cellCount; j++)
+            {
+                if (j == 0)
+                    sb.Append("<td>Total</td>");
+                else if (j == 2)
+                    sb.Append("<td>" + totalAmount + "</td>");
+                else
+                    sb.Append("<td></td>");
+            }
+
+            sb.AppendLine("</tr>");
+            sb.Append("</table>");
+
+            return sb.ToString();
+        }
+
     }
 }

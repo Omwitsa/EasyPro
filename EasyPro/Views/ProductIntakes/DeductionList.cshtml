@@ -49,13 +49,12 @@
                 </div>
             </div>
             <div class="row">
-
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                <div class="col-sm-2 col-xs-12">
                     <div class="form-group">
                         <input id="transDate" class="form-control" type="date" />
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                <div class="col-sm-2 col-xs-12">
                     <div class="form-group">
                         <select id="condition" class="form-control">
                             <option></option>
@@ -64,13 +63,16 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                <div class="col-sm-4 col-xs-12">
                     <div class="form-group">
                         <input id="filter" autocomplete="off" placeholder="Search" class="form-control" />
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                <div class="col-sm-2 col-xs-12">
                     <a asp-action="CreateDeduction" class="btn btn-primary">Create New</a>
+                </div>
+                <div class="col-sm-2 col-xs-12">
+                    <a asp-controller="ExcelUpload" asp-action="DeductionUploadForm" class="btn btn-primary">Export Excel</a>
                 </div>
             </div>
             <div class="bsc-tbl-hvr table-border-style">

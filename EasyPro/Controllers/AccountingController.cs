@@ -5,6 +5,7 @@ using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -252,13 +253,39 @@ namespace EasyPro.Controllers
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var journalListings = new List<JournalVm>();
+                List<Glsetup> glsetups = _context.Glsetups.Where(g => g.saccocode == sacco).ToList();
+                glsetups.ForEach(g =>
+                {
+                    g.NormalBal = g?.NormalBal ?? "";
+                    g.OpeningBal = g?.OpeningBal ?? 0;
+                    if (g.OpeningBal > 0)
+                    {
+                        decimal dr = 0;
+                        decimal cr = 0;
+                        if (g.NormalBal.ToLower().Equals("debit"))
+                            dr = g.OpeningBal;
+                        if (g.NormalBal.ToLower().Equals("credit"))
+                            cr = g.OpeningBal;
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = g.AccNo,
+                            TransDate = filter.ToDate,
+                            AccName = g.GlAccName,
+                            Dr = dr,
+                            DocumentNo = "",
+                            Cr = cr,
+                            TransDescript = "Opening Bal"
+                        });
+                    }
+                });
+
                 var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco 
                 && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
                     .ToList();
                 
                 gltransactions.ForEach(t =>
                 {
-                    var debtorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo && a.saccocode == sacco);
+                    var debtorsAcc = glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo);
                     if(debtorsAcc != null)
                     {
                         journalListings.Add(new JournalVm
@@ -272,7 +299,7 @@ namespace EasyPro.Controllers
                             TransDescript = t.TransDescript
                         });
                     }
-                    var creditorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo && a.saccocode == sacco);
+                    var creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo);
                     if(creditorsAcc != null)
                     {
                         journalListings.Add(new JournalVm
@@ -417,12 +444,38 @@ namespace EasyPro.Controllers
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var journalListings = new List<JournalVm>();
+                List<Glsetup> glsetups = _context.Glsetups.Where(g => g.saccocode == sacco).ToList();
+                glsetups.ForEach(g =>
+                {
+                    g.NormalBal = g?.NormalBal ?? "";
+                    g.OpeningBal = g?.OpeningBal ?? 0;
+                    if(g.OpeningBal > 0)
+                    {
+                        decimal dr = 0;
+                        decimal cr = 0;
+                        if (g.NormalBal.ToLower().Equals("debit"))
+                            dr = g.OpeningBal;
+                        if (g.NormalBal.ToLower().Equals("credit"))
+                            cr = g.OpeningBal;
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = g.AccNo,
+                            TransDate = filter.ToDate,
+                            AccName = g.GlAccName,
+                            Dr = dr,
+                            DocumentNo = "",
+                            Cr = cr,
+                            TransDescript = "Opening Bal"
+                        });
+                    }
+                });
+
                 var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
                 && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
                     .ToList();
                 gltransactions.ForEach(t =>
                 {
-                    var debtorssAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo && a.saccocode == sacco);
+                    var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo);
                     if(debtorssAcc != null)
                     {
                         journalListings.Add(new JournalVm
@@ -437,7 +490,7 @@ namespace EasyPro.Controllers
                         });
                     }
 
-                    var creditorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo && a.saccocode == sacco);
+                    var creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo);
                     if(creditorsAcc != null)
                     {
                         journalListings.Add(new JournalVm
@@ -484,46 +537,7 @@ namespace EasyPro.Controllers
         {
             try
             {
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                var journalListings = new List<JournalVm>();
-                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
-                && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
-                    .ToList();
-                gltransactions.ForEach(t =>
-                {
-                    var debtorssAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo && a.saccocode == sacco && a.GlAccType == "Income Statement");
-                    if (debtorssAcc != null)
-                    {
-                        journalListings.Add(new JournalVm
-                        {
-                            GlAcc = t.DrAccNo,
-                            TransDate = t.TransDate,
-                            AccName = debtorssAcc.GlAccName,
-                            Dr = t.Amount,
-                            DocumentNo = t.DocumentNo,
-                            Cr = 0,
-                            TransDescript = t.TransDescript,
-                            Group = debtorssAcc.GlAccMainGroup,
-                        });
-                    }
-
-                    var creditorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo && a.saccocode == sacco && a.GlAccType == "Income Statement");
-                    if (creditorsAcc != null)
-                    {
-                        journalListings.Add(new JournalVm
-                        {
-                            GlAcc = t.CrAccNo,
-                            TransDate = t.TransDate,
-                            AccName = creditorsAcc.GlAccName,
-                            Cr = t.Amount,
-                            DocumentNo = t.DocumentNo,
-                            Dr = 0,
-                            TransDescript = t.TransDescript,
-                            Group = creditorsAcc.GlAccMainGroup,
-                        });
-                    }
-                });
-
+                var journalListings = getIncomeStatement(filter);
                 var income = journalListings.Where(a => a.Group == "INCOME").ToList();
                 var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
                 return Json(new
@@ -536,6 +550,79 @@ namespace EasyPro.Controllers
             {
                 return Json("");
             }
+        }
+
+        private List<JournalVm> getIncomeStatement(JournalFilter filter)
+        {
+            var journalListings = new List<JournalVm>();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            List<Glsetup> glsetups = _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement").ToList();
+            glsetups.ForEach(g =>
+            {
+                g.NormalBal = g?.NormalBal ?? "";
+                g.OpeningBal = g?.OpeningBal ?? 0;
+                if (g.OpeningBal > 0)
+                {
+                    decimal dr = 0;
+                    decimal cr = 0;
+                    if (g.NormalBal.ToLower().Equals("debit"))
+                        dr = g.OpeningBal;
+                    if (g.NormalBal.ToLower().Equals("credit"))
+                        cr = g.OpeningBal;
+
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = g.AccNo,
+                        TransDate = filter.ToDate,
+                        AccName = g.GlAccName,
+                        Cr = cr,
+                        DocumentNo = "",
+                        Dr = dr,
+                        TransDescript = "Opening Bal",
+                        Group = g.GlAccMainGroup,
+                    });
+                }
+            });
+
+            var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+            && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                .ToList();
+            gltransactions.ForEach(t =>
+            {
+                var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo);
+                if (debtorssAcc != null)
+                {
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = t.DrAccNo,
+                        TransDate = t.TransDate,
+                        AccName = debtorssAcc.GlAccName,
+                        Dr = t.Amount,
+                        DocumentNo = t.DocumentNo,
+                        Cr = 0,
+                        TransDescript = t.TransDescript,
+                        Group = debtorssAcc.GlAccMainGroup,
+                    });
+                }
+
+                var creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo);
+                if (creditorsAcc != null)
+                {
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = t.CrAccNo,
+                        TransDate = t.TransDate,
+                        AccName = creditorsAcc.GlAccName,
+                        Cr = t.Amount,
+                        DocumentNo = t.DocumentNo,
+                        Dr = 0,
+                        TransDescript = t.TransDescript,
+                        Group = creditorsAcc.GlAccMainGroup,
+                    });
+                }
+            });
+
+            return journalListings;
         }
 
         public IActionResult BalanceSheet()
@@ -555,23 +642,35 @@ namespace EasyPro.Controllers
                 && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
                     .ToList();
 
-                var glsetups = _context.Glsetups.Where(a => a.GlAccType == "Balance Sheet" && a.saccocode == sacco).ToList();
+                List<Glsetup> glsetups = _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Balance Sheet").ToList();
                 glsetups.ForEach(s =>
                 {
+                    s.NormalBal = s?.NormalBal ?? "";
+                    s.OpeningBal = s?.OpeningBal ?? 0;
+                    decimal debitAmount = 0;
+                    decimal creditAmount = 0;
+                    if (s.OpeningBal > 0)
+                    {
+                        if (s.NormalBal.ToLower().Equals("debit"))
+                            debitAmount = s.OpeningBal;
+                        if (s.NormalBal.ToLower().Equals("credit"))
+                            creditAmount = s.OpeningBal;
+                    }
+
                     var transaction = gltransactions.FirstOrDefault();
-                    var debitAmount = gltransactions.Where(t => t.DrAccNo == s.AccNo).Sum(t => t.Amount);
-                    var creditAmount = gltransactions.Where(t => t.CrAccNo == s.AccNo).Sum(t => t.Amount);
+                    debitAmount += gltransactions.Where(t => t.DrAccNo == s.AccNo).Sum(t => t.Amount);
+                    creditAmount += gltransactions.Where(t => t.CrAccNo == s.AccNo).Sum(t => t.Amount);
                     if (debitAmount != 0 || creditAmount != 0)
                     {
                         journalListings.Add(new JournalVm
                         {
                             GlAcc = s.AccNo,
-                            TransDate = transaction.TransDate,
+                            TransDate = transaction?.TransDate ?? filter.ToDate,
                             AccName = s.GlAccName,
                             Dr = debitAmount,
-                            DocumentNo = transaction.DocumentNo,
+                            DocumentNo = transaction?.DocumentNo ?? "",
                             Cr = creditAmount,
-                            TransDescript = transaction.TransDescript,
+                            TransDescript = transaction?.TransDescript ?? "Opening Bal",
                             Group = s.GlAccMainGroup,
                         });
                     }
@@ -580,11 +679,19 @@ namespace EasyPro.Controllers
                 var assets = journalListings.Where(a => a.Group == "ASSETS").ToList();
                 var liabilities = journalListings.Where(a => a.Group == "LIABILITIES").ToList();
                 var capitals = journalListings.Where(a => a.Group == "CAPITAL").ToList();
+
+                journalListings = getIncomeStatement(filter);
+                var income = journalListings.Where(a => a.Group == "INCOME").ToList();
+                var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
+                var totalIncome = income.Sum(i => i.Cr) - income.Sum(i => i.Dr);
+                var totalExpenses = expenses.Sum(e => e.Dr) - expenses.Sum(e => e.Cr);
+                var profit = totalIncome - totalExpenses;
                 return Json(new
                 {
                     assets,
                     liabilities,
-                    capitals
+                    capitals,
+                    profit
                 });
             }
             catch (Exception ex)
