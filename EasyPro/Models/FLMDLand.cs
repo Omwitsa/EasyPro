@@ -6,6 +6,7 @@
         public string Sno { get; set; }
         public string Location { get; set; }
         public string PlotNumber { get; set; }
+        public decimal? PlotValue { get; set; }
         public double? TotalAcres { get; set; }
         public double? AcresCrops { get; set; }
         public double? AcresBuilding { get; set; }

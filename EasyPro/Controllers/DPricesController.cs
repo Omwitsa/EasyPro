@@ -31,7 +31,7 @@ namespace EasyPro.Controllers
             return View(await _context.DPrices
                 .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
-       
+
         // GET: DPrices/Details/5
         public async Task<IActionResult> Details(long Id)
         {
@@ -81,7 +81,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide product");
                 return View();
             }
-            if(dPrice.Price < 1)
+            if(dPrice.Price < 0)
             {
                 _notyf.Error("Sorry, Kindly provide price");
                 return View();
@@ -148,7 +148,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide product");
                 return View();
             }
-            if (dPrice.Price < 1)
+            if (dPrice.Price < 0)
             {
                 _notyf.Error("Sorry, Kindly provide price");
                 return View();
@@ -172,8 +172,31 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
+               .Select(b => b.Bname.ToUpper());
+
+                    foreach (var branchName in branchNames)
+                    {
+                        var productIntakes = _context.ProductIntake
+                        .Where(p => p.TransDate >= dPrice.Edate && (p.Description == "Intake" || p.Description == "Correction")
+                        && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.Branch== branchName).ToList();
+
+                        productIntakes.ForEach(p =>
+                        {
+                            p.Ppu = dPrice.Price;
+                            if(p.CR != 0)
+                                p.CR = dPrice.Price * p.Qsupplied;
+                            if (p.DR != 0)
+                                p.DR = dPrice.Price * p.Qsupplied * -1;
+                        });
+                    };
+                        
+
                     dPrice.SaccoCode = sacco;
                     _context.Update(dPrice);
+
+
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

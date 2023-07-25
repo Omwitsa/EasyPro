@@ -1,0 +1,127 @@
+﻿@model IEnumerable<EasyPro.Models.Bill>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <h3 class="text-danger fa-bold">Bills</h3>
+                </div>
+                <div class="col-sm-4 col-xs-4">
+                    
+                </div>
+                <div class="col-sm-4 col-xs-4 text-right">
+                    <a asp-action="CreateBill" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
+
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Vender)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Ref)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Remarks)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Date)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.DueDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Journal)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.PaymentReference)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.NetAmount)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Tax)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Arrears)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Status)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.RecipientBank)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.IncoTerm)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.FiscalPosition)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    @foreach (var item in Model) {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Vender)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Ref)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Remarks)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Date)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DueDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Journal)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PaymentReference)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NetAmount)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Tax)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Arrears)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Status)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.RecipientBank)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.IncoTerm)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.FiscalPosition)
+                                </td>
+                            </tr>
+                    }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+}

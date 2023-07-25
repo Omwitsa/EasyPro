@@ -1,140 +1,189 @@
 ﻿@model EasyPro.Models.TransportersBalancing
-<div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Transporters Balancing Form</h2>
-            </div>
-            <hr />
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="row">
-                    <div class="col-sm-8 col-xs-12">
+    <style>
+        #customers {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
 
-                    </div>
-                    <div class="col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Date</label>
-                            <input id="date" asp-for="Date" class="form-control" type="date" />
-                            <span asp-validation-for="Date" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Select Transporter</label>
-                            <select id="name" class="form-control" asp-items="@ViewBag.Transporterslist">
-                                <option value="" disabled selected hidden>Please Choose...</option>
-                            </select>
-                            <span asp-validation-for="Transporter" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">TCode</label>
-                            <input id="tcode" class="form-control" readonly />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a id="show" class="btn btn-success">Show</a>
-                    </div>
-                </div>
+            #customers td, #customers th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
 
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="bsc-tbl-hvr table-border-style">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                Supplier No.
-                                            </th>
-                                            <th>
-                                                Date
-                                            </th>
-                                            <th>
-                                                Product Type
-                                            </th>
-                                            <th>
-                                                Quantity
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="balance">
-                                    </tbody>
-                                </table>
+            #customers tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            #customers tr:hover {
+                background-color: #ddd;
+            }
+
+            #customers th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: left;
+                background-color: #04AA6D;
+                color: white;
+            }
+        .divScroll {
+            width: 1000px;
+            height: 200px;
+            overflow: auto;
+        }
+    </style>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="form-element-list mg-t-30">
+                <div class="cmp-tb-hd">
+                    <h2>Transporters Balancing Form</h2>
+                </div>
+                <hr />
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-sm-8 col-xs-12">
+
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Date</label>
+                                <input id="date" asp-for="Date" class="form-control" type="date" />
+                                <span asp-validation-for="Date" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Select Transporter</label>
+                                <select id="name" class="form-control" asp-items="@ViewBag.Transporterslist">
+                                    <option value=""></option>
+                                </select>
+                                <span asp-validation-for="Transporter" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">TCode</label>
+                                <input id="tcode" class="form-control" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a id="show" class="btn btn-success">Show</a>
+                        </div>
+                    </div>
 
-                <div class="row">
-                    <div class="col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Total Kgs</label>
-                            <input id="totalkgs" asp-for="Quantity" class="form-control" readonly />
-                            <span asp-validation-for="Quantity" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="bsc-tbl-hvr table-border-style">
+                                <div class="divScroll">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="customers">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Supplier No.
+                                                    </th>
+                                                    <th>
+                                                        Date
+                                                    </th>
+                                                    <th>
+                                                        Product Type
+                                                    </th>
+                                                    <th>
+                                                        Quantity
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="balance">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Actual Kgs</label>
-                            <input id="actual" asp-for="ActualBal" class="form-control" />
-                            <span asp-validation-for="ActualBal" class="text-danger"></span>
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Total Kgs</label>
+                                <input id="totalkgs" asp-for="Quantity" class="form-control" readonly />
+                                <span asp-validation-for="Quantity" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Actual Kgs</label>
+                                <input id="actual" asp-for="ActualBal" class="form-control" />
+                                <span asp-validation-for="ActualBal" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Varriance</label>
+                                <input id="varriance" asp-for="Varriance" class="form-control" readonly />
+                                <span asp-validation-for="Varriance" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Varriance</label>
-                            <input id="varriance" asp-for="Varriance" class="form-control" readonly />
-                            <span asp-validation-for="Varriance" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Spillage Kgs</label>
+                                <input id="spillage" asp-for="Spillage" class="form-control" />
+                                <span asp-validation-for="Spillage" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Rejects Kgs</label>
+                                <input id="rejects" asp-for="Rejects" class="form-control" />
+                                <span asp-validation-for="Rejects" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Spillage Kgs</label>
-                            <input id="spillage" asp-for="Spillage" class="form-control" />
-                            <span asp-validation-for="Spillage" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <input id="print" type="checkbox" />
+                                <label class="control-label" for="print">Print</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Rejects Kgs</label>
-                            <input id="rejects" asp-for="Rejects" class="form-control" />
-                            <span asp-validation-for="Rejects" class="text-danger"></span>
+
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a id="save" class="btn btn-success">Save</a>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a asp-action="Index" class="btn btn-primary">Back to List</a>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a id="save" class="btn btn-success">Save</a>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-    <script type="text/javascript">
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+<script type="text/javascript">
         $(function () {
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
             let suppliedItems = new Array();
-
-            $('#name').on('click', function () {
+            let print = false;
+            $('#name').on('change', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
                 var selectVal = $("#name").val();
                 var selectSupplier = suppliers.filter(p => p.TransName === selectVal);
@@ -143,19 +192,29 @@
                 }
             });
 
+            $('input[type="checkbox"]').click(function () {
+                if ($(this).prop("checked") && $(this).attr('id') == 'print') {
+                    print = true;
+                } else {
+                    print = false;
+                }
+            });
 
             $('#show').on('click', function () {
                 var filter = {
                     date: $("#date").val(),
-                    tcode: $("#tcode").val()
+                    tcode: $("#tcode").val(),
                 };
+                $("#totalkgs").val('0');
+                $("#actual").val("0");
                 $.ajax({
                     type: 'POST',
                     url: "getSuppliedItems",
                     contentType: 'application/json',
                     data: JSON.stringify(filter),
                     success: function (response) {
-                        suppliedItems = response ? response : [];
+                        suppliedItems = response.intakes ? response.intakes : [];
+                        $("#actual").val(response.suppliersdeliveries);
                         populateDetailsTable();
                     },
                     failure: function (response) {
@@ -163,19 +222,6 @@
                 }).then(function () {
                     // ...
                 });
-            });
-
-            $('#actual').on('keyup', function () {
-                var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
-                $("#varriance").val(variance);
-            });
-            $('#spillage').on('keyup', function () {
-                var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
-                $("#varriance").val(variance);
-            });
-            $('#rejects').on('keyup', function () {
-                var variance = (parseFloat($("#actual").val()) + parseFloat($("#spillage").val()) + parseFloat($("#rejects").val())) - parseFloat($("#totalkgs").val());
-                $("#varriance").val(variance);
             });
 
             $('#save').on('click', function () {
@@ -191,11 +237,14 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "saveVariance",
+                    url: "saveVariance?print=" + print,
                     contentType: 'application/json',
                     data: JSON.stringify(variance),
                     success: function (response) {
-
+                        $("#actual").val(0)
+                        $("#name").val("")
+                        $("#tcode").val("")
+                        $("#varriance").val(0)
                     },
                     failure: function (response) {
                     }
@@ -204,24 +253,50 @@
                 });
             });
 
-            let totalQnty = 0;
             function populateDetailsTable() {
                 let itemTableRows = new Array();
+                let totalQnty = 0;
+                $("#balance").empty();
                 suppliedItems.forEach(j => {
+                    var date = j.TransDate;
+                    var dd1 = new Date(date).toLocaleDateString();
                     itemTableRows.push(`<tr>
 				            <td>${j.Sno}</td>
-                            <td>${j.TransDate}</td>
+                            <td>${dd1}</td>
                             <td>${j.ProductType}</td>
                             <td>${j.Qsupplied}</td>
 			            </tr>`);
 
                     totalQnty += j.Qsupplied;
                 });
-
-
-                $("#totalkgs").val(totalQnty);
+                var totalkgs = Math.round(Number(totalQnty) * 10) / 10;
+                totalkgs = totalkgs + "";
+                if (totalkgs.indexOf('.') == -1) {
+                    totalkgs = totalkgs + '.0';
+                }
+                $("#totalkgs").val(totalkgs + "");
                 $('#balance').html(itemTableRows);
+                populateVariance();
+            }
+
+            $('#actual').on('keyup', function () {
+                populateVariance();
+            });
+
+            function populateVariance() {
+                let actual = parseFloat($("#actual").val());
+                let total = parseFloat($("#totalkgs").val());
+                actual = actual ? actual : 0;
+                total = total ? total : 0;
+                let variance = actual - total;
+                variance = variance.toFixed(2);
+                var totalvariancekgs = Math.round(Number(variance) * 10) / 10;
+                totalvariancekgs = totalvariancekgs + "";
+                if (totalvariancekgs.indexOf('.') == -1) {
+                    totalvariancekgs = totalvariancekgs + '.0';
+                }
+                $("#varriance").val(totalvariancekgs);
             }
         });
-    </script>
-}
+</script>
+    }

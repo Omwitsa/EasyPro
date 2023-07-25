@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.ViewModels;
 
 namespace EasyPro.Controllers
 {
@@ -29,8 +30,39 @@ namespace EasyPro.Controllers
         // GET: Wards
         public async Task<IActionResult> Index()
         {
+            var myIp = utilities.GetLocalIPAddress();
+            var ClientIPAddr = HttpContext.Connection.RemoteIpAddress?.ToString();
             utilities.SetUpPrivileges(this);
-            return View(await _context.Ward.ToListAsync());
+            var saccouser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var county = _context.DCompanies.FirstOrDefault(a=>a.Name.ToUpper().Equals(sacco.ToUpper())).Province;
+            var subcounty = _context.SubCounty.Where(k => k.County.ToUpper().Equals(county.ToUpper())).ToList();
+            var Wards = await _context.Ward.ToListAsync();
+            var WardList = new List<WardVM>();
+            if (saccouser != "psigei")
+            {
+                var ward = subcounty.GroupBy(m=>m.Name).ToList();
+                ward.ForEach( l => {
+                var constituency = l.FirstOrDefault();
+                Wards = _context.Ward.Where(k => k.SubCounty.ToUpper().Equals(constituency.Name.ToUpper())).ToList();
+                Wards.ForEach(m=>{ 
+                    WardList.Add(new WardVM { 
+                      Name= m.Name,
+                      CreatedBy=m.CreatedBy,
+                      Closed=m.Closed,
+                      Contact =m.Contact,
+                      CreatedOn = m.CreatedOn,
+                      SubCounty = m.SubCounty
+                    });
+                    _context.SaveChanges();
+                });
+            });
+                
+            }
+                
+
+            return View(WardList);
         }
 
         // GET: Wards/Details/5
@@ -116,7 +148,13 @@ namespace EasyPro.Controllers
 
         private void SetInitialValues()
         {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccouser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var subCounties = _context.SubCounty.Where(c => !c.Closed).ToList();
+            var checkcounty = _context.DCompanies.FirstOrDefault(l => l.Name.ToUpper().Equals(sacco.ToUpper()));
+            if (saccouser != "psigei")
+                subCounties = _context.SubCounty.Where(k => k.County.ToUpper().Equals(checkcounty.Province.ToUpper())).OrderBy(m => m.Name).ToList();
+            
             ViewBag.subCounties = new SelectList(subCounties, "Name", "Name");
         }
 

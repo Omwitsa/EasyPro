@@ -1,0 +1,156 @@
+﻿@model EasyPro.Models.DMilkQuality
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DMilkQuality</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Sno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Sno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RejDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RejDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ApproxKgs)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ApproxKgs)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DeKgs)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DeKgs)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ContCpcity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ContCpcity)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Ttransporter)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Ttransporter)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Conttype)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Conttype)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TransMode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TransMode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Organoleptic)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Organoleptic)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Rez)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Rez)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Lact)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Lact)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PlateCount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PlateCount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Alcohol)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Alcohol)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TimeIn)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TimeIn)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TimeOut)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TimeOut)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Pcheck)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Pcheck)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Dramsk)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Dramsk)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RejReasons)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RejReasons)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.code)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.code)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Branch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Branch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Antibiotic)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Antibiotic)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Auditdatetime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Auditdatetime)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

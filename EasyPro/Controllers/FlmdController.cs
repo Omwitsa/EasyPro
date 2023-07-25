@@ -4,8 +4,10 @@ using EasyPro.Models;
 using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
@@ -21,14 +23,32 @@ namespace EasyPro.Controllers
             _notyf = notyf;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            return View(await _context.FLMD.Where(s => s.SaccoCode== sacco).ToListAsync());
+        }
+
+        public IActionResult Create(string sno)
+        {
+            utilities.SetUpPrivileges(this);
+            ViewBag.sno = sno ?? "0";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var suppliers = _context.DSuppliers
+               .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            ViewBag.suppliers = suppliers;
+            return View();
+        }
+
+        public IActionResult Details(string id)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var suppliers = _context.DSuppliers
                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.suppliers = suppliers;
-            return View();
+            return RedirectToAction("Create", new { sno = id });
         }
 
         [HttpPost]
@@ -47,18 +67,53 @@ namespace EasyPro.Controllers
                 else
                 {
                     savedFlmd.ExoticCattle = fMLD.ExoticCattle;
+                    savedFlmd.ExoticCattleValue = fMLD.ExoticCattleValue;
                     savedFlmd.IndigenousCattle = fMLD.IndigenousCattle;
+                    savedFlmd.IndigenousCattleValue = fMLD.IndigenousCattleValue;
                     savedFlmd.IndigenousChicken = fMLD.IndigenousChicken;
+                    savedFlmd.IndigenousChickenValue = fMLD.IndigenousChickenValue;
                     savedFlmd.Sheep = fMLD.Sheep;
+                    savedFlmd.SheepValue = fMLD.SheepValue;
                     savedFlmd.Goats = fMLD.Goats;
+                    savedFlmd.GoatsValue = fMLD.GoatsValue;
                     savedFlmd.Camels = fMLD.Camels;
+                    savedFlmd.CamelsValue = fMLD.CamelsValue;
                     savedFlmd.Donkeys = fMLD.Donkeys;
+                    savedFlmd.DonkeysValue = fMLD.DonkeysValue;
                     savedFlmd.Pigs = fMLD.Pigs;
+                    savedFlmd.PigsValue = fMLD.PigsValue;
                     savedFlmd.BeeHives = fMLD.BeeHives;
+                    savedFlmd.BeeHivesValue = fMLD.BeeHivesValue;
                 }
                 _context.SaveChanges();
                 _notyf.Success("Animals saved successfully");
                 return Json("");
+            }
+            catch (Exception e)
+            {
+                _notyf.Error("Sorry, An error occurred");
+                return Json("");
+            }
+        }
+
+        [HttpGet]
+        public JsonResult FlmdDetails(string sno)
+        {
+            try
+            {
+                utilities.SetUpPrivileges(this);
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+
+                var flmd = _context.FLMD.FirstOrDefault(f => f.Sno == sno.ToUpper() && f.SaccoCode == sacco);
+                var crops = _context.FLMDCrops.Where(c => c.Sno == sno.ToUpper() && c.SaccoCode == sacco).ToList();
+                var lands = _context.FLMDLand.Where(d => d.Sno == sno.ToUpper() && d.SaccoCode == sacco).ToList();
+
+                return Json(new
+                {
+                    flmd,
+                    crops,
+                    lands
+                });
             }
             catch (Exception e)
             {
@@ -118,7 +173,7 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
                 _notyf.Success("Crops saved successfully");
 
-                var fLMDCrops = _context.FLMDCrops.Where(c => c.Sno == crops.Sno && c.SaccoCode == sacco).ToList();
+                var fLMDCrops = _context.FLMDCrops.Where(c => c.Sno == crops.Sno.ToUpper() && c.SaccoCode == sacco).ToList();
                 return Json(fLMDCrops);
             }
             catch (Exception e)
@@ -142,7 +197,7 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
                 _notyf.Success("Land saved successfully");
 
-                var fLMDLands = _context.FLMDLand.Where(c => c.Sno == land.Sno && c.SaccoCode == sacco).ToList();
+                var fLMDLands = _context.FLMDLand.Where(c => c.Sno == land.Sno.ToUpper() && c.SaccoCode == sacco).ToList();
                 return Json(fLMDLands);
             }
             catch (Exception e)

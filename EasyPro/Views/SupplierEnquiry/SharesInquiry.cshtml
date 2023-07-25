@@ -1,0 +1,143 @@
+﻿@model EasyPro.Models.DShare
+    <style>
+        #customers {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+            #customers td, #customers th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            #customers tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            #customers tr:hover {
+                background-color: #00ff21;
+            }
+
+            #customers th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: left;
+                background-color: #dec3eb;
+                color: white;
+            }
+        .divScroll {
+            width: 1000px;
+            height: 200px;
+            overflow: auto;
+        }
+    </style>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                    <h2>Supplier Shares Enquiry</h2>
+                </div>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                    @if (ViewBag.isAinabkoi){
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Zone</label>
+                                <select id="zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.zones" required></select>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Sno" class="control-label"></label>
+                            <input id="sno" asp-for="Sno" class="form-control" />
+                            <span asp-validation-for="Sno" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
+                    </div>
+                </div>
+
+                <div class="bsc-tbl-hvr table-border-style">
+                    <div class="divScroll">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="customers">
+                                <tr>
+                                    <th>Sno</th>
+                                    <th>Type</th>
+                                    <th>TransDate</th>
+                                    <th>Pmode</th>
+                                    <th>Period</th>
+                                    <th>Amount</th>
+                                </tr>
+                                <tbody id="shares">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            let shares = new Array();
+            $("#zone").val('');
+            $('#sno').on('keyup', function () {
+                buildShares();
+            });
+
+            function buildShares() {
+                var sno = $("#sno").val();
+                var zone = $("#zone").val();
+                zone = zone ? zone : "";
+                if (sno) {
+                    $.ajax({
+                        type: 'GET',
+                        url: "shareInquiries?sno=" + sno ,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            shares = response ? response : [];
+                            populateDetailsTable();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            }
+
+            function populateDetailsTable() {
+                let itemTableRows = new Array();
+                shares.forEach(j => {
+                    itemTableRows.push(`<tr>
+                        <td>${j.Sno}</td>
+                        <td>${j.Type}</td>
+                        <td>${j.TransDate}</td>
+                        <td>${j.Pmode}</td>
+                        <td>${j.Period}</td>
+                        <td>${j.Amount}</td>
+                    </tr>`);
+                });
+
+                $('#shares').html(itemTableRows);
+            }
+        });
+    </script>
+}

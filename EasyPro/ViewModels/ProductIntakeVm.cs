@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace EasyPro.ViewModels
     {
         public string Sno { get; set; }
         public string SupName { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? TransDate { get; set; }
         public string ProductType { get; set; }
         public decimal? Qsupplied { get; set; }
@@ -31,5 +33,14 @@ namespace EasyPro.ViewModels
         [Display(Name = "Cr Account No")]
         public string CrAccNo { get; set; }
         public string PhoneNo { get; set; }
+        public bool Print { get; set; }
+        public bool SMS { get; set; }
+        [NotMapped]
+        public decimal? Todaykgs { get; set; }
+        [NotMapped]
+        public decimal? TodayBranchkgs { get; set; }
+        public TimeSpan TransTime { get; internal set; }
+        public string Zone { get; set; }
+        public string MornEvening { get; set; }
     }
 }

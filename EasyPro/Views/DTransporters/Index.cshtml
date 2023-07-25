@@ -3,94 +3,131 @@
 @{
     ViewData["Title"] = "Index";
 }
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
 
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #00ff21;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+    .divScroll {
+        width: 1110px;
+        height: 200px;
+        overflow: auto;
+    }
+</style>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="normal-table-list mg-t-30">
+        <div class="normal-table-list mg-t-3">
             <div class="row">
-                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-                    <h3 class="text-danger fa-bold">Transporters</h3>
+                
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-5">
+                    <h4 class="text-danger fa-bold"><i class="fas fa-bars"></i>Transporters</h4>
                 </div>
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
                     <input id="gfg" type="text" class="form-control"
                            placeholder="Search here">
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-3">
+                    <a asp-action="Create" class="btn btn-primary"><i class="glyphicon glyphicon-user"></i>Create New</a>
                 </div>
             </div>
             <div class="bsc-tbl-hvr table-border-style">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.TransCode)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.TransName)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.CertNo)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Phoneno)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Bcode)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Accno)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Bbranch)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Active)
-                                </th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="geeks">
-                            @foreach (var item in Model)
-                            {
+                <div class="divScroll">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="customers">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.TransCode)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.TransName)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.CertNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Phoneno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Bcode)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Accno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Bbranch)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Active)
-                                    </td>
-                                    <td class="col-4">
-                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                        <a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                        @*<input type="button" class="btn-danger btn-danger" id="delete" onClick="Delete('@item.Id')" value="Delete"/>*@
-                                    </td>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.TransCode)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.TransName)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.CertNo)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Phoneno)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Bcode)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Accno)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Bbranch)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Active)
+                                    </th>
+                                    <th></th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="geeks">
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TransCode)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TransName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.CertNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Phoneno)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Bcode)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Accno)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Bbranch)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Active)
+                                        </td>
+                                        <td class="col-4">
+                                            <a class="btn-warning" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                            <a class="btn-info" asp-action="ExportFamers" asp-route-id="@item.Id">Export Farmers</a>
+                                            <a class="btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+               
             </div>
-        </div>
+            </div>
     </div>
 </div>
 @section scripts{
@@ -106,7 +143,7 @@
         });
         function Delete() {
             swal({
-                
+
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
                 icon: "warning",

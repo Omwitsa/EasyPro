@@ -6,11 +6,14 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
+using EasyPro.ViewModels;
 using EasyPro.ViewModels.TranssupplyVM;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
+
 namespace EasyPro.Controllers
 {
     public class DTransportsController : Controller
@@ -34,23 +37,28 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var intakes = GetAssignedTransporters();
-
+            intakes = intakes.OrderBy(K => K.Sno).ToList();
             return View(intakes);
         }
         private List<TransSuppliersVM> GetAssignedTransporters()
         {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var today = DateTime.Now;
             var month = new DateTime(today.Year, today.Month, 1);
             var startdate = month;
             var enddate = startdate.AddMonths(1).AddDays(-1);
             var transdeduction = _context.DTransports.Where(i => i.Active && i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                transdeduction = transdeduction.Where(t => t.Branch == saccoBranch).ToList();
             var intakes = new List<TransSuppliersVM>();
             foreach (var intake in transdeduction)
             {
-                var trans = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.TransCode && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
-                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno && i.Scode.ToUpper().Equals(sacco.ToUpper()));
-                if(supplier != null)
+                var trans = _context.DTransporters.FirstOrDefault(i => i.TransCode == intake.TransCode.Trim().ToUpper() && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
+                var supplier = _context.DSuppliers.FirstOrDefault(i => i.Sno == intake.Sno && i.Branch==saccoBranch && i.Scode.ToUpper().Equals(sacco.ToUpper()));
+                if(supplier != null && trans != null)
                 {
                     intakes.Add(new TransSuppliersVM
                     {
@@ -61,6 +69,7 @@ namespace EasyPro.Controllers
                         Names = supplier.Names,
                         Rate = intake.Rate,
                         Startdate = intake.Startdate,
+                        Morning= intake.Morning
                     });
                 }
             }
@@ -90,56 +99,109 @@ namespace EasyPro.Controllers
             sacco = sacco ?? "";
             var producttypes = _context.DPrices.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Products).ToList();
             ViewBag.producttypes = new SelectList(producttypes, "");
+            ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
+            var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
+            ViewBag.zones = new SelectList(zones);
+
+            //var zone = _context.Zones.Where(a => a.Code == sacco).ToList();
+            if (zones.Count != 0)
+                ViewBag.checkiftoenable = 1;
+            else
+                ViewBag.checkiftoenable = 0;
+
+            List<SelectListItem> morningEve = new()
+            {
+                new SelectListItem { Text = "" },
+                new SelectListItem { Text = "Morning" },
+                new SelectListItem { Text = "Evening" },
+            };
+            ViewBag.morningEve = morningEve;
         }
+
         // GET: DTransports/Create
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco);
+            var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco);
+
+            if(user.AccessLevel == AccessLevel.Branch)
+            {
+                transporters = transporters.Where(t => t.Tbranch == saccoBranch);
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+            }
+
             TransSuppliersobj = new TransSuppliers
             {
                 DTransport = new DTransport(),
-                DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())),
-                DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
+                DTransporter = transporters,
+                DSuppliers = suppliers,
             };
+
             GetInitialValues();
             //return Json(new { data = Farmersobj });
             return View(TransSuppliersobj);
         }
+        [HttpGet]
+        public JsonResult SelectedDateIntake( string sno)
+        {
+            sno = sno ?? "";
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var suppliers = _context.DSuppliers.Where(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco);
+            
 
+            var todaysIntake = suppliers.Select(b => b.Names).ToList();
+            return Json(todaysIntake);
+        }
         // POST: DTransports/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype")] DTransport dTransport)
+        public async Task<IActionResult> Create([Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype,Zone,Morning")] DTransport dTransport)
         {
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var checkNonExistingTransporter = _context.DTransporters.Any(i => i.TransCode == dTransport.TransCode && i.Active && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
-            if (!checkNonExistingTransporter)
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var transporters = _context.DTransporters.Where(t => t.TransCode == dTransport.TransCode && t.Active && t.ParentT == sacco);
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                transporters = transporters.Where(t => t.Tbranch == saccoBranch);
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+            }
+                
+            if (!transporters.Any())
             {
                 _notyf.Error("TransCode not Exist or InActive");
                 TransSuppliersobj = new TransSuppliers
                 {
                     DTransport = new DTransport(),
-                    //DTransport = _context.DTransports,
-                    DTransporter = _context.DTransporters.Where(i=>i.ParentT.ToUpper().Equals(sacco.ToUpper())),
-                    DSuppliers = _context.DSuppliers.Where(i=>i.Scode.ToUpper().Equals(sacco.ToUpper())),
+                    DTransporter = transporters,
+                    DSuppliers = suppliers,
                 };
                 GetInitialValues();
                 return View(TransSuppliersobj);
             }
             var dTransporterExists = _context.DTransports
-                .Any(i => i.Sno == dTransport.Sno && i.Active == true && i.producttype == dTransport.producttype && i.saccocode.ToUpper().Equals(sacco.ToUpper()));
+                .Any(i => i.Sno == dTransport.Sno && i.Active == true && i.producttype == dTransport.producttype
+                && i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch && i.Morning== dTransport.Morning);
             if (dTransporterExists)
             {
                 _notyf.Error("Supplier has an active Assignment");
                 TransSuppliersobj = new TransSuppliers
                 {
                     DTransport = new DTransport(),
-                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())),
-                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
+                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch),
+                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch),
                 };
                 GetInitialValues();
                 return View(TransSuppliersobj);
@@ -147,97 +209,138 @@ namespace EasyPro.Controllers
             if (ModelState.IsValid)
             {
                 dTransport.saccocode = sacco;
+                dTransport.Branch = saccoBranch;
                 _context.Add(dTransport);
-                UpdateLastKgs(dTransport);
-                if (dTransport.DateInactivate != null)
-                    UpdateIntakeKgs(dTransport);
-                await _context.SaveChangesAsync();
+
+                UpdateTransporter(dTransport);
                 _notyf.Success("Assignment saved successfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(dTransport);
         }
-        private void UpdateLastKgs(DTransport dTransport)
+        private void UpdateTransporter(DTransport dTransport)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var transExisting = _context.DTransports
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Active && i.producttype == dTransport.producttype && i.Sno == dTransport.Sno);
-            if (transExisting.Any())
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            dTransport.Rate = dTransport?.Rate ?? 0;
+            var sessionIntakes = _context.ProductIntake
+                .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch && i.ProductType == dTransport.producttype
+                && i.TransDate >= dTransport.Startdate && i.Qsupplied != 0 && (i.MornEvening == null || i.MornEvening == dTransport.Morning)).ToList();
+
+            var transport = _context.DTransports.FirstOrDefault(t => t.saccocode == sacco && t.Branch == saccoBranch 
+            && t.Sno.ToUpper().Equals(dTransport.Sno.ToUpper()) && (t.Morning == null || t.Morning == dTransport.Morning));
+            var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+                       && p.Products.ToUpper().Equals(dTransport.producttype.ToUpper()));
+
+            var transCode = transport?.TransCode ?? "";
+            var intakeIds = new List<long>();
+            var intakes = new List<ProductIntake>();
+            sessionIntakes.ForEach(details =>
             {
-                var selectintaketobeupdated = _context.ProductIntake
-                    .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.ProductType == dTransport.producttype && i.TransDate >= dTransport.Startdate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied != 0)
-                    .Sum(a => a.Qsupplied);
-                if (selectintaketobeupdated > 0)
+                if (details.Sno.ToUpper().Equals(dTransport.Sno.ToUpper()))
                 {
-                    var intakekgs = _context.ProductIntake.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.Qsupplied != 0);
-                    if (intakekgs.Any())
+                    transCode = string.IsNullOrEmpty(transCode) ? details.AuditId : transCode;
+                    details.Auditdatetime = DateTime.Now;
+                    if (details.TransactionType == TransactionType.Intake)
                     {
-                        foreach (var details in intakekgs)
+                        intakes.Add(new ProductIntake
                         {
-                            details.Sno = dTransport.Sno.ToString();
-                            details.TransDate = DateTime.Today;
-                            details.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
-                            details.ProductType = dTransport.producttype;
-                            details.Qsupplied = selectintaketobeupdated;
-                            var price = _context.DPrices
-                                .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                                && p.Products.ToUpper().Equals(details.ProductType.ToUpper()));
-                            details.Ppu = price.Price;
-                            details.CR = 0;
-                            details.DR = (selectintaketobeupdated * price.Price);
-                            details.Balance = GetBalance(dTransport);
-                            details.Description = "Transport";
-                            details.Paid = false;
-                            details.TransactionType = TransactionType.Intake;
-                            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-                            details.Auditdatetime = DateTime.Now;
-                            var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
-                            details.Branch = branch.Bname;
-                            details.SaccoCode = sacco;
-                            details.DrAccNo = price.DrAccNo;
-                            details.CrAccNo = price.CrAccNo;
-                        }
-
+                            Sno = details.Sno,
+                            TransDate = details.TransDate,
+                            TransTime = details.TransTime,
+                            ProductType = details.ProductType,
+                            Qsupplied = details.Qsupplied,
+                            Ppu = price.Price,
+                            CR = details.Qsupplied * price.Price,
+                            DR = details.DR,
+                            Balance = details.Balance,
+                            Description = details.Description,
+                            TransactionType = details.TransactionType,
+                            Remarks = details.Remarks,
+                            AuditId = details.AuditId,
+                            Auditdatetime = DateTime.Now,
+                            Branch = details.Branch,
+                            SaccoCode = details.SaccoCode,
+                            DrAccNo = details.DrAccNo,
+                            CrAccNo = details.CrAccNo,
+                            Zone = details.Zone,
+                            MornEvening = details.MornEvening
+                        });
+                        intakeIds.Add(details.Id);
                     }
-                    var transport = _context.ProductIntake.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.Qsupplied != 0);
-                    if (transport.Any())
+                    if (details.TransactionType == TransactionType.Deduction)
                     {
-                        foreach (var transdetails in transport)
+                        intakes.Add(new ProductIntake
                         {
-                            transdetails.Sno = dTransport.TransCode.ToString();
-                            transdetails.TransDate = DateTime.Today;
-                            transdetails.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
-                            transdetails.ProductType = dTransport.producttype;
-                            transdetails.Qsupplied = selectintaketobeupdated;
-                            var price = _context.DPrices
-                                .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                                && p.Products.ToUpper().Equals(transdetails.ProductType.ToUpper()));
-                            transdetails.Ppu = price.Price;
-                            transdetails.DR = 0;
-                            transdetails.CR = (selectintaketobeupdated * price.Price);
-                            transdetails.Balance = GetBalance(dTransport);
-                            transdetails.Description = "Transport";
-                            transdetails.Paid = false;
-                            transdetails.TransactionType = TransactionType.Intake;
-                            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-                            transdetails.Auditdatetime = DateTime.Now;
-                            var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
-                            transdetails.Branch = branch.Bname;
-                            transdetails.SaccoCode = sacco;
-                            transdetails.DrAccNo = price.TransportDrAccNo;
-                            transdetails.CrAccNo = price.TransportCrAccNo;
-                        }
+                            Sno = details.Sno,
+                            TransDate = details.TransDate,
+                            TransTime = details.TransTime,
+                            ProductType = details.ProductType,
+                            Qsupplied = details.Qsupplied,
+                            Ppu = dTransport.Rate,
+                            CR = details.CR,
+                            DR = details.Qsupplied * dTransport.Rate,
+                            Balance = details.Balance,
+                            Description = details.Description,
+                            TransactionType = details.TransactionType,
+                            Remarks = details.Remarks,
+                            AuditId = details.AuditId,
+                            Auditdatetime = DateTime.Now,
+                            Branch = details.Branch,
+                            SaccoCode = details.SaccoCode,
+                            DrAccNo = details.DrAccNo,
+                            CrAccNo = details.CrAccNo,
+                            Zone = details.Zone,
+                            MornEvening = details.MornEvening
+                        });
+                        intakeIds.Add(details.Id);
+                    }
 
+                    var transporterEntry = sessionIntakes.FirstOrDefault(i => i.AuditId == details.AuditId && i.TransDate == details.TransDate 
+                    && i.TransTime == details.TransTime && i.Qsupplied == details.Qsupplied && details.TransactionType == TransactionType.Deduction);
+                    if (transporterEntry != null)
+                    {
+                        intakes.Add(new ProductIntake
+                        {
+                            Sno = dTransport.TransCode,
+                            TransDate = transporterEntry.TransDate,
+                            TransTime = transporterEntry.TransTime,
+                            ProductType = transporterEntry.ProductType,
+                            Qsupplied = transporterEntry.Qsupplied,
+                            Ppu = dTransport.Rate,
+                            CR = transporterEntry.Qsupplied * dTransport.Rate,
+                            DR = transporterEntry.DR,
+                            Balance = transporterEntry.Balance,
+                            Description = transporterEntry.Description,
+                            TransactionType = transporterEntry.TransactionType,
+                            Remarks = transporterEntry.Remarks,
+                            AuditId = transporterEntry.AuditId,
+                            Auditdatetime = DateTime.Now,
+                            Branch = transporterEntry.Branch,
+                            SaccoCode = transporterEntry.SaccoCode,
+                            DrAccNo = transporterEntry.DrAccNo,
+                            CrAccNo = transporterEntry.CrAccNo,
+                            Zone = transporterEntry.Zone,
+                            MornEvening = transporterEntry.MornEvening
+                        });
+                        intakeIds.Add(transporterEntry.Id);
                     }
                 }
+            });
 
+            if (intakes.Any())
+            {
+                var savedIntakes = _context.ProductIntake.Where(i => intakeIds.Contains(i.Id));
+                _context.ProductIntake.RemoveRange(savedIntakes);
+                _context.ProductIntake.AddRange(intakes);
                 _context.SaveChanges();
             }
-
         }
         private decimal? GetBalance(DTransport dTransport)
         {
-            var latestIntake = _context.ProductIntake.Where(i => i.Sno == dTransport.Sno.ToString())
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var latestIntake = _context.ProductIntake.Where(i => i.Sno == dTransport.Sno.ToString() && i.Branch == saccoBranch && i.SaccoCode == sacco)
                     .OrderByDescending(i => i.Id).FirstOrDefault();
             if (latestIntake == null)
                 latestIntake = new ProductIntake();
@@ -250,13 +353,17 @@ namespace EasyPro.Controllers
 
         private void UpdateIntakeKgs(DTransport dTransport)
         {
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var transExisting = _context.DTransports
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Active && i.producttype == dTransport.producttype && i.Startdate <= dTransport.DateInactivate && i.Sno == dTransport.Sno);
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Active && i.producttype == dTransport.producttype
+                && i.Startdate <= dTransport.DateInactivate && i.Sno == dTransport.Sno && i.Branch == saccoBranch);
             if (transExisting.Any())
             {
                 var selectassigntrans = _context.ProductIntake
-                    .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.ProductType == dTransport.producttype && i.TransDate >= dTransport.DateInactivate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied != 0);
+                    .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.ProductType == dTransport.producttype
+                    && i.TransDate >= dTransport.DateInactivate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied != 0 
+                    && i.Branch == saccoBranch);
                 if (selectassigntrans.Any())
                 {
                     _context.ProductIntake.RemoveRange(selectassigntrans);
@@ -276,7 +383,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             //return Json(new { data = Farmersobj });
-
+            GetInitialValues();
             if (id == null)
             {
                 return NotFound();
@@ -293,7 +400,7 @@ namespace EasyPro.Controllers
                 DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())),
                 DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
             };
-            GetInitialValues();
+           
             TransSuppliersobj.DTransporter = TransSuppliersobj.DTransporter.Where(i => i.TransCode == dTransport.TransCode && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
             TransSuppliersobj.DSuppliers = TransSuppliersobj.DSuppliers.Where(i => i.Sno == dTransport.Sno && i.Scode.ToUpper().Equals(sacco.ToUpper()));
             return View(TransSuppliersobj);
@@ -304,15 +411,16 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype")] DTransport dTransport)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,Sno,Rate,Startdate,Active,DateInactivate,Auditid,Auditdatetime,Isfrate,producttype,Zone,Morning")] DTransport dTransport)
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             if (id != dTransport.Id)
             {
-                GetInitialValues();
                 return NotFound();
             }
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             sacco = sacco ?? "";
             if(dTransport.Startdate > dTransport.DateInactivate)
             {
@@ -320,10 +428,9 @@ namespace EasyPro.Controllers
                 TransSuppliersobj = new TransSuppliers
                 {
                     DTransport = new DTransport(),
-                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())),
-                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
+                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch== saccoBranch),
+                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Branch==sacco),
                 };
-                GetInitialValues();
                 return View(TransSuppliersobj);
             }
 
@@ -381,10 +488,52 @@ namespace EasyPro.Controllers
             var dTransport = await _context.DTransports.FindAsync(id);
             _context.DTransports.Remove(dTransport);
             await _context.SaveChangesAsync();
-            _notyf.Error("Data Deleted successfully");
+            _notyf.Success("Data Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public JsonResult getsuppliers([FromBody] DSupplier supplier, string? filter, string? condition)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            var Transporterssuppliers = _context.DTransports.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                Transporterssuppliers = Transporterssuppliers.Where(i => i.Branch == saccobranch).ToList();
+            if (condition == "SNo")
+                Transporterssuppliers = Transporterssuppliers.Where(i => i.Sno.ToUpper().Contains(filter.ToUpper())).ToList();
+            if (condition == "TNo")
+                Transporterssuppliers = Transporterssuppliers.Where(i => i.TransCode.ToUpper().Contains(filter.ToUpper())).ToList();
+
+            Transporterssuppliers = Transporterssuppliers.OrderByDescending(i => i.Startdate).Take(505).ToList();
+            var assignlist = new List<TransSuppliersVM>();
+            foreach (var intake in Transporterssuppliers)
+            {
+               // intake = intake;
+                var suppliername = _context.DSuppliers.FirstOrDefault(i => i.Sno.ToUpper().Equals(intake.Sno.ToUpper()) && i.Scode == sacco && i.Branch == intake.Branch);
+                var transportername = _context.DTransporters.FirstOrDefault(i => i.TransCode.ToUpper().Equals(intake.TransCode.Trim().ToUpper()) && i.ParentT == sacco && i.Tbranch == intake.Branch);
+                var supName = suppliername?.Names ?? "";
+                var transName = transportername?.TransName ?? "";
+                intake.Morning = string.IsNullOrEmpty(intake.Morning) ?  "All" : intake.Morning;
+                    
+                assignlist.Add(new TransSuppliersVM
+                {
+                    Id = intake.Id,
+                    TransCode = intake.TransCode,
+                    TransName = transName,
+                    Sno = intake.Sno,
+                    Names = supName,
+                    Rate = intake.Rate,
+                    Startdate = intake.Startdate,
+                    Morning = intake.Morning
+                });
+            }
+            _context.SaveChanges();
+            return Json(assignlist);
+        }
         private bool DTransportExists(long id)
         {
             return _context.DTransports.Any(e => e.Id == id);

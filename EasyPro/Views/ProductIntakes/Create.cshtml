@@ -1,19 +1,55 @@
-﻿@model EasyPro.Models.ProductIntake
+﻿@model EasyPro.ViewModels.ProductIntakeVm
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Create</h2>
+            
+            <hr />
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    Today's Intake:
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <input asp-for="Todaykgs" id="Sn" class="form-control" readonly />
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    Today's Branch Intake:
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <input asp-for="TodayBranchkgs" id="n" class="form-control" readonly />
+                </div>
             </div>
             <hr />
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                        <h2>Create</h2>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="zone1">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                @*<label class="control-label">Zone</label>
+                                <select id="zone" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones" required>
+                                    <option value=""></option>
+                                </select>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="MorningEvening">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Morning/Evening</label>
+                                <select id="mevng" Value="Select Bank" asp-for="MornEvening" class="form-control" asp-items="@ViewBag.morningEve"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Sno" class="control-label"></label>
-                            <input asp-for="Sno" id="Sno" class="form-control" />
+                            <input asp-for="Sno" id="Sno" OnChange="document.getElementById('Qsupplied').focus();" class="form-control" required />
                             <span asp-validation-for="Sno" class="text-danger"></span>
                         </div>
                     </div>
@@ -23,20 +59,20 @@
                             <input id="Names" class="form-control" readonly />
                         </div>
                     </div>
-                </div>
+                </div> 
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="ProductType" class="control-label"></label>
                             <select id="ProductType" asp-for="ProductType" class="form-control" asp-items="@ViewBag.products">
-                                <option value="" disabled selected hidden>Please Choose...</option>
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="ProductType" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="Ppu" class="control-label"></label>
+                            <label id="Ppu1" asp-for="Ppu" class="control-label"></label>
                             <input id="Ppu" asp-for="Ppu" class="form-control" readonly />
                             <span asp-validation-for="Ppu" class="text-danger"></span>
                         </div>
@@ -46,7 +82,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Qsupplied" class="control-label"></label>
-                            <input id="Qsupplied" asp-for="Qsupplied" class="form-control" type="number" min="0"/>
+                            <input id="Qsupplied" asp-for="Qsupplied" class="form-control" type="number" min="0" required />
                             <span asp-validation-for="Qsupplied" class="text-danger"></span>
                         </div>
                     </div>
@@ -57,12 +93,12 @@
                             <span asp-validation-for="CR" class="text-danger"></span>
                         </div>
                     </div>
-                </div>
-                <div class="row">
+                </div> 
+                <div class="row" id="DrCr">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="DrAccNo" class="control-label"></label>
-                            <input id="DrAccNo" asp-for="DrAccNo" class="form-control" readonly/>
+                            <input id="DrAccNo" asp-for="DrAccNo" class="form-control" readonly />
                             <span asp-validation-for="DrAccNo" class="text-danger"></span>
                         </div>
                     </div>
@@ -78,15 +114,35 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Remarks" class="control-label"></label>
-                            <input asp-for="Remarks" class="form-control" />
-                            <span asp-validation-for="Remarks" class="text-danger"></span>
+                            <input asp-for="Remarks" id="Remarks" class="form-control" />
+                            <span asp-validation-for="Remarks"  class="text-danger"></span>
                         </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <input  asp-for="Print" type="checkbox" id="print" />
+                            <label asp-for="Print" for="print" class="control-label"></label>
+                            <span asp-validation-for="Print" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <input asp-for="SMS" type="checkbox" id="SMS" />
+                            <label asp-for="SMS" for="SMS" class="control-label"></label>
+                            <span asp-validation-for="SMS" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Save</button>
+                        <a id="save" class="btn btn-success">Save</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a asp-action="Index" class="btn btn-primary">Back to List</a>
@@ -94,7 +150,7 @@
                 </div>
             </form>
         </div>
-    </div>
+        </div>
 </div>
 
 @section Scripts {
@@ -102,11 +158,192 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 <script type="text/javascript">
-        $(function () {
+    $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
+            products = products ? products : [];
+            document.getElementById('Sno').focus();
+            $("#Sno").val("");
+            //$("#zone").val("");
+            $("#Qsupplied").val("");
+            $('#mevng').val('');
+            $('#DrCr').hide();
+
+            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+            if (checkiftoenable === 0) {
+                $('#zone1').hide();
+                $('#MorningEvening').show();
+            }
+            else {
+                $('#zone1').hide();
+                $('#MorningEvening').show();
+            }
+
+            if (products.length === 1){
+                $("#ProductType").val(products[0].Products);
+                populateFields(products[0].Products);
+            }
             $('#ProductType').on('change', function () {
                 var selectVal = $("#ProductType").val();
+                populateFields(selectVal);
+            });
+            $('#zone').change(function () {
+                var selectVal = $("#Sno").val();
+                getSelectedDateIntakes();
+            });
+
+            $('#zone').change(function () {
+                var selectVal =  $("#Sno").val();
+                getSelectedDateIntakes();
+            });
+
+          
+            $('#Sno').on('keyup',function() {
+                    var selectVal = $("#Sno").val();
+                getSelectedDateIntakes();
+            });
+            $('#Sno').keydown(function (event) {
+                if (event.which == 13) {
+                    getSelectedDateIntakes();
+                    document.getElementById('Qsupplied').focus();
+                }
+            });
+
+            $('#Qsupplied').keydown(function (event) {
+                if (event.which == 13) {
+                    checkifalreadyexist();
+                }
+            });
+
+            $('#save').on('click', function () {
+                checkifalreadyexist();
+            });
+            function getSelectedforsave() {
+            var print = $('#print').is(':checked');
+            var sms = $('#SMS').is(':checked');
+            var intake = {
+                sno: $("#Sno").val(),
+                supName: $("#Names").val(),
+                productType: $("#ProductType").val(),
+                ppu: $("#Ppu").val(),
+                qsupplied: $("#Qsupplied").val(),
+                cr: $("#CR").val(),
+                drAccNo: $("#DrAccNo").val(),
+                crAccNo: $("#CrAccNo").val(),
+                remarks: $("#Remarks").val(),
+                print: print,
+                sms: sms,
+            };
+            $.ajax({
+                type: 'POST',
+                url: "save",
+                contentType: 'application/json',
+                data: JSON.stringify(intake),
+                success: function (response) {
+                    $("#Sno").val('');
+                    $("#Qsupplied").val(0);
+                    document.getElementById('Sno').focus();
+                    getkgsfortheday();
+                    if (print) {
+                        var content = generateHTML(response);
+                        printJS({
+                            printable: content,
+                            type: 'raw-html',
+                            style: '.blueText {color:blue;}'
+                        });
+                    }
+                },
+                failure: function (response) {
+                }
+            }).then(function () {
+                // ...
+            });
+        }
+            function checkifalreadyexist() {
+            //goselect();
+            var sno = $('#Sno').val();
+
+            var date = today;
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response) {
+                            checkifdelivered();
+                        } else {
+                            getSelectedforsave();
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+             });
+        }
+            function checkifdelivered() {
+                const response = confirm("Already Delivered today, Do you want to continue?");
+                if (response) {
+                    getSelectedforsave();
+                    return true;
+                } else {
+                    $('#Qsupplied').val("");
+                    return false;
+                }
+            }
+            function getkgsfortheday() {
+                var date = today;
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "sumDateIntake?date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            var Todayskg = response.Todayskg;
+                            var TodaysBranchkg = response.TodaysBranchkg;
+                            $("#Sn").val(Todayskg);
+                            $("#n").val(TodaysBranchkg);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            };
+            function getSelectedDateIntakes() {
+                var sno = $('#Sno').val();
+                var mevng = $('#mevng').val();
+
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "selectedDateIntake?sno=" + sno,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#Names").val(response);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                });
+            }
+
+        $('#Qsupplied').on('keyup', function () {
+            calculatePrice();
+            });
+
+            function populateFields(product) {
                 var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
-                var selectProducts = products.filter(p => p.Products === selectVal);
+                var selectProducts = products.filter(p => p.Products === product);
+                if (selectProducts[0].Price === 0) {
+                    $("#Ppu").hide();
+                    $("#Ppu1").hide();
+                } else {
+                    $("#Ppu").show();
+                    $("#Ppu1").show();
+                }
                 if (selectProducts[0]) {
                     $("#CR").val();
                     $("#Qsupplied").val();
@@ -114,20 +351,7 @@
                     $("#DrAccNo").val(selectProducts[0].DrAccNo);
                     $("#CrAccNo").val(selectProducts[0].CrAccNo);
                 }
-            });
-
-            $('#Sno').on('keyup', function () {
-                var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
-                var selectVal = parseInt($("#Sno").val());
-                var selectSupplier = suppliers.filter(p => p.Sno === selectVal);
-                if (selectSupplier[0]) {
-                    $("#Names").val(selectSupplier[0].Names);
-                }
-            });
-
-            $('#Qsupplied').on('keyup', function () {
-                calculatePrice();
-            });
+            }
 
             function calculatePrice() {
                 var qty = parseFloat($("#Qsupplied").val());
@@ -136,6 +360,129 @@
                     $("#CR").val(qty * price);
                 }
             }
+        function pr()
+        {
+            debugger;
+            var printer = null;
+            var ePosDev = null;
+
+            function InitMyPrinter() {
+                console.log("Init Printer");
+
+                var printerPort = 8008;
+                var printerAddress = "192.168.198.168";
+                if (isSSL) {
+                    printerPort = 8043;
+                }
+                ePosDev = new epson.ePOSDevice();
+                ePosDev.connect(printerAddress, printerPort, cbConnect);
+            }
+
+            //Printing
+            function cbConnect(data) {
+                if (data == 'OK' || data == 'SSL_CONNECT_OK') {
+                    ePosDev.createDevice('local_printer', ePosDev.DEVICE_TYPE_PRINTER,
+                        { 'crypto': false, 'buffer': false }, cbCreateDevice_printer);
+                } else {
+                    console.log(data);
+                }
+            }
+
+            function cbCreateDevice_printer(devobj, retcode) {
+                if (retcode == 'OK') {
+                    printer = devobj;
+                    printer.timeout = 60000;
+                    printer.onreceive = function (res) { //alert(res.success);
+                        console.log("Printer Object Created");
+
+                    };
+                    printer.oncoveropen = function () { //alert('coveropen');
+                        console.log("Printer Cover Open");
+
+                    };
+                } else {
+                    console.log(retcode);
+                    isRegPrintConnected = false;
+                }
+            }
+
+            function print(salePrintObj) {
+                debugger;
+                if (isRegPrintConnected == false
+                    || printer == null) {
+                    return;
+                }
+                console.log("Printing Started");
+
+
+                printer.addLayout(printer.LAYOUT_RECEIPT, 800, 0, 0, 0, 35, 0);
+                printer.addTextAlign(printer.ALIGN_CENTER);
+                printer.addTextSmooth(true);
+                printer.addText('\n');
+                printer.addText('\n');
+
+                printer.addTextDouble(true, true);
+                printer.addText(CompanyName + '\n');
+
+                printer.addTextDouble(false, false);
+                printer.addText(CompanyHeader + '\n');
+                printer.addText('\n');
+
+                printer.addTextAlign(printer.ALIGN_LEFT);
+                printer.addText('DATE: ' + currentDate + '\t\t');
+
+                printer.addTextAlign(printer.ALIGN_RIGHT);
+                printer.addText('TIME: ' + currentTime + '\n');
+
+                printer.addTextAlign(printer.ALIGN_LEFT);
+
+                printer.addTextAlign(printer.ALIGN_RIGHT);
+                printer.addText('REGISTER: ' + RegisterName + '\n');
+                printer.addTextAlign(printer.ALIGN_LEFT);
+                printer.addText('SALE # ' + SaleNumber + '\n');
+
+                printer.addTextAlign(printer.ALIGN_CENTER);
+                printer.addTextStyle(false, false, true, printer.COLOR_1);
+                printer.addTextStyle(false, false, false, printer.COLOR_1);
+                printer.addTextDouble(false, true);
+                printer.addText('* SALE RECEIPT *\n');
+                printer.addTextDouble(false, false);
+
+}
+        }
+
+
+            function generateHTML(response) {
+                var mevng = $('#mevng').val();
+                var date = new Date().toLocaleDateString("en-US")
+                var content = `<div class="row" id="printMe">
+                                <div class="col-xs-12 text-center">
+                                     <h4>
+                                        ${response.receiptDetails.Name}</br>
+                                        Adress: ${response.receiptDetails.Adress}</br>
+                                        Tell: ${response.receiptDetails.PhoneNo}</br>
+                                        Town: ${response.receiptDetails.Town}</br>
+                                        Branch: ${response.receiptDetails.saccoBranch}
+                                      </h4>
+                                     <h5>
+                                        *************************
+                                        Product Receipt For: ${date}</br>
+                                        SNo: ${response.receiptDetails.Sno}</br>
+                                        Name: ${response.receiptDetails.SupName}</br>
+                                        Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
+                                        Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
+                                        Session: ${response.receiptDetails.MornEvening}</br>
+                                        Received By: ${response.receiptDetails.loggedInUser}
+                                    </h5>
+                                    <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                        *************************
+                                    <hr>
+                                </div>
+                           </div>`;
+
+                return content;
+            }
+
         });
 </script>
 }

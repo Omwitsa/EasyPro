@@ -29,5 +29,6 @@ namespace EasyPro.Models
         public string Craccno { get; set; }
         public int? Ai { get; set; }
         public string saccocode { get; set; }
+        public bool Approved { get; set; }
     }
 }

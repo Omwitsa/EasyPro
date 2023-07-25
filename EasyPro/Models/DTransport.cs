@@ -9,7 +9,7 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         public string TransCode { get; set; }
-        public long? Sno { get; set; }
+        public string Sno { get; set; }
         public decimal? Rate { get; set; }
         public DateTime? Startdate { get; set; }
         public bool Active { get; set; }
@@ -19,5 +19,8 @@ namespace EasyPro.Models
         public string Isfrate { get; set; }
         public string saccocode { get; set; }
         public string producttype { get; set; }
+        public string Branch { get; set; }
+        public string Zone { get; set; }
+        public string Morning { get; set; }
     }
 }

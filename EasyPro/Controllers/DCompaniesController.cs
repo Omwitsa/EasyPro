@@ -7,6 +7,8 @@ using EasyPro.Models;
 using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
@@ -27,7 +29,14 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.DCompanies.ToListAsync());
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var companies = _context.DCompanies.OrderByDescending(K => K.Id).ToList();
+            if (!loggedInUser.ToLower().Equals("psigei"))
+                companies = _context.DCompanies.Where(i=>i.Name.ToUpper().Equals(sacco.ToUpper())).ToList();
+               
+            return View(companies);
         }
 
         // GET: DCompanies/Details/5
@@ -109,13 +118,15 @@ namespace EasyPro.Controllers
 
         private void SetInitialValues()
         {
-            var counties = _context.County.Where(c => !c.Closed).ToList();
-            ViewBag.counties = new SelectList(counties, "Name", "Name");
-            var subCounties = _context.SubCounty.Where(c => !c.Closed).ToList();
-            ViewBag.subCounties = new SelectList(subCounties, "Name", "Name");
-            var wards = _context.Ward.Where(c => !c.Closed).ToList();
-            ViewBag.wards = new SelectList(wards, "Name", "Name");
-            var locations = _context.DLocations.ToList();
+            var counties = _context.County.Where(c => !c.Closed).OrderBy(m => m.Name).ToList();
+            ViewBag.counties = new SelectList(counties.OrderBy(n=>n.Name).ToList().Select(b => b.Name).ToList());
+            var subCounties = _context.SubCounty.Where(c => !c.Closed).OrderBy(m => m.Name).ToList();
+            ViewBag.subCounties = subCounties;
+            ViewBag.SubCountyName = new SelectList(subCounties, "Name", "Name");
+            var wards = _context.Ward.Where(c => !c.Closed).OrderBy(m => m.Name).ToList();
+            ViewBag.wards = wards;
+            ViewBag.WardSubCounty = new SelectList(wards, "Name", "Name");
+            var locations = _context.DLocations.OrderBy(m => m.Lname).ToList();
             ViewBag.locations = new SelectList(locations, "Lcode", "Lname");
         }
 

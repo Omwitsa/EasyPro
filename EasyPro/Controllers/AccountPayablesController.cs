@@ -1,88 +1,179 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Constants;
+using EasyPro.Models;
+using EasyPro.Utils;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
     public class AccountPayablesController : Controller
     {
-        public IActionResult Index()
+        private readonly MORINGAContext _context;
+        private Utilities utilities;
+        private readonly INotyfService _notyf;
+
+        public AccountPayablesController(MORINGAContext context, INotyfService notyf)
         {
+            _context = context;
+            _notyf = notyf;
+            utilities = new Utilities(context);
+        }
+
+        public async Task<IActionResult> GetBills()
+        {
+            utilities.SetUpPrivileges(this);
+            return View(await _context.Bills.ToListAsync());
+        }
+
+        public IActionResult CreateBill()
+        {
+            utilities.SetUpPrivileges(this);
+            SetInitialValues();
             return View();
         }
 
-        //public IActionResult OnGet()
-        //{
-        //    try
-        //    {
-        //        Venders = _dbContext.Venders.ToList();
-        //        return Page();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Success = false;
-        //        Message = "Sorry, An error occurred";
-        //        return Page();
-        //    }
-        //}
+        private void SetInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var venders = _context.Venders.Where(c => c.SaccoCode == sacco).OrderBy(m => m.Name).ToList();
+            ViewBag.venders = new SelectList(venders, "Name", "Name");
+            var products = _context.VProducts.Where(c => c.SaccoCode == sacco).OrderBy(m => m.Name).ToList();
+            ViewBag.products = products;
+            ViewBag.productNames = new SelectList(products, "Name", "Name");
+        }
 
-        //public IActionResult OnPost()
-        //{
-        //    try
-        //    {
-        //        Venders = _dbContext.Venders.Where(v =>
-        //       (string.IsNullOrEmpty(Vender.Name) || v.Name.ToUpper().Equals(Vender.Name.ToUpper()))
-        //       && (string.IsNullOrEmpty(Vender.Country) || v.Country.ToUpper().Equals(Vender.Country.ToUpper()))
-        //       && (string.IsNullOrEmpty(Vender.Industry) || v.Industry.ToUpper().Equals(Vender.Industry.ToUpper()))
-        //       && (string.IsNullOrEmpty(Vender.Bank) || v.Bank.ToUpper().Equals(Vender.Bank.ToUpper()))
-        //        ).ToList();
-        //        return Page();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Success = false;
-        //        Message = "Sorry, An error occurred";
-        //        return Page();
-        //    }
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateBill(Bill bill)
+        {
+            utilities.SetUpPrivileges(this);
+            bill.Ref = bill?.Ref ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            bill.SaccoCode = sacco;
+            var product = _context.VProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(bill.Ref.ToUpper()) && p.SaccoCode == sacco);
+            var vender = _context.Venders.FirstOrDefault(v => v.Name.ToUpper().Equals(bill.Vender.ToUpper()) && v.SaccoCode == sacco);
+            var tax = _context.Taxes.FirstOrDefault(t => t.Name.ToUpper().Equals(product.VenderTax.ToUpper())
+                    && t.SaccoCode == sacco && t.Type == "Purchases");
+            _context.Gltransactions.Add(new Gltransaction
+            {
+                AuditId = loggedInUser,
+                TransDate = DateTime.Today,
+                Amount = (decimal)bill.NetAmount,
+                AuditTime = DateTime.Now,
+                Source = "",
+                TransDescript = "Bills",
+                Transactionno = $"{loggedInUser}{DateTime.Now}",
+                SaccoCode = sacco,
+                DrAccNo = product.ARGlAccount,
+                CrAccNo = vender.APGlAccount
+            });
 
-        //public IActionResult OnPostEdit(Guid id)
-        //{
+            _context.Gltransactions.Add(new Gltransaction
+            {
+                AuditId = loggedInUser,
+                TransDate = DateTime.Today,
+                Amount = (decimal)bill.Tax,
+                AuditTime = DateTime.Now,
+                Source = "",
+                TransDescript = "Tax",
+                Transactionno = $"{loggedInUser}{DateTime.Now}",
+                SaccoCode = sacco,
+                DrAccNo = product.ARGlAccount,
+                CrAccNo = tax.GlAccount
+            });
+            _context.Bills.Add(bill);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(GetBills));
+        }
 
-        //    return RedirectToPage("./EditVendor", new { id = id });
-        //}
+        public async Task<IActionResult> GetRefunds()
+        {
+            utilities.SetUpPrivileges(this);
+            return View(await _context.Refunds.ToListAsync());
+        }
 
-        //public IActionResult OnPostDelete(Guid id)
-        //{
-        //    try
-        //    {
-        //        var vender = _dbContext.Venders.FirstOrDefault(v => v.Id == id);
-        //        if (vender == null)
-        //        {
-        //            Success = false;
-        //            Message = "Sorry, Vendor not found";
-        //            return Page();
-        //        }
+        public IActionResult CreateRefund()
+        {
+            utilities.SetUpPrivileges(this);
+            SetInitialValues();
+            return View();
+        }
 
-        //        vender.Name = vender?.Name ?? "";
-        //        if (_dbContext.Bills.Any(b => b.Vender.ToUpper().Equals(vender.Name.ToUpper())))
-        //        {
-        //            Success = false;
-        //            Message = "Sorry, Vendor already billed. Can't be deleted";
-        //            return Page();
-        //        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateRefund(Refund refund)
+        {
+            utilities.SetUpPrivileges(this);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            refund.SaccoCode = sacco;
 
-        //        _dbContext.Venders.Remove(vender);
-        //        _dbContext.SaveChanges();
-        //        Success = true;
-        //        Message = "Vendor deleted successfully";
-        //        return Page();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Success = false;
-        //        Message = "Sorry, An error occurred";
-        //        return Page();
-        //    }
-        //}
+            var product = _context.VProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(refund.Ref.ToUpper()) && p.SaccoCode == sacco);
+            var vender = _context.Venders.FirstOrDefault(v => v.Name.ToUpper().Equals(refund.Vendor.ToUpper()) && v.SaccoCode == sacco);
+            var tax = _context.Taxes.FirstOrDefault(t => t.Name.ToUpper().Equals(product.VenderTax.ToUpper())
+                    && t.SaccoCode == sacco && t.Type == "Purchases");
+            _context.Gltransactions.Add(new Gltransaction
+            {
+                AuditId = loggedInUser,
+                TransDate = DateTime.Today,
+                Amount = (decimal)refund.NetAmount,
+                AuditTime = DateTime.Now,
+                Source = "",
+                TransDescript = "Refunds",
+                Transactionno = $"{loggedInUser}{DateTime.Now}",
+                SaccoCode = sacco,
+                DrAccNo = vender.APGlAccount,
+                CrAccNo = product.ARGlAccount
+            });
 
+            _context.Gltransactions.Add(new Gltransaction
+            {
+                AuditId = loggedInUser,
+                TransDate = DateTime.Today,
+                Amount = (decimal)refund.Tax,
+                AuditTime = DateTime.Now,
+                Source = "",
+                TransDescript = "Tax",
+                Transactionno = $"{loggedInUser}{DateTime.Now}",
+                SaccoCode = sacco,
+                DrAccNo = tax.GlAccount,
+                CrAccNo = product.ARGlAccount
+            });
+
+            _context.Refunds.Add(refund);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(GetRefunds));
+        }
+
+        [HttpGet]
+        public JsonResult GetTaxRate(string product)
+        {
+            try
+            {
+                decimal? taxRate = 0;
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var product1 = _context.VProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(product.ToUpper()) && p.SaccoCode == sacco);
+                if(product1 != null)
+                {
+                    var tax = _context.Taxes.FirstOrDefault(t => t.Name.ToUpper().Equals(product1.VenderTax.ToUpper())
+                    && t.SaccoCode == sacco && t.Type == "Purchases");
+                    if(tax != null)
+                        taxRate = tax.Rate;
+                }
+                
+                return Json(taxRate);
+            }
+            catch (Exception e)
+            {
+                return Json("");
+            }
+        }
     }
 }

@@ -1,0 +1,108 @@
+﻿@model EasyPro.Models.Drawnstock
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Drawnstock</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Date)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Date)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Quantity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Quantity)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Totalamount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Totalamount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Productid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Productid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Productname)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Productname)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Username)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Username)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Priceeach)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Priceeach)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Month)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Month)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Year)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Year)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Branch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Branch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Updated)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Updated)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Buying)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Buying)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Ai)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Ai)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Commission)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Commission)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

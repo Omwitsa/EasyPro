@@ -8,7 +8,7 @@ namespace EasyPro.Models
     public partial class Gltransaction
     {
         public long Id { get; set; }
-        public long? LocalId { get; set; }
+        public long? Local_Id { get; set; }
         public DateTime TransDate { get; set; }
         public decimal Amount { get; set; }
         public string DrAccNo { get; set; }
@@ -19,7 +19,7 @@ namespace EasyPro.Models
         public DateTime AuditTime { get; set; }
         public string AuditId { get; set; }
         public int? Cash { get; set; }
-        public int? DocPosted { get; set; }
+        public int? Doc_Posted { get; set; }
         public string ChequeNo { get; set; }
         public bool? Dregard { get; set; }
         public string TimeTrans { get; set; }

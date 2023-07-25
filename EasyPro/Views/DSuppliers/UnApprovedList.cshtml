@@ -1,94 +1,173 @@
 ﻿@model IEnumerable<EasyPro.Models.DSupplier>
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
 
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #00ff21;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1050px;
+        height: 200px;
+        overflow: auto;
+    }
+</style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                    <h3 class="text-danger fa-bold">UnApproved Suppliers</h3>
+                <div class="col-sm-2 col-xs-12">
                 </div>
-                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
-
+                <div class="col-sm-6 col-xs-12">
+                    <h3 class="text-danger fa-bold">Unapproved Suppliers</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <div class="form-group">
+                        <select id="condition" class="form-control">
+                            <option></option>
+                            <option>SNo</option>
+                            <option>Name</option>
+                            <option>IdNo</option>
+                            <option>Phone</option>
+                            <option>AccNo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                    <div class="form-group">
+                        <input id="filter" autocomplete="off" placeholder="Search" class="form-control" />
+                    </div>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <a asp-action="Index" class="btn btn-primary">Back to List</a>
                 </div>
             </div>
             <div class="bsc-tbl-hvr table-border-style">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Sno)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Regdate)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Names)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.IdNo)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.AccNo)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Location)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Branch)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.PhoneNo)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Active)
-                                </th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="geeks">
-                            @foreach (var item in Model)
-                            {
+                <div class="divScroll">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="customers">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Sno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Regdate)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Names)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.IdNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.AccNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Location)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Branch)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.PhoneNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Active)
-                                    </td>
-                                    <td class="col-4">
-                                        <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                        @*<a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
-                                    </td>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Sno)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Regdate)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Names)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.IdNo)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.AccNo)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Location)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Branch)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.PhoneNo)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Active)
+                                    </th>
+                                    <th></th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="intakes">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            getSelectedDateIntakes();
+            $('#condition').click(function () {
+                getSelectedDateIntakes();
+            });
+            $('#filter').on('keyup', function () {
+                getSelectedDateIntakes();
+            });
+            function getSelectedDateIntakes() {
+                var filter = $("#filter").val();
+                var condition = $("#condition").val();
+                $.ajax({
+                    type: 'POST',
+                    url: "getsuppliers?filter=" + filter + "&condition=" + condition,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        populateIntake(response)
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+                //}
+            }
+            function populateIntake(intakes) {
+                var filter = $("#filter").val();
+                var condition = $("#condition").val();
+                let itemTableRows = new Array();
+                intakes.forEach(i => {
+                    //debugger;
+                    var ddate = i.Regdate;
+                    var d = "/DSuppliers/Edit/" + i.Id;
+                    var dd1 = new Date(ddate).toLocaleDateString();
+                    var edit = "<a class='btn btn-success text-white' href=" + d + "  >Edit</a >";
+                    itemTableRows.push(`<tr>
+                                <td>${i.Sno}</td>
+                                <td>${dd1}</td>
+                                <td>${i.Names}</td>
+                                <td>${i.IdNo}</td>
+                                <td>${i.AccNo}</td>
+                                <td>${i.Location}</td>
+                                <td>${i.Branch}</td>
+                                <td>${i.PhoneNo}</td>
+                                <td>${i.Active}</td>
+                                <td>${edit}</td>
+                            </tr>`)
+                });
+
+                $('#intakes').html(itemTableRows);
+            }
+        });
+
+    </script>
+            }

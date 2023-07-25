@@ -1,0 +1,113 @@
+﻿@model EasyPro.ViewModels.FarmersVM.FarmersVM
+@{
+    ViewData["Title"] = "CreateStaffDeduction";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create Satff Deduction</h2>
+            </div>
+            <hr />
+            <Form asp-action="CreateStaffDeduction">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Deduction Date</label>
+                                    <input required type="date" asp-for="EmployeesDed.Date" class="form-control" />
+                                    <span asp-validation-for="EmployeesDed.Date" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Staff Name</label>
+                                    <select required  id="name" asp-for="EmployeesDed.Empno" class="form-control" asp-items="@ViewBag.staffs"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="EmployeesDed.Deduction" class="control-label"></label>
+                                    <select id="Deduction" required asp-for="EmployeesDed.Deduction" class="form-control" asp-items="@ViewBag.Description"></select>
+                                    <span asp-validation-for="EmployeesDed.Deduction" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="EmployeesDed.Amount" class="control-label"></label>
+                                    <input id="amount" autocomplete="off" required asp-for="EmployeesDed.Amount" class="form-control" />
+                                    <span asp-validation-for="EmployeesDed.Amount" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="nk-int-st">
+                            <div class="form-group">
+                                <label asp-for="EmployeesDed.Remarks" class="control-label"></label>
+                                <textarea asp-for="EmployeesDed.Remarks" autocomplete="off" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="StaffDeductionList" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </Form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            $("#name").val("");
+            $("#Deduction").val("");
+            $("#amount").val("0");
+                        
+         });
+    </script>
+}
+
+

@@ -7,6 +7,7 @@ namespace EasyPro.Models
 {
     public partial class UserAccount
     {
+       
         public long Userid { get; set; }
         [Display(Name = "Names")]
         public string UserName { get; set; }
@@ -31,5 +32,13 @@ namespace EasyPro.Models
         public string Branch { get; set; }
         public string Sign { get; set; }
         public int? Phone { get; set; }
+        [Display(Name = "Access Level")]
+        public AccessLevel? AccessLevel { get; set; }
+    }
+
+    public enum AccessLevel
+    {
+        Branch = 1,
+        Society = 2
     }
 }

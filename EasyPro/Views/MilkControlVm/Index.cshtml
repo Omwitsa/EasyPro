@@ -1,0 +1,167 @@
+﻿@model IEnumerable<EasyPro.Models.DMilkQuality>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Sno)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RejDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ApproxKgs)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeKgs)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ContCpcity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ttransporter)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Conttype)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TransMode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Organoleptic)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rez)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Lact)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PlateCount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Alcohol)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TimeIn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TimeOut)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Pcheck)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Dramsk)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RejReasons)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Auditid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.code)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Branch)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Antibiotic)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Auditdatetime)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sno)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RejDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ApproxKgs)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeKgs)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ContCpcity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ttransporter)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Conttype)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransMode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Organoleptic)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rez)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Lact)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PlateCount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Alcohol)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TimeIn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TimeOut)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Pcheck)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Dramsk)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RejReasons)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Auditid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.code)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Branch)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Antibiotic)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Auditdatetime)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using EasyPro.Models.Coffee;
 
 #nullable disable
 
@@ -87,6 +87,7 @@ namespace EasyPro.Models
         public virtual DbSet<DBonu> DBonus { get; set; }
         public virtual DbSet<DBonus2> DBonus2s { get; set; }
         public virtual DbSet<DBranch> DBranch { get; set; }
+        public virtual DbSet<Zone> Zones { get; set; }
         public virtual DbSet<DBankBranch> DBankBranch { get; set; }
         public virtual DbSet<DBranchProduct> DBranchProducts { get; set; }
         public virtual DbSet<DBranchsalesman> DBranchsalesmen { get; set; }
@@ -100,6 +101,7 @@ namespace EasyPro.Models
         public virtual DbSet<DDailySummary> DDailySummaries { get; set; }
         public virtual DbSet<DDailySummaryClerk> DDailySummaryClerks { get; set; }
         public virtual DbSet<DDcode> DDcodes { get; set; }
+        public virtual DbSet<d_DCodesQuantity> d_DCodesQuantity { get; set; }
         public virtual DbSet<DDebtor> DDebtors { get; set; }
         public virtual DbSet<DDebtors2> DDebtors2s { get; set; }
         public virtual DbSet<DDebtorsparchase> DDebtorsparchases { get; set; }
@@ -118,7 +120,9 @@ namespace EasyPro.Models
         public virtual DbSet<DMilkBranch> DMilkBranches { get; set; }
         public virtual DbSet<DMilkControl> DMilkControls { get; set; }
         public virtual DbSet<DMilkControl1> DMilkControl1s { get; set; }
-        public virtual DbSet<DMilkQuality> DMilkQualities { get; set; }
+        public virtual DbSet<milkcontrol2> milkcontrol2 { get; set; }
+        public virtual DbSet<Milktransfer> Milktransfer { get; set; }
+        public virtual DbSet<DMilkQuality> DMilkQuality { get; set; }
         public virtual DbSet<DMilkVehicle> DMilkVehicles { get; set; }
         public virtual DbSet<DMilkintake> DMilkintakes { get; set; }
         public virtual DbSet<DMilkintake1> DMilkintake1s { get; set; }
@@ -139,9 +143,9 @@ namespace EasyPro.Models
         public virtual DbSet<DPayroll> DPayrolls { get; set; }
         public virtual DbSet<DPayrollCopy> DPayrollCopies { get; set; }
         public virtual DbSet<DPeriod> DPeriods { get; set; }
-        public virtual DbSet<DPreSet> DPreSets { get; set; }
+        public virtual DbSet<DPreSet> d_PreSets { get; set; }
         public virtual DbSet<DPrice> DPrices { get; set; }
-        public virtual DbSet<DPrice2> DPrice2s { get; set; }
+        public virtual DbSet<DPrice2> d_Price2 { get; set; }
         public virtual DbSet<DPriceBranch> DPriceBranches { get; set; }
         public virtual DbSet<DProductProcess> DProductProcesses { get; set; }
         public virtual DbSet<DQuality> DQualities { get; set; }
@@ -150,6 +154,11 @@ namespace EasyPro.Models
         public virtual DbSet<DRequisition> DRequisitions { get; set; }
         public virtual DbSet<DSconribution> DSconributions { get; set; }
         public virtual DbSet<DShare> DShares { get; set; }
+        public virtual DbSet<ParchmentClasses> ParchmentClasses { get; set; }
+        public virtual DbSet<Parchment> Parchment { get; set; }
+        public virtual DbSet<ParchmentGrading> ParchmentGrading { get; set; }
+        public virtual DbSet<ParchmentPricing> ParchmentPricings { get; set; }
+        public virtual DbSet<ParchmentFactoryPricing> ParchmentFactoryPricing { get; set; }
         public virtual DbSet<DSmscompany> DSmscompanies { get; set; }
         public virtual DbSet<DSmssetting> DSmssettings { get; set; }
         public virtual DbSet<DSupplier> DSuppliers { get; set; }
@@ -163,6 +172,7 @@ namespace EasyPro.Models
         public virtual DbSet<DTransFrate> DTransFrates { get; set; }
         public virtual DbSet<DTransMode> DTransModes { get; set; }
         public virtual DbSet<DTransport> DTransports { get; set; }
+        public virtual DbSet<DTransporterIntake> d_TransporterIntake { get; set; }
         public virtual DbSet<DTransportDeduc> DTransportDeducs { get; set; }
         public virtual DbSet<DTransportStandingorder> DTransportStandingorders { get; set; }
         public virtual DbSet<DTransporter> DTransporters { get; set; }
@@ -242,6 +252,7 @@ namespace EasyPro.Models
         public virtual DbSet<Tran> Trans { get; set; }
         public virtual DbSet<TransCode> TransCodes { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
+        public virtual DbSet<Route> Routes { get; set; }
         public virtual DbSet<Transport> Transports { get; set; }
         public virtual DbSet<Transporter> Transporters { get; set; }
         public virtual DbSet<Transporter1> Transporters1 { get; set; }
@@ -264,14 +275,42 @@ namespace EasyPro.Models
         public virtual DbSet<FLMDCrops> FLMDCrops { get; set; }
         public virtual DbSet<FLMDLand> FLMDLand { get; set; }
         public virtual DbSet<ExcelDump> ExcelDump { get; set; }
+        public virtual DbSet<ExcelDeductionDump> ExcelDeductionDump { get; set; }
+        public virtual DbSet<ExcelDumpSupReg> ExcelDumpSupReg { get; set; }
         public virtual DbSet<DispatchBalancing> DispatchBalancing { get; set; }
+        public virtual DbSet<Bill> Bills { get; set; }
+        public virtual DbSet<BillDetail> BillDetails { get; set; }
+        public virtual DbSet<BillJournal> BillJournals { get; set; }
+        public virtual DbSet<CInvoice> CInvoices { get; set; }
+        public virtual DbSet<CInvoiceDetail> CInvoiceDetails { get; set; }
+        public virtual DbSet<CInvoiceJournal> CInvoiceJournal { get; set; }
+        public virtual DbSet<CreditNote> CreditNotes { get; set; }
+        public virtual DbSet<CreditNoteDetail> CreditNoteDetails { get; set; }
+        public virtual DbSet<CreditNoteJournal> CreditNoteJournals { get; set; }
+        public virtual DbSet<Refund> Refunds { get; set; }
+        public virtual DbSet<RefundDetail> RefundDetails { get; set; }
+        public virtual DbSet<RefundJournal> RefundJournals { get; set; }
+        public virtual DbSet<Vender> Venders { get; set; }
+        public virtual DbSet<Customer> Customers { get; set; }
+		public virtual DbSet<Tax> Taxes { get; set; }
+		public virtual DbSet<VProduct> VProducts { get; set; }
+		public virtual DbSet<CProduct> CProducts { get; set; }
+		public virtual DbSet<StandingOrder> StandingOrder { get; set; }
+		public virtual DbSet<Employee> Employees { get; set; }
+		public virtual DbSet<Deduction> Deductions { get; set; }
+		public virtual DbSet<Departments> Departments { get; set; }
+		public virtual DbSet<PaySlip> PaySlip { get; set; }
+		public virtual DbSet<EmployeesDed> EmployeesDed { get; set; }
+		public virtual DbSet<SharesCategory> SharesCategories { get; set; }
+		public virtual DbSet<EntitlementType> EntitlementType { get; set; }
+		public virtual DbSet<EmpBenefit> EmpBenefits { get; set; }
+		public virtual DbSet<ProductCat> d_ProductCat { get; set; }
         public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("Server=DESKTOP-5GQU4IS;Database=MORINGA;Trusted_Connection=True;");
             }
         }
@@ -1416,10 +1455,10 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<AgSupplier1>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.id);
 
                 entity.ToTable("ag_Supplier1");
-
+                entity.Property(e => e.SupplierId).HasMaxLength(50);
                 entity.Property(e => e.Address).HasMaxLength(50);
 
                 entity.Property(e => e.CompanyName)
@@ -1435,10 +1474,11 @@ namespace EasyPro.Models
                 entity.Property(e => e.Fax).HasMaxLength(50);
 
                 entity.Property(e => e.Phone).HasMaxLength(50);
+                entity.Property(e => e.saccocode).HasMaxLength(50);
 
-                entity.Property(e => e.SupplierId)
+                entity.Property(e => e.id)
                     .HasMaxLength(50)
-                    .HasColumnName("SupplierID");
+                    .HasColumnName("id");
             });
 
             modelBuilder.Entity<Ap>(entity =>
@@ -4814,11 +4854,19 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DMilkQuality>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_MilkQuality");
 
                 entity.Property(e => e.Alcohol)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.code)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Branch)
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
@@ -5773,69 +5821,6 @@ namespace EasyPro.Models
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
             });
 
-            modelBuilder.Entity<DPreSet>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToTable("d_PreSets");
-
-                entity.Property(e => e.AuditId)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Auditdatetime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.BranchCode)
-                    .HasMaxLength(50)
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Deduction)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
-
-                entity.Property(e => e.Rate).HasColumnType("money");
-
-                entity.Property(e => e.Rated).HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.Remark)
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Sno).HasColumnName("SNo");
-
-                entity.Property(e => e.StartDate)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Status)
-                    .HasColumnName("status")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status2)
-                    .HasColumnName("status2")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status3)
-                    .HasColumnName("status3")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status4)
-                    .HasColumnName("status4")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status5)
-                    .HasColumnName("status5")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Status6)
-                    .HasColumnName("status6")
-                    .HasDefaultValueSql("((0))");
-            });
-
             modelBuilder.Entity<DPrice>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -5863,30 +5848,7 @@ namespace EasyPro.Models
                     .HasColumnName("CrAccNo");
             });
 
-            modelBuilder.Entity<DPrice2>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToTable("d_Price2");
-
-                entity.Property(e => e.Active).HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.Branch).HasMaxLength(50);
-
-                entity.Property(e => e.Date).HasColumnType("datetime");
-
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
-
-                entity.Property(e => e.Name).HasMaxLength(85);
-
-                entity.Property(e => e.Price).HasColumnType("money");
-
-                entity.Property(e => e.Sno)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.UserId).HasMaxLength(50);
-            });
+            
 
             modelBuilder.Entity<DPriceBranch>(entity =>
             {
@@ -6209,7 +6171,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<DShare>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("d_Shares");
 
@@ -6270,7 +6232,7 @@ namespace EasyPro.Models
                 entity.Property(e => e.Regdate).HasColumnType("datetime");
 
                 entity.Property(e => e.Sex)
-                    .HasMaxLength(1)
+                    .HasMaxLength(10)
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
@@ -6290,6 +6252,9 @@ namespace EasyPro.Models
 
                 entity.Property(e => e.Type)
                     .HasMaxLength(20)
+                    .IsUnicode(false);
+                entity.Property(e => e.SaccoCode)
+                    .HasMaxLength(100)
                     .IsUnicode(false);
             });
 
@@ -6337,7 +6302,6 @@ namespace EasyPro.Models
                 entity.ToTable("d_Suppliers");
 
                 entity.Property(e => e.Sno)
-                    .ValueGeneratedNever()
                     .HasColumnName("SNo");
 
                 entity.Property(e => e.Aarno)
@@ -7194,7 +7158,7 @@ namespace EasyPro.Models
 
                 entity.Property(e => e.Agrovet).HasColumnType("money");
 
-                entity.Property(e => e.Ai)
+                entity.Property(e => e.AI)
                     .HasColumnType("money")
                     .HasColumnName("AI");
 
@@ -7523,41 +7487,9 @@ namespace EasyPro.Models
                     .IsUnicode(false);
             });
 
-            modelBuilder.Entity<Drange>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToTable("DRanges");
-
-                entity.Property(e => e.Auditid)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnName("auditid")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.Audittime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Dcode)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("DCode")
-                    .IsFixedLength(true);
-
-                entity.Property(e => e.From).HasColumnType("money");
-
-                entity.Property(e => e.Rate)
-                    .HasColumnType("money")
-                    .HasColumnName("rate");
-
-                entity.Property(e => e.To).HasColumnType("money");
-            });
-
             modelBuilder.Entity<Drawnstock>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("DRAWNSTOCK");
 
@@ -7810,90 +7742,6 @@ namespace EasyPro.Models
                 entity.Property(e => e.Type)
                     .HasMaxLength(50)
                     .HasColumnName("type");
-            });
-
-            modelBuilder.Entity<Gltransaction>(entity =>
-            {
-                entity.HasKey(e => new { e.Id });
-
-                entity.ToTable("GLTRANSACTIONS");
-
-                entity.Property(e => e.Amount).HasColumnType("money");
-
-                entity.Property(e => e.AuditId)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .HasColumnName("AuditID");
-
-                entity.Property(e => e.AuditTime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.ChequeNo)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CrAccNo)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.DocPosted).HasColumnName("doc_posted");
-
-                entity.Property(e => e.DocumentNo).HasMaxLength(200);
-
-                entity.Property(e => e.DrAccNo)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.Dregard)
-                    .HasColumnName("dregard")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("ID");
-
-                entity.Property(e => e.LocalId).HasColumnName("LOCAL_ID");
-
-                entity.Property(e => e.Module)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("module");
-
-                entity.Property(e => e.Pmode)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("pmode");
-
-                entity.Property(e => e.Recon).HasColumnName("RECON");
-
-                entity.Property(e => e.ReconId).HasColumnName("ReconID");
-
-                entity.Property(e => e.Refid)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("refid");
-
-                entity.Property(e => e.Run).HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Source)
-                    .IsRequired()
-                    .HasMaxLength(200);
-
-                entity.Property(e => e.TimeTrans)
-                    .HasMaxLength(10)
-                    .IsFixedLength(true);
-
-                entity.Property(e => e.TransDate).HasColumnType("datetime");
-
-                entity.Property(e => e.TransDescript)
-                    .IsRequired()
-                    .HasMaxLength(200);
-
-                entity.Property(e => e.Transactionno)
-                    .IsRequired()
-                    .HasMaxLength(30)
-                    .HasDefaultValueSql("('')");
             });
 
             modelBuilder.Entity<Gltransactions2>(entity =>
@@ -10757,5 +10605,15 @@ namespace EasyPro.Models
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+        public DbSet<EasyPro.Models.Coffee.Pulping_Drying> Pulping_Drying { get; set; }
+
+        public DbSet<EasyPro.Models.Coffee.Marketer> Marketer { get; set; }
+
+        public DbSet<EasyPro.Models.Coffee.Milling> Milling { get; set; }
+        public DbSet<EasyPro.Models.Coffee.Millers> Millers { get; set; }
+        public DbSet<EasyPro.Models.Coffee.MarketerReg> MarketerReg { get; set; }
+
+        public DbSet<EasyPro.Models.Coffee.Milling_Products> Milling_Products { get; set; }
     }
 }

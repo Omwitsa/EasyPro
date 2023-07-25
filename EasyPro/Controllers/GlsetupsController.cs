@@ -95,35 +95,40 @@ namespace EasyPro.Controllers
                 try
                 {
                     var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                    var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                     if (string.IsNullOrEmpty(glsetup.AccNo))
                     {
                         _notyf.Error("Sorry, Kindly provide account No.");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
                     if (string.IsNullOrEmpty(glsetup.GlAccName))
                     {
                         _notyf.Error("Sorry, Kindly provide account Name");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
                     if (string.IsNullOrEmpty(glsetup.NormalBal))
                     {
                         _notyf.Error("Sorry, Kindly provide normal balance");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
-                    if (_context.Glsetups.Any(u => u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper())))
+                    if (_context.Glsetups.Any(u => u.saccocode == sacco && u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper())))
                     {
                         _notyf.Error("Sorry, Account No. already exist");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
-                    if (_context.Glsetups.Any(u => u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper())))
+                    if (_context.Glsetups.Any(u =>u.saccocode==sacco && u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper())))
                     {
                         _notyf.Error("Sorry, Account Name already exist");
-                        return View(glsetup);
+                        return RedirectToAction(nameof(Create));
                     }
 
+                    glsetup.AuditId = loggedInUser;
                     glsetup.CurrCode = glsetup?.CurrCode ?? 0;
                     glsetup.IsSubLedger = glsetup?.IsSubLedger ?? false;
                     glsetup.saccocode = sacco;
+                    glsetup.OpeningBal = glsetup?.OpeningBal ?? 0;
+                    glsetup.NormalBal = glsetup?.NormalBal ?? "";
+
                     _context.Add(glsetup);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -134,7 +139,7 @@ namespace EasyPro.Controllers
                 }
             }
             _notyf.Error("Sorry, An error occurred");
-            return View(glsetup);
+            return RedirectToAction(nameof(Create));
         }
 
         // GET: Glsetups/Edit/5
@@ -162,6 +167,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long Glid, [Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run,saccocode")] Glsetup glsetup)
         {
             utilities.SetUpPrivileges(this);
+            SetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (Glid != glsetup.Glid)
@@ -188,22 +194,22 @@ namespace EasyPro.Controllers
                         _notyf.Error("Sorry, Kindly provide normal balance");
                         return View(glsetup);
                     }
-                    if (_context.Glsetups.Any(u => u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper()) && u.Glid != glsetup.Glid))
+                    if (_context.Glsetups.Any(u => u.saccocode == sacco && u.AccNo.ToUpper().Equals(glsetup.AccNo.ToUpper()) && u.Glid != glsetup.Glid))
                     {
                         _notyf.Error("Sorry, Account No. already exist");
                         return View(glsetup);
                     }
-                    if (_context.Glsetups.Any(u => u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper()) && u.Glid != glsetup.Glid))
+                    if (_context.Glsetups.Any(u =>u.saccocode==sacco && u.GlAccName.ToUpper().Equals(glsetup.GlAccName.ToUpper()) && u.Glid != glsetup.Glid))
                     {
                         _notyf.Error("Sorry, Account Name already exist");
                         return View(glsetup);
                     }
-                        glsetup.TransDate = DateTime.Now;
-                        glsetup.NewGlopeningBalDate = DateTime.Now;
-                        glsetup.AuditDate = DateTime.Now;
-                        glsetup.Branch = "Null";
-                        glsetup.saccocode = sacco;
-                        glsetup.AuditId = LoggedInUser;
+                    glsetup.TransDate = DateTime.Now;
+                    glsetup.NewGlopeningBalDate = DateTime.Now;
+                    glsetup.AuditDate = DateTime.Now;
+                    glsetup.Branch = "Null";
+                    glsetup.saccocode = sacco;
+                    glsetup.AuditId = LoggedInUser;
                     _context.Update(glsetup);
                     await _context.SaveChangesAsync();
                 }

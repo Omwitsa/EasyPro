@@ -1,0 +1,162 @@
+﻿@model EasyPro.Models.Employee
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Employee</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.EmpNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EmpNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MemberNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MemberNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SaccoCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SaccoCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Surname)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Surname)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Othernames)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Othernames)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IDNO)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IDNO)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Category)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Category)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Department)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Department)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EmpStatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EmpStatus)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.nationality)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.nationality)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.gender)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.gender)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DOB)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DOB)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.maritalstatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.maritalstatus)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RELIGION)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RELIGION)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EMAIL)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EMAIL)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MOBILE)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MOBILE)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.NSSFCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NSSFCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.NHIFCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NHIFCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PinNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PinNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.eposition)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.eposition)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BankAccNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BankAccNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Bank)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bank)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AUDITTIME)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AUDITTIME)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EmpDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EmpDate)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

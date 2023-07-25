@@ -21,6 +21,9 @@ namespace EasyPro.Utils
                                 <div class='header'><h3>Intake</h3></div><hr/>
                                 ");
 
+            var note = "";
+            if (intake.ProductType.ToLower().Equals("milk"))
+                note = "NB: Kindly observe withdrawal period after cow treatment";
             sb.AppendFormat(@"<table>
                                 <tr>
                                    <td>Sacco Code:</td>
@@ -61,13 +64,17 @@ namespace EasyPro.Utils
                                    <td>Served By:</td>
                                    <td>{8}</td>
                                 </tr>
+                                <tr>
                                    <td>Powered By:</td>
                                    <td>Amtech Technologies LTD</td>
+                                </tr>
+                                <tr>
+                                   <td colspan='2'><strong>{9}</strong></td>
                                 </tr>
                               </table>",
                               intake.SaccoCode, intake.Sno, intake.SupName,
                               intake.ProductType, intake.Qsupplied, intake.Cumlative,
-                              intake.PhoneNo, intake.TransDate, intake.AuditId);
+                              intake.PhoneNo, intake.TransDate, intake.AuditId, note);
             sb.Append(@"
                             </body>
                         </html>");
@@ -120,8 +127,7 @@ namespace EasyPro.Utils
             {
                 var supplier = suppliers.FirstOrDefault(s => s.Sno.ToString() == intake.Sno);
                 var supplierName = supplier?.Names ?? "";
-                long.TryParse(intake.Sno, out long sno);
-                var checkifexist = suppliers.Where(u => u.Sno == sno);
+                var checkifexist = suppliers.Where(u => u.Sno == intake.Sno);
                 if (checkifexist.Any())
                 {
                     sb.AppendFormat(@"
@@ -239,6 +245,75 @@ namespace EasyPro.Utils
             return sb.ToString();
         }
 
+        public static string GenerateAgSalesReceiptHtml(List<AgReceipt> receipts, DSupplier supplier)
+        {
+            var receipt = receipts.FirstOrDefault();
+            var sb = new StringBuilder();
+            sb.Append(@"
+                        <html>
+                            <head>
+                            </head>
+                            <body>
+                                <div class='header'><h3>Sales</h3></div><hr/>
+                                ");
+            if(supplier != null)
+            {
+                sb.AppendFormat(@"<table>
+                                <tr>
+                                   <td>Sacco Code:</td>
+                                   <td>{0}</td>
+                                </tr>
+                                <tr>
+                                   <td>Supplier No.:</td>
+                                   <td>{1}</td>
+                                </tr>
+                                <tr>
+                                   <td>Supplier Name:</td>
+                                   <td>{2}</td>
+                                </tr>
+                                <tr>
+                                   <td col-span='2'>.....................................................................</td>
+                                </tr>
+                                <tr>
+                                   <td>Phone No.:</td>
+                                   <td>{3}</td>
+                                </tr>
+                                <tr>
+                                   <td>Trans Date:</td>
+                                   <td>{4}</td>
+                                </tr>
+                              ",
+                             supplier.Scode, supplier.Sno, supplier.Names,
+                             supplier.PhoneNo, receipt.TDate);
+            }
+
+            foreach (var agReceipt in receipts)
+            {
+                sb.AppendFormat(@"
+                    <tr>
+                        <td>{0}</td>
+                        <td>{1}</td>
+                    </tr>
+                    ",
+                agReceipt.Remarks, agReceipt.Amount);
+            }
+            sb.AppendFormat(@"
+                    <tr>
+                        <td>Served By:</td>
+                        <td>{0}</td>
+                    </tr>
+                        <td>Powered By:</td>
+                        <td>Amtech Technologies LTD</td>
+                    </tr>
+                    ",
+                 receipt.UserId);
+            sb.Append(@"
+                                </table>
+                            </body>
+                        </html>");
+            return sb.ToString();
+        }
+
         public static string GenerateTIntakesHtml(IEnumerable<DTransporter> transporterobj, DCompany company, string title, IQueryable<ProductIntake> intakes)
         {
             var sb = new StringBuilder();
@@ -273,6 +348,7 @@ namespace EasyPro.Utils
                                                 <th>Name</th>
                                                 <th>Date</th>
                                                 <th>Product Type</th>
+                                                <th>SNO</th>
                                                 <th>Qsupplied</th>
                                                 <th>Price</th>
                                                 <th>Description</th>
@@ -288,6 +364,7 @@ namespace EasyPro.Utils
                     var transpoterIntakes = intakes.Where(i => i.Sno == transporter.TransCode);
                     foreach(var intake in transpoterIntakes)
                     {
+                        var intake1 = intakes.FirstOrDefault(i => i.TransDate == intake.TransDate && i.TransTime == intake.TransTime && i.Sno != intake.Sno);
                         sb.AppendFormat(@"
                             <tr>
                                 <td>{0}</td>
@@ -297,10 +374,11 @@ namespace EasyPro.Utils
                                 <td>{4}</td>
                                 <td>{5}</td>
                                 <td>{6}</td>
+                                <td>{7}</td>
                             </tr>
                             ",
                               transporter.TransCode, transporter.TransName, intake.TransDate, intake.ProductType,
-                              intake.Qsupplied, intake.Ppu, intake.Description);
+                              intake1.Sno, intake.Qsupplied, intake.Ppu, intake.Description);
                     }
                 }
             }
@@ -528,8 +606,7 @@ namespace EasyPro.Utils
                 {
                     var supplier = suppliers.FirstOrDefault(s => s.Sno.ToString() == intake.Sno);
                     var supplierName = supplier?.Names ?? "";
-                    long.TryParse(intake.Sno, out long sno);
-                    var checkifexist = suppliers.Where(u => u.Sno == sno);
+                    var checkifexist = suppliers.Where(u => u.Sno == intake.Sno);
                     if (checkifexist.Any())
                     {
                         sb.AppendFormat(@"
@@ -603,8 +680,7 @@ namespace EasyPro.Utils
             {
                 var supplier = suppliers.FirstOrDefault(s => s.Sno.ToString() == intake.Sno);
                 var supplierName = supplier?.Names ?? "";
-                long.TryParse(intake.Sno, out long sno);
-                var checkifexist = suppliers.Where(u => u.Sno == sno);
+                var checkifexist = suppliers.Where(u => u.Sno == intake.Sno);
                 if (checkifexist.Any())
                 {
                     sb.AppendFormat(@"
@@ -671,8 +747,8 @@ namespace EasyPro.Utils
                                                 <th>Gender</th>
                                                 <th>Village</th>
                                                 <th>Location</th>
-                                                <th>Division</th>
-                                                <th>District</th>
+                                                <th>Ward</th>
+                                                <th>Sub-County</th>
                                                 <th>County</th>
                                             </tr>
                                         </thead>

@@ -28,7 +28,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Registration Date</label>
-                                    <input asp-for="Regdate"  type="date" autocomplete="off" asp-for="Regdate" class="form-control" required />
+                                    <input asp-for="Regdate" type="date" autocomplete="off" class="form-control" required />
                                     <span asp-validation-for="Regdate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -72,7 +72,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Date Of Birth</label>
-                                    <input asp-for="Dob" type="date" asp-for="Dob" class="form-control" required />
+                                    <input asp-for="Dob" type="date" asp-for="Dob" class="form-control" />
                                     <span asp-validation-for="Dob" class="text-danger"></span>
                                 </div>
                             </div>
@@ -124,8 +124,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Division" class="control-label">Ward</label>
-                                    <select asp-for="Division" id="ward" class="form-control" asp-items="@ViewBag.wards" required disabled>
-                                        <option value="" disabled selected hidden>Please Choose...</option>
+                                    <select asp-for="Division" id="ward" class="form-control" asp-items="@ViewBag.wards" disabled>
                                     </select>
                                     <span asp-validation-for="Division" class="text-danger"></span>
                                 </div>
@@ -137,8 +136,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Location" class="control-label"></label>
-                                    <select asp-for="Location" id="location" class="form-control" asp-items="@ViewBag.locs" required>
-                                        <option value="" disabled selected hidden>Please Choose...</option>
+                                    <select asp-for="Location" id="location" class="form-control" asp-items="@ViewBag.locations">
                                     </select>
                                     <span asp-validation-for="Location" class="text-danger"></span>
                                 </div>
@@ -162,7 +160,8 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="TransCode" class="control-label">Payment Mode</label>
-                                <select asp-for="TransCode" class="form-control" required asp-items="@ViewBag.payment"></select>
+                                <select asp-for="TransCode" class="form-control" required asp-items="@ViewBag.payment">
+                                </select>
                                 <span asp-validation-for="TransCode" class="text-danger"></span>
                             </div>
                         </div>
@@ -172,7 +171,8 @@
                             <div class="nk-int-st">
                                 <label class="control-label">Gender</label>
                                 <div class="form-group">
-                                    <select asp-for="Type" class="form-control" required asp-items="@ViewBag.gender"></select>
+                                    <select asp-for="Type" class="form-control" required asp-items="@ViewBag.gender">
+                                    </select>
                                     <span asp-validation-for="Type" class="text-danger"></span>
                                 </div>
                             </div>
@@ -194,7 +194,8 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Branch" class="control-label"></label>
-                                    <select asp-for="Branch" class="form-control" asp-items="@ViewBag.brances" required></select>
+                                    <select asp-for="Branch" class="form-control" asp-items="@ViewBag.brances" required>
+                                    </select>
                                     <span asp-validation-for="Branch" class="text-danger"></span>
                                 </div>
                             </div>
@@ -213,6 +214,18 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="zone1">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Route</label>
+                                <select id="zone" asp-for="Zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.routes">
+                                </select>
+                                <span asp-validation-for="Zone" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <b class="text-info">Bank Activities</b>
                 <hr />
                 <div class="row">
@@ -220,7 +233,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="Bcode" class="control-label"></label>
+                                    <label class="control-label">Bank</label>
                                     <select asp-for="Bcode" Value="Select Bank" class="form-control" asp-items="@ViewBag.banksname"></select>
                                     <span asp-validation-for="Bcode" class="text-danger"></span>
                                 </div>
@@ -243,7 +256,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Bbranch" class="control-label">Bank Branch</label>
-                                <select asp-for="Bbranch" class="form-control" asp-items="@ViewBag.bankbrances" required></select>
+                                <select asp-for="Bbranch" class="form-control" asp-items="@ViewBag.bankbrances"></select>
                                 <span asp-validation-for="Bbranch" class="text-danger"></span>
                             </div>
                         </div>
@@ -268,15 +281,20 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
             $(function () {
                 let subcounties = @Html.Raw(Json.Serialize(ViewBag.SubCountyName));
                 let wards = @Html.Raw(Json.Serialize(ViewBag.WardSubCounty));
                 let locations = @Html.Raw(Json.Serialize(ViewBag.locations));
 
-                $.each(locations, function() {
-                    $('#location').append($("<option />").val(this.Lname).text(this.Lname));
-                });
+                var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+                if (checkiftoenable === 0) {
+                    $('#zone1').hide();
+                }
+                else {
+                    $('#zone1').show();
+                }
+
                 $('#county').on('change', function () {
                     $('#sub-county').empty();
                     $('#sub-county').append($('<option>').val('').text(''))
@@ -301,5 +319,5 @@
                     });
                 });
             });
-    </script>
+</script>
 }

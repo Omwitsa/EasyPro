@@ -6,8 +6,18 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Product Sale</h2>
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                    <h2>Product Sale</h2>
+                </div>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="nk-int-st">
+                            <label class="control-label">Zone</label>
+                            <select id="zone" asp-for="AgReceipt.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <hr />
             <form asp-action="Create">
@@ -17,7 +27,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="AgReceipt.RNo" class="control-label"></label>
-                                <input asp-for="AgReceipt.RNo" class="form-control" />
+                                <input id="RNo" asp-for="AgReceipt.RNo" class="form-control" />
                                 <span asp-validation-for="AgReceipt.RNo" class="text-danger"></span>
                             </div>
                         </div>
@@ -26,7 +36,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="AgReceipt.TDate" class="control-label">Date</label>
-                                <input type="date" asp-for="AgReceipt.TDate" class="form-control" />
+                                <input id="TDate" type="date" asp-for="AgReceipt.TDate" class="form-control" />
                                 <span asp-validation-for="AgReceipt.TDate" class="text-danger"></span>
                             </div>
                         </div>
@@ -46,14 +56,13 @@
                             <div class="nk-int-st">
                                 <label class="control-label">Product Name</label>
                                 <select id="pname" asp-for="AgReceipt.PCode" class="form-control" asp-items="@ViewBag.agproductsall">
-                                    <option value="" disabled selected hidden>Please select</option>
                                 </select>
                                 <span asp-validation-for="AgReceipt.PCode" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                        <div class="form-group ic-cmp-int float-lb floating-lb" id="bprice1">
                             <div class="nk-int-st">
                                 <label asp-for="AgReceipt.Bprice" class="control-label">Bprice</label>
                                 <input id="bprice" asp-for="AgReceipt.Bprice" class="form-control" readonly />
@@ -77,7 +86,7 @@
                         <div class="col-sm-4 col-xs-12">
                             <div class="form-group">
                                 <input name="sales" type="radio" id="cash" />
-                                <label class="control-label" for="cash">Cach</label>
+                                <label class="control-label" for="cash">Cash</label>
                             </div>
                             <div class="form-group">
                                 <input name="sales" type="radio" id="checkOff" />
@@ -86,6 +95,10 @@
                             <div class="form-group">
                                 <input name="sales" type="radio" id="transporter" />
                                 <label class="control-label" for="transporter">Transporter</label>
+                            </div>
+                            <div class="form-group">
+                                <input name="sales" type="radio" id="staff" />
+                                <label class="control-label" for="staff">Staff</label>
                             </div>
                         </div>
 
@@ -173,6 +186,19 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row" id="staffDetails">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                                            <div class="nk-int-st">
+                                                <label class="control-label">Staff Name</label>
+                                                <select id="sname" asp-validation-for="AgReceipt.SNo" class="form-control" asp-items="@ViewBag.staffs">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -182,7 +208,7 @@
                             <div class="nk-int-st">
                                 <label asp-for="AgReceipt.Qua" class="control-label"></label>
                                 <input id="qnty" asp-for="AgReceipt.Qua" class="form-control" />
-                                <span asp-validation-for="AgReceipt.Qua" class="text-danger"></span>
+                                <span  id="error"   asp-validation-for="AgReceipt.Qua" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -209,67 +235,40 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="AgReceipt.Branch" class="control-label"></label>
+                                @*<label asp-for="AgReceipt.Branch" class="control-label"></label>
                                 <select id="bname" asp-for="AgReceipt.Branch" class="form-control" asp-items="@ViewBag.branches">
-                                    <option value="" disabled selected hidden>Please select</option>
+                                <option value="" disabled selected hidden>Please select</option>
                                 </select>
-                                <span asp-validation-for="AgReceipt.Branch" class="text-danger"></span>
+                                <span asp-validation-for="AgReceipt.Branch" class="text-danger"></span>*@
                             </div>
                         </div>
                     </div>
                 </div>
                 <hr />
                 <div class="row">
-                    <frameset>
-                        <div class="col-sm-4 col-xs-12">
-                            <div class="form-group ic-cmp-int float-lb floating-lb">
-                                <div class="nk-int-st">
-                                    <label asp-for="AgReceipt.Transby" class="control-label"></label>
-                                    <input asp-for="AgReceipt.Transby" class="form-control" />
-                                    <span asp-validation-for="AgReceipt.Transby" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <div class="form-group ic-cmp-int float-lb floating-lb">
-                                <div class="nk-int-st">
-                                    <label asp-for="AgReceipt.Idno" class="control-label"></label>
-                                    <input asp-for="AgReceipt.Idno" class="form-control" />
-                                    <span asp-validation-for="AgReceipt.Idno" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <div class="form-group ic-cmp-int float-lb floating-lb">
-                                <div class="nk-int-st">
-                                    <label asp-for="AgReceipt.Mobile" class="control-label"></label>
-                                    <input asp-for="AgReceipt.Mobile" class="form-control" />
-                                    <span asp-validation-for="AgReceipt.Mobile" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </frameset>
-                </div>
-
-                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <a id="next1" class="btn btn-success">Next</a>
+                    </div>
                     <div class="col-sm-4 col-xs-12">
                         <a id="next" class="btn btn-success">Next</a>
                     </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <a id="next2" class="btn btn-success">Next</a>
+                    </div>
                 </div>
+
                 <hr />
                 <div class="bsc-tbl-hvr table-border-style">
                     <div class="table-responsive">
@@ -280,6 +279,7 @@
                                 <th>Qnty</th>
                                 <th>Price</th>
                                 <th>Amount</th>
+                                <th>Farmer</th>
                                 <th><a id="clearAll" class="btn btn-danger">CLEAR</a></th>
                             </tr>
                             <tbody id="details">
@@ -287,32 +287,47 @@
                         </table>
                     </div>
                 </div>
-                <hr />
-                <h5 class="text-center text-danger">Make Payement</h5>
+                @*<hr />*@
+                @*<h5 class="text-center text-danger">Make Payement</h5>*@
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Total Amount</label>
-                                <input id="Amnttopay" class="form-control" readonly />
+                                @*<label class="control-label">Total Amount</label>
+                                <input id="Amnttopay" class="form-control" readonly />*@
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Receive Amount</label>
-                                <input id="ttolpaid" class="form-control" />
+                                @*<label class="control-label">Receive Amount</label>
+                                <input id="ttolpaid" class="form-control" readonly />*@
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Balance Amount</label>
-                                <input id="balance" class="form-control" />
+                                @*<label class="control-label">Balance Amount</label>
+                                <input id="balance" class="form-control" readonly />*@
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <input id="print" type="checkbox" />
+                            <label for="print" class="control-label">Print</label>
+                        </div>
+                        <div class="form-group">
+                            <input id="sms" type="checkbox" />
+                            <label for="sms" class="control-label">SMS</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     </div>
                 </div>
                 <hr />
@@ -336,27 +351,86 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-<script type="text/javascript">
-    $(function () {
+    <script type="text/javascript">
+        $(function () {
+            let isStaff = false;
+            let isCash = false;
             let saleItems = new Array();
-            $('#cash').prop('checked', true);
+            $("#pname").val("");
+            $("#sname").val("");
+            $('#cash').prop('unchecked');
             $('#checkOffDetails').hide();
             $('#transpoterDetails').hide();
+            $('#staffDetails').hide();
+            $('#next').hide();
+            $('#next1').hide();
+            $('#next2').hide();
+            $('#bprice1').hide();
+
+            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+            if (checkiftoenable === 0) {
+                $('#zone1').hide();
+            }
+            else {
+                $('#zone1').hide();
+            }
+
             $('input[type="radio"]').click(function () {
                 if ($(this).prop("checked") && $(this).attr('id') == 'cash') {
+                    isStaff = false;
+                    isCash = true;
                     $('#cash_details').show();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
+                    $('#staffDetails').hide();
+                    $("#sno").val("");
+                    $("#tsno").val("");
+                    $("#sname").val("");
+                    $('#next1').hide();
+                    $('#next2').hide();
+                    $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'checkOff') {
+                    isStaff = false;
+                    isCash = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').show();
                     $('#transpoterDetails').hide();
+                    $('#staffDetails').hide();
+                    $("#sno").val("");
+                    $("#tsno").val("");
+                    $("#sname").val("");
+                    $('#next1').hide();
+                    $('#next2').hide();
+                    $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'transporter') {
+                    isStaff = false;
+                    isCash = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
+                    $('#staffDetails').hide();
                     $('#transpoterDetails').show();
+                    $("#sno").val("");
+                    $("#tsno").val("");
+                    $("#sname").val("");
+                    $('#next').hide();
+                    $('#next1').show();
+                    $('#next2').hide();
+                }
+                if ($(this).prop("checked") && $(this).attr('id') == 'staff') {
+                    isStaff = true;
+                    isCash = false;
+                    $('#cash_details').hide();
+                    $('#checkOffDetails').hide();
+                    $('#transpoterDetails').hide();
+                    $('#staffDetails').show();
+                    $("#sno").val("");
+                    $("#tsno").val("");
+                    $("#sname").val("");
+                    $('#next').hide();
+                    $('#next1').hide();
+                    $('#next2').show();
                 }
 
                 let journalDetails = new Array();
@@ -372,44 +446,52 @@
                     populateDetailsTable();
                 });
 
-                //$('#save1').on('click', function () {
-                //    debugger
-                //    var val = saleItems;
-                //    debugger
-                //    $.ajax({
-                //        type: 'POST',
-                //        url: "save",
-                //        contentType: 'application/json',
-                //        data: JSON.stringify(saleItems),
-                //        success: function (response) {
-                //            saleItems = new Array();
-                //        },
-                //        failure: function (response) {
-                //        }
-                //    }).then(function () {
-                //        // ...
-                //    });
-                //});
+                $('#save1').on('click', function () {
+                    let print = $('#print').prop('checked');
+                    let sms = $('#sms').prop('checked');
+                    let net = $('#Net').val();
+                    $.ajax({
+                        type: 'POST',
+                        url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&isCash=" + isCash + "&sms=" + sms + "&print=" + print + "&net=" + net,
+                        contentType: 'application/json',
+                        data: JSON.stringify(saleItems),
+                        success: function (response) {
+                            if (response.isRedirect) {
+                                window.location.href = response.redirectUrl;
+                            }
+                            saleItems = new Array();
+                            populateTable();
+                            clearafthersave();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                });
 
-               function populateDetailsTable() {
+                function populateDetailsTable() {
                     let itemTableRows = new Array();
                     saleItems.forEach(j => {
                         drAmt = j.isdebit ? j.amount : 0;
                         crAmt = j.isdebit ? 0 : j.amount;
                         itemTableRows.push(`<tr>
-				        <td>${j.glAcc}</td>
-                        <td>${drAmt}</td>
-                        <td>${crAmt}</td>
-			        </tr>`);
+                                <td>${j.glAcc}</td>
+                                <td>${drAmt}</td>
+                                <td>${crAmt}</td>
+                            </tr>`);
                     });
 
                     $('#details').html(itemTableRows);
                 }
             });
-            $('#pname').on('click', function () {
+            $('#pname').on('change', function () {
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
-                 var selectVal = $("#pname").val();
-                 var selectProducts = products.filter(p => p.PName === selectVal);
+                $("#sno").val("");
+                $("#sname").val("");
+                $("#tsno").val("");
+                var selectVal = $("#pname").val();
+                var selectProducts = products.filter(p => p.PName.trim() === selectVal);
                 if (selectProducts[0]) {
                     $("#pcode").val(selectProducts[0].PCode);
                     $("#qnty").val("1");
@@ -426,22 +508,28 @@
                 }
             });
             $('#new').on('click', function () {
+                clearafthersave();
+
+            });
+            function clearafthersave() {
                 $("#pcode").val("");
                 $("#pname").val("");
                 $("#tsno").val("");
                 $("#tname").val("");
                 $("#sno").val("");
                 $("#names").val("");
-                    $("#qnty").val("0");
-                    $("#Amnttopay").val("0");
-                    $("#ttolpaid").val("0");
-                    $("#balance").val("0");
-                    $("#sbal").val("0");
-                    $("#bprice").val("0");
-                    $("#sprice").val("0");
-                    $("#totalamnt").val("0");
-
-             });
+                $("#qnty").val("0");
+                $("#Amnttopay").val("0");
+                $("#ttolpaid").val("0");
+                $("#balance").val("0");
+                $("#sbal").val("0");
+                $("#bprice").val("0");
+                $("#sprice").val("0");
+                $("#totalamnt").val("0");
+                $("#Gross").val("0");
+                $("#Deductions").val("0");
+                $("#Net").val("0");
+            }
 
             $('#tsno').on('keyup', function () {
                 var products = @Html.Raw(Json.Serialize(Model.DTransporter));
@@ -464,22 +552,50 @@
                     sumDr += p.DR;
                     sumCr += p.CR;
                 })
-                totalsum = sumCr-sumDr;
+                totalsum = sumCr - sumDr;
                 $("#TNet").val(totalsum);
             }
+        @*$('#sno').on('keyup', function () {
+            var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
+            var selectVal = parseInt($("#sno").val());
+            var selectProducts = products.filter(p => p.Sno === selectVal);
+            if (selectProducts[0]) {
+            $("#names").val(selectProducts[0].Names);
+            sumtotalkgs();
+            }
+            });*@
+            $('#zone').change(function () {
+                    var selectVal = $("#sno").val().toUpperCase();
+                    getSelectedDateIntakes();
+                });
             $('#sno').on('keyup', function () {
-                var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
-                var selectVal = parseInt($("#sno").val());
-                var selectProducts = products.filter(p => p.Sno === selectVal);
-                if (selectProducts[0]) {
-                    $("#names").val(selectProducts[0].Names);
-                    sumtotalkgs();
-                }
+                var selectVal = $("#sno").val().toUpperCase();
+                getSelectedDateIntakes();
             });
+            function getSelectedDateIntakes() {
+                var zone = $('#zone').val();
+                var sno = $('#sno').val().toUpperCase();
+                var mevng = $('#mevng').val();
+
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "selectedDateIntake?sno=" + sno,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#names").val(response);
+                            sumtotalkgs();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
             function sumtotalkgs() {
-                let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
-                let selectVal = $("#sno").val().toUpperCase();
-                let selectProducts = products.filter(p => p.Sno === selectVal);
+                let products = @Html.Raw(Json.Serialize(ViewBag.productintake));
+                var selectVal = $("#sno").val().toUpperCase();
+                let selectProducts = products.filter(p => p.Sno.toUpperCase() === selectVal);
                 let sumqty = 0;
                 let sumDr = 0;
                 let sumCr = 0;
@@ -487,16 +603,19 @@
                 selectProducts.forEach(p => {
                     sumDr += p.DR;
                     sumCr += p.CR;
-                })
-                $("#Gross").val(sumDr);
-                $("#Deductions").val(sumCr);
-                let gross = sumDr;
-                let deduction = sumCr;
+                });
+                $("#Gross").val(sumCr);
+                $("#Deductions").val(sumDr);
+                let gross = sumCr;
+                let deduction = sumDr;
                 sumtotal = gross - deduction;
                 $("#Net").val(sumtotal);
             }
 
             $('#next').on('click', function () {
+                if (!checkbal()) {
+                    return;
+                }
                 var pcode = $("#pcode").val();
                 var pname = $("#pname").val();
                 var bprice = $("#bprice").val();
@@ -505,6 +624,7 @@
                 var totalamnt = parseFloat($("#totalamnt").val());
                 var total = parseFloat($("#Amnttopay").val());
                 var tpay = parseFloat($("#ttolpaid").val());
+
                 saleItems.push({
                     Sno: $("#sno").val(),
                     sprice: sprice,
@@ -513,6 +633,7 @@
                     pcode: pcode,
                     Description: pname,
                     DateTime: $("#date").val(),
+                    TransDate: $("#TDate").val(),
                     TransTime: $("#date").val(),
                     ProductType: "AGROVET",
                     Qsupplied: $("#qnty").val(),
@@ -523,24 +644,93 @@
                     Paid: "true",
                     Remarks: pname,
                     Branch: $("#bname").val(),
-
                 });
-                let itemTableRows = new Array();
-                saleItems.forEach(i => {
-                    itemTableRows.push(`<tr>
-				        <td>${i.pcode}</td>
-                        <td>${i.pname}</td>
-                        <td>${i.Qsupplied}</td>
-                        <td>${i.sprice}</td>
-                        <td>${i.totalamnt}</td>
-			        </tr>`);
-                });
-                
-                $('#details').html(itemTableRows);
-                var final = totalamnt + total;
-                $("#Amnttopay").val(final);
-                $("#balance").val(final - tpay);
+                populateTable();
             });
+
+            $('#next1').on('click', function () {
+                if (!checkbal()) {
+                    return;
+                }
+                var pcode = $("#pcode").val();
+                var pname = $("#pname").val();
+                var bprice = $("#bprice").val();
+                var sprice = $("#sprice").val();
+                var qnty = $("#qnty").val();
+                var totalamnt = parseFloat($("#totalamnt").val());
+                var total = parseFloat($("#Amnttopay").val());
+                var tpay = parseFloat($("#ttolpaid").val());
+
+                saleItems.push({
+                    Sno: $("#tsno").val(),
+                    sprice: sprice,
+                    totalamnt: totalamnt,
+                    pname: pname,
+                    pcode: pcode,
+                    Description: pname,
+                    DateTime: $("#date").val(),
+                    TransDate: $("#TDate").val(),
+                    TransTime: $("#date").val(),
+                    ProductType: "AGROVET",
+                    Qsupplied: $("#qnty").val(),
+                    Ppu: $("#sprice").val(),
+                    CR: "0",
+                    DR: totalamnt,
+                    Balance: totalamnt,
+                    Paid: "true",
+                    Remarks: pname,
+                    Branch: $("#bname").val(),
+                });
+                populateTable();
+            });
+            $('#next2').on('click', function () {
+                if (!checkbal()) {
+                    return;
+                }
+                var pcode = $("#pcode").val();
+                var pname = $("#pname").val();
+                var bprice = $("#bprice").val();
+                var sprice = $("#sprice").val();
+                var qnty = $("#qnty").val();
+                var totalamnt = parseFloat($("#totalamnt").val());
+                var total = parseFloat($("#Amnttopay").val());
+                var tpay = parseFloat($("#ttolpaid").val());
+
+                saleItems.push({
+                    Sno: $("#sname").val(),
+                    sprice: sprice,
+                    totalamnt: totalamnt,
+                    pname: pname,
+                    pcode: pcode,
+                    Description: pname,
+                    DateTime: $("#date").val(),
+                    TransDate: $("#TDate").val(),
+                    TransTime: $("#date").val(),
+                    ProductType: "AGROVET",
+                    Qsupplied: $("#qnty").val(),
+                    Ppu: $("#sprice").val(),
+                    CR: "0",
+                    DR: totalamnt,
+                    Balance: totalamnt,
+                    Paid: "true",
+                    Remarks: pname,
+                    Branch: $("#bname").val(),
+                });
+                populateTable();
+            });
+
+            function checkbal() {
+                var qnty = parseFloat($("#qnty").val());
+                var qntybal = parseFloat($("#sbal").val());
+                if (qnty > qntybal)
+                {
+                    error.textContent = "You Quantity cannot be grater than the Balance in stock"
+                    error.style.color = "red"
+                    document.getElementById('qnty').focus();
+                    return false;
+                }
+                return true;
+            }
 
             $('#ttolpaid').on('keyup', function () {
                 var qty = parseFloat($("#Amnttopay").val());
@@ -549,9 +739,31 @@
                     $("#balance").val(qty - price);
                 }
             });
+
             $('#qnty').on('keyup', function () {
                 calculatePrice();
             });
+
+            function populateTable() {
+                let itemTableRows = new Array();
+                $("#Gross").val("");
+                $("#Deductions").val("");
+                saleItems.forEach(i => {
+                    itemTableRows.push(`<tr>
+                                    <td>${i.pcode}</td>
+                                    <td>${i.pname}</td>
+                                    <td>${i.Qsupplied}</td>
+                                    <td>${i.sprice}</td>
+                                    <td>${i.totalamnt}</td>
+                                    <td>${i.Sno}</td>
+                                </tr>`);
+                });
+
+                $('#details').html(itemTableRows);
+                var final = totalamnt + total;
+                $("#Amnttopay").val(final);
+                $("#balance").val(final - tpay);
+            }
 
             function calculatePrice() {
                 var qty = parseFloat($("#qnty").val());
@@ -561,5 +773,5 @@
                 }
             }
         });
-</script>
+    </script>
 }

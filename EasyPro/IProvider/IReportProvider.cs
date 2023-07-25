@@ -2,6 +2,7 @@
 using EasyPro.Models;
 using EasyPro.ViewModels;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EasyPro.IProvider
 {
@@ -15,5 +16,6 @@ namespace EasyPro.IProvider
         public byte[] GetTransportersPayroll(IEnumerable<DTransportersPayRoll> transporterpayrollobj, DCompany company, string title);
         public byte[] GetTransporterReport(IEnumerable<DTransporter> transporterobj, DCompany company, string title);
         public byte[] GetTIntakePdf(IEnumerable<DTransporter> transporterobj, DCompany company, string title, FilterVm filter);
+        public byte[] GetAgSalesReport(List<AgReceipt> receipts, DSupplier supplier);
     }
 }

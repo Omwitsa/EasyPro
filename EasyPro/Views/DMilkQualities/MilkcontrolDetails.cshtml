@@ -1,0 +1,165 @@
+﻿@*@model IEnumerable<EasyPro.Models.milkcontrol2>*@
+@model EasyPro.ViewModels.MilkBranchControlListVM
+
+@{
+    ViewData["Title"] = "MilkcontrolDetails";
+}
+
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #4cff00;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1000px;
+        height: 500px;
+        overflow: auto;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                    <h3 class="text-danger fa-bold">Milk Control List Details</h3>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <a class="btn-info btn-info" asp-action="MilkControll">Back to List</a>
+                </div>
+            </div>
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="divScroll">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="customers">
+                            <thead>
+                                <tr>
+                                    <th>
+                                       transdate
+                                    </th>
+                                    <th>
+                                        BF(Kgs)
+                                    </th>
+                                    <th>
+                                        Intake
+                                    </th>
+                                    <th>
+                                        Dispatch TO(Kgs)
+                                    </th>
+                                    <th>
+                                        Total(Kgs)
+                                    </th>
+                                    <th>
+                                        Dispatch From(Kgs)
+                                    </th>
+                                    <th>
+                                        Sold(Kgs)
+                                    </th>
+                                    <th>
+                                        Reject(Kgs)
+                                    </th>
+
+                                    <th>
+                                        Spillage(Kgs)
+                                    </th>
+                                    <th>
+                                        CF(Kgs)
+                                    </th>
+                                    <th>
+                                        Varriance(Kgs)
+                                    </th>
+                                    <th>
+                                        Branch
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.milkBranchControlLists)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.transdate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Bf)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Intake)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Tostation)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Total)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.FromStation)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.SQuantity)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Reject)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Spillage)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.cfa)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Varriance)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Branch)
+                                        </td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td colspan="2">Totals</td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => Model.IntakeTotal)
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => Model.Total)
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => Model.SQuantityTotal)
+                                    </td>
+                                    <td colspan="5"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -16,5 +16,6 @@ namespace EasyPro.Models
         public decimal? Dr { get; set; }
         public decimal? Bal { get; set; }
         public string sacco { get; set; }
+        public string Branch { get; set; }
     }
 }

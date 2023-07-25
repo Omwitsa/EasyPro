@@ -1,0 +1,119 @@
+﻿@model EasyPro.Models.Dispatch
+
+@{
+    ViewData["Title"] = "Create";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create Branch New Dispatch</h2>
+            </div>
+            <hr />
+            <form asp-action="BranchCreate">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="DName" class="control-label">Name</label>
+                                <select asp-for="DName" Value="Select Bank" class="form-control" asp-items="@ViewBag.debtorsnames"></select>
+                                <span asp-validation-for="DName" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Transdate" class="control-label">Date</label>
+                                <input id="date" asp-for="Transdate" type="date" class="form-control" />
+                                <span asp-validation-for="Transdate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="TIntake" class="control-label">Intake kgs</label>
+                                <input id="intake" asp-for="TIntake" class="form-control" />
+                                <span asp-validation-for="TIntake" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Dispatchkgs" class="control-label">Dispatch kgs</label>
+                                <input asp-for="Dispatchkgs" class="form-control" />
+                                <span asp-validation-for="Dispatchkgs" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label asp-for="Remarks" class="control-label"></label>
+                                <input id="intake" asp-for="Remarks" class="form-control" />
+                                <span asp-validation-for="Remarks" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            var total = 0;
+            getSelectedDateIntakes();
+            $('#date').change(function () {
+                $("#intake").val(total);
+                getSelectedDateIntakes();
+            });
+
+            function getSelectedDateIntakes() {
+                var date = $('#date').val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "selectedDateIntakebranch?date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#intake").val(response);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
+        });
+    </script>
+}

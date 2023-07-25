@@ -1,0 +1,219 @@
+﻿@model EasyPro.Models.CInvoice
+
+@{
+    ViewData["Title"] = "CreateInvoice";
+}
+
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create</h2>
+            </div>
+            <hr />
+            <form asp-action="CreateInvoice">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Product</label>
+                            <select id="product" asp-for="Ref" class="form-control" asp-items="@ViewBag.productNames">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="Ref" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                         <div class="form-group">
+                            <label asp-for="Customer" class="control-label"></label>
+                            <select asp-for="Customer" class="form-control" asp-items="@ViewBag.customers">
+                                <option value="" disabled selected hidden>Please Choose...</option>
+                            </select>
+                            <span asp-validation-for="Customer" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Date" class="control-label"></label>
+                            <input asp-for="Date" class="form-control" type="date"/>
+                            <span asp-validation-for="Date" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="DueDate" class="control-label"></label>
+                            <input asp-for="DueDate" class="form-control" type="date"/>
+                            <span asp-validation-for="DueDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Quantity" class="control-label"></label>
+                            <input id="quantity" asp-for="Quantity" class="form-control" />
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                           <label asp-for="Cost" class="control-label"></label>
+                            <input id="cost" asp-for="Cost" class="form-control"/>
+                            <span asp-validation-for="Cost" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="TotalAmount" class="control-label"></label>
+                            <input id="totalAmount" asp-for="TotalAmount" class="form-control" readonly/>
+                            <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                           <label asp-for="NetAmount" class="control-label"></label>
+                            <input id="netAmount" asp-for="NetAmount" class="form-control" readonly/>
+                            <span asp-validation-for="NetAmount" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                         <div class="form-group">
+                            <label asp-for="Tax" class="control-label"></label>
+                            <input id="tax" asp-for="Tax" class="form-control" readonly/>
+                            <span asp-validation-for="Tax" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="PaymentReference" class="control-label"></label>
+                            <input asp-for="PaymentReference" class="form-control" />
+                            <span asp-validation-for="PaymentReference" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                      <div class="form-group">
+                            <label asp-for="IncoTerm" class="control-label"></label>
+                            <input asp-for="IncoTerm" class="form-control" />
+                            <span asp-validation-for="IncoTerm" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                       <div class="form-group">
+                            <label asp-for="FiscalPosition" class="control-label"></label>
+                            <input asp-for="FiscalPosition" class="form-control" />
+                            <span asp-validation-for="FiscalPosition" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="SalesPerson" class="control-label"></label>
+                            <input asp-for="SalesPerson" class="form-control" />
+                            <span asp-validation-for="SalesPerson" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <a asp-action="GetInvoices" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script type="text/javascript">
+        $(function () {
+            $("#cost").val(0);
+            $('#product').on('change', function () {
+                var selectVal = $("#product").val();
+                var products = @Html.Raw(Json.Serialize(ViewBag.products));
+                var selectProducts = products.filter(p => p.Name === selectVal);
+                if (selectProducts[0]) {
+                    $("#cost").val(selectProducts[0].Price);
+                }
+                calculateTax();
+            });
+
+            $('#quantity').on('keyup', function () {
+                if (!$("#quantity").val()) {
+                    $("#totalAmount").val(0);
+                    $("#tax").val(0);
+                    $("#netAmount").val(0);
+                }
+                calculateTax();
+            });
+
+            $('#cost').on('keyup', function () {
+                if (!$("#cost").val()) {
+                    $("#totalAmount").val(0);
+                    $("#tax").val(0);
+                    $("#netAmount").val(0);
+                }
+                calculateTax();
+            });
+
+            function calculateTax() {
+                var quantity = parseFloat($("#quantity").val());
+                var product = $("#product").val();
+                var cost = $("#cost").val();
+                if (product && quantity && cost) {
+                   $.ajax({
+                        type: 'GET',
+                        url: "getTaxRate?product=" + product,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            calculateTotals(response);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            }
+
+            function calculateTotals(taxRate) {
+                var quantity = parseInt($("#quantity").val());
+                var cost = parseInt($("#cost").val());
+                var totalAmount = quantity * cost;
+                $("#totalAmount").val(totalAmount);
+                var unitTax = cost * taxRate * 0.01;
+                var totalTax = unitTax * quantity;
+                $("#tax").val(totalTax);
+                var netAmount = totalAmount - totalTax;
+                $("#netAmount").val(netAmount);
+            }
+        });
+</script>
+}

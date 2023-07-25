@@ -29,7 +29,14 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
-            return View(await _context.SubCounty.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccouser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var County = _context.DCompanies.FirstOrDefault(p => p.Name.ToUpper().Equals(sacco.ToUpper())).Province;
+            var subcounty = await _context.SubCounty.ToListAsync();
+            if (saccouser!= "psigei")
+                subcounty=await _context.SubCounty.Where(k => k.County.ToUpper().Equals(County.ToUpper())).ToListAsync();
+            
+                return View(subcounty);
         }
 
         // GET: SubCounties/Details/5

@@ -8,6 +8,9 @@ namespace EasyPro.ViewModels
         public string TelNo { get; set; }
         public DateTime PeriodEnding { get; set; }
         public string Location { get; set; }
+        public string Transporter { get; set; }
+        public string SharesCategory { get; set; }
+        public string Branch { get; set; }
         public SMSRecipient Recipient { get; set; }
     }
 
@@ -16,6 +19,8 @@ namespace EasyPro.ViewModels
         ALLFarmars = 1,
         ActiveFarmers = 2,
         SpecificLocation = 3,
-        Individual = 4,
+        SpecificTransporter = 4,
+        Individual = 5,
+        SharesCat = 6,
     };
 }

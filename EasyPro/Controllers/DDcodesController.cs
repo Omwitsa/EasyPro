@@ -7,6 +7,8 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using EasyPro.Utils;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 
 namespace EasyPro.Controllers
 {
@@ -28,7 +30,6 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            sacco = sacco ?? "";
             return View(await _context.DDcodes
                 .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
@@ -56,7 +57,15 @@ namespace EasyPro.Controllers
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             return View();
+        }
+
+        private void GetInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).OrderBy(m => m.GlAccName).ToList();
+            ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
         }
 
         // POST: DDcodes/Create
@@ -90,6 +99,7 @@ namespace EasyPro.Controllers
         // GET: DDcodes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            GetInitialValues();
             utilities.SetUpPrivileges(this);
             if (id == null)
             {

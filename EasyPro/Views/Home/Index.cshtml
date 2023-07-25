@@ -1,141 +1,304 @@
 ﻿<!-- Start Email Statistic area-->
+<!--<div class="notika-status-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <canvas id="myChart" style="max-width:400px;max-height:430px;"></canvas>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <canvas id="myChart" style="max-width:400px;max-height:430px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
 
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            checkifalreadyexist();
+            function checkifalreadyexist() {
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "GetSalesData",
+                        data: "",
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: function (response) {
+                            OnSuccessResult(response)
+                        },
+                        error: function (response) {
+                            OnError
+                        }
+                    });
+
+                function OnSuccessResult(response) {
+                    var _data = response;
+                    var _chartlabels = _data[0];
+                    var _chartData = _data[1];
+
+                    var barcolor = ["red", "green", "blue", "brown", "purple"];
+                    new Chart("myChart",
+                        {
+                        type: "pie",
+                        data: {
+                            labels : _chartlabels,
+                            datasets : [{
+                                backgroundColor: barcolor,
+                                data : _chartData
+                            }]
+                        }
+                    });
+
+                }
+                function OnError(err) {
+
+                }
+            }
+        });
+    </script>
+}-->
+@using Syncfusion.EJ2
+@using Newtonsoft.Json
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<head>
+    <link href="~/lib/Syncfussion/styles/material.css" rel="stylesheet" />
+    <script src="~/lib/Syncfussion/scripts/ej2.min.js"></script>
+</head>
 <div class="notika-status-area">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-                    <div class="website-traffic-ctn">
-                        <h2><span class="counter">@ViewBag.advance</span></h2>
-                        <p>Advance</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-                    <div class="website-traffic-ctn">
-                        <h2><span class="counter">@ViewBag.transport</span></h2>
-                        <p>Transport</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-                    <div class="website-traffic-ctn">
-                        <h2><span class="counter">@ViewBag.agrovet</span></h2>
-                        <p>Agrovet</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-                    <div class="website-traffic-ctn">
-                        <h2><span class="counter">@ViewBag.bonus</span></h2>
-                        <p>Bonus</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-                    <div class="website-traffic-ctn">
-                        <h2><span class="counter">@ViewBag.shares</span></h2>
-                        <p>Shares</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-                    <div class="website-traffic-ctn">
-                        <h2><span class="counter">@ViewBag.grossItake</span></h2>
-                        <p>Gross Collections</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        <div style=" background-color:white;">
+            <div class="row">
 
-<div class="sale-statistic-area">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <div class="email-statis-inner mg-tb-30">
-                    <div class="email-ctn-round">
-                        <div class="email-rdn-hd">
-                            <h2>Monthly collection frequency</h2>
-                        </div>
-                        <div class="email-round-gp">
-                            @foreach (var product in ViewBag.intakeStatistics)
-                            {
-                                <div class="email-round-pro">
-                                    <div class="email-signle-gp">
-                                        <input type="text" class="knob" value="0" data-rel="@product.Rate" data-linecap="round" data-width="90" data-bgcolor="#E4E4E4" data-fgcolor="#00c292" data-thickness=".10" data-readonly="true" disabled>
-                                    </div>
-                                    <div class="email-ctn-nock">
-                                        <p>@product.Name</p>
-                                    </div>
-                                </div>
-                            }
-                        </div>
+                <div class="col-md-6" >
+
+                    <div style="border-right:2px solid ;color:#009100;">
+                        <ejs-accumulationchart id="container" title="Farmer's Statistics Based On Gender" enableSmartLabels="true" pointRender="pointRender"
+                                               textRender="textRender">
+                            <e-accumulationchart-tooltipsettings enable="true"></e-accumulationchart-tooltipsettings>
+                            <e-accumulationchart-legendsettings visible="true">
+                            </e-accumulationchart-legendsettings>
+                            <e-accumulation-series-collection>
+                                <e-accumulation-series explode="true" dataSource="ViewBag.dataSource" xName="xValue" yName="yValue" groupTo="2">
+                                    <e-accumulationseries-datalabel name="text" visible="true" position="Outside">
+                                        <e-connectorstyle type="Line" length="2%"></e-connectorstyle>
+                                        <e-font size="16px"></e-font>
+                                    </e-accumulationseries-datalabel>
+                                </e-accumulation-series>
+                            </e-accumulation-series-collection>
+                        </ejs-accumulationchart>
+                    </div>
+
+
+
+                </div>
+                <div class="col-md-6">
+
+                    <div style="border-right:2px solid ;color:#009100;">
+                        <ejs-accumulationchart id="container1" title="Farmer's Statistics (Active & InActive This Month)" enableSmartLabels="true" pointRender="pointRender1"
+                                           textRender="textRender"  >
+                            <e-accumulationchart-tooltipsettings enable="true"></e-accumulationchart-tooltipsettings>
+                            <e-accumulationchart-legendsettings visible="true">
+                            </e-accumulationchart-legendsettings>
+                            <e-accumulation-series-collection>
+                                <e-accumulation-series explode="true" dataSource="ViewBag.dataSource1" xName="xValue" yName="yValue" groupTo="2">
+                                    <e-accumulationseries-datalabel name="text1" visible="true" position="Outside">
+                                        <e-connectorstyle type="Line" length="2%"></e-connectorstyle>
+                                        <e-font size="16px"></e-font>
+                                    </e-accumulationseries-datalabel>
+                                </e-accumulation-series>
+                            </e-accumulation-series-collection>
+                        </ejs-accumulationchart>
+                    </div>
+
+
+
+                </div>
+
+            </div>
+
+            <br />
+            <hr style="border: 2px solid;" />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div style="border-right:2px solid ;color:#009100;">
+                        <ejs-chart pointRender="pointRender" id="lineContainer" title="Members Shares Contribution">
+                            <e-chart-tooltipsettings enable="true">
+                            </e-chart-tooltipsettings>
+                            <e-chart-chartarea>
+                                <e-chartarea-border width="0"></e-chartarea-border>
+                            </e-chart-chartarea>
+                            <e-chart-primaryxaxis title="Farm Practices" minimum="0" maximum="100" edgeLabelPlacement="@Syncfusion.EJ2.Charts.EdgeLabelPlacement.Shift">
+                                <e-majorgridlines width="0"></e-majorgridlines>
+                            </e-chart-primaryxaxis>
+                            <e-chart-primaryyaxis minimum="0" maximum="100" title="Amount Contributed in percentage(%)" interval=10>
+                                <e-linestyle width="0"></e-linestyle>
+                            </e-chart-primaryyaxis>
+                            <e-chart-primaryxaxis valueType="Category" title="Members Shares Contribution"></e-chart-primaryxaxis>
+                            <e-series-collection>
+                                <e-series dataSource="ViewBag.dataSources3" xName="x" width="2" opacity="1" yName="yValue" type="@Syncfusion.EJ2.Charts.ChartSeriesType.Column">
+                                </e-series>
+                            </e-series-collection>
+                        </ejs-chart>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <div class="recent-items-wp mg-tb-30">
-                    <div class="rc-it-ltd">
-                        <div class="recent-items-ctn">
-                            <div class="recent-items-title">
-                                <h2>Statistics</h2>
+                    <div class="col-md-6">
+                        <div class="rc-it-ltd">
+                            <div class="recent-items-ctn">
+                                <div class="recent-items-title">
+                                    <h2>Statistics</h2>
+                                </div>
+                            </div>
+                            <div class="recent-items-inn">
+                                <table class="table table-inner table-vmiddle">
+                                    <thead>
+
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Suppliers</td>
+                                            <td>@ViewBag.suppliers</td>
+                                            <td><a asp-controller="DSuppliers" asp-action="Index"></a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Active Suppliers</td>
+                                            <td>@ViewBag.activeSuppliers</td>
+                                            <td><a asp-controller="DSuppliers" asp-action="Index"></a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>New Suppliers</td>
+                                            <td>@ViewBag.newFarmers</td>
+                                            <td><a asp-controller="DSuppliers" asp-action="Index"></a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Farmers not delivered today</td>
+                                            <td>@ViewBag.failedSuppliers</td>
+                                            <td><a asp-controller="DSuppliers" asp-action="Index"></a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Transporters</td>
+                                            <td>@ViewBag.transporters</td>
+                                            <td><a asp-controller="DTransporters" asp-action="Index"></a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        <div class="recent-items-inn">
-                            <table class="table table-inner table-vmiddle">
-                                <thead>
-
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Suppliers</td>
-                                        <td>@ViewBag.suppliers</td>
-                                        <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Active Suppliers</td>
-                                        <td>@ViewBag.activeSuppliers</td>
-                                        <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>New Suppliers</td>
-                                        <td>@ViewBag.newFarmers</td>
-                                        <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Previously Dormant</td>
-                                        <td>@ViewBag.lastMonthDomant</td>
-                                        <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Farmers not delivered today</td>
-                                        <td>@ViewBag.failedSuppliers</td>
-                                        <td><a asp-controller="DSuppliers" asp-action="Index">More</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Transporters</td>
-                                        <td>@ViewBag.transporters</td>
-                                        <td><a asp-controller="DTransporters" asp-action="Index">More</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Today`s Sales</td>
-                                        <td>@ViewBag.todaysales</td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 </div>
+
+
+@*<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
+            <div class="website-traffic-ctn">
+                <h2><span class="counter">@ViewBag.advance</span></h2>
+                <p>Advance</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
+            <div class="website-traffic-ctn">
+                <h2><span class="counter">@ViewBag.transport</span></h2>
+                <p>Transport</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
+            <div class="website-traffic-ctn">
+                <h2><span class="counter">@ViewBag.agrovet</span></h2>
+                <p>Agrovet</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
+            <div class="website-traffic-ctn">
+                <h2><span class="counter">@ViewBag.bonus</span></h2>
+                <p>Bonus</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
+            <div class="website-traffic-ctn">
+                <h2><span class="counter">@ViewBag.shares</span></h2>
+                <p>Shares</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
+            <div class="website-traffic-ctn">
+                <h2><span class="counter">@ViewBag.grossItake</span></h2>
+                <p>Gross Collections</p>
+            </div>
+        </div>
+    </div>*@
+
+
+
 <!-- End Email Statistic area-->
+<script>
+    function load(args) {
+
+    }
+
+    var pointRender1 = function (args) {
+    if ((args.point.x).indexOf('InActive') > -1) {
+            args.fill = '#ff68b6';
+        }else if ((args.point.x).indexOf('Active') > -1) {
+            args.fill = '#09e1e8';
+        }
+    }
+
+    var pointRender = function (args) {
+        if ((args.point.x).indexOf('Male') > -1) {
+            args.fill = '#f4bc42';
+        }
+        else {
+            args.fill = '#597cf9';
+        }
+    
+
+        if ((args.point.x).indexOf('REGISTRATION') > -1) {
+            args.fill = '#f4bc42';
+        }
+        else if ((args.point.x).indexOf('SHARES') > -1) {
+            args.fill = '#498fff';
+        }
+        else if ((args.point.x).indexOf('SHARE CAPITAL') > -1) {
+            args.fill = '#ff68b6';
+        }
+        else if ((args.point.x).indexOf('REGISTRATIONS') > -1) {
+            args.fill = '#81e2a1';
+        }
+        else if ((args.point.x).indexOf('SHARE') > -1) {
+            args.fill = '#09e1e8';
+        }
+
+    }
+    var textRender = function (args) {
+        if (args.text.indexOf('Others') > -1) {
+            args.text = 'Grouped Slices';
+            args.color = 'red';
+            args.border.width = 2;
+        }
+    }
+      
+</script>

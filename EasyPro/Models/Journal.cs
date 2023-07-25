@@ -23,5 +23,6 @@ namespace EasyPro.Models
         public DateTime Auditdate { get; set; }
         public bool Posted { get; set; }
         public DateTime? Posteddate { get; set; }
+		public string SaccoCode { get; set; }
     }
 }

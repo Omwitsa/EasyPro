@@ -13,8 +13,8 @@ namespace EasyPro.Models
         public long Id { get; set; }
         public long? LocalId { get; set; }
         [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Sno should be grater than 1")]
-        public long Sno { get; set; }
+        public string Sno { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? Regdate { get; set; }
         public string IdNo { get; set; }
         public string Names { get; set; }
@@ -71,5 +71,6 @@ namespace EasyPro.Models
         public string Mass { get; set; }
         public long? Status1 { get; set; }
         public long? Run { get; set; }
+        public string Zone { get; set; }
     }
 }

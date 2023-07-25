@@ -13,6 +13,7 @@ namespace EasyPro.Models
         [Required]
         public string Sno { get; set; }
         [Required]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime TransDate { get; set; }
         public TimeSpan TransTime { get; set; }
         public string ProductType { get; set; }
@@ -34,5 +35,12 @@ namespace EasyPro.Models
         public string DrAccNo { get; set; }
         [Display(Name = "Cr Account No")]
         public string CrAccNo { get; set; }
+        public bool? Posted { get; set; }
+        [NotMapped]
+        public decimal? Todaykgs { get; set; }
+        [NotMapped]
+        public decimal? TodayBranchkgs { get; set; }
+        public string Zone { get; set; }
+        public string MornEvening { get; set; }
     }
 }

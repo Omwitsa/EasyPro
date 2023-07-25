@@ -23,7 +23,7 @@
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Intake</label>
-                            <input id="intake" class="form-control" readonly />
+                            <input id="intake" class="form-control" />
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
@@ -103,6 +103,14 @@
                 calculateVariance();
             });
 
+            $('#BF').on('keyup', function () {
+                calculateVariance();
+            });
+
+            $('#dispatch').on('keyup', function () {
+                calculateVariance();
+            });
+
             $('#save').on('click', function () {
                 var variance = {
                     date: $("#date").val(),
@@ -156,11 +164,19 @@
             }
 
             function calculateVariance() {
-                var variance = parseFloat($("#actuals").val()) - parseFloat($("#intake").val())
+                var actuals = parseFloat($("#actuals").val());
+                actuals = actuals ? actuals : 0;
+                var intake = parseFloat($("#intake").val());
+                intake = intake ? intake : 0;
+                var bf = parseFloat($("#BF").val());
+                bf = bf ? bf : 0;
+                var dispatch = parseFloat($("#dispatch").val());
+                dispatch = dispatch ? dispatch : 0;
+                var variance = actuals - intake;
                 $("#varriance").val(variance);
 
-                var CF = parseFloat($("#actuals").val()) + parseFloat($("#BF").val()) - parseFloat($("#dispatch").val())
-                $("#CF").val(variance);
+                var cf = actuals + bf - dispatch;
+                $("#CF").val(cf);
             }
         });
     </script>

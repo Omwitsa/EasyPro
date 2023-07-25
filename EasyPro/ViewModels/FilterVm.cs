@@ -18,13 +18,16 @@ namespace EasyPro.ViewModels
         [Display(Name = "Debtor")]
         public string Debtor { get; set; }
         public string Transporter { get; set; }
+        [Display(Name = "Bank Name")]
+        public string BankName { get; set; }
+        public string County { get; set; }
 
 
     }
 
     public class ProductBalancingFilterVm
     {
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
         public string TCode { get; set; }
     }
 }

@@ -6,12 +6,32 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Assign Transporters</h2>
-            </div>
-            <hr />
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                        <h2>Assign Transporters</h2>
+                    </div>
+
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Zone</label>
+                                    <select id="zone" Value="Select Bank" asp-for="DTransport.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                                </div>
+                            </div>
+                    </div>
+
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Morning/Evening</label>
+                                <select id="mevng" Value="Select Bank" asp-for="DTransport.Morning" class="form-control" asp-items="@ViewBag.morningEve"></select>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                <hr />
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
@@ -30,7 +50,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Assignment Date</label>
-                                    <input type="date" asp-for="DTransport.Startdate" class="form-control" required />
+                                    <input id="date" type="date" asp-for="DTransport.Startdate" class="form-control" required />
                                     <span asp-validation-for="DTransport.Startdate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -91,7 +111,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="DTransport.Rate" class="control-label"></label>
-                                    <input asp-for="DTransport.Rate" class="form-control" required />
+                                    <input asp-for="DTransport.Rate" value="0" class="form-control" required />
                                     <span asp-validation-for="DTransport.Rate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -126,24 +146,67 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
-                    $(function () {
-                        $('#tcode').on('keyup', function () {
-                            var products = @Html.Raw(Json.Serialize(Model.DTransporter));
-                            var selectVal = $("#tcode").val();
-                            var selectProducts = products.filter(p => p.TransCode === selectVal);
-                                if (selectProducts[0]) {
-                                    $("#tname").val(selectProducts[0].TransName);
-                                }
-                        });
-                        $('#sno').on('keyup', function () {
-                            var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
-                            var selectVal = parseInt($("#sno").val());
-                            var selectProducts = products.filter(p => p.Sno === selectVal);
-                                if (selectProducts[0]) {
-                                    $("#sname").val(selectProducts[0].Names);
-                                }
-                        });
-                    });
-    </script>
+<script type="text/javascript">
+    $(function () {
+        var today = new Date().toISOString().split('T')[0];
+        $("#date").val(today);
+        $('#zone').val('');
+        $('#mevng').val('');
+
+        var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+        if (checkiftoenable === 0) {
+            $('#zone1').hide();
+            $('#MorningEvening').show();
+        }
+        else {
+            $('#zone1').hide();
+            $('#MorningEvening').show();
+        }
+
+        $('#tcode').on('keyup', function () {
+            var products = @Html.Raw(Json.Serialize(Model.DTransporter));
+            var selectVal = $("#tcode").val().toUpperCase();
+            var selectProducts = products.filter(p => p.TransCode.toUpperCase() === selectVal);
+            if (selectProducts[0]) {
+                $("#tname").val(selectProducts[0].TransName);
+            }
+        });
+        $('#sno').on('keyup', function () {
+            var selectVal = $("#sno").val().toUpperCase();
+            getSelectedDateIntakes();
+        });
+
+        $('#zone').change(function () {
+            var selectVal = $("#sno").val().toUpperCase();
+            getSelectedDateIntakes();
+        });
+        $('#mevng').change(function () {
+            var selectVal = $("#sno").val().toUpperCase();
+            getSelectedDateIntakes();
+        });
+
+        function getSelectedDateIntakes() {
+            var zone = $('#zone').val();
+            zone = zone ? zone : "";
+            var sno = $('#sno').val();
+            sno = sno ? sno : "";
+            var mevng = $('#mevng').val().toUpperCase();
+            mevng = mevng ? mevng : "";
+
+            $.ajax(
+            {
+                type: 'GET',
+                url: "selectedDateIntake?sno=" + sno,
+                contentType: 'application/json',
+                success: function (response) {
+                    $("#sname").val(response);
+                },
+                failure: function (response) {
+                }
+            }).then(function () {
+
+            });
+        }
+    });
+</script>
 }

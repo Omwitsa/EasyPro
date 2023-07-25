@@ -20,7 +20,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Deduction Date</label>
-                                    <input required type="date" asp-for="ProductIntake.TransDate" class="form-control" />
+                                    <input id="transDate" required type="date" asp-for="ProductIntake.TransDate" class="form-control" />
                                     <span asp-validation-for="ProductIntake.TransDate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -75,25 +75,40 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group ic-cmp-int float-lb floating-lb">
-                        <div class="nk-int-st">
-                            <div class="form-group">
-                                <label asp-for="ProductIntake.Remarks" class="control-label"></label>
-                                <textarea asp-for="ProductIntake.Remarks" autocomplete="off" class="form-control"></textarea>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="ProductIntake.Remarks" class="control-label"></label>
+                                    <textarea asp-for="ProductIntake.Remarks" autocomplete="off" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label asp-for="ProductIntake.Branch" class="control-label"></label>
+                                    <select asp-for="ProductIntake.Branch" class="form-control" asp-items="@ViewBag.brances" required>
+                                        <option value=""></option>
+                                    </select>
+                                    <span asp-validation-for="ProductIntake.Branch" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <hr />
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Save</button>
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a asp-action="TDeductionList" class="btn btn-primary">Back to List</a>
+                        </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
-                    </div>
-                </div>
-            </Form>
+</Form>
         </div>
     </div>
 </div>
@@ -103,11 +118,14 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script type="text/javascript">
-                    $(function () {
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#transDate").val(today);
+
                         $('#transCode').on('keyup', function () {
 
                             var products = @Html.Raw(Json.Serialize(Model.DTransporters));
-                            var selectVal = $("#transCode").val();
+                            var selectVal = $("#transCode").val().toUpperCase();
                             var selectProducts = products.filter(p => p.TransCode === selectVal);
                                 if (selectProducts[0]) {
                                     $("#name").val(selectProducts[0].TransName);

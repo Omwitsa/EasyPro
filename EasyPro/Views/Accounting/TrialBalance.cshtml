@@ -1,0 +1,144 @@
+﻿<div class="row">
+    <div class="col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-sm-3 col-xs-12">
+                    <h3 class="text-danger fa-bold">Trial Balance</h3>
+                </div>
+                <div class="col-sm-7 col-xs-12">
+
+                </div>
+            </div>
+
+            <form asp-action="Create">
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">From Date</label>
+                            <input type="date" id="fromDate" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">To Date</label>
+                            <input type="date" id="toDate" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                         @*<a id="endOfDay" class="btn btn-success">Intake End Of Day</a>*@
+                    </div>
+                </div>
+            </form>
+
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Date
+                                </th>
+                                <th>
+                                    Gl Acc
+                                </th>
+                                <th>
+                                    Acc Name
+                                </th>
+                                <th>
+                                    Description
+                                </th>
+                                <th>
+                                    Dr
+                                </th>
+                                <th>
+                                    Cr
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="details">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+            $(function () {
+                let journalDetails = new Array();
+
+                $('#fromDate').on('change', function () {
+                    buildJournalDetails();
+                });
+
+                $('#toDate').on('change', function () {
+                    buildJournalDetails();
+                });
+
+                $('#endOfDay').on('click', function () {
+                    //buildJournalDetails();
+                    $.ajax({
+                        type: 'GET',
+                        url: "intakeEndOfDay",
+                        contentType: 'application/json',
+                        success: function (response) {
+                            journalDetails = response ? response : new Array();
+                            populateDetailsTable();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                });
+
+                function buildJournalDetails() {
+                    var fromDate = $("#fromDate").val();
+                    var toDate = $("#toDate").val();
+                    var filter = {
+                        fromDate: fromDate,
+                        toDate: toDate,
+                    };
+
+                    if (fromDate && toDate) {
+                        $.ajax({
+                            type: 'POST',
+                            url: "journalListing",
+                            contentType: 'application/json',
+                            data: JSON.stringify(filter),
+                            success: function (response) {
+                                journalDetails = response ? response : new Array();
+                                populateDetailsTable();
+                            },
+                            failure: function (response) {
+                            }
+                        }).then(function () {
+                            // ...
+                        });
+                    }
+                }
+
+                function populateDetailsTable() {
+                    let itemTableRows = new Array();
+                    journalDetails.forEach(j => {
+                        j.TransDate = j.TransDate ? j.TransDate : "";
+                        itemTableRows.push(`<tr>
+                                <td>${j.TransDate}</td>
+                                <td>${j.GlAcc}</td>
+                                <td>${j.AccName}</td>
+                                <td>${j.TransDescript}</td>
+                                <td>${j.Dr}</td>
+                                <td>${j.Cr}</td>
+			                </tr>`);
+                    });
+
+                    $('#details').html(itemTableRows);
+                }
+            });
+    </script>
+}

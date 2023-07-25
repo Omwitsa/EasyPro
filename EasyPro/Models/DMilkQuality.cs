@@ -8,7 +8,7 @@ namespace EasyPro.Models
     public partial class DMilkQuality
     {
         public long Id { get; set; }
-        public long? Sno { get; set; }
+        public string Sno { get; set; }
         public DateTime? RejDate { get; set; }
         public double? ApproxKgs { get; set; }
         public double? DeKgs { get; set; }
@@ -27,6 +27,9 @@ namespace EasyPro.Models
         public double? Dramsk { get; set; }
         public string RejReasons { get; set; }
         public string Auditid { get; set; }
+        public string code { get; set; }
+        public string Branch { get; set; }
+        public string Antibiotic { get; set; }
         public DateTime? Auditdatetime { get; set; }
     }
 }

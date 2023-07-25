@@ -8,7 +8,7 @@ namespace EasyPro.ViewModels.Reports
 {
     public class UserMasterViewModel
     {
-        public long Sno { get; set; }
+        public string Sno { get; set; }
         public DateTime? Regdate { get; set; }
         public string IdNo { get; set; }
         public string Names { get; set; }

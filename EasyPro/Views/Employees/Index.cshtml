@@ -1,0 +1,163 @@
+﻿@model IEnumerable<EasyPro.Models.Employee>
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-sm-4 col-xs-12">
+                    <h3 class="text-danger fa-bold">Employees</h3>
+                </div>
+                <div class="col-sm-5 col-xs-12">
+
+                </div>
+                <div class="col-sm-3 col-xs-3">
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
+
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.EmpNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Surname)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Othernames)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.IDNO)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Category)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Department)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.EmpStatus)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.nationality)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.gender)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.DOB)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.maritalstatus)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.EMAIL)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.MOBILE)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.NSSFCode)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.NHIFCode)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.PinNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.eposition)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.BankAccNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Bank)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.EmpDate)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.EmpNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Surname)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Othernames)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.IDNO)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Category)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Department)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.EmpStatus)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.nationality)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.gender)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DOB)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.maritalstatus)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.EMAIL)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.MOBILE)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.NSSFCode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.NHIFCode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PinNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.eposition)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.BankAccNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Bank)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.EmpDate)
+                                    </td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

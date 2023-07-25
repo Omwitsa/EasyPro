@@ -1,128 +1,242 @@
 ﻿@model IEnumerable<EasyPro.ViewModels.PayrollVm>
+    <style>
+        #customers {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
 
+            #customers td, #customers th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            #customers tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            #customers tr:hover {
+                background-color: #4cff00;
+            }
+
+            #customers th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: left;
+                background-color: #dec3eb;
+                color: white;
+            }
+
+        .divScroll {
+            width: 1110px;
+            height: 200px;
+            overflow: auto;
+        }
+    </style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <div class="col-sm-2 col-xs-12">
                     <h3 class="text-danger fa-bold">Payroll</h3>
                 </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <div class="col-sm-2 col-xs-12">
                     <input id="gfg" type="text" class="form-control"
                            placeholder="Search here">
                 </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <div class="col-sm-3 col-xs-12">
                     <a asp-action="Create" class="btn btn-primary">Process Payroll</a>
+                </div>
+                <div class="col-sm-2 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">End Date</label>
+                        <input id="curryDate" class="form-control" type="date" />
+                    </div>
+                </div>
+                <div class="col-sm-3 col-xs-12">
+                    <a id="curryForward" class="btn btn-success">Carry Forward</a>
                 </div>
             </div>
 
             <div class="bsc-tbl-hvr table-border-style">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Sno)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Names)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.PhoneNo)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.IdNo)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Bank)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.AccNo)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Branch)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Quantity)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.GrossPay)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Transport)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Registration)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Advance)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Others)
-                                </th>
-                                <th>
-                                    @Html.DisplayNameFor(model => model.Netpay)
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="geeks">
-                            @foreach (var item in Model)
-                            {
+                <div class="divScroll">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="customers">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Sno)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Names)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.PhoneNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.IdNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Bank)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.AccNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Branch)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Quantity)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.GrossPay)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Transport)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Registration)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Advance)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Others)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Netpay)
-                                    </td>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Sno)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Names)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.PhoneNo)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.IdNo)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Bank)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.AccNo)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Branch)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Quantity)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.GrossPay)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Transport)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Advance)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Fsa)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.CurryForward)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Clinical)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.AI)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Tractor)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Extension)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.SMS)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Registration)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Agrovet)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Bonus)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Hshares)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Others)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Netpay)
+                                    </th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="geeks">
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Sno)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Names)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PhoneNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.IdNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Bank)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AccNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Branch)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Quantity)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.GrossPay)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Transport)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Advance)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Fsa)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.CurryForward)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Clinical)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AI)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Tractor)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Extension)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.SMS)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Registration)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Agrovet)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Bonus)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Hshares)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Others)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Netpay)
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+                
             </div>
-        </div>
+            </div>
     </div>
 </div>
-@section scripts{
-    <script>
-        $(document).ready(function () {
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script type="text/javascript">
+        $(function () {
+            var date = new Date();
+            var lastDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            var last = lastDay.toISOString().split('T')[0];
+            $("#curryDate").val(last);
+
             $("#gfg").on("keyup", function () {
                 var value = $(this).val().toLowerCase();
                 $("#geeks tr").filter(function () {
@@ -130,6 +244,22 @@
                         .toLowerCase().indexOf(value) > -1)
                 });
             });
+
+            $('#curryForward').on('click', function () {
+                var curryDate = $("#curryDate").val();
+                $.ajax({
+                    type: 'GET',
+                    url: "curryForward?period=" + curryDate,
+                    contentType: 'application/json',
+                    success: function (response) {
+
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
         });
-    </script>
+</script>
 }

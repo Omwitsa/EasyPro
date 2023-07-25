@@ -30,9 +30,26 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             return View(await _context.Dispatch
-                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()))
+                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== "MAIN"
+                && i.Transdate >= startDate && i.Transdate <= endDate)
                 .OrderByDescending(s=>s.Transdate).ToListAsync());
+        }
+
+        // GET: Dispatches Branch
+        public async Task<IActionResult> BranchIndex()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            return View(await _context.Dispatch
+                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch
+                && i.Transdate>= startDate && i.Transdate<= DateTime.Today)
+                .OrderByDescending(s => s.Transdate).ToListAsync());
         }
 
         // GET: Dispatches/Details/5
@@ -61,6 +78,13 @@ namespace EasyPro.Controllers
             GetInitialValues();
             return View();
         }
+        // GET: Dispatches/Create
+        public IActionResult BranchCreate()
+        {
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            return View();
+        }
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -71,57 +95,126 @@ namespace EasyPro.Controllers
             ViewBag.debtorsnames = new SelectList(debtorsnames);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BranchCreate([Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,Remarks,auditid")] Dispatch dispatch)
+        {
+            try
+            {
+                utilities.SetUpPrivileges(this);
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var branch = HttpContext.Session.GetString(StrValues.Branch);
+                var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco 
+                && i.Transdate == dispatch.Transdate && i.Branch == branch);
+                //if (locations)
+                //{
+                //    _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
+                //    GetInitialValues();
+                //    return View();
+                //}
+                //if(dispatch.TIntake < dispatch.Dispatchkgs)
+                //{
+                //    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
+                //    GetInitialValues();
+                //    return View();
+                //}
+
+                if (ModelState.IsValid)
+                {
+                    var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                    dispatch.auditid = user;
+                    dispatch.Dcode = sacco;
+                    dispatch.Branch = branch;
+                    _context.Add(dispatch);
+                    _context.SaveChanges();
+                    var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                    var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.Trim().ToUpper().Equals(dispatch.DName.ToUpper()) && d.Dcode == sacco);
+
+                    _context.Gltransactions.Add(new Gltransaction
+                    {
+                        AuditId = auditId,
+                        TransDate = DateTime.Today,
+                        Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
+                        AuditTime = DateTime.Now,
+                        DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
+                        Source = dispatch.DName + branch,
+                        TransDescript = "Sales",
+                        Transactionno = $"{auditId}{DateTime.Now}",
+                        SaccoCode = sacco,
+                        DrAccNo = debtor.AccDr,
+                        CrAccNo = debtor.AccCr,
+                    });
+                    _context.SaveChanges();
+                    _notyf.Success("Dispatch saved successfully");
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (Exception ex)
+            {
+                return View(dispatch);
+            }
+            return View(dispatch);
+        }
+
+
         // POST: Dispatches/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,auditid")] Dispatch dispatch)
+        public async Task<IActionResult> Create([Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,Remarks,auditid")] Dispatch dispatch)
         {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco && i.Transdate== dispatch.Transdate);
-            if (locations)
+            try
             {
-                _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
-                GetInitialValues();
-                return View();
-            }
-            if(dispatch.TIntake < dispatch.Dispatchkgs)
-            {
-                _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
-                GetInitialValues();
-                return View();
-            }
+                utilities.SetUpPrivileges(this);
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco &&i.Branch=="MAIN" && i.Transdate == dispatch.Transdate);
+                //if (locations)
+                //{
+                //    _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
+                //    GetInitialValues();
+                //    return View();
+                //}
+                //if(dispatch.TIntake < dispatch.Dispatchkgs)
+                //{
+                //    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
+                //    GetInitialValues();
+                //    return View();
+                //}
 
-            if (ModelState.IsValid)
-            {
-                var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
-                dispatch.auditid = user;
-                dispatch.Dcode = sacco;
-                var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-
-                var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.ToUpper().Equals(dispatch.DName.ToUpper()));
-
-                _context.Gltransactions.Add(new Gltransaction
+                if (ModelState.IsValid)
                 {
-                    AuditId = auditId,
-                    TransDate = DateTime.Today,
-                    Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
-                    AuditTime = DateTime.Now,
-                    DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
-                    Source = dispatch.DName,
-                    TransDescript = "Sales",
-                    Transactionno = $"{auditId}{DateTime.Now}",
-                    SaccoCode = sacco,
-                    DrAccNo = debtor.AccDr,
-                    CrAccNo = debtor.AccCr,
-                });
+                    var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                    dispatch.auditid = user;
+                    dispatch.Dcode = sacco;
+                    dispatch.Branch = "MAIN";
+                    _context.Add(dispatch);
+                    _context.SaveChanges();
+                    var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                    var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.Trim().ToUpper().Equals(dispatch.DName.ToUpper()) && d.Dcode == sacco);
 
-                _context.Add(dispatch);
-                await _context.SaveChangesAsync();
-                _notyf.Success("Dispatch saved successfully");
-                return RedirectToAction(nameof(Index));
+                    _context.Gltransactions.Add(new Gltransaction
+                    {
+                        AuditId = auditId,
+                        TransDate = DateTime.Today,
+                        Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
+                        AuditTime = DateTime.Now,
+                        DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
+                        Source = dispatch.DName+ "MAIN",
+                        TransDescript = "Sales",
+                        Transactionno = $"{auditId}{DateTime.Now}",
+                        SaccoCode = sacco,
+                        DrAccNo = debtor.AccDr,
+                        CrAccNo = debtor.AccCr,
+                    });
+                    _context.SaveChanges();
+                    _notyf.Success("Dispatch saved successfully");
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (Exception ex)
+            {
+                return View(dispatch);
             }
             return View(dispatch);
         }
@@ -152,6 +245,8 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long id, [Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,auditid")] Dispatch dispatch)
         {
             utilities.SetUpPrivileges(this);
+            var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != dispatch.Id)
             {
                 return NotFound();
@@ -161,6 +256,8 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    dispatch.auditid = user;
+                    dispatch.Dcode = sacco;
                     _context.Update(dispatch);
                     await _context.SaveChangesAsync();
                 }
@@ -207,12 +304,29 @@ namespace EasyPro.Controllers
             return Json(todaysIntake);
         }
 
+        [HttpGet]
+        public JsonResult SelectedDateIntakebranch(DateTime date)
+        {
+            utilities.SetUpPrivileges(this);
+            var branch = HttpContext.Session.GetString(StrValues.Branch);
+            var todaysIntake = GetTodaysIntake(date, branch);
+            return Json(todaysIntake);
+        }
+        private decimal GetTodaysIntake(DateTime date, string branch)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var intakes = _context.ProductIntake.Where(i => i.TransDate == date && i.SaccoCode == sacco && i.Branch==branch && i.Description == "Intake");
+            var todaysIntake = intakes.Sum(i => i.Qsupplied);
+            var dispatchKgs = _context.Dispatch.Where(d => d.Dcode == sacco && d.Branch == branch && d.Transdate == date).Sum(d => d.Dispatchkgs);
+            todaysIntake -= dispatchKgs;
+            return todaysIntake;
+        }
         private decimal GetTodaysIntake(DateTime date)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var intakes = _context.ProductIntake.Where(i => i.TransDate == date && i.SaccoCode == sacco && i.Description == "Intake");
             var todaysIntake = intakes.Sum(i => i.Qsupplied);
-            var dispatchKgs = _context.Dispatch.Where(d => d.Dcode == sacco && d.Transdate == date).Sum(d => d.Dispatchkgs);
+            var dispatchKgs = _context.Dispatch.Where(d => d.Dcode == sacco && d.Branch=="MAIN" && d.Transdate == date).Sum(d => d.Dispatchkgs);
             todaysIntake -= dispatchKgs;
             return todaysIntake;
         }

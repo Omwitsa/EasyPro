@@ -90,14 +90,26 @@ namespace EasyPro.Controllers
                 utilities.SetUpPrivileges(this);
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                var intakes = _context.ProductIntake.Where(s => s.TransDate== date && s.SaccoCode == sacco).ToList();
-
+                var supplierNos = _context.DSuppliers.Where(s => s.Scode == sacco)
+                    .Select(s => s.Sno.ToString()).Distinct().ToList();
+                var intakes = _context.ProductIntake
+                    .Where(s => s.TransDate== date && s.SaccoCode == sacco && supplierNos.Contains(s.Sno)).ToList();
+                var alredydispatch = _context.Dispatch.Where(s => s.Transdate== date && s.Dcode == sacco).ToList();
                 var dispatch = _context.DispatchBalancing.FirstOrDefault(d => d.Saccocode == sacco && d.Date == date);
+                double dispatched = 0;
+                if (dispatch == null)
+                {
+                    dispatched = (double)alredydispatch.Sum(c => c.Dispatchkgs);
+                }
+                else
+                {
+                    dispatched = (double)dispatch.Dispatch;
+                }
                 dispatch = dispatch == null ? new DispatchBalancing() : dispatch;
                 var balancing = new DispatchBalancing
                 {
                     Intake = intakes.Sum(i => i.Qsupplied),
-                    Dispatch = dispatch.Dispatch,
+                    Dispatch = (decimal?)dispatched,
                     CF = dispatch.CF,
                     BF = dispatch.BF,
                     Actuals = dispatch.Actuals,
@@ -134,9 +146,12 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Variance already saved");
                     return Json("");
                 }
-                if(balancing.Dispatch > balancing.Actuals)
+                balancing.BF = balancing?.BF ?? 0;
+                balancing.Actuals = balancing?.Actuals ?? 0;
+                var available = balancing.BF + balancing.Actuals;
+                if (balancing.Dispatch > available)
                 {
-                    _notyf.Error("Sorry, Dispatch cannot exceed actuals");
+                    _notyf.Error("Sorry, Dispatch cannot exceed available quantity");
                     return Json("");
                 }
 
