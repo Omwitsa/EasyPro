@@ -56,7 +56,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Sub-County</label>
-                            <select asp-for="District" id="sub-county" class="form-control" asp-items="@ViewBag.SubCountyName" disabled ></select>
+                            <select asp-for="District" id="sub-county" class="form-control"  asp-items="@ViewBag.SubCountyName" required disabled ></select>
                             <span asp-validation-for="District" class="text-danger"></span>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Ward</label>
-                            <select asp-for="Division" id="ward"  class="form-control" asp-items="@ViewBag.WardSubCounty" required ></select>
+                            <select asp-for="Division" id="ward"  class="form-control" asp-items="@ViewBag.WardSubCounty" required disabled ></select>
                             <span asp-validation-for="Division" class="text-danger"></span>
                         </div>
                     </div>
@@ -156,8 +156,7 @@
         let sub_counties = subcounties.filter(p => p.County.trim() === county.trim());
 
         $.each(sub_counties, function () {
-        $('#sub-county').append($("
-    <option />").val(this.Name).text(this.Name));
+        $('#sub-county').append($("<option />").val(this.Name).text(this.Name));
     });
     });
 
@@ -168,8 +167,7 @@
     let curr_wards = wards.filter(p => p.SubCounty.trim() === subCounty.trim());
 
     $.each(curr_wards, function () {
-    $('#ward').append($("
-    <option />").val(this.Name).text(this.Name));
+    $('#ward').append($("<option />").val(this.Name).text(this.Name));
     });
     });
     });
