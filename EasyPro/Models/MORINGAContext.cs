@@ -276,6 +276,7 @@ namespace EasyPro.Models
         public virtual DbSet<FLMDLand> FLMDLand { get; set; }
         public virtual DbSet<ExcelDump> ExcelDump { get; set; }
         public virtual DbSet<ExcelDeductionDump> ExcelDeductionDump { get; set; }
+        public virtual DbSet<ExcelDumpSupReg> ExcelDumpSupReg { get; set; }
         public virtual DbSet<DispatchBalancing> DispatchBalancing { get; set; }
         public virtual DbSet<Bill> Bills { get; set; }
         public virtual DbSet<BillDetail> BillDetails { get; set; }

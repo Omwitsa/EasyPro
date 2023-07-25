@@ -6,6 +6,7 @@ using EasyPro.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -31,6 +32,21 @@ namespace EasyPro.Controllers
             utilities = new Utilities(context);
         }
 
+        public IActionResult SuppliersImportIndex()
+        {
+            utilities.SetUpPrivileges(this);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            sacco = sacco ?? "";
+
+            var counties = _context.DCompanies.OrderByDescending(K => K.Id).ToList();
+            if (!loggedInUser.ToLower().Equals("psigei"))
+                counties = _context.DCompanies.Where(i => i.Name.ToUpper().Equals(sacco.ToUpper())).ToList();
+
+            ViewBag.scode = new SelectList(counties.OrderBy(n => n.Name).ToList().Select(b => b.Name).ToList());
+
+            return View();
+        }
         public IActionResult Index()
         {
             utilities.SetUpPrivileges(this);
@@ -39,7 +55,54 @@ namespace EasyPro.Controllers
 
             return View();
         }
+        public ActionResult RegImport(String scodes)
+        {
+            utilities.SetUpPrivileges(this);
+            string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            string branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
+            if (loggedInUser.ToLower().Equals("psigei"))
+            {
+                var getbranch = _context.DBranch.FirstOrDefault(n => n.Bcode == scodes);
+                sacco = scodes;
+                branch = getbranch?.Bname ?? "MAIN";
+            }
+
+            IFormFile file = Request.Form.Files[0];
+            string folderName = "UploadExcel";
+            string webRootPath = _hostingEnvironment.WebRootPath;
+            string newPath = Path.Combine(webRootPath, folderName);
+            string str_excel_grid = "";
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+            if (file.Length > 0)
+            {
+                string sFileExtension = Path.GetExtension(file.FileName).ToLower();
+                ISheet sheet;
+                string fullPath = Path.Combine(newPath, file.FileName);
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                    stream.Position = 0;
+                    if (sFileExtension == ".xls")
+                    {
+                        HSSFWorkbook hssfwb = new HSSFWorkbook(stream); //This will read the Excel 97-2000 formats  
+                        sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook  
+                    }
+                    else
+                    {
+                        XSSFWorkbook hssfwb = new XSSFWorkbook(stream); //This will read 2007 Excel format  
+                        sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook   
+                    }
+
+                    str_excel_grid = utilities.GenerateExcelGridSupReg(sheet, sacco, loggedInUser, branch);
+                }
+            }
+            return this.Content(str_excel_grid);
+        }
         public ActionResult Import()
         {
             utilities.SetUpPrivileges(this);
@@ -81,16 +144,22 @@ namespace EasyPro.Controllers
             }
             return this.Content(str_excel_grid);
         }
-
+        public ActionResult RegDownload()
+        { 
+            string Files = "wwwroot/UploadExcel/CoreProgramm_ExcelImportSuppliers.xlsx";
+            byte[] fileBytes = System.IO.File.ReadAllBytes(Files);
+            System.IO.File.WriteAllBytes(Files, fileBytes);
+            MemoryStream ms = new MemoryStream(fileBytes);
+            return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, "registration.xlsx");
+        }
         public ActionResult Download()
-        {
+        { 
             string Files = "wwwroot/UploadExcel/CoreProgramm_ExcelImport.xlsx";
             byte[] fileBytes = System.IO.File.ReadAllBytes(Files);
             System.IO.File.WriteAllBytes(Files, fileBytes);
             MemoryStream ms = new MemoryStream(fileBytes);
-            return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, "employee.xlsx");
+            return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, "collection.xlsx");
         }
-
         public IActionResult Approve()
         {
             utilities.SetUpPrivileges(this);
@@ -303,6 +372,95 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
             }
             return RedirectToAction("Index");
+        }
+
+        public IActionResult RegApprove(string scodes)
+        {
+            utilities.SetUpPrivileges(this);
+            string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+
+            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            if (loggedInUser.ToLower().Equals("psigei"))
+            {
+                var getbranch = _context.DBranch.FirstOrDefault(n => n.Bcode == scodes);
+                sacco = scodes;
+                saccoBranch = getbranch?.Bname ?? "MAIN";
+            }
+
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var excelDumps = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
+            excelDumps.ForEach(e =>
+            {
+                var productIntake = new DSupplier
+                {
+                    Sno = e.SNo,
+                    Regdate = e.Reg_date,
+                    Names = e.Names,
+                    PhoneNo = e.PhoneNo,
+                    IdNo = e.IdNo,
+                    Dob = e.DOB,
+                    AccNo = e.Acc_Number,
+                    Bcode = e.Bank_code,
+                    Bbranch = e.Bank_Branch,
+                    Type = e.Gender,
+                    TransCode = e.PaymentMode,
+                    Village = e.Village,
+                    Location = e.LOCATION,
+                    Division = e.WARD,
+                    District = e.SUB_COUNTY,
+                    County = e.COUNTY,
+                    Trader =false,
+                    Active =true,
+                    Approval= true,
+                    Address="0",
+                    Town="",
+                    Email = "",
+                    AuditId = loggedInUser,
+                    Auditdatetime = DateTime.Now,
+                    Branch = saccoBranch,
+                    Scode = sacco,
+                    Loan= false,
+                    Compare="0",
+                    Isfrate = "0",
+                    Frate="0",
+                    Rate ="0",
+                    Hast= 0,
+                    Br= "0",
+                    Mno = "0",
+                    Branchcode =0,
+                    HasNursery ="0", 
+                    Notrees =0, 
+                    Aarno = "0",
+                    Tmd = DateTime.Now,
+                    Landsize = 0,
+                    Thcpactive = 0,
+                    Thcppremium = 0,
+                    Status = "0",
+                    Status2 = 0,
+                    Status3 =0,
+                    Status4 = 0,
+                    Status5 = 0,
+                    Status6 = "0",
+                    Types = "0",
+                    Freezed = "0",
+                    Mass = "0",
+                    Status1= 0,
+                    Run =0,
+                    Zone ="",
+                };
+                _context.DSuppliers.Add(productIntake);
+            });
+            _context.SaveChanges();
+
+            if (excelDumps.Any())
+            {
+                _context.ExcelDumpSupReg.RemoveRange(excelDumps);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("SuppliersImportIndex");
         }
     }
 }
