@@ -56,14 +56,21 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="TransDate" class="control-label"></label>
+                            <input id="transDate" type="date" asp-for="TransDate" class="form-control" />
+                            <span asp-validation-for="TransDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label asp-for="TransDescript" class="control-label"></label>
                             <input id="transDescript" asp-for="TransDescript" class="form-control" />
                             <span asp-validation-for="TransDescript" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 
                     </div>
                 </div>
@@ -75,6 +82,7 @@
                                 <th>Account No.</th>
                                 <th>DR</th>
                                 <th>CR</th>
+                                <th>Date</th>
                                 <th><a id="clearAll" class="btn btn-danger">CLEAR</a></th>
                             </tr>
                             <tbody id="details">
@@ -106,10 +114,17 @@
                     buildJournalDetails();
                 }
             });
-
+            // 
             $('#crAmt').on('blur', function () {
                 let crAmt = parseFloat($("#crAmt").val());
                 if (crAmt) {
+                    buildJournalDetails();
+                }
+            });
+
+            $('#transDate').on('blur', function () {
+                let date = $("#transDate").val();
+                if (date) {
                     buildJournalDetails();
                 }
             });
@@ -139,6 +154,7 @@
                 let docNo = $("#documentNo").val();
                 docNo = docNo ? docNo : "";
                 let transDescript = $("#transDescript").val();
+                let date = $("#transDate").val();
                 transDescript = transDescript ? transDescript : "";
                 let transactions = new Array();
                 if (drAccounts.length > 1) {
@@ -149,7 +165,8 @@
                             crAccNo: crAccounts[0].glAcc,
                             documentNo: docNo,
                             chequeNo: docNo,
-                            transDescript: transDescript
+                            transDescript: transDescript,
+                            transDate: date
                         });
                     });
                 }
@@ -160,7 +177,9 @@
                             drAccNo: drAccounts[0].glAcc,
                             crAccNo: d.glAcc,
                             documentNo: docNo,
-                            ChequeNo: docNo
+                            ChequeNo: docNo,
+                            transDescript: transDescript,
+                            transDate: date
                         });
                     });
                 }
@@ -192,10 +211,16 @@
                 let glAcc = $("#glAcc").val();
                 let drAmt = parseFloat($("#drAmt").val());
                 let crAmt = parseFloat($("#crAmt").val());
+                let date = $("#transDate").val()
                 if (!glAcc) {
                     $("#drAmt").val(0);
                     $("#crAmt").val(0);
                     alert("Kindly provide GL Account")
+                    return
+                }
+
+                if (!date) {
+                    alert("Kindly transaction date")
                     return
                 }
 
@@ -227,6 +252,7 @@
                     glAcc: glAcc,
                     amount: amount,
                     isdebit: isdebit,
+                    transDate: date
                 });
 
                 $("#glAcc").val("");
@@ -245,6 +271,7 @@
 				        <td>${j.glAcc}</td>
                         <td>${drAmt}</td>
                         <td>${crAmt}</td>
+                        <td>${j.transDate}</td>
 			        </tr>`);
                 });
 

@@ -45,7 +45,7 @@ namespace EasyPro.Controllers
                 transactions.ForEach(t =>
                 {
                     t.AuditId = loggedInUser;
-                    t.TransDate = DateTime.Today;
+                    t.TransDate = t.TransDate;
                     t.AuditTime = DateTime.Now;
                     t.Source = "";
                     t.TransDescript = t?.TransDescript ?? "";
