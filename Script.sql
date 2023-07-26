@@ -19,6 +19,4 @@ CREATE TABLE [dbo].[d_SupplierCumlative](
 GO
 
 
-ALTER TABLE FLMD ADD ExoticCattleValue money, IndigenousCattleValue money, IndigenousChickenValue money, SheepValue money, GoatsValue money, CamelsValue money, DonkeysValue money, PigsValue money, BeeHivesValue money
-ALTER TABLE FLMDCrops ADD CashCropsValue money, ConsumerCropsValue money, VegetablesValue money, AnimalFeedsValue money
-ALTER TABLE FLMDLand ADD PlotValue money
+ALTER TABLE d_company ADD SupStatementNote [nvarchar](200)

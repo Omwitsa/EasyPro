@@ -9,6 +9,26 @@
             <hr />
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                 <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="TransDate" class="control-label"></label>
+                            <input id="transDate" type="date" asp-for="TransDate" class="form-control" />
+                            <span asp-validation-for="TransDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="TransDescript" class="control-label"></label>
+                            <input id="transDescript" asp-for="TransDescript" class="form-control" />
+                            <span asp-validation-for="TransDescript" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
@@ -55,26 +75,6 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="TransDate" class="control-label"></label>
-                            <input id="transDate" type="date" asp-for="TransDate" class="form-control" />
-                            <span asp-validation-for="TransDate" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="TransDescript" class="control-label"></label>
-                            <input id="transDescript" asp-for="TransDescript" class="form-control" />
-                            <span asp-validation-for="TransDescript" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-
-                    </div>
-                </div>
-
                 <div class="bsc-tbl-hvr table-border-style">
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -107,6 +107,11 @@
     }
     <script type="text/javascript">
         $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#transDate").val(today);
+            $("#drAmt").val(0);
+            $("#crAmt").val(0);
+
             let journalDetails = new Array();
             $('#drAmt').on('blur', function () {
                 let drAmt = parseFloat($("#drAmt").val());
@@ -114,7 +119,7 @@
                     buildJournalDetails();
                 }
             });
-            // 
+
             $('#crAmt').on('blur', function () {
                 let crAmt = parseFloat($("#crAmt").val());
                 if (crAmt) {
@@ -125,6 +130,13 @@
             $('#transDate').on('blur', function () {
                 let date = $("#transDate").val();
                 if (date) {
+                    buildJournalDetails();
+                }
+            });
+
+            $('#transDescript').on('blur', function () {
+                let transDescript = $("#transDescript").val();
+                if (transDescript) {
                     buildJournalDetails();
                 }
             });
@@ -144,7 +156,7 @@
                     alert("Sorry, Debit amount must be equal to credit amount")
                     return
                 }
-                if (totalDrAmt < 1) {
+                if (totalDrAmt < 0.01) {
                     alert("Sorry, No item debited")
                     return
                 }
@@ -190,9 +202,8 @@
                     contentType: 'application/json',
                     data: JSON.stringify(transactions),
                     success: function (response) {
-                        //if (response.Success) {
-
-                        //}
+                        $("#transDescript").val('');
+                        $("#documentNo").val('');
                         $("#totalDrAmt").val(0);
                         $("#totalCrAmt").val(0);
                         journalDetails = new Array();
@@ -203,8 +214,6 @@
                 }).then(function () {
                     // ...
                 });
-
-                
             });
 
             function buildJournalDetails() {
@@ -212,15 +221,20 @@
                 let drAmt = parseFloat($("#drAmt").val());
                 let crAmt = parseFloat($("#crAmt").val());
                 let date = $("#transDate").val()
-                if (!glAcc) {
+                let transDescript = $("#transDescript").val();
+                if (drAmt < 0.01 && crAmt < 0.01) {
+                    return
+                }
+                
+                if (!glAcc && transDescript && (drAmt || crAmt)) {
                     $("#drAmt").val(0);
                     $("#crAmt").val(0);
                     alert("Kindly provide GL Account")
                     return
                 }
 
-                if (!date) {
-                    alert("Kindly transaction date")
+                if (!transDescript && glAcc && (drAmt || crAmt)) {
+                    alert("Kindly provide transaction description")
                     return
                 }
 

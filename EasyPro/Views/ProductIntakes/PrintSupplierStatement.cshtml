@@ -118,7 +118,6 @@
                             $("#branch").val('');
                             $("#date").val('');
                             $("#sno").val('');
-                            debugger
                             var content = generateHTML(response, filter);
                             printJS({
                                 printable: content,
@@ -219,7 +218,8 @@
                                                 Bank Name: ${response.supplier.Bcode}</br>
                                                 Bank Branch: ${response.supplier.Bbranch}</br>
                                                 Acc No.: ${response.supplier.AccNo}</br>
-                                                *************************
+                                                *************************</br>
+                                                ${response.company.SupStatementNote}
                                             </h5>
                                             <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
                                                 **************************

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
@@ -30,5 +31,7 @@ namespace EasyPro.Models
         public decimal? Smscost { get; set; }
         public int Smsport { get; set; }
         public string Period { get; set; }
+        [Display(Name = "Supplier Statement Note")]
+        public string SupStatementNote { get; set; }
     }
 }

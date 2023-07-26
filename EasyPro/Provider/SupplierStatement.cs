@@ -88,6 +88,7 @@ namespace EasyPro.Provider
 
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == filter.Code && s.Scode == filter.Sacco && s.Branch == filter.Branch);
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
+            company.SupStatementNote = company?.SupStatementNote ?? "";
 
             var transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(filter.Code.ToUpper()) && t.saccocode== filter.Sacco);
             var transporterName = "";
