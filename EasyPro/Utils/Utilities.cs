@@ -46,8 +46,47 @@ namespace EasyPro.Utils
                     SaccoCode = sacco,
                     Staff = true,
                     Store = true,
-                    Flmd = true
-                };
+                    Flmd = true,
+                    RFarmers = true,
+                    RTransporter = true,
+                    RImportS = true,
+                    RVendor = true,
+                    RCustomer = true,
+                    StandingOrder = true,
+                    CashShares = true,
+                    DefaultDed = true,
+                    DedFarmer = true,
+                    DedTransport = true,
+                    DedStaff = true,
+                    TransporterAssign = true,
+                    Millers = true,
+                    Marketers = true,
+                    Pulping = true,
+                    Milling = true,
+                    Marketing = true,
+                    CofPricing = true,
+                    CofPayroll = true,
+                    SetProducts = true,
+                    SetPrice = true,
+                    SetFarmersDif = true,
+                    SetOrganization = true,
+                    SetOrgBranch = true,
+                    SetUsers = true,
+                    SetUserGroups = true,
+                    SetCounties = true,
+                    SetSubCounties = true,
+                    SetWards = true,
+                    SetLocation = true,
+                    SetDedTypes = true,
+                    SetBanks = true,
+                    SetBanksBranch = true,
+                    SetZones = true,
+                    SetDebtors = true,
+                    SetTaxes = true,
+                    SetSharesCat = true,
+                    SetRoutes = true,
+                };   
+        
                 _context.Usergroups.Add(val);
                 _context.SaveChanges();
 
@@ -70,6 +109,44 @@ namespace EasyPro.Utils
             controller.ViewBag.deductionsRole = usergroup.Deductions;
             controller.ViewBag.flmd = usergroup.Flmd;
             controller.ViewBag.isTanyakina = sacco == StrValues.Tanykina;
+            controller.ViewBag.RFarmers = usergroup.RFarmers;
+            controller.ViewBag.RTransporter = usergroup.RTransporter;
+            controller.ViewBag.RImportS = usergroup.RImportS;
+            controller.ViewBag.RVendor = usergroup.RVendor;
+            controller.ViewBag.RCustomer = usergroup.RCustomer;
+            controller.ViewBag.StandingOrder = usergroup.StandingOrder;
+            controller.ViewBag.CashShares = usergroup.CashShares;
+            controller.ViewBag.DefaultDed = usergroup.DefaultDed;
+            controller.ViewBag.DedFarmer = usergroup.DedFarmer;
+            controller.ViewBag.DedTransport = usergroup.DedTransport;
+            controller.ViewBag.DedStaff = usergroup.DedStaff;
+            controller.ViewBag.TransporterAssign = usergroup.TransporterAssign;
+            controller.ViewBag.Millers = usergroup.Millers;
+            controller.ViewBag.Marketers = usergroup.Marketers;
+            controller.ViewBag.Pulping = usergroup.Pulping;
+            controller.ViewBag.Milling = usergroup.Milling;
+            controller.ViewBag.Marketing = usergroup.Marketing;
+            controller.ViewBag.CofPricing = usergroup.CofPricing;
+            controller.ViewBag.CofPayroll = usergroup.CofPayroll;
+            controller.ViewBag.SetProducts = usergroup.SetProducts;
+            controller.ViewBag.SetPrice = usergroup.SetPrice;
+            controller.ViewBag.SetFarmersDif = usergroup.SetFarmersDif;
+            controller.ViewBag.SetOrganization = usergroup.SetOrganization;
+            controller.ViewBag.SetOrgBranch = usergroup.SetOrgBranch;
+            controller.ViewBag.SetUsers = usergroup.SetUsers;
+            controller.ViewBag.SetUserGroups = usergroup.SetUserGroups;
+            controller.ViewBag.SetCounties = usergroup.SetCounties;
+            controller.ViewBag.SetSubCounties = usergroup.SetSubCounties;
+            controller.ViewBag.SetWards = usergroup.SetWards;
+            controller.ViewBag.SetLocation = usergroup.SetLocation;
+            controller.ViewBag.SetDedTypes = usergroup.SetDedTypes;
+            controller.ViewBag.SetBanks = usergroup.SetBanks;
+            controller.ViewBag.SetBanksBranch = usergroup.SetBanksBranch;
+            controller.ViewBag.SetZones = usergroup.SetZones;
+            controller.ViewBag.SetDebtors = usergroup.SetDebtors;
+            controller.ViewBag.SetTaxes = usergroup.SetTaxes;
+            controller.ViewBag.SetSharesCat = usergroup.SetSharesCat;
+            controller.ViewBag.SetRoutes = usergroup.SetRoutes;
         }
 
         public string GenerateExcelGridSupReg(ISheet sheet, string sacco, string loggedInUser, string branch)

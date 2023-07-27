@@ -43,7 +43,6 @@
                 <form asp-action="RegApprove">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="row">
-                        upload format: Reg_date,SNo,Names,PhoneNo,IdNo,DOB,Acc_No,BankName,BankBranch,Gender,PaymentMode,Village,LOCATION,WARD,SUB_COUNTY,COUNTY
                     </div>
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -51,7 +50,7 @@
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <div class="form-group">
-                                <label class="control-label">County</label>
+                                <label class="control-label">Society Name</label>
                                 <select id="scode"  class="form-control" asp-items="@ViewBag.scode" required>
                                     <option value=""></option>
                                 </select>

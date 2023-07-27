@@ -36,56 +36,88 @@
                             <input asp-for="Registration" type="checkbox" />
                             <label asp-for="Registration"></label>
                             <div class="row">
-                                <div class="col-2">
+                                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
                                     <div class="col-md-3 ml-md-auto">
 
                                     </div>
                                 </div>
-                                <div class="col-8">
+                                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
                                     <div class="form-group">
-                                        <input asp-for="Registration" type="checkbox" />
-                                        <label asp-for="Registration"></label>
-
+                                        <input asp-for="RFarmers" type="checkbox" />
+                                        <label asp-for="RFarmers"></label>
                                     </div>
-
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-2">
-                                    <div class="col-md-3 ml-md-auto">
-
-                                    </div>
-                                </div>
-                                <div class="col-8">
                                     <div class="form-group">
-                                        <input asp-for="Registration" type="checkbox" />
-                                        <label asp-for="Registration"></label>
+                                        <input asp-for="RTransporter" type="checkbox" />
+                                        <label asp-for="RTransporter"></label>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-2">
-                                    <div class="col-md-3 ml-md-auto">
-
-                                    </div>
-                                </div>
-                                <div class="col-8">
                                     <div class="form-group">
-                                        <input asp-for="Registration" type="checkbox" />
-                                        <label asp-for="Registration"></label>
-
+                                        <input asp-for="RImportS" type="checkbox" />
+                                        <label asp-for="RImportS"></label>
                                     </div>
-
+                                    <div class="form-group">
+                                        <input asp-for="RVendor" type="checkbox" />
+                                        <label asp-for="RVendor"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="RCustomer" type="checkbox" />
+                                        <label asp-for="RCustomer"></label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <input asp-for="Deductions" type="checkbox" />
                             <label asp-for="Deductions"></label>
+                            <div class="row">
+                                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                                    <div class="col-md-3 ml-md-auto">
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+                                    <div class="form-group">
+                                        <input asp-for="StandingOrder" type="checkbox" />
+                                        <label asp-for="StandingOrder"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="CashShares" type="checkbox" />
+                                        <label asp-for="CashShares"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="DefaultDed" type="checkbox" />
+                                        <label asp-for="DefaultDed"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="DedFarmer" type="checkbox" />
+                                        <label asp-for="DedFarmer"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="DedTransport" type="checkbox" />
+                                        <label asp-for="DedTransport"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="DedStaff" type="checkbox" />
+                                        <label asp-for="DedStaff"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="TransporterAssign" type="checkbox" />
+                                        <label asp-for="TransporterAssign"></label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <input asp-for="SaccoReports" type="checkbox" />
                             <label asp-for="SaccoReports"></label>
+                        </div>
+                        <div class="form-group">
+                            <input asp-for="Staff" type="checkbox" />
+                            <label asp-for="Staff"></label>
+                        </div>
+
+                        <div class="form-group">
+                            <input asp-for="Reports" type="checkbox" />
+                            <label asp-for="Reports"></label>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -102,25 +134,137 @@
                             <label asp-for="Activity"></label>
                         </div>
                         <div class="form-group">
-                            <input asp-for="Accounts" type="checkbox" />
-                            <label asp-for="Accounts"></label>
+                            <input asp-for="Coffee" type="checkbox" />
+                            <label asp-for="Coffee"></label>
+                            <div class="row">
+                                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                                    <div class="col-md-3 ml-md-auto">
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+                                    <div class="form-group">
+                                        <input asp-for="Millers" type="checkbox" />
+                                        <label asp-for="Millers"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="Marketers" type="checkbox" />
+                                        <label asp-for="Marketers"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="Pulping" type="checkbox" />
+                                        <label asp-for="Pulping"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="Milling" type="checkbox" />
+                                        <label asp-for="Milling"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="Marketing" type="checkbox" />
+                                        <label asp-for="Marketing"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="CofPricing" type="checkbox" />
+                                        <label asp-for="CofPricing"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input asp-for="CofPayroll" type="checkbox" />
+                                        <label asp-for="CofPayroll"></label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
+                            <input asp-for="Accounts" type="checkbox" />
+                            <label asp-for="Accounts"></label>
+                        </div>
+                        <div class="form-group">
                             <input asp-for="Setup" type="checkbox" />
                             <label asp-for="Setup"></label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <input asp-for="Staff" type="checkbox" />
-                            <label asp-for="Staff"></label>
+                            <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+                                <div class="form-group">
+                                    <input asp-for="SetProducts" type="checkbox" />
+                                    <label asp-for="SetProducts"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetPrice" type="checkbox" />
+                                    <label asp-for="SetPrice"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetFarmersDif" type="checkbox" />
+                                    <label asp-for="SetFarmersDif"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetOrganization" type="checkbox" />
+                                    <label asp-for="SetOrganization"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetOrgBranch" type="checkbox" />
+                                    <label asp-for="SetOrgBranch"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetUsers" type="checkbox" />
+                                    <label asp-for="SetUsers"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetUserGroups" type="checkbox" />
+                                    <label asp-for="SetUserGroups"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetCounties" type="checkbox" />
+                                    <label asp-for="SetCounties"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetSubCounties" type="checkbox" />
+                                    <label asp-for="SetSubCounties"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetWards" type="checkbox" />
+                                    <label asp-for="SetWards"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetLocation" type="checkbox" />
+                                    <label asp-for="SetLocation"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetDedTypes" type="checkbox" />
+                                    <label asp-for="SetDedTypes"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetBanks" type="checkbox" />
+                                    <label asp-for="SetBanks"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetBanksBranch" type="checkbox" />
+                                    <label asp-for="SetBanksBranch"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetZones" type="checkbox" />
+                                    <label asp-for="SetZones"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetDebtors" type="checkbox" />
+                                    <label asp-for="SetDebtors"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetTaxes" type="checkbox" />
+                                    <label asp-for="SetTaxes"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetSharesCat" type="checkbox" />
+                                    <label asp-for="SetSharesCat"></label>
+                                </div>
+                                <div class="form-group">
+                                    <input asp-for="SetRoutes" type="checkbox" />
+                                    <label asp-for="SetRoutes"></label>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <input asp-for="Reports" type="checkbox" />
-                            <label asp-for="Reports"></label>
-                        </div>
+                        
+                        
                     </div>
                 </div>
 
