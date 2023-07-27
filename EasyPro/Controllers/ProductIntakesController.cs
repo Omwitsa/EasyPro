@@ -405,15 +405,18 @@ namespace EasyPro.Controllers
         public JsonResult sumDateIntake(DateTime date)
         {
             utilities.SetUpPrivileges(this);
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date).Sum(p => p.Qsupplied);
-            var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+            var Todayskg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date).Sum(p => p.Qsupplied);
+            var TodaysSubtractedkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.DR>0 && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date).Sum(p => p.Qsupplied);
+            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+            var TodaysBranchkgSubtracted = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.DR>0 && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
 
             return Json(new dailymilkVM
             {
-                Todayskg = Todayskg,
-                TodaysBranchkg = TodaysBranchkg
+                Todayskg = Todayskg - TodaysSubtractedkg,
+                TodaysBranchkg = TodaysBranchkg- TodaysBranchkgSubtracted
             });
         }
         private void SetIntakeInitialValues()

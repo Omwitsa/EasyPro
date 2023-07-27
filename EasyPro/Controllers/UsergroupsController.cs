@@ -63,7 +63,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Flmd,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Create(Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             try
@@ -102,6 +102,44 @@ namespace EasyPro.Controllers
                 usergroup.Store = usergroup?.Store ?? false;
                 usergroup.Flmd = usergroup?.Flmd ?? false;
                 usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
+                usergroup.RFarmers = usergroup?.RFarmers ?? false;
+                usergroup.RTransporter = usergroup?.RTransporter ?? false;
+                usergroup.RImportS = usergroup?.RImportS ?? false;
+                usergroup.RVendor = usergroup?.RVendor ?? false;
+                usergroup.RCustomer = usergroup?.RCustomer ?? false;
+                usergroup.StandingOrder = usergroup?.StandingOrder ?? false;
+                usergroup.CashShares = usergroup?.CashShares ?? false;
+                usergroup.DefaultDed = usergroup?.DefaultDed ?? false;
+                usergroup.DedFarmer = usergroup?.DedFarmer ?? false;
+                usergroup.DedTransport = usergroup?.DedTransport ?? false;
+                usergroup.DedStaff = usergroup?.DedStaff ?? false;
+                usergroup.TransporterAssign = usergroup?.TransporterAssign ?? false;
+                usergroup.Millers = usergroup?.Millers ?? false;
+                usergroup.Marketers = usergroup?.Marketers ?? false;
+                usergroup.Pulping = usergroup?.Pulping ?? false;
+                usergroup.Milling = usergroup?.Milling ?? false;
+                usergroup.Marketing = usergroup?.Marketing ?? false;
+                usergroup.CofPricing = usergroup?.CofPricing ?? false;
+                usergroup.CofPayroll = usergroup?.CofPayroll ?? false;
+                usergroup.SetProducts = usergroup?.SetProducts ?? false;
+                usergroup.SetPrice = usergroup?.SetPrice ?? false;
+                usergroup.SetFarmersDif = usergroup?.SetFarmersDif ?? false;
+                usergroup.SetOrganization = usergroup?.SetOrganization ?? false;
+                usergroup.SetOrgBranch = usergroup?.SetOrgBranch ?? false;
+                usergroup.SetUsers = usergroup?.SetUsers ?? false;
+                usergroup.SetUserGroups = usergroup?.SetUserGroups ?? false;
+                usergroup.SetCounties = usergroup?.SetCounties ?? false;
+                usergroup.SetSubCounties = usergroup?.SetSubCounties ?? false;
+                usergroup.SetWards = usergroup?.SetWards ?? false;
+                usergroup.SetLocation = usergroup?.SetLocation ?? false;
+                usergroup.SetDedTypes = usergroup?.SetDedTypes ?? false;
+                usergroup.SetBanks = usergroup?.SetBanks ?? false;
+                usergroup.SetBanksBranch = usergroup?.SetBanksBranch ?? false;
+                usergroup.SetZones = usergroup?.SetZones ?? false;
+                usergroup.SetDebtors = usergroup?.SetDebtors ?? false;
+                usergroup.SetTaxes = usergroup?.SetTaxes ?? false;
+                usergroup.SetSharesCat = usergroup?.SetSharesCat ?? false;
+                usergroup.SetRoutes = usergroup?.SetRoutes ?? false;
 
                 _context.Add(usergroup);
                 await _context.SaveChangesAsync();
@@ -137,7 +175,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Flmd,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Edit(string id, Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             if (id != usergroup.GroupId)
@@ -187,6 +225,44 @@ namespace EasyPro.Controllers
                     usergroup.Store = usergroup?.Store ?? false;
                     usergroup.Flmd = usergroup?.Flmd ?? false;
                     usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
+                    usergroup.RFarmers = usergroup?.RFarmers ?? false;
+                    usergroup.RTransporter = usergroup?.RTransporter ?? false;
+                    usergroup.RImportS = usergroup?.RImportS ?? false;
+                    usergroup.RVendor = usergroup?.RVendor ?? false;
+                    usergroup.RCustomer = usergroup?.RCustomer ?? false;
+                    usergroup.StandingOrder = usergroup?.StandingOrder ?? false;
+                    usergroup.CashShares = usergroup?.CashShares ?? false;
+                    usergroup.DefaultDed = usergroup?.DefaultDed ?? false;
+                    usergroup.DedFarmer = usergroup?.DedFarmer ?? false;
+                    usergroup.DedTransport = usergroup?.DedTransport ?? false;
+                    usergroup.DedStaff = usergroup?.DedStaff ?? false;
+                    usergroup.TransporterAssign = usergroup?.TransporterAssign ?? false;
+                    usergroup.Millers = usergroup?.Millers ?? false;
+                    usergroup.Marketers = usergroup?.Marketers ?? false;
+                    usergroup.Pulping = usergroup?.Pulping ?? false;
+                    usergroup.Milling = usergroup?.Milling ?? false;
+                    usergroup.Marketing = usergroup?.Marketing ?? false;
+                    usergroup.CofPricing = usergroup?.CofPricing ?? false;
+                    usergroup.CofPayroll = usergroup?.CofPayroll ?? false;
+                    usergroup.SetProducts = usergroup?.SetProducts ?? false;
+                    usergroup.SetPrice = usergroup?.SetPrice ?? false;
+                    usergroup.SetFarmersDif = usergroup?.SetFarmersDif ?? false;
+                    usergroup.SetOrganization = usergroup?.SetOrganization ?? false;
+                    usergroup.SetOrgBranch = usergroup?.SetOrgBranch ?? false;
+                    usergroup.SetUsers = usergroup?.SetUsers ?? false;
+                    usergroup.SetUserGroups = usergroup?.SetUserGroups ?? false;
+                    usergroup.SetCounties = usergroup?.SetCounties ?? false;
+                    usergroup.SetSubCounties = usergroup?.SetSubCounties ?? false;
+                    usergroup.SetWards = usergroup?.SetWards ?? false;
+                    usergroup.SetLocation = usergroup?.SetLocation ?? false;
+                    usergroup.SetDedTypes = usergroup?.SetDedTypes ?? false;
+                    usergroup.SetBanks = usergroup?.SetBanks ?? false;
+                    usergroup.SetBanksBranch = usergroup?.SetBanksBranch ?? false;
+                    usergroup.SetZones = usergroup?.SetZones ?? false;
+                    usergroup.SetDebtors = usergroup?.SetDebtors ?? false;
+                    usergroup.SetTaxes = usergroup?.SetTaxes ?? false;
+                    usergroup.SetSharesCat = usergroup?.SetSharesCat ?? false;
+                    usergroup.SetRoutes = usergroup?.SetRoutes ?? false;
                     _context.Update(usergroup);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Group edited successfully");
