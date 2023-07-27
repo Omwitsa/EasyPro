@@ -63,7 +63,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Flmd,Files,Accounts,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Create( Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             try
@@ -89,7 +89,7 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Group name already exist");
                     return View(usergroup);
                 }
-               
+
                 usergroup.SaccoCode = sacco;
                 usergroup.Registration = usergroup?.Registration ?? false;
                 usergroup.Activity = usergroup?.Activity ?? false;
@@ -102,6 +102,37 @@ namespace EasyPro.Controllers
                 usergroup.Store = usergroup?.Store ?? false;
                 usergroup.Flmd = usergroup?.Flmd ?? false;
                 usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
+                usergroup.Products = usergroup?.Products ?? false;
+                usergroup.ProdSupplier = usergroup?.ProdSupplier ?? false;
+                usergroup.ProdSales = usergroup?.ProdSales ?? false;
+                usergroup.SalesReturn = usergroup?.SalesReturn ?? false;
+                usergroup.ProdDispatch = usergroup?.ProdDispatch ?? false;
+                usergroup.ProdIntake = usergroup?.ProdIntake ?? false;
+                usergroup.IntakeCorrection = usergroup?.IntakeCorrection ?? false;
+                usergroup.ImportIntake = usergroup?.ImportIntake ?? false;
+                usergroup.MilkTest = usergroup?.MilkTest ?? false;
+                usergroup.VarBalancing = usergroup?.VarBalancing ?? false;
+                usergroup.Dispatch = usergroup?.Dispatch ?? false;
+                usergroup.SendSms = usergroup?.SendSms ?? false;
+                usergroup.MilkControl = usergroup?.MilkControl ?? false;
+                usergroup.BranchMilkEnquiry = usergroup?.BranchMilkEnquiry ?? false;
+                usergroup.SupplierStatement = usergroup?.SupplierStatement ?? false;
+                usergroup.TransporterStatement = usergroup?.TransporterStatement ?? false;
+                usergroup.ChartsofAcc = usergroup?.ChartsofAcc ?? false;
+                usergroup.JournalPosting = usergroup?.JournalPosting ?? false;
+                usergroup.Glinquiry = usergroup?.Glinquiry ?? false;
+                usergroup.Budgettings = usergroup?.Budgettings ?? false;
+                usergroup.JournalListing = usergroup?.JournalListing ?? false;
+                usergroup.TrialBalance = usergroup?.TrialBalance ?? false;
+                usergroup.IncomeStatement = usergroup?.IncomeStatement ?? false;
+                usergroup.BalanceSheet = usergroup?.BalanceSheet ?? false;
+                usergroup.Payroll = usergroup?.Payroll ?? false;
+                usergroup.Bills = usergroup?.Bills ?? false;
+                usergroup.Refunds = usergroup?.Refunds ?? false;
+                usergroup.CustomerInvoices = usergroup?.CustomerInvoices ?? false;
+                usergroup.CreditNotes = usergroup?.CreditNotes ?? false;
+                usergroup.VendorProducts = usergroup?.VendorProducts ?? false;
+                usergroup.CustomerProducts = usergroup?.CustomerProducts ?? false;
 
                 _context.Add(usergroup);
                 await _context.SaveChangesAsync();
@@ -137,7 +168,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("GroupId,GroupName,Registration,Activity,Activity,Reports,Setup,Files,Accounts,Flmd,Deductions,Staff,Store,SaccoReports")] Usergroup usergroup)
+        public async Task<IActionResult> Edit(string id,  Usergroup usergroup)
         {
             utilities.SetUpPrivileges(this);
             if (id != usergroup.GroupId)
@@ -174,7 +205,7 @@ namespace EasyPro.Controllers
                         _notyf.Error("Sorry, Group name already exist");
                         return View(usergroup);
                     }
-                   
+
                     usergroup.SaccoCode = sacco;
                     usergroup.Registration = usergroup?.Registration ?? false;
                     usergroup.Activity = usergroup?.Activity ?? false;
@@ -187,6 +218,37 @@ namespace EasyPro.Controllers
                     usergroup.Store = usergroup?.Store ?? false;
                     usergroup.Flmd = usergroup?.Flmd ?? false;
                     usergroup.SaccoReports = usergroup?.SaccoReports ?? false;
+                    usergroup.Products = usergroup?.Products ?? false;
+                    usergroup.ProdSupplier = usergroup?.ProdSupplier ?? false;
+                    usergroup.ProdSales = usergroup?.ProdSales ?? false;
+                    usergroup.SalesReturn = usergroup?.SalesReturn ?? false;
+                    usergroup.ProdDispatch = usergroup?.ProdDispatch ?? false;
+                    usergroup.ProdIntake = usergroup?.ProdIntake ?? false;
+                    usergroup.IntakeCorrection = usergroup?.IntakeCorrection ?? false;
+                    usergroup.ImportIntake = usergroup?.ImportIntake ?? false;
+                    usergroup.MilkTest = usergroup?.MilkTest ?? false;
+                    usergroup.VarBalancing = usergroup?.VarBalancing ?? false;
+                    usergroup.Dispatch = usergroup?.Dispatch ?? false;
+                    usergroup.SendSms = usergroup?.SendSms ?? false;
+                    usergroup.MilkControl = usergroup?.MilkControl ?? false;
+                    usergroup.BranchMilkEnquiry = usergroup?.BranchMilkEnquiry ?? false;
+                    usergroup.SupplierStatement = usergroup?.SupplierStatement ?? false;
+                    usergroup.TransporterStatement = usergroup?.TransporterStatement ?? false;
+                    usergroup.ChartsofAcc = usergroup?.ChartsofAcc ?? false;
+                    usergroup.JournalPosting = usergroup?.JournalPosting ?? false;
+                    usergroup.Glinquiry = usergroup?.Glinquiry ?? false;
+                    usergroup.Budgettings = usergroup?.Budgettings ?? false;
+                    usergroup.JournalListing = usergroup?.JournalListing ?? false;
+                    usergroup.TrialBalance = usergroup?.TrialBalance ?? false;
+                    usergroup.IncomeStatement = usergroup?.IncomeStatement ?? false;
+                    usergroup.BalanceSheet = usergroup?.BalanceSheet ?? false;
+                    usergroup.Payroll = usergroup?.Payroll ?? false;
+                    usergroup.Bills = usergroup?.Bills ?? false;
+                    usergroup.Refunds = usergroup?.Refunds ?? false;
+                    usergroup.CustomerInvoices = usergroup?.CustomerInvoices ?? false;
+                    usergroup.CreditNotes = usergroup?.CreditNotes ?? false;
+                    usergroup.VendorProducts = usergroup?.VendorProducts ?? false;
+                    usergroup.CustomerProducts = usergroup?.CustomerProducts ?? false;
                     _context.Update(usergroup);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Group edited successfully");

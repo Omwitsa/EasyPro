@@ -46,7 +46,39 @@ namespace EasyPro.Utils
                     SaccoCode = sacco,
                     Staff = true,
                     Store = true,
-                    Flmd = true
+                    Flmd = true,
+                    Products = true,
+                    ProdSupplier = true,
+                    ProdSales = true,
+                    SalesReturn=true,
+                    ProdDispatch=true,
+                    ProdIntake = true,
+                    IntakeCorrection = true,
+                    ImportIntake = true,
+                    MilkTest = true,
+                    VarBalancing = true,
+                    Dispatch = true,
+                    SendSms = true,
+                    MilkControl = true,
+                    BranchMilkEnquiry = true,
+                    SupplierStatement = true,
+                    TransporterStatement = true,
+                    ChartsofAcc = true,
+                    JournalPosting = true,
+                    Glinquiry = true,
+                    Budgettings = true,
+                    JournalListing = true,
+                    TrialBalance = true,
+                    IncomeStatement = true,
+                    BalanceSheet = true,
+                    Payroll = true,
+                    Bills = true,
+                    Refunds = true,
+                    CustomerInvoices = true,
+                    CreditNotes = true,
+                    VendorProducts = true,
+                    CustomerProducts = true
+
                 };
                 _context.Usergroups.Add(val);
                 _context.SaveChanges();
@@ -70,6 +102,37 @@ namespace EasyPro.Utils
             controller.ViewBag.deductionsRole = usergroup.Deductions;
             controller.ViewBag.flmd = usergroup.Flmd;
             controller.ViewBag.isTanyakina = sacco == StrValues.Tanykina;
+            controller.ViewBag.productsRole = usergroup.Products;
+            controller.ViewBag.productSupplierRole = usergroup.ProdSupplier;
+            controller.ViewBag.productSalesRole = usergroup.ProdSales;
+            controller.ViewBag.salesReturnRole = usergroup.SalesReturn;
+            controller.ViewBag.prodDispatchRole = usergroup.ProdDispatch;
+            controller.ViewBag.ProdIntakeRole = usergroup.ProdIntake;
+            controller.ViewBag.CorrectionRole = usergroup.IntakeCorrection;
+            controller.ViewBag.ImportIntakeRole = usergroup.ImportIntake;
+            controller.ViewBag.MilkTestRole = usergroup.MilkTest;
+            controller.ViewBag.VarBalancingRole = usergroup.VarBalancing;
+            controller.ViewBag.DispatchRole = usergroup.Dispatch;
+            controller.ViewBag.SendSmsRole = usergroup.SendSms;
+            controller.ViewBag.MilkControlRole = usergroup.MilkControl;
+            controller.ViewBag.BranchMilkEnquiryRole = usergroup.BranchMilkEnquiry;
+            controller.ViewBag.SupplierStatementRole = usergroup.SupplierStatement;
+            controller.ViewBag.TransporterStatementRole = usergroup.TransporterStatement;
+            controller.ViewBag.ChartsofAccRole = usergroup.ChartsofAcc;
+            controller.ViewBag.JournalPostingRole = usergroup.JournalPosting;
+            controller.ViewBag.GlinquiryRole = usergroup.Glinquiry;
+            controller.ViewBag.BudgettingsRole = usergroup.Budgettings;
+            controller.ViewBag.JournalListingRole = usergroup.JournalListing;
+            controller.ViewBag.TrialBalanceRole = usergroup.TrialBalance;
+            controller.ViewBag.IncomeStatementRole = usergroup.IncomeStatement;
+            controller.ViewBag.BalanceSheetRole = usergroup.BalanceSheet;
+            controller.ViewBag.PayrollRole = usergroup.Payroll;
+            controller.ViewBag.BillsRole = usergroup.Bills;
+            controller.ViewBag.RefundsRole = usergroup.Refunds;
+            controller.ViewBag.CustomerInvoicesRole = usergroup.CustomerInvoices;
+            controller.ViewBag.CreditNotesRole = usergroup.CreditNotes;
+            controller.ViewBag.VendorProductsRole = usergroup.VendorProducts;
+            controller.ViewBag.CustomerProductsRole = usergroup.CustomerProducts;
         }
 
         public string GenerateExcelGridSupReg(ISheet sheet, string sacco, string loggedInUser, string branch)
