@@ -21,6 +21,7 @@ namespace EasyPro.ViewModels
         [Display(Name = "Loan")]
         public decimal? Fsa { get; set; }
         public decimal? Advance { get; set; }
+        public decimal? MIDPAY { get; set; }
         public decimal? CurryForward { get; set; }
         public decimal? Clinical { get; set; }
         public decimal? AI { get; set; }

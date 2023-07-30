@@ -415,24 +415,25 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 6).Value = "Bonus";
                 worksheet.Cell(currentRow, 7).Value = "Shares";
                 worksheet.Cell(currentRow, 8).Value = "Advance";
-                worksheet.Cell(currentRow, 9).Value = "midmonth";
-                worksheet.Cell(currentRow, 10).Value = "Others";
-                worksheet.Cell(currentRow, 11).Value = "Tractor";
-                worksheet.Cell(currentRow, 12).Value = "Clinical";
-                worksheet.Cell(currentRow, 13).Value = "Extension";
-                worksheet.Cell(currentRow, 14).Value = "AI";
-                worksheet.Cell(currentRow, 15).Value = "CurryForward";
-                worksheet.Cell(currentRow, 16).Value = "SMS";
-                worksheet.Cell(currentRow, 17).Value = "Loan";
-                worksheet.Cell(currentRow, 18).Value = "Registration";
-                worksheet.Cell(currentRow, 19).Value = "TDeductions";
-                worksheet.Cell(currentRow, 20).Value = "KgsSupplied";
-                worksheet.Cell(currentRow, 21).Value = "GPay";
-                worksheet.Cell(currentRow, 22).Value = "NPay";
-                worksheet.Cell(currentRow, 23).Value = "Bank";
-                worksheet.Cell(currentRow, 24).Value = "AccountNumber";
-                worksheet.Cell(currentRow, 25).Value = "BBranch";
-                worksheet.Cell(currentRow, 26).Value = "Station";
+                worksheet.Cell(currentRow, 9).Value = "MidPay";
+                worksheet.Cell(currentRow, 10).Value = "midmonth";
+                worksheet.Cell(currentRow, 11).Value = "Others";
+                worksheet.Cell(currentRow, 12).Value = "Tractor";
+                worksheet.Cell(currentRow, 13).Value = "Clinical";
+                worksheet.Cell(currentRow, 14).Value = "Extension";
+                worksheet.Cell(currentRow, 15).Value = "AI";
+                worksheet.Cell(currentRow, 16).Value = "CurryForward";
+                worksheet.Cell(currentRow, 17).Value = "SMS";
+                worksheet.Cell(currentRow, 18).Value = "Loan";
+                worksheet.Cell(currentRow, 19).Value = "Registration";
+                worksheet.Cell(currentRow, 20).Value = "TDeductions";
+                worksheet.Cell(currentRow, 21).Value = "KgsSupplied";
+                worksheet.Cell(currentRow, 22).Value = "GPay";
+                worksheet.Cell(currentRow, 23).Value = "NPay";
+                worksheet.Cell(currentRow, 24).Value = "Bank";
+                worksheet.Cell(currentRow, 25).Value = "AccountNumber";
+                worksheet.Cell(currentRow, 26).Value = "BBranch";
+                worksheet.Cell(currentRow, 27).Value = "Station";
 
                 decimal? Transport = 0;
                 decimal? Agrovet = 0;
@@ -474,6 +475,7 @@ namespace EasyPro.Controllers
                 KgsSupplied = payrollData.Sum(k => k.KgsSupplied);
                 Gpay = payrollData.Sum(k => k.Gpay);
                 Npay = payrollData.Sum(k => k.Npay);
+                loans = payrollData.Sum(k => k.Fsa);
 
                 payrollData.ForEach(c =>
                 {
@@ -486,8 +488,8 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 6).Value = c.Bonus;
                     worksheet.Cell(currentRow, 7).Value = c.Hshares;
                     worksheet.Cell(currentRow, 8).Value = c.Advance;
-                    worksheet.Cell(currentRow, 9).Value = c.Midmonth;
-                    worksheet.Cell(currentRow, 10).Value = c.MIDPAY;
+                    worksheet.Cell(currentRow, 9).Value = c.MIDPAY;
+                    worksheet.Cell(currentRow, 10).Value = c.Midmonth;
                     worksheet.Cell(currentRow, 11).Value = c.Others;
                     worksheet.Cell(currentRow, 12).Value = c.Tractor;
                     worksheet.Cell(currentRow, 13).Value = c.CLINICAL;
@@ -495,16 +497,17 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 15).Value = c.AI;
                     worksheet.Cell(currentRow, 16).Value = c.CurryForward;
                     worksheet.Cell(currentRow, 17).Value = c.SMS;
-                    worksheet.Cell(currentRow, 18).Value = c.Tdeductions;
-                    worksheet.Cell(currentRow, 19).Value = c.KgsSupplied;
-                    worksheet.Cell(currentRow, 20).Value = c.Gpay;
-                    worksheet.Cell(currentRow, 21).Value = c.Npay;
-                    worksheet.Cell(currentRow, 22).Value = c.Bank;
-                    worksheet.Cell(currentRow, 23).Value = "'" + c.AccountNumber;
-                    worksheet.Cell(currentRow, 24).Value = c.Bbranch;
-                    worksheet.Cell(currentRow, 25).Value = c.Branch;
+                    worksheet.Cell(currentRow, 18).Value = c.Fsa;
+                    worksheet.Cell(currentRow, 19).Value = c.Registration;
+                    worksheet.Cell(currentRow, 20).Value = c.Tdeductions;
+                    worksheet.Cell(currentRow, 21).Value = c.KgsSupplied;
+                    worksheet.Cell(currentRow, 22).Value = c.Gpay;
+                    worksheet.Cell(currentRow, 23).Value = c.Npay;
+                    worksheet.Cell(currentRow, 24).Value = c.Bank;
+                    worksheet.Cell(currentRow, 25).Value = "'" + c.AccountNumber;
+                    worksheet.Cell(currentRow, 26).Value = c.Bbranch;
+                    worksheet.Cell(currentRow, 27).Value = c.Branch;
                 });
-
 
                 currentRow++;
                 worksheet.Cell(currentRow, 3).Value = "Total";
@@ -513,21 +516,21 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 6).Value = Bonus;
                 worksheet.Cell(currentRow, 7).Value = Hshares;
                 worksheet.Cell(currentRow, 8).Value = Advance;
-                worksheet.Cell(currentRow, 9).Value = Midmonth;
-                //worksheet.Cell(currentRow, 10).Value = MIDPAY;
-                worksheet.Cell(currentRow, 10).Value = Others;
-                worksheet.Cell(currentRow, 11).Value = Tractor;
-                worksheet.Cell(currentRow, 12).Value = CLINICAL;
-                worksheet.Cell(currentRow, 13).Value = extension;
-                worksheet.Cell(currentRow, 14).Value = AI;
-                worksheet.Cell(currentRow, 15).Value = CurryForward;
-                worksheet.Cell(currentRow, 16).Value = SMS;
-                worksheet.Cell(currentRow, 17).Value = loans;
-                worksheet.Cell(currentRow, 18).Value = Registration;
-                worksheet.Cell(currentRow, 19).Value = Tdeductions;
-                worksheet.Cell(currentRow, 20).Value = KgsSupplied;
-                worksheet.Cell(currentRow, 21).Value = Gpay;
-                worksheet.Cell(currentRow, 22).Value = Npay;
+                worksheet.Cell(currentRow, 9).Value = MIDPAY;
+                worksheet.Cell(currentRow, 10).Value = Midmonth;
+                worksheet.Cell(currentRow, 11).Value = Others;
+                worksheet.Cell(currentRow, 12).Value = Tractor;
+                worksheet.Cell(currentRow, 13).Value = CLINICAL;
+                worksheet.Cell(currentRow, 14).Value = extension;
+                worksheet.Cell(currentRow, 15).Value = AI;
+                worksheet.Cell(currentRow, 16).Value = CurryForward;
+                worksheet.Cell(currentRow, 17).Value = SMS;
+                worksheet.Cell(currentRow, 18).Value = loans;
+                worksheet.Cell(currentRow, 19).Value = Registration;
+                worksheet.Cell(currentRow, 20).Value = Tdeductions;
+                worksheet.Cell(currentRow, 21).Value = KgsSupplied;
+                worksheet.Cell(currentRow, 22).Value = Gpay;
+                worksheet.Cell(currentRow, 23).Value = Npay;
 
                 
                 using (var stream = new MemoryStream())
@@ -567,6 +570,7 @@ namespace EasyPro.Controllers
                     Others=val.Others,
                     Tractor=val.Tractor,
                     CLINICAL=val.CLINICAL,
+                    Registration = val.Registration,
                     extension=val.extension,
                     AI=val.AI,
                     CurryForward=val.CurryForward,

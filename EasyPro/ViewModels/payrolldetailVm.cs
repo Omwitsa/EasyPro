@@ -60,6 +60,7 @@ namespace EasyPro.ViewModels
         public string SaccoCode { get; set; }
         public string Branch { get; set; }
         public decimal? CLINICAL { get; set; }
+        public decimal? Registration { get; set; }
         public decimal? AI { get; set; }
         public decimal? Tractor { get; set; }
         public decimal? CurryForward { get; set; }

@@ -172,31 +172,21 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
-               .Select(b => b.Bname.ToUpper());
+                    var productIntakes = _context.ProductIntake
+                       .Where(p => p.TransDate >= dPrice.Edate && (p.TransactionType == TransactionType.Intake || p.TransactionType == TransactionType.Correction)
+                       && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
 
-                    foreach (var branchName in branchNames)
+                    productIntakes.ForEach(p =>
                     {
-                        var productIntakes = _context.ProductIntake
-                        .Where(p => p.TransDate >= dPrice.Edate && (p.Description == "Intake" || p.Description == "Correction")
-                        && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.Branch== branchName).ToList();
-
-                        productIntakes.ForEach(p =>
-                        {
-                            p.Ppu = dPrice.Price;
-                            if(p.CR != 0)
-                                p.CR = dPrice.Price * p.Qsupplied;
-                            if (p.DR != 0)
-                                p.DR = dPrice.Price * p.Qsupplied * -1;
-                        });
-                    };
-                        
+                        p.Ppu = dPrice.Price;
+                        if (p.CR != 0)
+                            p.CR = dPrice.Price * p.Qsupplied;
+                        if (p.DR != 0)
+                            p.DR = dPrice.Price * p.Qsupplied * -1;
+                    });
 
                     dPrice.SaccoCode = sacco;
                     _context.Update(dPrice);
-
-
-
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
