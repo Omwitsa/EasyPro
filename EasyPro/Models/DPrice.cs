@@ -12,7 +12,7 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         public string Products { get; set; }
-        public DateTime? Edate { get; set; }
+        public DateTime Edate { get; set; }
         public decimal? Price { get; set; }
         public string SaccoCode { get; set; }
         [Display(Name = "Subsidy Quantity")]

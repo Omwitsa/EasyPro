@@ -8,6 +8,7 @@ using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using System;
 
 namespace EasyPro.Controllers
 {
@@ -74,6 +75,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,Edate,Price,Products,SubsidyQty,SubsidyPrice,DrAccNo,CrAccNo,TransportDrAccNo,TransportCrAccNo")] DPrice dPrice)
         {
             utilities.SetUpPrivileges(this);
+            var startDate = new DateTime(dPrice.Edate.Year, dPrice.Edate.Month, 1);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             GetInitialValues();
             if (string.IsNullOrEmpty(dPrice.Products))
@@ -103,6 +105,36 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+                
+                var productIntakes = await productIntakeslist
+                .Where(i => i.SaccoCode == sacco
+                && i.TransDate >= dPrice.Edate && i.ProductType == dPrice.Products 
+                && (i.Description == "Correction" || i.Description== "Intake")).ToListAsync();
+
+                var intakes = productIntakes.GroupBy(p => p.Sno.ToUpper()).ToList();
+                intakes.ForEach(p =>
+                {
+                    decimal CR, DR = 0;
+                    var sno = p.FirstOrDefault();
+                    if (sno.Qsupplied > 0)
+                    {
+                        CR = (decimal)(sno.Qsupplied * dPrice.Price);
+                        DR = 0;
+                    }
+                    else
+                    {
+                        CR = 0;
+                        DR = (decimal)(sno.Qsupplied * dPrice.Price);
+                    }
+                    _context.ProductIntake.Update( new ProductIntake
+                    {
+                        Ppu = dPrice.Price,
+                        CR = CR,
+                        DR= DR
+                    });
+                });
+
                 dPrice.SaccoCode = sacco;
                 _context.Add(dPrice);
                 await _context.SaveChangesAsync();
@@ -172,25 +204,82 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+
+                    IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+
                     var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
-               .Select(b => b.Bname.ToUpper());
+                    .Select(b => b.Bname.ToUpper());
 
                     foreach (var branchName in branchNames)
                     {
-                        var productIntakes = _context.ProductIntake
-                        .Where(p => p.TransDate >= dPrice.Edate && (p.Description == "Intake" || p.Description == "Correction")
-                        && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.Branch== branchName).ToList();
+                        var productIntake = await productIntakeslist
+                        .Where(i => i.SaccoCode == sacco
+                        && i.TransDate >= dPrice.Edate && i.ProductType == dPrice.Products
+                        && (i.Description == "Correction" || i.Description == "Intake")).ToListAsync();
 
-                        productIntakes.ForEach(p =>
+                        //var intakes = productIntake.GroupBy(p => p.Sno.ToUpper()).ToList();
+                        productIntake.ForEach(p =>
                         {
-                            p.Ppu = dPrice.Price;
-                            if(p.CR != 0)
-                                p.CR = dPrice.Price * p.Qsupplied;
-                            if (p.DR != 0)
-                                p.DR = dPrice.Price * p.Qsupplied * -1;
+                            decimal CR, DR = 0;
+                            var sno = _context.ProductIntake.FirstOrDefault(n=>n.Id== p.Id);
+                            if (sno.Qsupplied > 0)
+                            {
+                                CR = (decimal)(sno.Qsupplied * dPrice.Price);
+                                DR = 0;
+                            }
+                            else
+                            {
+                                CR = 0;
+                                DR = (decimal)(sno.Qsupplied * dPrice.Price)*-1;
+                            }
+                              _context.ProductIntake.Update(new ProductIntake
+                            {
+                                Sno = sno.Sno,
+                                SaccoCode = sno.SaccoCode,
+                                Auditdatetime = sno.Auditdatetime,
+                                AuditId = sno.AuditId,
+                                CrAccNo = sno.CrAccNo,
+                                DrAccNo = sno.DrAccNo,
+                                Ppu = dPrice.Price,
+                                CR = CR,
+                                DR = DR,
+                                Description = sno.Description,
+                                TransDate = sno.TransDate,
+                                TransactionType = sno.TransactionType,
+                                Qsupplied = sno.Qsupplied,
+                                Balance = sno.Balance,
+                                Branch = sno.Branch,
+                                TransTime = sno.TransTime,
+                                Remarks = sno.Remarks,
+                                MornEvening = sno.MornEvening,
+                                Paid= sno.Paid,
+                                Posted = sno.Posted,
+                                ProductType = sno.ProductType,
+                                Zone = sno.Zone
+                            });
                         });
                     };
-                        
+
+                    //var productIntakes = productIntakeslist
+                    //    .Where(p => p.TransDate >= dPrice.Edate && (p.Description == "Intake" || p.Description == "Correction")
+                    //    && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.ProductType == dPrice.Products && p.Branch == branchName).ToList();
+
+                    //productIntakes.ForEach(p =>
+                    //{
+
+                    //    p.Ppu = dPrice.Price;
+                    //    if (p.CR != 0)
+                    //    {
+                    //        p.CR = dPrice.Price * p.Qsupplied;
+                    //        p.DR = 0;
+                    //    }
+                    //    if (p.DR != 0)
+                    //    {
+                    //        p.CR = 0;
+                    //        p.DR = dPrice.Price * p.Qsupplied * -1;
+                    //    }
+                    //    var vj = p;
+                    //});
 
                     dPrice.SaccoCode = sacco;
                     _context.Update(dPrice);
