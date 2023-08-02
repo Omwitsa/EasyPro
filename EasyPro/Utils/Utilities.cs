@@ -33,6 +33,7 @@ namespace EasyPro.Utils
             {
                 var val = new Usergroup
                 {
+                    Id= usergroup.Id,
                     GroupId = group,
                     GroupName = group,
                     Registration = true,
@@ -85,7 +86,7 @@ namespace EasyPro.Utils
                     SetTaxes = true,
                     SetSharesCat = true,
                     SetRoutes = true,
-                    Products = true,
+                    StoreProducts = true,
                     ProdSupplier = true,
                     ProdSales = true,
                     SalesReturn=true,
@@ -175,10 +176,12 @@ namespace EasyPro.Utils
             controller.ViewBag.SetBanksBranch = usergroup.SetBanksBranch;
             controller.ViewBag.SetZones = usergroup.SetZones;
             controller.ViewBag.SetDebtors = usergroup.SetDebtors;
+            controller.ViewBag.SetResetPass = usergroup.SetTaxes; 
             controller.ViewBag.SetTaxes = usergroup.SetTaxes;
             controller.ViewBag.SetSharesCat = usergroup.SetSharesCat;
             controller.ViewBag.SetRoutes = usergroup.SetRoutes;
-            controller.ViewBag.productsRole = usergroup.Products;
+            controller.ViewBag.SetResetPass = usergroup.SetResetPass;
+            controller.ViewBag.StoreProducts = usergroup.StoreProducts;
             controller.ViewBag.productSupplierRole = usergroup.ProdSupplier;
             controller.ViewBag.productSalesRole = usergroup.ProdSales;
             controller.ViewBag.salesReturnRole = usergroup.SalesReturn;

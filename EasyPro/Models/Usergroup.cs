@@ -9,25 +9,27 @@ namespace EasyPro.Models
 {
     public partial class Usergroup
     {
+       
+        public long Id { get; set; }
         public string GroupId { get; set; }
         public string GroupName { get; set; }
         public bool Registration { get; set; }
-        public bool Flmd { get; set; }
         public bool Activity { get; set; }
         public bool Reports { get; set; }
         public bool Setup { get; set; }
         public bool Files { get; set; }
         public bool Accounts { get; set; }
         public bool Deductions { get; set; }
+        public bool SaccoReports { get; set; }
+        public string SaccoCode { get; set; }
         public bool Staff { get; set; }
         public bool Store { get; set; }
-        public bool Coffee { get; set; }
-        public bool Products { get; set; }
+        public bool Flmd { get; set; }
+        public bool StoreProducts { get; set; }
         public bool ProdSupplier { get; set; }
         public bool ProdSales { get; set; }
         public bool SalesReturn { get; set; }
         public bool ProdDispatch { get; set; }
-        public bool SaccoReports { get; set; }
         public bool ProdIntake { get; set; }
         public bool IntakeCorrection { get; set; }
         public bool ImportIntake { get; set; }
@@ -39,7 +41,22 @@ namespace EasyPro.Models
         public bool BranchMilkEnquiry { get; set; }
         public bool SupplierStatement { get; set; }
         public bool TransporterStatement { get; set; }
-        public string SaccoCode { get; set; }
+        public bool Coffee { get; set; }
+        public bool ChartsofAcc { get; set; }
+        public bool JournalPosting { get; set; }
+        public bool Glinquiry { get; set; }
+        public bool Budgettings { get; set; }
+        public bool JournalListing { get; set; }
+        public bool TrialBalance { get; set; }
+        public bool IncomeStatement { get; set; }
+        public bool BalanceSheet { get; set; }
+        public bool Payroll { get; set; }
+        public bool Bills { get; set; }
+        public bool Refunds { get; set; }
+        public bool CustomerInvoices { get; set; }
+        public bool CreditNotes { get; set; }
+        public bool VendorProducts { get; set; }
+        public bool CustomerProducts { get; set; }
         public bool RFarmers { get; set; }
         public bool RTransporter { get; set; }
         public bool RImportS { get; set; }
@@ -78,20 +95,7 @@ namespace EasyPro.Models
         public bool SetTaxes { get; set; }
         public bool SetSharesCat { get; set; }
         public bool SetRoutes { get; set; }
-        public bool ChartsofAcc { get; set; }
-        public bool JournalPosting { get; set; }
-        public bool Glinquiry { get; set; }
-        public bool Budgettings { get; set; }
-        public bool JournalListing { get; set; }
-        public bool TrialBalance { get; set; }
-        public bool IncomeStatement { get; set; }
-        public bool BalanceSheet { get; set; }
-        public bool Payroll { get; set; }
-        public bool Bills { get; set; }
-        public bool Refunds { get; set; }
-        public bool CustomerInvoices { get; set; }
-        public bool CreditNotes { get; set; }
-        public bool VendorProducts { get; set; }
-        public bool CustomerProducts { get; set; }
+        public bool SetResetPass { get; set; }
+        public bool Products { get; set; }
     }
 }

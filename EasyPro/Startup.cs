@@ -31,10 +31,15 @@ namespace EasyPro
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages().AddRazorRuntimeCompilation();
-            services.AddDbContext<MORINGAContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("MoringaDbConnection")));
-            services.AddDbContext<BosaDbContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("BosaDbConnection")));
+            services.AddDbContext<MORINGAContext>(options => 
+            {
+                
+                options.UseSqlServer(Configuration.GetConnectionString("MoringaDbConnection"));
+                options.EnableSensitiveDataLogging(true);
+            }); 
+                    
+            //services.AddDbContext<BosaDbContext>(options =>
+            //        options.UseSqlServer(Configuration.GetConnectionString("BosaDbConnection")));
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddTransient<IReporting, ReportingConcrete>();
             services.AddTransient<IReportProvider, ReportProvider>();

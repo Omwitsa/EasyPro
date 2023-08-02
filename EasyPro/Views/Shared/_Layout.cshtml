@@ -524,9 +524,11 @@
                         </div>
                         <div id="file" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
+                                
                                 <li>
                                     <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
                                 </li>
+                                  
                                 <li>
                                     <a asp-controller="SupplierEnquiry" asp-action="Transporters">Transporters Enquiry</a>
                                 </li>
@@ -537,311 +539,542 @@
                         </div>
                         <div id="flmd" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                <li>
-                                    <a asp-controller="Flmd" asp-action="Index">FLMD</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="Acs" asp-action="Index">ACS</a>
-                                </li>
+                                @if (ViewBag.flmd)
+                                {
+                                    <li>
+                                        <a asp-controller="Flmd" asp-action="Index">FLMD</a>
+                                    </li>
+                                }
+                                
+                                    <li>
+                                        <a asp-controller="Acs" asp-action="Index">ACS</a>
+                                    </li>
+                                
                             </ul>
                         </div> 
                         <div id="registration" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                <li>
-                                    <a asp-controller="DSuppliers" asp-action="Index">Farmer</a>
-                                </li>
+                                @if (ViewBag.RFarmers)
+                                {
+                                    <li>
+                                        <a asp-controller="DSuppliers" asp-action="Index">Farmer</a>
+                                    </li>
+                                }
+                                @if (ViewBag.RTransporter)
+                                {
                                 <li>
                                     <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="ExcelUpload" asp-action="SuppliersImportIndex">Import Suppliers Excell</a>
-                                </li>
-                                @if (ViewBag.setupRole)
+                                }
+                                @if (ViewBag.RImportS)
+                                {
+                                    <li>
+                                        <a asp-controller="ExcelUpload" asp-action="SuppliersImportIndex">Import Suppliers Excell</a>
+                                    </li>
+                                }
+                                @if (ViewBag.RVendor)
                                 {
                                     <li>
                                         <a asp-controller="Venders" asp-action="Index">Vendors</a>
                                     </li>
+                                }
+                                    @if (ViewBag.RCustomer)
+                                {
                                     <li>
                                         <a asp-controller="Customers" asp-action="Index">Customers</a>
                                     </li>
                                 }
+                                
 
                             </ul>
                         </div>
                         <div id="store" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
+                                @if (ViewBag.StoreProducts)
+                                {
                                 <li>
                                     <a asp-controller="AgProducts" asp-action="Index">Products</a>
                                 </li>
+                                }
+                                @if (ViewBag.productSupplierRole)
+                                {
                                 <li>
                                     <a asp-controller="AgSupplier1" asp-action="Index">Add Products Suppliers </a>
                                 </li>
+                                }
+                                @if (ViewBag.productSalesRole)
+                                {
                                 <li>
                                     <a asp-controller="AgReceipts" asp-action="Index">Product Sales</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="AgReceipts" asp-action="CreateReversal">Sales Return</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="Drawnstocks" asp-action="Index">Product Dispatch</a>
-                                </li>
+                                }
+                                @if (ViewBag.salesReturnRole)
+                                {
+                                    <li>
+                                        <a asp-controller="AgReceipts" asp-action="CreateReversal">Sales Return</a>
+                                    </li>
+                                }
+                                @if (ViewBag.prodDispatchRole)
+                                {
+                                    <li>
+                                        <a asp-controller="Drawnstocks" asp-action="Index">Product Dispatch</a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                         <div id="deductions" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                @if (ViewBag.setupRole)
+                                @if (ViewBag.StandingOrder)
                                 {
                                     <li>
                                         <a asp-controller="DSupplierDeducs" asp-action="GetStandingOrder">Standing Order</a>
                                     </li>
+                                }
+                                @if (ViewBag.CashShares)
+                                {
                                     <li>
                                         <a asp-controller="DShares" asp-action="Index">Cash Shares</a>
                                     </li>
+                                }
+                                @if (ViewBag.DefaultDed)
+                                {
                                     <li>
                                         <a asp-controller="DPreSet" asp-action="Index">Default Deductions</a>
                                     </li>
                                 }
+                                @if (ViewBag.DedFarmer)
+                                {
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
                                 </li>
+                                }
+                                @if (ViewBag.DedTransport)
+                                {
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="TDeductionList">Transporter</a>
                                 </li>
+                                }
+                                @if (ViewBag.DedStaff)
+                                {
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="StaffDeductionList">Staff</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="DTransports" asp-action="Index">Transporter Assignement</a>
-                                </li>
+                                }
+                                @if (ViewBag.TransporterAssign)
+                                {
+                                    <li>
+                                        <a asp-controller="DTransports" asp-action="Index">Transporter Assignement</a>
+                                    </li>
+                                }
 
                             </ul>
                         </div>
                         <div id="activities" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
+                                @if (ViewBag.ProdIntakeRole)
+                                {
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="Index">Product Intake</a>
                                 </li>
+                                }
+                                @if (ViewBag.CorrectionRole)
+                                {
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
-                                </li>
+                                }
+                                @if (ViewBag.ImportIntakeRole)
+                                {
+                                    <li>
+                                        <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
+                                    </li>
+                                }
 
                                 @if (!ViewBag.setupRole)
                                 {
                                     <li>
                                         <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
                                     </li>
+                                
+                               
                                     <li>
                                         <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
                                     </li>
-
+                               
+                                
                                     <li>
                                         <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Milk Transfer</a>
                                     </li>
+                                
+                                
                                     <li>
                                         <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Milk Control</a>
                                     </li>
                                 }
 
-                                @if (!ViewBag.isTanyakina)
+                                @if (ViewBag.MilkTestRole)
                                 {
                                     <li>
                                         <a asp-controller="DMilkQualities" asp-action="Index">Milk Test</a>
                                     </li>
+                                }
+                                @if (ViewBag.VarBalancingRole)
+                                {
                                     <li>
                                         <a asp-controller="DispatchBalancing" asp-action="Index">Variance Balancing</a>
                                     </li>
                                 }
 
 
-                                @if (ViewBag.setupRole)
+                                @if (ViewBag.DispatchRole)
                                 {
                                     <li>
                                         <a asp-controller="Dispatches" asp-action="Index">Dispatch</a>
                                     </li>
+                                }
+                                @if (ViewBag.SendSmsRole)
+                                {
                                     <li>
                                         <a asp-controller="Message" asp-action="Index">Send SMS</a>
                                     </li>
+                                }
+                                @if (ViewBag.MilkControlRole)
+                                {
                                     <li>
                                         <a asp-controller="DMilkQualities" asp-action="MilkControll">Main Milk Control</a>
                                     </li>
+                                }
+                                @if (ViewBag.BranchMilkEnquiryRole)
+                                {
                                     <li>
                                         <a asp-controller="DMilkQualities" asp-action="MilkBranchBalancingEnquiry">Branch Milk Enquiry</a>
                                     </li>
                                 }
 
+                                @if (ViewBag.SupplierStatementRole)
+                                {
                                 <li>
                                     <a asp-controller="ProductIntakes" asp-action="PrintSupplierStatement">Print Suppliers Statement</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="ProductIntakes" asp-action="PrintTransporterStatement">Print Transporters Statement</a>
-                                </li>
+                                }
+                                @if (ViewBag.TransporterStatementRole)
+                                {
+                                    <li>
+                                        <a asp-controller="ProductIntakes" asp-action="PrintTransporterStatement">Print Transporters Statement</a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                         
                         <div id="coffee" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
+                                @if (ViewBag.Millers)
+                                {
                                 <li>
                                     <a asp-controller="Millings" asp-action="MillersIndex">Millers</a>
                                 </li>
+                                }
+                                @if (ViewBag.Marketers)
+                                {
                                 <li>
                                     <a asp-controller="Marketers" asp-action="MarketerRegIndex">Marketers</a>
                                 </li>
+                                }
+                                @if (ViewBag.Pulping)
+                                {
                                 <li>
                                     <a asp-controller="Pulping_Drying" asp-action="Index">Pulping and Drying</a>
                                 </li>
+                                }
+                                @if (ViewBag.Milling)
+                                {
                                 <li>
                                     <a asp-controller="Millings" asp-action="Index">Milling</a>
                                 </li>
+                                }
+                                @if (ViewBag.Milling)
+                                {
                                 <li>
                                     <a asp-controller="Milling_Products" asp-action="Index">Milling Products</a>
                                 </li>
+                                }
+                                @if (ViewBag.Marketing)
+                                {
                                 <li>
                                     <a asp-controller="Marketers" asp-action="Index">Marketing</a>
                                 </li>
+                                }
+                                @if (ViewBag.CofPricing)
+                                {
                                 <li>
                                     <a asp-controller="Coffee" asp-action="PricingIndex">Pricing</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="Coffee" asp-action="PayrollIndex">Payroll</a>
-                                </li>
+                                }
+                                @if (ViewBag.CofPayroll)
+                                {
+                                    <li>
+                                        <a asp-controller="Coffee" asp-action="PayrollIndex">Payroll</a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                         <div id="accounts" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                <li>
-                                    <a asp-controller="Glsetups" asp-action="Index">Charts of Accounts</a>
-                                </li>
+                                @if (ViewBag.ChartsofAccRole)
+                                {
+                                    <li>
+                                        <a asp-controller="Glsetups" asp-action="Index">Charts of Accounts</a>
+                                    </li>
+                                }
+                                @if (ViewBag.JournalPostingRole)
+                                {
                                 <li>
                                     <a asp-controller="Accounting" asp-action="JournalPosting">Journal Posting</a>
                                 </li>
+                                }
+                                @if (ViewBag.GlinquiryRole)
+                                {
                                 <li>
                                     <a asp-controller="Accounting" asp-action="GLInquiry">GL Inquiry</a>
                                 </li>
+                                @if (ViewBag.BudgettingsRole)
+                                {
                                 <li>
                                     <a asp-controller="Accounting" asp-action="Budget">Budgettings</a>
                                 </li>
+                                }
+                                    @if (ViewBag.JournalListingRole)
+                                {
                                 <li>
                                     <a asp-controller="Accounting" asp-action="JournalListing">Journal Listing</a>
                                 </li>
+                                }
+                                    @if (ViewBag.TrialBalanceRole)
+                                {
                                 <li>
                                     <a asp-controller="Accounting" asp-action="TrialBalance">Trial Balance</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="Accounting" asp-action="IncomeStatement">Income Statement</a>
-                                </li>
+                                }
+                                    @if (ViewBag.IncomeStatementRole)
+                                    {
+                                        <li>
+                                            <a asp-controller="Accounting" asp-action="IncomeStatement">Income Statement</a>
+                                        </li>
+                                    }
+                                    @if (ViewBag.BalanceSheetRole)
+                                {
                                 <li>
                                     <a asp-controller="Accounting" asp-action="BalanceSheet">Balance Sheet</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
-                                </li>
+                                }
+                                    @if (ViewBag.PayrollRole)
+                                    {
+                                        <li>
+                                            <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
+                                        </li>
+                                    }
+                                @if (ViewBag.BillsRole)
+                                {
                                 <li>
                                     <a asp-controller="AccountPayables" asp-action="GetBills">Bills</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="AccountPayables" asp-action="GetRefunds">Refunds</a>
-                                </li>
+                                }
+                                    @if (ViewBag.RefundsRole)
+                                {
+                                    <li>
+                                        <a asp-controller="AccountPayables" asp-action="GetRefunds">Refunds</a>
+                                 </li>
+                                                            }
+                                }
+                                @if (ViewBag.CustomerInvoicesRole)
+                                {
                                 <li>
                                     <a asp-controller="AccountReceivables" asp-action="GetInvoices">Customer Invoices</a>
                                 </li>
+                                }
+                                @if (ViewBag.CreditNotesRole)
+                                {
                                 <li>
                                     <a asp-controller="AccountReceivables" asp-action="GetCreditNotes">Credit Notes</a>
                                 </li>
+                                }
+                                @if (ViewBag.VendorProductsRole)
+                                {
                                 <li>
                                     <a asp-controller="VProducts" asp-action="Index">Vendor Products</a>
                                 </li>
+                                }
+                                @if (ViewBag.CustomerProductsRole)
+                                {
                                 <li>
                                     <a asp-controller="CProducts" asp-action="Index">Customer Products</a>
                                 </li>
+                                }
                             </ul>
                         </div>
                         <div id="setup" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
+                                @if (ViewBag.SetProducts)
+                                {
                                 <li>
                                     <a asp-controller="DBranchProducts" asp-action="Index">Products</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetPrice)
+                                {
                                 <li>
                                     <a asp-controller="DPrices" asp-action="Index">Pricing</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="DPrice2" asp-action="Index">Farmers With Dif Prices</a>
-                                </li>
+                                }
+                                @if (ViewBag.SetFarmersDif)
+                                {
+                                    <li>
+                                        <a asp-controller="DPrice2" asp-action="Index">Farmers With Dif Prices</a>
+                                    </li>
+                                }
+
+                                @if (ViewBag.SetOrganization)
+                                {
                                 <li>
                                     <a asp-controller="DCompanies" asp-action="Index">Org Setup</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetOrgBranch)
+                                {
                                 <li>
                                     <a asp-controller="DBranches" asp-action="Index">Org Branch</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetUsers)
+                                {
                                 <li>
                                     <a asp-controller="UserAccounts" asp-action="Index">Users</a>
                                 </li>
+                                }
+                                 @if (ViewBag.SetUserGroups)
+                                {
                                 <li>
                                     <a asp-controller="Usergroups" asp-action="Index">UserGroups</a>
                                 </li>
+                                }
+                                 @if (ViewBag.SetCounties)
+                                {
                                 <li>
                                     <a asp-controller="Counties" asp-action="Index">Counties</a>
                                 </li>
+                                }
+                                 @if (ViewBag.SetSubCounties)
+                                {
                                 <li>
                                     <a asp-controller="SubCounties" asp-action="Index">SubCounties</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetWards)
+                                {
                                 <li>
                                     <a asp-controller="Wards" asp-action="Index">Wards</a>
                                 </li>
+                                }
+                                 @if (ViewBag.SetLocation)
+                                {
                                 <li>
                                     <a asp-controller="DLocations" asp-action="Index">Locations</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetDedTypes)
+                                {
                                 <li>
                                     <a asp-controller="DDcodes" asp-action="Index">Ded Types</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetBanks)
+                                {
                                 <li>
                                     <a asp-controller="DBanks" asp-action="Index">Banks</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetBanksBranch)
+                                {
                                 <li>
                                     <a asp-controller="DBankBranches" asp-action="Index">Bank Branch</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetZones)
+                                {
                                 <li>
                                     <a asp-controller="DBranches" asp-action="ZonesList">Zones</a>
                                 </li>
+                                }
+                                 @if (ViewBag.SetDebtors)
+                                {
                                 <li>
                                     <a asp-controller="DDebtors" asp-action="Index">Debtor</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetTaxes)
+                                {
                                 <li>
                                     <a asp-controller="Taxes" asp-action="Index">Taxes</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetResetPass)
+                                {
                                 <li>
                                     <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
                                 </li>
+                                }
+                                @if (ViewBag.SetSharesCat)
+                                {
                                 <li>
                                     <a asp-controller="SharesCategories" asp-action="Index">Shares Cat</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="Routes" asp-action="Index">Routes</a>
-                                </li>
+                                }
+                                @if (ViewBag.SetRoutes)
+                                {
+                                    <li>
+                                        <a asp-controller="Routes" asp-action="Index">Routes</a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                         <div id="staff" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
+                                @if (ViewBag.staffRole)
+                                {
                                 <li>
                                     <a asp-controller="Departments" asp-action="Index">Departments</a>
                                 </li>
+                                }
+                                 @if (ViewBag.staffRole)
+                                {
                                 <li>
                                     <a asp-controller="Deductions" asp-action="Index">Deductions</a>
                                 </li>
+                                }
+                                 @if (ViewBag.staffRole)
+                                {
                                 <li>
                                     <a asp-controller="Dranges" asp-action="Index">Ranges</a>
                                 </li>
+                                }
+                                 @if (ViewBag.staffRole)
+                                {
                                 <li>
                                     <a asp-controller="EntitlementTypes" asp-action="Index">Entitlement Types</a>
                                 </li>
+                                }
+                                 @if (ViewBag.staffRole)
+                                {
                                 <li>
                                     <a asp-controller="EmpBenefits" asp-action="Index">Employee Benefits</a>
                                 </li>
-                                <li>
-                                    <a asp-controller="Employees" asp-action="Index">Employees</a>
-                                </li>
+                                }
+                                 @if (ViewBag.staffRole)
+                                {
+                                    <li>
+                                        <a asp-controller="Employees" asp-action="Index">Employees</a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                         <div id="Reports" class="tab-pane notika-tab-menu-bg animated flipInX">

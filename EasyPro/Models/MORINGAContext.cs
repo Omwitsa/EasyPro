@@ -10215,7 +10215,7 @@ namespace EasyPro.Models
 
             modelBuilder.Entity<Usergroup>(entity =>
             {
-                entity.HasKey(e => e.GroupId);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("USERGROUPS");
 
