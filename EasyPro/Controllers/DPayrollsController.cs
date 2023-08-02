@@ -52,6 +52,7 @@ namespace EasyPro.Controllers
                     GrossPay = p.Gpay,
                     Transport = p.Transport,
                     Advance = p.Advance,
+                    MIDPAY = p.MIDPAY,
                     Fsa = p.Fsa, // loan
                     Others = p.Others,
                     Registration = p.Registration,
@@ -130,13 +131,6 @@ namespace EasyPro.Controllers
             }
 
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= period.EndDate);
-            var advIntakes = productIntakeslist.Where(i => i.Remarks == StrValues.AdvancePayroll);
-            if (advIntakes.Any() && period.EndDate != monthsLastDate)
-            {
-                _context.ProductIntake.RemoveRange(advIntakes);
-                _context.SaveChanges();
-            }
-     
             if (sacco != "MBURUGU DAIRY F.C.S")
             {
                 var transpoterIntakes = productIntakeslist.Where(i => i.Description.ToLower().Equals("transport")).ToList();
@@ -169,27 +163,20 @@ namespace EasyPro.Controllers
                 var deletesdefaultded = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= period.EndDate
                 && i.ProductType.ToUpper().Equals(dedtype.ToUpper()) && i.SaccoCode == sacco).ToList();
                 if (deletesdefaultded.Any())
-                {
                     _context.ProductIntake.RemoveRange(deletesdefaultded);
-                }
             }
 
             var checkgls = _context.Gltransactions
                .Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= startDate
                && f.TransDate <= period.EndDate && (f.TransDescript.ToUpper().Equals("Bonus".ToUpper()) || f.TransDescript.ToUpper().Equals("Shares".ToUpper())));
             if (checkgls.Any())
-            {
                 _context.Gltransactions.RemoveRange(checkgls);
-            }
 
             var checksharespaid = _context.DShares.Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                             && f.TransDate >= startDate && f.TransDate <= period.EndDate && f.Type == "Checkoff"
                             && f.Pmode == "Checkoff");
             if (checksharespaid.Any())
-            {
                 _context.DShares.RemoveRange(checksharespaid);
-
-            }
 
             foreach (var branchName in branchNames)
             {
@@ -215,10 +202,7 @@ namespace EasyPro.Controllers
                 && s.Branch.ToUpper().Equals(branchName.ToUpper())).Select(s => s.Sno);
 
                 var productIntakes = await productIntakeslist
-                .Where(p => p.TransDate >= startDate && p.TransDate <= period.EndDate
-                && supplierNos.Contains(p.Sno) && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToListAsync();
-
+                .Where(p =>  supplierNos.Contains(p.Sno) && p.Branch.ToUpper().Equals(branchName.ToUpper())).ToListAsync();
                 var intakes = productIntakes.GroupBy(p => p.Sno.ToUpper()).ToList();
                 intakes.ForEach(p =>
                 {
@@ -290,34 +274,9 @@ namespace EasyPro.Controllers
                                 Branch = supplier.Branch
                             });
 
-                            if (period.EndDate != monthsLastDate)
-                                _context.ProductIntake.Add(new ProductIntake
-                                {
-                                    Sno = supplier.Sno,
-                                    TransDate = DateTime.Today,
-                                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                                    ProductType = "",
-                                    Qsupplied = 0,
-                                    Ppu = 0,
-                                    CR = 0,
-                                    DR = credited,
-                                    Balance = 0,
-                                    Description = "Advance",
-                                    TransactionType = TransactionType.Deduction,
-                                    Remarks = StrValues.AdvancePayroll,
-                                    AuditId = loggedInUser,
-                                    Auditdatetime = DateTime.Now,
-                                    Branch = supplier.Branch,
-                                    SaccoCode = sacco,
-                                    DrAccNo = "0",
-                                    CrAccNo = "0",
-                                    Zone = "",
-                                    MornEvening = ""
-                                });
-
-                            var checkifanydeduction = _context.ProductIntake.Where(n => n.SaccoCode == sacco && n.Branch == supplier.Branch
-                        && n.TransDate == period.EndDate && n.Sno.ToUpper().Equals(supplier.Sno.ToUpper().ToString()) && n.Description.ToLower().Contains("midpay")).ToList();
-                            if (!checkifanydeduction.Any())
+                            var checkifanydeduction = productIntakeslist.Where(n => n.Branch == supplier.Branch && n.TransDate == period.EndDate 
+                            && n.Sno.ToUpper().Equals(supplier.Sno.ToUpper().ToString()) && n.Description.ToLower().Contains("midpay")).ToList();
+                            if (!checkifanydeduction.Any() && period.EndDate != monthsLastDate)
                                 _context.ProductIntake.Add(new ProductIntake
                                 {
                                     Sno = supplier.Sno.ToUpper().ToString(),

@@ -22,7 +22,7 @@ namespace EasyPro.Controllers
             _notyf = notyf;
             utilities = new Utilities(context);
         }
-       
+
         // GET: DPrices
         public async Task<IActionResult> Index()
         {
@@ -60,12 +60,12 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var products = _context.DBranchProducts.Where(a=>a.saccocode== sacco).Select(b => b.Bname).ToList();
+            var products = _context.DBranchProducts.Where(a => a.saccocode == sacco).Select(b => b.Bname).ToList();
             ViewBag.products = new SelectList(products);
             var glAccounts = _context.Glsetups.Where(g => g.saccocode == sacco).ToList();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
         }
-        
+
         // POST: DPrices/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -81,7 +81,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide product");
                 return View();
             }
-            if(dPrice.Price < 0)
+            if (dPrice.Price < 0)
             {
                 _notyf.Error("Sorry, Kindly provide price");
                 return View();
@@ -96,7 +96,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide product Cr Acc");
                 return View();
             }
-            if (_context.DPrices.Any(i =>i.SaccoCode==sacco && i.Products == dPrice.Products))
+            if (_context.DPrices.Any(i => i.SaccoCode == sacco && i.Products == dPrice.Products))
             {
                 _notyf.Error("Sorry, The product already exist");
                 return View();
@@ -163,7 +163,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Kindly provide product Cr Acc");
                 return View();
             }
-            if (_context.DPrices.Any(i => i.Products == dPrice.Products && i.SaccoCode==sacco && i.Id != dPrice.Id))
+            if (_context.DPrices.Any(i => i.Products == dPrice.Products && i.SaccoCode == sacco && i.Id != dPrice.Id))
             {
                 _notyf.Error("Sorry, The product already exist");
                 return View();
@@ -172,31 +172,21 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
-               .Select(b => b.Bname.ToUpper());
+                    var productIntakes = _context.ProductIntake
+                       .Where(p => p.TransDate >= dPrice.Edate && (p.TransactionType == TransactionType.Intake || p.TransactionType == TransactionType.Correction)
+                       && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
 
-                    foreach (var branchName in branchNames)
+                    productIntakes.ForEach(p =>
                     {
-                        var productIntakes = _context.ProductIntake
-                        .Where(p => p.TransDate >= dPrice.Edate && (p.Description == "Intake" || p.Description == "Correction")
-                        && p.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && p.Branch== branchName).ToList();
-
-                        productIntakes.ForEach(p =>
-                        {
-                            p.Ppu = dPrice.Price;
-                            if(p.CR != 0)
-                                p.CR = dPrice.Price * p.Qsupplied;
-                            if (p.DR != 0)
-                                p.DR = dPrice.Price * p.Qsupplied * -1;
-                        });
-                    };
-                        
+                        p.Ppu = dPrice.Price;
+                        if (p.CR != 0)
+                            p.CR = dPrice.Price * p.Qsupplied;
+                        if (p.DR != 0)
+                            p.DR = dPrice.Price * p.Qsupplied * -1;
+                    });
 
                     dPrice.SaccoCode = sacco;
                     _context.Update(dPrice);
-
-
-
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

@@ -1638,21 +1638,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Supplier must be approved and active");
                 return Json("");
             }
-            double ch = 0;
-            if (productIntake.CR < 0)
-            {
-                productIntake.DR = (productIntake.CR) * -1;
-                ch = (double)productIntake.CR;
-                productIntake.CR = 0;
-            }
-            if (productIntake.DrAccNo == null)
-            {
-                productIntake.DrAccNo = "0";
-            }
-            if (productIntake.CrAccNo == null)
-            {
-                productIntake.CrAccNo = "0";
-            }
+           
 
             if (ModelState.IsValid)
             {
@@ -1680,6 +1666,22 @@ namespace EasyPro.Controllers
                     prices = (int)price.Price;
 
                 totalamount = (decimal)productIntake.Qsupplied * prices;
+                double ch = 0;
+                if (productIntake.CR < 0)
+                {
+                    productIntake.DR = (productIntake.CR) * -1;
+                    ch = (double)productIntake.CR;
+                    productIntake.CR = 0;
+                    totalamount = 0;
+                }
+                if (productIntake.DrAccNo == null)
+                {
+                    productIntake.DrAccNo = "0";
+                }
+                if (productIntake.CrAccNo == null)
+                {
+                    productIntake.CrAccNo = "0";
+                }
 
                 productIntake.TransDate = productIntake.TransDate;
                 var collection = new ProductIntake

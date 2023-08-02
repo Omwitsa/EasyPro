@@ -12,6 +12,7 @@ namespace EasyPro.Models
     {
         public long Id { get; set; }
         public string Products { get; set; }
+        [Display(Name = "Start Date")]
         public DateTime? Edate { get; set; }
         public decimal? Price { get; set; }
         public string SaccoCode { get; set; }

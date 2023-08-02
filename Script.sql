@@ -18,5 +18,3 @@ CREATE TABLE [dbo].[d_SupplierCumlative](
 ) ON [PRIMARY]
 GO
 
-
-ALTER TABLE d_company ADD SupStatementNote [nvarchar](200)
