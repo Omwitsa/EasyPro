@@ -433,6 +433,7 @@ namespace EasyPro.Controllers
 
             if (ModelState.IsValid)
             {
+                dSupplier.Approval = false;
                 dSupplier.Scode = sacco;
 
                 _context.Add(dSupplier);
