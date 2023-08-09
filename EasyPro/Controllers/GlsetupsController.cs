@@ -60,25 +60,82 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             return View();
         }
+        [HttpPost]
+        public JsonResult getdetails(string? type)
+        {
+            //var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            SetInitialValuesDefaults(type);
 
+            return Json("");
+        }
+        [HttpPost]
+        public JsonResult getmore(string? type)
+        {
+            //var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            SetglsInitialValuesDefaults(type);
+
+            return Json("");
+        }
+        private void SetglsInitialValuesDefaults(string type)
+        {
+
+        }
+        private void SetInitialValuesDefaults(string type)
+        {
+            var accGroups = new string[] {};
+            var subGroups = new string[] {};
+            var normalBal = new string[] {};
+            var categories = new string[] {};
+            if (type== "Income Statement")
+            {
+                accGroups = new string[] { "INCOME", "EXPENSES" };
+                subGroups = new string[] { "Accumulated Depreciation", "Assets", "Board Costs", "Closing Inventory",
+                "Cost and Expenses", "Cost of Sales", "Current Assets", "Current liabilities", "Fixed assets",
+                "Interest Income", "Liabilities", "Long Term Liability", "Openning Inventory", "Operating Expenses",
+                "Operating Income", "Other", "Other Assets", "Other Income and Expenses", "Provision for Income Taxes",
+                "Purchases", "Retained Earnings", "Revenue", "Share Holders Equity", "Staff Costs", "Suspense Acc" };
+                normalBal = new string[] { "Debit", "Credit" };
+                categories = new string[] { "FINANCIAL EXP", "PERSONNEL EXP", "ADMININISTRATIVE EXP", "MANAGEMENT EXP", "GOVERNANCE EXP", "DIRECT EXP" };
+            }
+            if (type == "Balance Sheet")
+            {
+                accGroups = new string[] { "ASSETS", "LIABILITIES", "SHAREHOLDERS FUND AND  LIABILITIES" };
+                subGroups = new string[] { "Accumulated Depreciation", "Assets", "Board Costs", "Closing Inventory",
+                "Cost and Expenses", "Cost of Sales", "Current Assets", "Current liabilities", "Fixed assets",
+                "Interest Income", "Liabilities", "Long Term Liability", "Openning Inventory", "Operating Expenses",
+                "Operating Income", "Other", "Other Assets", "Other Income and Expenses", "Provision for Income Taxes",
+                "Purchases", "Retained Earnings", "Revenue", "Share Holders Equity", "Staff Costs", "Suspense Acc" };
+                normalBal = new string[] { "Debit", "Credit" };
+                categories = new string[] { "FINANCIAL EXP", "PERSONNEL EXP", "ADMININISTRATIVE EXP", "MANAGEMENT EXP", "GOVERNANCE EXP", "DIRECT EXP" };
+            }
+            if (type == "Retained Earnings")
+            {
+                accGroups = new string[] { "ASSETS", "CAPITAL", "EXPENSES", "INCOME", "LIABILITIES", "RETAINED EARNINGS", "SUSPENSE ACCOUNT" };
+                subGroups = new string[] { "Accumulated Depreciation", "Assets", "Board Costs", "Closing Inventory",
+                "Cost and Expenses", "Cost of Sales", "Current Assets", "Current liabilities", "Fixed assets",
+                "Interest Income", "Liabilities", "Long Term Liability", "Openning Inventory", "Operating Expenses",
+                "Operating Income", "Other", "Other Assets", "Other Income and Expenses", "Provision for Income Taxes",
+                "Purchases", "Retained Earnings", "Revenue", "Share Holders Equity", "Staff Costs", "Suspense Acc" };
+                normalBal = new string[] { "Debit", "Credit" };
+                categories = new string[] { "FINANCIAL EXP", "PERSONNEL EXP", "ADMININISTRATIVE EXP", "MANAGEMENT EXP", "GOVERNANCE EXP", "DIRECT EXP" };
+            }
+           
+            ViewBag.accGroups = new SelectList(accGroups);
+            ViewBag.subGroups = new SelectList(subGroups);
+            ViewBag.normalBal = new SelectList(normalBal);
+            
+            ViewBag.categories = new SelectList(categories);
+        }
         private void SetInitialValues()
         {
             var accTypes = new string[] { "Income Statement", "Balance Sheet", "Retained Earnings" };
             ViewBag.accTypes = new SelectList(accTypes);
-            var accGroups = new string[] { "ASSETS", "CAPITAL", "EXPENSES", "INCOME", "LIABILITIES", "RETAINED EARNINGS", "SUSPENSE ACCOUNT" };
-            ViewBag.accGroups = new SelectList(accGroups);
-            var subGroups = new string[] { "Accumulated Depreciation", "Assets", "Board Costs", "Closing Inventory", 
-                "Cost and Expenses", "Cost of Sales", "Current Assets", "Current liabilities", "Fixed assets", 
-                "Interest Income", "Liabilities", "Long Term Liability", "Openning Inventory", "Operating Expenses", 
-                "Operating Income", "Other", "Other Assets", "Other Income and Expenses", "Provision for Income Taxes", 
-                "Purchases", "Retained Earnings", "Revenue", "Share Holders Equity", "Staff Costs", "Suspense Acc" };
-            ViewBag.subGroups = new SelectList(subGroups);
-            var normalBal = new string[] { "Debit", "Credit" };
-            ViewBag.normalBal = new SelectList(normalBal);
             var currencies = new string[] { "KES", "USD", "GBP", "TSH", "USH", "ZAR" };
             ViewBag.currencies = new SelectList(currencies);
-            var categories = new string[] { "FINANCIAL EXP", "PERSONNEL EXP", "ADMININISTRATIVE EXP", "MANAGEMENT EXP", "GOVERNANCE EXP", "DIRECT EXP" };
-            ViewBag.categories = new SelectList(categories);
         }
 
         // POST: Glsetups/Create
