@@ -30,8 +30,11 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="GlAccType" class="control-label"></label>
-                            <select asp-for="GlAccType" class="form-control" asp-items="@ViewBag.accTypes">
-                                <option value="" disabled selected hidden>Please Choose...</option>
+                            <select asp-for="GlAccType" id="gltype" class="form-control" >
+                                <option value=""></option>
+                                <option value="Income Statement">Income Statement</option>
+                                <option value="Balance Sheet">Balance Sheet</option>
+                                <option value="Retained Earnings">Retained Earnings</option>
                             </select>
                             <span asp-validation-for="GlAccType" class="text-danger"></span>
                         </div>
@@ -39,8 +42,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="GlAccMainGroup" class="control-label"></label>
-                            <select asp-for="GlAccMainGroup" class="form-control" asp-items="@ViewBag.accGroups">
-                                <option value="" disabled selected hidden>Please Choose...</option>
+                            <select asp-for="GlAccMainGroup" id="glmaingroup" class="form-control"  required>
                             </select>
                             <span asp-validation-for="GlAccMainGroup" class="text-danger"></span>
                         </div>
@@ -51,7 +53,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="GlAccGroup" class="control-label"></label>
-                            <select asp-for="GlAccGroup" class="form-control" asp-items="@ViewBag.subGroups">
+                            <select asp-for="GlAccGroup" id="glcategory" class="form-control" asp-items="@ViewBag.subGroups" required disabled>
                                 <option value="" disabled selected hidden>Please Choose...</option>
                             </select>
                             <span asp-validation-for="GlAccGroup" class="text-danger"></span>
@@ -60,9 +62,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="NormalBal" class="control-label"></label>
-                            <select asp-for="NormalBal" class="form-control" asp-items="@ViewBag.normalBal">
-                                <option value="" disabled selected hidden>Please Choose...</option>
-                            </select>
+                            <input asp-for="NormalBal" id="normalBal" class="form-control" />
                             <span asp-validation-for="NormalBal" class="text-danger"></span>
                         </div>
                     </div>
@@ -89,7 +89,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="AccCategory" class="control-label"></label>
-                            <select asp-for="AccCategory" class="form-control" asp-items="@ViewBag.categories">
+                            <select asp-for="AccCategory" id="glcategoryName" class="form-control" asp-items="@ViewBag.categories" required disabled>
                                 <option value="" disabled selected hidden>Please Choose...</option>
                             </select>
                             <span asp-validation-for="AccCategory" class="text-danger"></span>
@@ -158,5 +158,160 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+<script type="text/javascript">
+        $(function () {
+            let subcounties = @Html.Raw(Json.Serialize(ViewBag.SubCountyName));
+            let wards = @Html.Raw(Json.Serialize(ViewBag.WardSubCounty));
+            let locations = @Html.Raw(Json.Serialize(ViewBag.locations));
+            $(".gltype").on('click', function () {
+                getSelectedDateIntakes();
+            });
+            function getSelectedDateIntakes() {
+                $('#glmaingroup').empty();
+                $('#glcategory').empty();
+                $('#glcategoryName').empty();
+                $('#normalBal').val('');
+                $('#glmaingroup').append($('<option>').val('').text(''))
+                $('#glmaingroup').prop('disabled', false);
+                $('#glcategory').prop('disabled', true);
+                $('#glcategoryName').prop('disabled', true);
+                var type = document.getElementById("gltype").value;
+                let array;
+                if (type === 'Income Statement') {
+                    array = ['', 'INCOME', 'EXPENSES'];
+                }
+                if (type === 'Balance Sheet') {
+                    array = ['', 'ASSETS', "LIABILITIES", "SHAREHOLDERS FUND AND  LIABILITIES"];
+                }
+                if (type === "Retained Earnings") {
+                    array = [""];
+                }
+                var string = "";
+                for (let i = 0; i < array.length; i++) {
+                    string = string + "<option>" + array[i] + "</option>";
+                }
+                document.getElementById('glmaingroup').innerHTML = string;
+            }
+            $('#gltype').on('change', function () {
+                getSelectedDateIntakes();
+                
+            });
 
+            $('#glmaingroup').on('change', function () {
+                $('#glcategory').empty();
+                $('#glcategoryName').empty();
+                $('#normalBal').val('');
+                $('#glcategory').prop('disabled', false);
+                $('#glcategoryName').prop('disabled', false);
+                let curr_wards = document.getElementById("glmaingroup").value;
+                let array;
+                if (curr_wards === "INCOME") {
+                    array = '';
+                    $('#normalBal').val('CR');
+                    array = ['', "Revenue","Purchases","Other Incomes"];
+                }
+                if (curr_wards === "EXPENSES") {
+                    array = '';
+                    $('#normalBal').val('DR');
+                    array = ['', "Members/Committee Expenses", "Personnel expenses", "Operating Expenses","Other Operating Expenses"];
+                }
+                if (curr_wards === "ASSETS") {
+                    array = '';
+                    $('#normalBal').val('DR');
+                    array = ['', "Fixed Asset", "Intagible Asset", "Current Asset"];
+                }
+                if (curr_wards === "LIABILITIES") {
+                    array = '';
+                    $('#normalBal').val('CR');
+                    array = ['', "Current Liabilities"];
+                }
+                let val = "SHAREHOLDERS FUND AND  LIABILITIES";
+                if (curr_wards === val) {
+                    array = '';
+                    $('#normalBal').val('CR');
+                    array = ['', "Shareholders Equity", "Capital Reserves", "Retained Earnings","Revenue Reserves"];
+                }
+                var string = "";
+                for (let i = 0; i < array.length; i++) {
+                    string = string + "<option>" + array[i] + "</option>";
+                }
+                document.getElementById('glcategory').innerHTML = string;
+            });
+            $('#glcategory').on('change', function () {
+                $('#glcategoryName').empty();
+                $('#glcategory').prop('disabled', false);
+                $('#glcategoryName').prop('disabled', false);
+                let curr_wards = document.getElementById("glcategory").value;
+                let array;
+                if (curr_wards === "Revenue") {
+                    array = '';
+                    $('#normalBal').val('CR');
+                    array = ['', "Sales of Milk"];
+                }
+                if (curr_wards === "Purchases") {
+                    array = '';
+                    $('#normalBal').val('DR');
+                    array = ['', "Cost of Sales"];
+                }
+                if (curr_wards === "Other Incomes") {
+                    array = '';
+                    $('#normalBal').val('CR');
+                    array = ['', "Posting Charges","Withdrawal Charges","Other Sundry Incomes","Interest from Advances"];
+                }
+                if (curr_wards === "Members/Committee Expenses") {
+                    array = '';
+                    array = ['', "Committee Sitting Allowances","Committee Travelling & Subsistence Allowances","Member Education","Entertainment","AGM Expenses"];
+                }
+                if (curr_wards === "Personnel expenses") {
+                    array = '';
+                    array = ['', "Salaries & Wages","Other Staff Expenses"];
+                }
+                if (curr_wards === "Other Operating Expenses") {
+                    array = '';
+                    array = ['', "Printing and Stationery", "Bank Charges", "Computer Repair", "Postage and Telephone", "Rent", "Proposal Writing", "Effluent and Discharge", "Licence", "Water", "Electricity", "RMI", "Interest on Bank Loan", "Chemicals","Professional/ consultancy"];
+                }
+                if (curr_wards === "Operating Expenses") {
+                    array = '';
+                    array = ['', "Depreciation", "Amortization","Audit Fees"];
+                }
+                if (curr_wards === "Fixed Asset") {
+                    array = '';
+                    array = ['', "Property & Equipment", "Cooling plant & Accessories", "Land", "Vehicle", "Furniture and fittings", "Water Tank", "Computer and Accessories", "Generator", "Dairy Equipments","Office Equipments"];
+                }
+                if (curr_wards === "Intagible Asset") {
+                    array = '';
+                    array = ['', "Software", "Goodwil"];
+                }
+                if (curr_wards === "Current Asset") {
+                    array = '';
+                    array = ['', "Deposits", "Debtors", "Stock","Cash  and Bank Balances"];
+                }
+                if (curr_wards === "Current Liabilities") {
+                    array = '';
+                    array = ['', "Payments due to Members", "Coop Loan Balance", "Accounts Payable"];
+                }
+                if (curr_wards === "Shareholders Equity") {
+                    array = '';
+                    array = ['', "Share  Capital"];
+                }
+                if (curr_wards === "Capital Reserves") {
+                    array = '';
+                    array = ['', "Grants"];
+                }
+                if (curr_wards === "Retained Earnings") {
+                    array = '';
+                    array = ['', "Retained Earnings"];
+                }
+                if (curr_wards === "Revenue Reserves") {
+                    array = '';
+                    array = ['', "Revenue Reserve"];
+                }
+                var string = "";
+                for (let i = 0; i < array.length; i++) {
+                    string = string + "<option>" + array[i] + "</option>";
+                }
+                document.getElementById('glcategoryName').innerHTML = string;
+            });
+        });
+</script>
+}

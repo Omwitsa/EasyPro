@@ -37,8 +37,9 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             sacco = sacco ?? "";
             ViewData["Getsuppliers"]= Search;
-            var suppliers = from x in _context.DSuppliers
-                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval) select x;
+            var val = _context.DSuppliers
+                .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval);
+            var suppliers = from x in val select x;
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(u => u.Branch == saccoBranch);
@@ -378,6 +379,7 @@ namespace EasyPro.Controllers
                 new SelectListItem { Text = "" },
                 new SelectListItem { Text = "Male" },
                 new SelectListItem { Text = "Female" },
+                new SelectListItem { Text = "Others" },
             };
             ViewBag.gender = gender;
             List<SelectListItem> payment = new()
@@ -433,6 +435,7 @@ namespace EasyPro.Controllers
 
             if (ModelState.IsValid)
             {
+                dSupplier.Approval = false;
                 dSupplier.Scode = sacco;
 
                 _context.Add(dSupplier);

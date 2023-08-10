@@ -75,11 +75,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,Name,Price,Date,UserId,Branch,SaccoCode,Product,Active")] DPrice2 dPrice2)
         {
+            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var checkname = _context.DSuppliers.FirstOrDefault(h => h.Scode.ToUpper().Equals(sacco.ToUpper()) && h.Branch == saccoBranch && h.Sno.ToUpper().Equals(dPrice2.Sno.ToUpper()));
-            if (checkname != null)
+            if (checkname == null)
             {
                 _notyf.Error("Sorry, Supplier code Does not Exist");
                 return View();
@@ -131,6 +132,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,Name,Price,Date,UserId,Branch,SaccoCode,Product,Active")] DPrice2 dPrice2)
         {
+            utilities.SetUpPrivileges(this);
             if (id != dPrice2.Id)
             {
                 return NotFound();
@@ -169,6 +171,7 @@ namespace EasyPro.Controllers
         // GET: DPrice2/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -189,6 +192,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            utilities.SetUpPrivileges(this);
             var dPrice2 = await _context.d_Price2.FindAsync(id);
             _context.d_Price2.Remove(dPrice2);
             await _context.SaveChangesAsync();
