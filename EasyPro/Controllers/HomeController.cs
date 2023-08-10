@@ -60,14 +60,13 @@ namespace EasyPro.Controllers
             SetIntakeInitialValues();
 
             IQueryable<DSupplier> suppliers = _context.DSuppliers;
-            var totalsuppliers = suppliers.Where(m => m.Scode == sacco).ToList();
-            double x = totalsuppliers.Where(k =>k.Type.ToLower().Equals("male")).ToList().Count();
+            var totalsuppliers = suppliers.Where(m => m.Scode == sacco);
+            double x = totalsuppliers.Where(k =>k.Type.ToLower().Equals("male")).Count();
             double y = totalsuppliers.Count();
             double percentage = Math.Round(((x / y) * 100), 0);
 
-            double x1 = totalsuppliers.Where(k => k.Type.ToLower().Equals("female")).ToList().Count();
-            double y1 = y;
-            double percentages = Math.Round(((x1 / y1) * 100), 0);
+            double x1 = totalsuppliers.Where(k => k.Type.ToLower().Equals("female")).Count();
+            double percentages = Math.Round(((x1 / y) * 100), 0);
             ViewBag.males = percentage;
             ViewBag.females = percentages;
 
@@ -84,33 +83,24 @@ namespace EasyPro.Controllers
             var startDate1 = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate1 = startDate1.AddMonths(1).AddDays(-1);
 
-            IQueryable<DSupplier> suppliers1 = _context.DSuppliers;
             IQueryable<ProductIntake> activesup = _context.ProductIntake;
-
-            var totalsuppliers1 = suppliers1.Where(m => m.Scode == sacco).ToList();
-            
 
             var listactivesuppliers = activesup.Where(m => m.SaccoCode == sacco && m.Description == "Intake" && m.TransDate>= startDate1
             && m.TransDate<= endDate1 ).ToList();
 
 
             double x2 = listactivesuppliers.Select(b=>b.Sno).Distinct().Count();
-            double y2 = totalsuppliers1.Count();
 
-            ViewBag.suppliers = y2;
+            ViewBag.suppliers = y;
             ViewBag.activeSuppliers = x2;
-            ViewBag.failedSuppliers = y2-x2;
+            ViewBag.failedSuppliers = y-x2;
 
-            double percentage2 = Math.Round(((x2 / y2) * 100), 0);
+            double percentage2 = Math.Round(((x2 / y) * 100), 0);
 
-            double x3 = y2-x2;
-            double y3 = y2;
-            double percentages3 = Math.Round(((x3 / y3) * 100), 0);
+            double x3 = y-x2;
+            double percentages3 = Math.Round(((x3 / y) * 100), 0);
             ViewBag.males = percentage2;
             ViewBag.females = percentages3;
-
-           
-            
 
             List<Farmersdata> chartData1 = new List<Farmersdata>
             {
@@ -120,9 +110,6 @@ namespace EasyPro.Controllers
             };
 
             ViewBag.dataSource1 = chartData1;
-
-
-            
 
             IQueryable<DShare> shares = _context.DShares;
 
@@ -182,7 +169,7 @@ namespace EasyPro.Controllers
             //ViewBag.todaysales = sales;
             ViewBag.todaysales = 0;
 
-            var newFarmers = suppliers1.Where(s =>s.Scode== sacco && s.Regdate >= startDate1 && s.Regdate <= endDate1).ToList();
+            var newFarmers = suppliers.Where(s =>s.Scode== sacco && s.Regdate >= startDate1 && s.Regdate <= endDate1);
             ViewBag.newFarmers = newFarmers.Count();
             //ViewBag.newFarmers = 0;
 
