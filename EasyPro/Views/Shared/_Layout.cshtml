@@ -795,8 +795,14 @@
                                 }
                                 @if (ViewBag.Milling)
                                 {
+                                    <li>
+                                        <a asp-controller="Customer" asp-action="Index">WeighBridge Statement</a>
+                                    </li>
+                                }
+                                @if (ViewBag.Milling)
+                                {
                                 <li>
-                                    <a asp-controller="Milling_Products" asp-action="Index">Milling Products</a>
+                                    <a asp-controller="MillerProductsDetails" asp-action="Index">Milling Products</a>
                                 </li>
                                 }
                                 @if (ViewBag.Marketing)

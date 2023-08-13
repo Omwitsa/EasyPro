@@ -1,0 +1,135 @@
+﻿@model IEnumerable<EasyPro.Models.Coffee.Customer>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    
+</head>
+<body>
+    <table id="tblCustomers" class="table" cellpadding="0" cellspacing="0">
+        <thead>
+            <tr>
+                <th style="width:150px">Name</th>
+                <th style="width:150px">Country</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (EasyPro.Models.Coffee.Customer customer in Model)
+            {
+                <tr>
+                    <td>@customer.Name</td>
+                    <td>@customer.Country</td>
+                    <td><input type="button" value="Remove" onclick="Remove(this)" /></td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td><input type="text" id="txtName" /></td>
+                <td><input type="text" id="txtCountry" /></td>
+                <td><input type="button" id="btnAdd" value="Add" /></td>
+            </tr>
+        </tfoot>
+    </table>
+    <br />
+    <input type="button" id="btnSave" value="Save All" />
+
+
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+
+  <script type="text/javascript">
+        $("body").on("click", "#btnAdd", function () {
+            //Reference the Name and Country TextBoxes.
+            var txtName = $("#txtName");
+            var txtCountry = $("#txtCountry");
+
+            //Get the reference of the Table's TBODY element.
+            var tBody = $("#tblCustomers > TBODY")[0];
+
+            //Add Row.
+            var row = tBody.insertRow(-1);
+
+            //Add Name cell.
+            var cell = $(row.insertCell(-1));
+            cell.html(txtName.val());
+
+            //Add Country cell.
+            cell = $(row.insertCell(-1));
+            cell.html(txtCountry.val());
+
+            //Add Button cell.
+            cell = $(row.insertCell(-1));
+            var btnRemove = $("<input />");
+            btnRemove.attr("type", "button");
+            btnRemove.attr("onclick", "Remove(this);");
+            btnRemove.val("Remove");
+            cell.append(btnRemove);
+
+            //Clear the TextBoxes.
+            txtName.val("");
+            txtCountry.val("");
+        });
+
+        function Remove(button) {
+            //Determine the reference of the Row using the Button.
+            var row = $(button).closest("TR");
+            var name = $("TD", row).eq(0).html();
+            if (confirm("Do you want to delete: " + name)) {
+                //Get the reference of the Table.
+                var table = $("#tblCustomers")[0];
+
+                //Delete the Table row using it's Index.
+                table.deleteRow(row[0].rowIndex);
+            }
+        };
+        $("body").on("click", "#btnSave", function () {
+                //Loop through the Table rows and build a JSON array.
+                var customers = new Array();
+                $("#tblCustomers TBODY TR").each(function () 
+                {
+                    var row = $(this);
+                var customer = new Array();;
+                
+                customers.forEach(i => {
+                    customer.push(`<tr>
+                                                    <td>${i.txtName}</td>
+                                                    <td>${i.txtCountry}</td>
+
+                                                </tr>`);
+                });
+                    // customer.Name = row.find("TD").eq(0).html();
+                    // customer.Country = row.find("TD").eq(0).html();
+                    // customers.push(customers);
+                     alert(customer);
+                });
+
+                //Send the JSON array to Controller using AJAX.
+                $.ajax({
+                     type: "POST",
+                    url: "/Customer/InsertCustomers",
+                data: JSON.stringify(customers),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                     success: function (response) {
+                    alert(response + " record(s) inserted.");
+                    },
+                failure: function (response) {
+                    window.alert(response);
+                }
+                });
+            
+        });
+    </script>
+
+</body>
+</html>

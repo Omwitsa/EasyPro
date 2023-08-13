@@ -1,0 +1,138 @@
+﻿@model EasyPro.Models.Coffee.WeighBridgeNote
+
+@{
+    ViewData["Title"] = "Create";
+    
+}
+
+<div class="row">
+    <div class="form-element-list mg-t-30">
+
+
+        <h2>Miller Weigh Brigde Statement</h2>
+
+
+        <hr />
+        
+        <form asp-action="Create">
+            <div class="row">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Date" class="control-label"></label>
+                    <input type="date" asp-for="Date" class="form-control" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Factory" class="control-label"></label>
+                    <select id="glAcc" asp-for="Factory" class="form-control" asp-items="@ViewBag.Factory">
+                        <option value="" disabled selected hidden>Please select</option>
+                    </select>
+                    <span asp-validation-for="Factory" class="text-danger"></span>
+
+                </div>
+                <div class="form-group">
+                    <label asp-for="Miller" class="control-label"></label>
+                    <select id="glAcc" asp-for="Miller" class="form-control" asp-items="@ViewBag.Miller">
+                        <option value="" disabled selected hidden>Please select</option>
+                    </select>
+                    <span asp-validation-for="Miller" class="text-danger"></span>
+
+                </div>
+                    <div class="form-group">
+                        <label asp-for="VehicleNo" class="control-label"></label>
+                        <input asp-for="VehicleNo" class="form-control" />
+                        <span asp-validation-for="VehicleNo" class="text-danger"></span>
+                    </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                
+                <div class="form-group">
+                    <label asp-for="CbkCode" class="control-label"></label>
+                    <input asp-for="CbkCode" class="form-control" />
+                    <span asp-validation-for="CbkCode" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                <label asp-for="OutreturnNo" class="control-label"></label>
+                <input asp-for="OutreturnNo" class="form-control" />
+                <span asp-validation-for="OutreturnNo" class="text-danger"></span>
+                </div>
+                    <div class="form-group">
+                        <label asp-for="FirstWeight" class="control-label"></label>
+                        <input asp-for="FirstWeight" class="form-control" />
+                        <span asp-validation-for="FirstWeight" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="SecondWeight" class="control-label"></label>
+                        <input asp-for="SecondWeight" class="form-control" />
+                        <span asp-validation-for="SecondWeight" class="text-danger"></span>
+                    </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+               
+              
+                <div class="form-group">
+                    <label asp-for="NetWeight" class="control-label"></label>
+                    <input asp-for="NetWeight" class="form-control" />
+                    <span asp-validation-for="NetWeight" class="text-danger"></span>
+                </div>
+                    <div class="form-group">
+                        <label asp-for="NoBags" class="control-label"></label>
+                        <input asp-for="NoBags" class="form-control" />
+                        <span asp-validation-for="NoBags" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Storage" class="control-label"></label>
+                        <input asp-for="Storage" class="form-control" />
+                        <span asp-validation-for="Storage" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="RecipientName" class="control-label"></label>
+                        <input asp-for="RecipientName" class="form-control" />
+                        <span asp-validation-for="RecipientName" class="text-danger"></span>
+                    </div>
+            </div>
+           
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                <div class="form-group">
+                    <label asp-for="RecipientIdno" class="control-label"></label>
+                    <input asp-for="RecipientIdno" class="form-control" />
+                    <span asp-validation-for="RecipientIdno" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    
+                    <label asp-for="Selection" class="control-label"></label>
+                    <select id="glAcc" asp-for="Selection" class="form-control" asp-items="@ViewBag.millerSelect">
+                        <option value="" disabled selected hidden>select weigh option </option>
+                    </select>
+                    <span asp-validation-for="Selection" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+
+                    <label asp-for="Category" class="control-label"></label>
+                    <select id="glAcc" asp-for="Category" class="form-control" asp-items="@ViewBag.Category">
+                        <option value="" disabled selected hidden>Please select Category</option>
+                    </select>
+                    <span asp-validation-for="Category" class="text-danger"></span>
+                </div>
+            </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                </div>
+            </div>
+                
+               
+            
+       
+        </form>
+    </div>
+</div>
+
+
+
+
