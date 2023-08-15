@@ -377,7 +377,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
 
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco).Select(b => b.Names).ToList();
+            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Branch == saccoBranch).Select(b => b.Names).ToList();
 
             return Json(todaysIntake);
         }
@@ -426,10 +426,10 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var suppliers = _context.DSuppliers
-                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
             ViewBag.suppliers = suppliers;
             var products = _context.DPrices.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.products = new SelectList(products, "Products", "Products");
