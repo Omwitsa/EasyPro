@@ -233,7 +233,7 @@
                                             <li>
                                                 <a asp-controller="ExcelUpload" asp-action="Index">Import Intake Excell</a>
                                             </li>
-                                            @if (!ViewBag.setupRole && !ViewBag.isTanyakina)
+                                            @if (!ViewBag.isTanyakina)
                                             {
                                                 <li>
                                                     <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
@@ -691,23 +691,17 @@
                                     </li>
                                 }
 
-                                @if (!ViewBag.setupRole)
+                                @if (ViewBag.activityRole)
                                 {
                                     <li>
-                                        <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
+                                    <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
                                     </li>
-                                
-                               
                                     <li>
                                         <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
                                     </li>
-                               
-                                
                                     <li>
                                         <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Milk Transfer</a>
                                     </li>
-                                
-                                
                                     <li>
                                         <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Milk Control</a>
                                     </li>
