@@ -51,7 +51,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Date Of Birth</label>
-                                    <input type="date" asp-for="Dob" class="form-control" />
+                                    <input type="date" asp-for="Dob" class="form-control" required />
                                     <span asp-validation-for="Dob" class="text-danger"></span>
                                 </div>
                             </div>
@@ -128,7 +128,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Division" class="control-label">Ward</label>
-                                    <select asp-for="Division" id="ward" class="form-control" disabled>
+                                    <select asp-for="Division" id="ward" class="form-control" disabled required>
                                         <option value=""></option>
                                     </select>
                                     

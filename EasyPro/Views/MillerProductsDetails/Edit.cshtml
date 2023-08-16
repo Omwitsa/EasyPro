@@ -1,0 +1,117 @@
+﻿@model EasyPro.Models.Coffee.MillerProductsDetails
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Uitamplate.cshtml";
+}
+
+<h2>Edit</h2>
+
+<h4>MillerProductsDetails</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Factory" class="control-label"></label>
+                <input asp-for="Factory" class="form-control" />
+                <span asp-validation-for="Factory" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Saccocode" class="control-label"></label>
+                <input asp-for="Saccocode" class="form-control" />
+                <span asp-validation-for="Saccocode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CbkCode" class="control-label"></label>
+                <input asp-for="CbkCode" class="form-control" />
+                <span asp-validation-for="CbkCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OutNumber" class="control-label"></label>
+                <input asp-for="OutNumber" class="form-control" />
+                <span asp-validation-for="OutNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Category" class="control-label"></label>
+                <input asp-for="Category" class="form-control" />
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Season" class="control-label"></label>
+                <input asp-for="Season" class="form-control" />
+                <span asp-validation-for="Season" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MillerID" class="control-label"></label>
+                <input asp-for="MillerID" class="form-control" />
+                <span asp-validation-for="MillerID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Certification" class="control-label"></label>
+                <input asp-for="Certification" class="form-control" />
+                <span asp-validation-for="Certification" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeliveryDate" class="control-label"></label>
+                <input asp-for="DeliveryDate" class="form-control" />
+                <span asp-validation-for="DeliveryDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MillingDate" class="control-label"></label>
+                <input asp-for="MillingDate" class="form-control" />
+                <span asp-validation-for="MillingDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MillingLoss" class="control-label"></label>
+                <input asp-for="MillingLoss" class="form-control" />
+                <span asp-validation-for="MillingLoss" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MoistureParch" class="control-label"></label>
+                <input asp-for="MoistureParch" class="form-control" />
+                <span asp-validation-for="MoistureParch" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MostureClean" class="control-label"></label>
+                <input asp-for="MostureClean" class="form-control" />
+                <span asp-validation-for="MostureClean" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MillingCHarges" class="control-label"></label>
+                <input asp-for="MillingCHarges" class="form-control" />
+                <span asp-validation-for="MillingCHarges" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExportsCost" class="control-label"></label>
+                <input asp-for="ExportsCost" class="form-control" />
+                <span asp-validation-for="ExportsCost" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VatCost" class="control-label"></label>
+                <input asp-for="VatCost" class="form-control" />
+                <span asp-validation-for="VatCost" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AuditDateTime" class="control-label"></label>
+                <input asp-for="AuditDateTime" class="form-control" />
+                <span asp-validation-for="AuditDateTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

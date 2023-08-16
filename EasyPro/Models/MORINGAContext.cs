@@ -333,6 +333,7 @@ namespace EasyPro.Models
                     .HasMaxLength(50)
                     .HasColumnName("CRACCNO");
 
+
                 entity.Property(e => e.DateEntered)
                     .HasColumnType("smalldatetime")
                     .HasColumnName("Date_Entered");
@@ -10609,6 +10610,11 @@ namespace EasyPro.Models
         public DbSet<EasyPro.Models.Coffee.Pulping_Drying> Pulping_Drying { get; set; }
 
         public DbSet<EasyPro.Models.Coffee.Marketer> Marketer { get; set; }
+        public DbSet<EasyPro.Models.Coffee.Customer> Customer { get; set; }
+        public DbSet<EasyPro.Models.Coffee.MillerProducts> MillerProducts { get; set; }
+        public DbSet<EasyPro.Models.Coffee.MillerProductsWeight> MillerProductsWeight { get; set; }
+        public DbSet<EasyPro.Models.Coffee.MillerProductsDetails> MillerProductsDetails { get; set; }
+        public DbSet<EasyPro.Models.Coffee.WeighBridgeNote> WeighBridgeNote { get; set; }
 
         public DbSet<EasyPro.Models.Coffee.Milling> Milling { get; set; }
         public DbSet<EasyPro.Models.Coffee.Millers> Millers { get; set; }

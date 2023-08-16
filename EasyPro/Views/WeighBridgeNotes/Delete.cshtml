@@ -1,0 +1,112 @@
+﻿@model EasyPro.Models.Coffee.WeighBridgeNote
+
+@{
+    ViewData["Title"] = "Delete";
+   
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>WeighBridgeNote</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Date)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Date)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Miller)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Miller)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Factory)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Factory)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.VehicleNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VehicleNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CbkCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CbkCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.OutreturnNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OutreturnNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FirstWeight)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FirstWeight)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SecondWeight)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SecondWeight)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.NetWeight)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NetWeight)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Category)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Category)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.NoBags)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NoBags)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Storage)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Storage)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RecipientName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RecipientName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RecipientIdno)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RecipientIdno)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Selection)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Selection)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

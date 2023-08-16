@@ -1,0 +1,102 @@
+﻿@model EasyPro.Models.Coffee.WeighBridgeNote
+
+@{
+    ViewData["Title"] = "Edit";
+   
+}
+
+<h2>Edit</h2>
+
+<h4>WeighBridgeNote</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Miller" class="control-label"></label>
+                <input asp-for="Miller" class="form-control" />
+                <span asp-validation-for="Miller" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Factory" class="control-label"></label>
+                <input asp-for="Factory" class="form-control" />
+                <span asp-validation-for="Factory" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VehicleNo" class="control-label"></label>
+                <input asp-for="VehicleNo" class="form-control" />
+                <span asp-validation-for="VehicleNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CbkCode" class="control-label"></label>
+                <input asp-for="CbkCode" class="form-control" />
+                <span asp-validation-for="CbkCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OutreturnNo" class="control-label"></label>
+                <input asp-for="OutreturnNo" class="form-control" />
+                <span asp-validation-for="OutreturnNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FirstWeight" class="control-label"></label>
+                <input asp-for="FirstWeight" class="form-control" />
+                <span asp-validation-for="FirstWeight" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SecondWeight" class="control-label"></label>
+                <input asp-for="SecondWeight" class="form-control" />
+                <span asp-validation-for="SecondWeight" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NetWeight" class="control-label"></label>
+                <input asp-for="NetWeight" class="form-control" />
+                <span asp-validation-for="NetWeight" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Category" class="control-label"></label>
+                <input asp-for="Category" class="form-control" />
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NoBags" class="control-label"></label>
+                <input asp-for="NoBags" class="form-control" />
+                <span asp-validation-for="NoBags" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Storage" class="control-label"></label>
+                <input asp-for="Storage" class="form-control" />
+                <span asp-validation-for="Storage" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RecipientName" class="control-label"></label>
+                <input asp-for="RecipientName" class="form-control" />
+                <span asp-validation-for="RecipientName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RecipientIdno" class="control-label"></label>
+                <input asp-for="RecipientIdno" class="form-control" />
+                <span asp-validation-for="RecipientIdno" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Selection" class="control-label"></label>
+                <input asp-for="Selection" class="form-control" />
+                <span asp-validation-for="Selection" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

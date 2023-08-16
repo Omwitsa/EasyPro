@@ -1,0 +1,341 @@
+﻿@model EasyPro.Models.Coffee.MillerProductsDetails
+
+@{
+    ViewData["Title"] = "Create";
+    
+}
+
+<div class="row">
+    <div class="form-element-list mg-t-30">
+
+
+        <h2>Miller Products Details</h2>
+
+
+        <hr />
+
+        <form asp-action="Create">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Factory" class="control-label"></label>
+                        <select id="glAcc" asp-for="Factory" class="form-control" asp-items="@ViewBag.Factory">
+                            <option value="" disabled selected hidden>Please select </option>
+                        </select>
+                        <span asp-validation-for="Factory" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="CbkCode" class="control-label"></label>
+                        <input asp-for="CbkCode" class="form-control" />
+                        <span asp-validation-for="CbkCode" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OutNumber" class="control-label"></label>
+                        <input asp-for="OutNumber" class="form-control" />
+                        <span asp-validation-for="OutNumber" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+
+                    <div class="form-group">
+
+                        <label asp-for="Category" class="control-label"></label>
+                        <select id="glAcc" asp-for="Category" class="form-control" asp-items="@ViewBag.Category">
+                            <option value="" disabled selected hidden>Please select Category</option>
+                        </select>
+                        <span asp-validation-for="Category" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Season" class="control-label"></label>
+                        <input asp-for="Season" class="form-control" />
+                        <span asp-validation-for="Season" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="MillerID" class="control-label"></label>
+                        <input asp-for="MillerID" class="form-control" />
+                        <span asp-validation-for="MillerID" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Certification" class="control-label"></label>
+                        <input asp-for="Certification" class="form-control" />
+                        <span asp-validation-for="Certification" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+
+
+                    <div class="form-group">
+                        <label asp-for="DeliveryDate" class="control-label"></label>
+                        <input asp-for="DeliveryDate" type="date" class="form-control" />
+                        <span asp-validation-for="DeliveryDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="MillingDate" class="control-label"></label>
+                        <input asp-for="MillingDate" type="date" class="form-control" />
+                        <span asp-validation-for="MillingDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="MillingLoss" class="control-label"></label>
+                        <input asp-for="MillingLoss" class="form-control" />
+                        <span asp-validation-for="MillingLoss" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="MoistureParch" class="control-label"></label>
+                        <input asp-for="MoistureParch" class="form-control" />
+                        <span asp-validation-for="MoistureParch" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <div class="form-group">
+                        <label asp-for="MostureClean" class="control-label"></label>
+                        <input asp-for="MostureClean" class="form-control" />
+                        <span asp-validation-for="MostureClean" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="MillingCHarges" class="control-label"></label>
+                        <input asp-for="MillingCHarges" class="form-control" />
+                        <span asp-validation-for="MillingCHarges" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ExportsCost" class="control-label"></label>
+                        <input asp-for="ExportsCost" class="form-control" />
+                        <span asp-validation-for="ExportsCost" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="VatCost" class="control-label"></label>
+                        <input asp-for="VatCost" class="form-control" />
+                        <span asp-validation-for="VatCost" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+                <table id="ExpTable" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                Weight Note No
+                            </th>
+                            <th>
+                                Bags
+                            </th>
+                            <th>
+                                Gross Weght(Kgs)
+                            </th>
+
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Weights.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.EditorFor(x=> x.Weights[i].WeightNoteNo,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+
+                                <td>
+                                <td>
+
+                                        @Html.EditorFor(x=> x.Weights[i].Bags,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+                                <td>
+
+                                        @Html.EditorFor(x=> x.Weights[i].GrossWeight,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+                                <td>
+                                    <button id="btndummy-@i" type="button" class="btn btn-sm btn-secondary invisible">Dummy</button>
+                                    <button id="btnadd-@i" type="button" class="btn btn-sm btn-secondary visible" onclick="AddItem(this)" style="left:90%;position:absolute">Add</button>
+                                    <button id="btnremove-@i" type="button" class="btn btn-sm btn-danger invisible" onclick="DeleteItem(this)" style="left:90%;position:absolute">Delete</button>
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                    <input type="hidden" id="hdnLastIndex" value="0" />
+                </table>
+                <table id="ExpTable1" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                Grade
+                            </th>
+                            <th>
+                                Bags
+                            </th>
+                            <th>
+                                Pkts(Kgs)
+                            </th>
+
+                            <th>
+                                Net(Kgs)
+                            </th>
+                            <th>
+                                % of Total
+                            </th>
+                            <th>
+                                Mill Class
+                            </th>
+                            <th>
+                                Bulk No
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.MilledProducts.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.EditorFor(x=> x.MilledProducts[i].Grade,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+
+                                <td>
+                                <td>
+
+                                        @Html.EditorFor(x=> x.MilledProducts[i].Bags,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+                                <td>
+
+                                        @Html.EditorFor(x=> x.MilledProducts[i].Pkts,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+                                <td>
+
+                                        @Html.EditorFor(x=> x.MilledProducts[i].NetKgs,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+                                <td>
+
+                                        @Html.EditorFor(x=> x.MilledProducts[i].PercentageTotal,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+                                <td>
+
+                                        @Html.EditorFor(x=> x.MilledProducts[i].MillClass,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+                                <td>
+
+                                        @Html.EditorFor(x=> x.MilledProducts[i].BulkNo,new {htmlAttributes=new {@class="form-control"}})
+                                </td>
+                                <td>
+                                   
+                                    <button id="btnadd1-@i" type="button" class="btn btn-sm btn-secondary visible" onclick="AddItem1(this)" style="left:90%;position:absolute">Add</button>
+                                    <button id="btnremove1-@i" type="button" class="btn btn-sm btn-danger invisible" onclick="DeleteItem1(this)" style="left:90%;position:absolute">Delete</button>
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                    <input type="hidden" id="hdnLastIndex1" value="0" />
+                </table>
+
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script type="text/javascript">
+
+
+
+        function DeleteItem(btn) {
+            $(btn).closest('tr').remove();
+        }
+        function DeleteItem1(btn) {
+            $(btn).closest('tr').remove();
+        }
+
+
+
+        function AddItem(btn) {
+
+            var table = document.getElementById('ExpTable');
+            var rows = table.getElementsByTagName('tr');
+
+            var rowOuterHtml = rows[rows.length - 1].outerHTML;
+
+            var lastrowIdx = document.getElementById('hdnLastIndex').value;
+
+            var nextrowIdx = eval(lastrowIdx) + 1;
+
+            document.getElementById('hdnLastIndex').value = nextrowIdx;
+
+            rowOuterHtml = rowOuterHtml.replaceAll('_' + lastrowIdx + '_', '_' + nextrowIdx + '_');
+            rowOuterHtml = rowOuterHtml.replaceAll('[' + lastrowIdx + ']', '[' + nextrowIdx + ']');
+            rowOuterHtml = rowOuterHtml.replaceAll('-' + lastrowIdx, '-' + nextrowIdx);
+
+
+            var newRow = table.insertRow();
+            newRow.innerHTML = rowOuterHtml;
+
+
+
+            var btnAddID = btn.id;
+            var btnDeleteid = btnAddID.replaceAll('btnadd', 'btnremove');
+
+            var delbtn = document.getElementById(btnDeleteid);
+            delbtn.classList.add("visible");
+            delbtn.classList.remove("invisible");
+
+
+            var addbtn = document.getElementById(btnAddID);
+            addbtn.classList.remove("visible");
+            addbtn.classList.add("invisible");
+
+        }
+        function AddItem1(btn) {
+
+            var table = document.getElementById('ExpTable1');
+            var rows = table.getElementsByTagName('tr');
+
+            var rowOuterHtml = rows[rows.length - 1].outerHTML;
+
+            var lastrowIdx = document.getElementById('hdnLastIndex1').value;
+
+            var nextrowIdx = eval(lastrowIdx) + 1;
+
+            document.getElementById('hdnLastIndex1').value = nextrowIdx;
+
+            rowOuterHtml = rowOuterHtml.replaceAll('_' + lastrowIdx + '_', '_' + nextrowIdx + '_');
+            rowOuterHtml = rowOuterHtml.replaceAll('[' + lastrowIdx + ']', '[' + nextrowIdx + ']');
+            rowOuterHtml = rowOuterHtml.replaceAll('-' + lastrowIdx, '-' + nextrowIdx);
+
+
+            var newRow = table.insertRow();
+            newRow.innerHTML = rowOuterHtml;
+
+
+
+            var btnAddID1 = btn.id;
+            var btnDeleteid1 = btnAddID1.replaceAll('btnadd1', 'btnremove1');
+
+            var delbtn1 = document.getElementById(btnDeleteid1);
+            delbtn1.classList.add("visible");
+            delbtn1.classList.remove("invisible");
+
+
+            var addbtn1 = document.getElementById(btnAddID1);
+            addbtn1.classList.remove("visible");
+            addbtn1.classList.add("invisible");
+
+        }
+    </script>
+      
+
+   
+}
+
+
