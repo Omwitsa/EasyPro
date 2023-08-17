@@ -604,7 +604,6 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             productIntake.Branch = saccoBranch;
-            productIntake.MornEvening = productIntake?.MornEvening ?? "Morning";
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
             productIntake.Description = productIntake?.Description ?? "";
             if (string.IsNullOrEmpty(productIntake.Sno))
