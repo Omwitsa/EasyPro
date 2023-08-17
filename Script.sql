@@ -3,7 +3,7 @@ SELECT TransCode, TransName, CertNo, Locations, TregDate, email, Phoneno, Town, 
 
 // Farmers
 SELECT NULL, SNo, Regdate, IdNo, Names, AccNo, Bcode, BBranch, Type, Village, Location, Division, District, 'NAKURU', Trader, 1, 1,
-'MUCHORWE', PhoneNo, Address, Town,Email, 'Monthly', sign, photo, AuditId, GETDATE(), 'ELBURGON PROGRESSIVE DAIRY FCS',
+'ELBURGON', PhoneNo, Address, Town,Email, 'Monthly', sign, photo, AuditId, GETDATE(), 'ELBURGON PROGRESSIVE DAIRY FCS',
 Loan, Compare, isfrate, frate, rate, hast, Br, mno, branchcode, NULL, NULL, aarno, tmd, 0, thcpactive, thcppremium, status, status2, status3,
 status4, status5, status6, 'MILK', dob, 0, 0, status1, 0, NULL
 FROM d_Suppliers

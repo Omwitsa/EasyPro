@@ -199,13 +199,13 @@
             printJS({
                 printable: content,
                 type: 'raw-html',
-                style: '#printMe { font-size: 11px; }'
+                style: '#printMe { font-size: 12px; }'
             });
         }
 
         function generateHTML(response) {
             var mevng = $('#mevng').val();
-            var date = new Date().toLocaleDateString("en-US")
+            var date = $("#transDate").val();
             var content = `<div class="row" id="printMe">
                                 <div class="col-xs-12 text-center">
                                     ${response.receiptDetails.Name}</br>

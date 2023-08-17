@@ -3,23 +3,6 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            
-            <hr />
-            <div class="row">
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                    Today's Intake:
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                    <input asp-for="Todaykgs" id="Sn" class="form-control" readonly />
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                    Today's Branch Intake:
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                    <input asp-for="TodayBranchkgs" id="n" class="form-control" readonly />
-                </div>
-            </div>
-            <hr />
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
@@ -40,8 +23,25 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Morning/Evening</label>
-                                <select id="mevng" Value="Select Bank" asp-for="MornEvening" class="form-control" asp-items="@ViewBag.morningEve"></select>
+                                <select id="mevng" asp-for="MornEvening" class="form-control" asp-items="@ViewBag.morningEve"></select>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        Today's Intake:
+                        <input asp-for="Todaykgs" id="Sn" class="form-control" readonly />
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        Today's Branch Intake:
+                        <input asp-for="TodayBranchkgs" id="n" class="form-control" readonly />
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Intake Date</label>
+                            <input id="transDate" asp-for="TransDate" class="form-control" type="date" required />
+                            <span asp-validation-for="TransDate" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -161,6 +161,7 @@
     $(function () {
             $("#print").prop("checked", true);
             var today = new Date().toISOString().split('T')[0];
+            $("#transDate").val(today);
             var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
             products = products ? products : [];
             document.getElementById('Sno').focus();
@@ -224,6 +225,7 @@
             var sms = $('#SMS').is(':checked');
             var intake = {
                 sno: $("#Sno").val(),
+                transDate: $("#transDate").val(),
                 supName: $("#Names").val(),
                 productType: $("#ProductType").val(),
                 ppu: $("#Ppu").val(),
@@ -232,6 +234,7 @@
                 drAccNo: $("#DrAccNo").val(),
                 crAccNo: $("#CrAccNo").val(),
                 remarks: $("#Remarks").val(),
+                mornEvening: $("#mevng").val(),
                 print: print,
                 sms: sms,
             };
@@ -261,7 +264,7 @@
                 printJS({
                     printable: content,
                     type: 'raw-html',
-                    style: '#printMe { font-size: 11px; }'
+                    style: '#printMe { font-size: 12px; }'
                 });
             }
 
@@ -294,28 +297,26 @@
 
 
             function checkifalreadyexist() {
-            //goselect();
-            var sno = $('#Sno').val();
-
-            var date = today;
-            $.ajax(
-                {
-                    type: 'GET',
-                    url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
-                    contentType: 'application/json',
-                    success: function (response) {
-                        if (response) {
-                            checkifdelivered();
-                        } else {
-                            getSelectedforsave();
+                var sno = $('#Sno').val();
+                var date = $("#transDate").val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            if (response) {
+                                checkifdelivered();
+                            } else {
+                                getSelectedforsave();
+                            }
+                        },
+                        failure: function (response) {
                         }
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
+                    }).then(function () {
 
-             });
-        }
+                 });
+            }
 
             function checkifdelivered() {
                 

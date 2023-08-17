@@ -24,7 +24,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Morning/Evening</label>
-                                <select id="mevng" Value="Select Bank" asp-for="MornEvening" class="form-control" asp-items="@ViewBag.morningEve"></select>
+                                <select id="mevng" asp-for="MornEvening" class="form-control" asp-items="@ViewBag.morningEve"> </select>
                             </div>
                         </div>
                     </div>
@@ -230,6 +230,7 @@
                     drAccNo: $("#DrAccNo").val(),
                     crAccNo: $("#CrAccNo").val(),
                     remarks: $("#Remarks").val(),
+                    mornEvening: $("#mevng").val(),
                     print: print,
                     sms: sms,
                 };

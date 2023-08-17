@@ -451,7 +451,6 @@ namespace EasyPro.Controllers
 
             List<SelectListItem> morningEve = new()
             {
-                new SelectListItem { Text = "" },
                 new SelectListItem { Text = "Morning" },
                 new SelectListItem { Text = "Evening" },
             };
@@ -605,6 +604,7 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             productIntake.Branch = saccoBranch;
+            productIntake.MornEvening = productIntake?.MornEvening ?? "Morning";
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
             productIntake.Description = productIntake?.Description ?? "";
             if (string.IsNullOrEmpty(productIntake.Sno))
@@ -663,7 +663,7 @@ namespace EasyPro.Controllers
                 var collection = new ProductIntake
                 {
                     Sno = productIntake.Sno.Trim().ToUpper(),
-                    TransDate = DateTime.Today,
+                    TransDate = productIntake?.TransDate ?? DateTime.Today,
                     TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                     ProductType = productIntake.ProductType,
                     Qsupplied = (decimal)productIntake.Qsupplied,
@@ -708,7 +708,7 @@ namespace EasyPro.Controllers
                     collection = new ProductIntake
                     {
                         Sno = productIntake.Sno.Trim().ToUpper(),
-                        TransDate = DateTime.Today,
+                        TransDate = productIntake?.TransDate ?? DateTime.Today,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                         ProductType = productIntake.ProductType,
                         Qsupplied = (decimal)productIntake.Qsupplied,
@@ -747,7 +747,7 @@ namespace EasyPro.Controllers
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = transport.TransCode.Trim().ToUpper(),
-                        TransDate = DateTime.Today,
+                        TransDate = productIntake?.TransDate ?? DateTime.Today,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                         ProductType = productIntake.ProductType,
                         Qsupplied = (decimal)productIntake.Qsupplied,
@@ -820,7 +820,6 @@ namespace EasyPro.Controllers
                         }
                     }
                 }
-
 
                 //if (productIntake.Print)
                 //    PrintP(collection);

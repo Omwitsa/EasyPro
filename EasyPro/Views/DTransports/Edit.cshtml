@@ -1,4 +1,4 @@
-﻿@model EasyPro.ViewModels.TranssupplyVM.TransSuppliers
+﻿@model EasyPro.Models.DTransport
 
 @{
     ViewData["Title"] = "Edit";
@@ -16,7 +16,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Zone</label>
-                                <select id="zone" Value="Select Bank" asp-for="DTransport.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
+                                <select id="zone" Value="Select Bank" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones"></select>
                             </div>
                         </div>
                     }
@@ -25,7 +25,7 @@
                     <div class="form-group ic-cmp-int float-lb floating-lb">
                         <div class="nk-int-st">
                             <label class="control-label">Morning/Evening</label>
-                            <select id="mevng" Value="Select Bank" asp-for="DTransport.Morning" class="form-control" asp-items="@ViewBag.morningEve"></select>
+                            <select id="mevng" Value="Select Bank" asp-for="Morning" class="form-control" asp-items="@ViewBag.morningEve"></select>
                         </div>
                     </div>
                 </div>
@@ -33,16 +33,16 @@
             <hr />
             <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="DTransport.Id" />
+                <input type="hidden" asp-for="Id" />
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label asp-for="DTransport.producttype" class="control-label">Organization Code</label>
-                                <select asp-for="DTransport.producttype" class="form-control" asp-items="@ViewBag.producttypes" required>
+                                <label asp-for="producttype" class="control-label">Organization Code</label>
+                                <select asp-for="producttype" class="form-control" asp-items="@ViewBag.producttypes" required>
                                     <option value="" disabled selected hidden>Please Choose...</option>
                                 </select>
-                                <span asp-validation-for="DTransport.producttype" class="text-danger"></span>
+                                <span asp-validation-for="producttype" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -52,8 +52,8 @@
                                 <div class="nk-int-st">
                                     <div class="form-group">
                                         <label class="control-label">Date Inactivate</label>
-                                        <input type="date" asp-for="DTransport.DateInactivate" class="form-control" />
-                                        <span asp-validation-for="DTransport.DateInactivate" class="text-danger"></span>
+                                        <input type="date" asp-for="DateInactivate" class="form-control" />
+                                        <span asp-validation-for="DateInactivate" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>
@@ -64,8 +64,8 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Assignment Date</label>
-                                    <input type="date" asp-for="DTransport.Startdate" class="form-control" readonly required />
-                                    <span asp-validation-for="DTransport.Startdate" class="text-danger"></span>
+                                    <input type="date" asp-for="Startdate" class="form-control" required />
+                                    <span asp-validation-for="Startdate" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -76,9 +76,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="DTransport.TransCode" class="control-label"></label>
-                                    <input id="tcode" asp-for="DTransport.TransCode" class="form-control" required />
-                                    <span asp-validation-for="DTransport.TransCode" class="text-danger"></span>
+                                    <label asp-for="TransCode" class="control-label"></label>
+                                    <input id="tcode" asp-for="TransCode" class="form-control" required />
+                                    <span asp-validation-for="TransCode" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -99,9 +99,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="DTransport.Sno" class="control-label"></label>
-                                    <input id="sno" asp-for="DTransport.Sno" class="form-control" required />
-                                    <span asp-validation-for="DTransport.Sno" class="text-danger"></span>
+                                    <label asp-for="Sno" class="control-label"></label>
+                                    <input id="sno" asp-for="Sno" class="form-control" required />
+                                    <span asp-validation-for="Sno" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -122,9 +122,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="DTransport.Rate" class="control-label"></label>
-                                    <input asp-for="DTransport.Rate" class="form-control" required />
-                                    <span asp-validation-for="DTransport.Rate" class="text-danger"></span>
+                                    <label asp-for="Rate" class="control-label"></label>
+                                    <input asp-for="Rate" class="form-control" required />
+                                    <span asp-validation-for="Rate" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -133,9 +133,9 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label asp-for="DTransport.Active" class="control-label">
-                                        <input asp-for="DTransport.Active" type="checkbox" />@Html.DisplayNameFor(model => model.DTransport.Active)
-                                        <span asp-validation-for="DTransport.Active" class="text-danger"></span>
+                                    <label asp-for="Active" class="control-label">
+                                        <input asp-for="Active" type="checkbox" />@Html.DisplayNameFor(model => model.Active)
+                                        <span asp-validation-for="Active" class="text-danger"></span>
                                     </label>
                                 </div>
                             </div>
@@ -170,26 +170,29 @@
                 $('#zone1').hide();
                 $('#MorningEvening').show();
             }
+
+            $('#sno').on('keyup', function () {
+                var selectVal = $("#sno").val().toUpperCase();
+                getSelectedDateIntakes();
+            });
            
             $('#tcode').on('change', function () {
-                calculatePrice();
-            });
-            function calculatePrice() {
                 var selectVal = $("#tcode").val();
-                var products = @Html.Raw(Json.Serialize(Model.DTransporter));
-                var selectProducts = products.filter(p => p.TransCode === selectVal);
-                    if (selectProducts[0]) {
-                        $("#tname").val(selectProducts[0].TransName);
-                    }
-            }
+                var transporters = @Html.Raw(Json.Serialize(ViewBag.transporters));
+                var selecttransporters = transporters.filter(p => p.TransCode === selectVal);
+                if (selecttransporters[0]) {
+                    $("#tname").val(selecttransporters[0].TransName);
+                }
+            });
+           
             $('#sno').on('keyup', function () {
-                            var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
-                            var selectVal = $("#sno").val().toUpperCase();
-                            var selectProducts = products.filter(p => p.Sno === selectVal);
-                                if (selectProducts[0]) {
-                                    $("#sname").val(selectProducts[0].Names);
-                                }
-                        });
-                    });
+                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
+                    var selectVal = $("#sno").val().toUpperCase();
+                    var selectsuppliers = suppliers.filter(p => p.Sno === selectVal);
+                        if (selectsuppliers[0]) {
+                            $("#sname").val(selectsuppliers[0].Names);
+                        }
+                });
+            });
 </script>
 }
