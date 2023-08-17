@@ -199,7 +199,7 @@
             printJS({
                 printable: content,
                 type: 'raw-html',
-                style: '#printMe { height: 300px; }'
+                style: '#printMe { font-size: 11px; }'
             });
         }
 
@@ -207,27 +207,25 @@
             var mevng = $('#mevng').val();
             var date = new Date().toLocaleDateString("en-US")
             var content = `<div class="row" id="printMe">
-                                                <div class="col-xs-12 text-center">
-                                                    <h6>
-                                                        ${response.receiptDetails.Name}</br>
-                                                        Adress: ${response.receiptDetails.Adress}</br>
-                                                        Tell: ${response.receiptDetails.PhoneNo}</br>
-                                                        Town: ${response.receiptDetails.Town}</br>
-                                                        Branch: ${response.receiptDetails.saccoBranch}</br>
-                                                        *************************</br>
-                                                        Product Receipt For: ${date}</br>
-                                                        SNo: ${response.receiptDetails.Sno}</br>
-                                                        Name: ${response.receiptDetails.supName}</br>
-                                                        Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
-                                                        Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
-                                                        Session: ${response.receiptDetails.MornEvening}</br>
-                                                        Received By: ${response.receiptDetails.loggedInUser}</br>
-                                                        DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</br>
-                                                        *************************
-                                                        <hr>
-                                                    </h6>
-                                                </div>
-                                            </div>`;
+                                <div class="col-xs-12 text-center">
+                                    ${response.receiptDetails.Name}</br>
+                                    Adress: ${response.receiptDetails.Adress}</br>
+                                    Tell: ${response.receiptDetails.PhoneNo}</br>
+                                    Town: ${response.receiptDetails.Town}</br>
+                                    Branch: ${response.receiptDetails.saccoBranch}</br>
+                                    *************************</br>
+                                    Product Receipt For: ${date}</br>
+                                    SNo: ${response.receiptDetails.Sno}</br>
+                                    Name: ${response.receiptDetails.supName}</br>
+                                    Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
+                                    Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
+                                    Session: ${response.receiptDetails.MornEvening}</br>
+                                    Received By: ${response.receiptDetails.loggedInUser}</br>
+                                    DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</br>
+                                    *************************
+                                    <hr>
+                                </div>
+                            </div>`;
 
             return content;
         }

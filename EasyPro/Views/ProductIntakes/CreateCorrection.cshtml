@@ -167,6 +167,7 @@
     }
 <script type="text/javascript">
     $(function () {
+        $("#print").prop("checked", true);
         var today = new Date().toISOString().split('T')[0];
         $("#transDate").val(today);
         var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));

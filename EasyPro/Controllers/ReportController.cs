@@ -1138,7 +1138,8 @@ namespace EasyPro.Controllers
 
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
         var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-        productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied != 0 && u.SaccoCode == sacco && u.Description != "Transport");
+        productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo 
+        && u.Qsupplied != 0 && u.SaccoCode == sacco && u.Description != "Transport").OrderBy(s => s.Sno);
         return IntakeExcel();
     }
 

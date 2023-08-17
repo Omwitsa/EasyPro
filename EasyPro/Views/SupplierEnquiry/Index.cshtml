@@ -356,20 +356,19 @@
                     });
             });
 
-            function populateIntake(intakes) {
+            function populateIntake(intake) {
                 var selectVal = $("#sno").val();
                 var share = 0;
-                $('#totkgs').val('0');
                 var checkiftoenable1 = @Html.Raw(Json.Serialize(ViewBag.shares));
                 $("#shar").val(checkiftoenable1);
                 let itemTableRows = new Array();
-                share = intakes.shares;
+                share = intake.entries.shares;
 
                 let Total = 0;
                 let Total2 = 0;
                 let netpay = 0;
                 let totkgs = 0;
-                intakes.forEach(i => {
+                intake.entries.forEach(i => {
                     share = i.shares;
                     var chek = i.ProductType === null ? -1 : 1;
                     var dd1 = new Date(i.TransDate).toLocaleDateString();
@@ -388,7 +387,6 @@
 
                         Total2 += i.DR;
                         Total += i.CR;
-                        totkgs += i.getsumkgs;
                         netpay = Total - Total2;
                     }
                 });
@@ -396,7 +394,7 @@
                 $('#netpay').val(netpay);
                 $('#totaldeductions').val(Total2);
                 $('#grosspay').val(Total);
-                $('#totkgs').val(totkgs);
+                $('#totkgs').val(intake.getsumkgs);
                 $('#shar').val(share);
                 $('#intakes').html(itemTableRows);
             }

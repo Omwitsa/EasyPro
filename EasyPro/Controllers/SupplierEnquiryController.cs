@@ -239,7 +239,6 @@ namespace EasyPro.Controllers
                         Description = i.Remarks,
                         Remarks = i.Remarks,
                         Auditdatetime = DateTime.Now,
-                        getsumkgs = getsumkgs,
                         //shares= ViewBag.shares,
                     });
                     _context.SaveChanges();
@@ -266,8 +265,12 @@ namespace EasyPro.Controllers
             //        i.Remarks = i.ProductType;
             //});
             //var entries = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
-            var entries = MilkEnquryVM.ToList();
-            return Json(entries.OrderByDescending(n => n.Auditdatetime));
+            var entries = MilkEnquryVM.OrderByDescending(n => n.Auditdatetime).ToList();
+            return Json(new
+            {
+                entries,
+                getsumkgs
+            });
         }
 
         [HttpPost]
