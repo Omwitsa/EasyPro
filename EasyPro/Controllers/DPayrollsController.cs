@@ -626,94 +626,53 @@ namespace EasyPro.Controllers
 
         private async Task ConsolidateTranspoterIntakes(DateTime startDate, DateTime endDate, string sacco, string branchName, string loggedInUser)
         {
-            var transporterIntakes = _context.DTransports.Where(n => n.saccocode == sacco).ToList().Join(_context.ProductIntake.Where(b => b.SaccoCode == sacco).ToList(),
-                t => t.Sno.Trim().ToUpper(),
-                i => i.Sno.Trim().ToUpper(),
-                (t, i) => new
-                {
-                    i.Qsupplied,
-                    t.Sno,
-                    t.TransCode,
-                    i.SaccoCode,
-                    i.Remarks,
-                    i.TransTime,
-                    i.Ppu,
-                    i.Branch,
-                    i.ProductType,
-                    i.CR,
-                    i.DR,
-                    i.DrAccNo,
-                    i.CrAccNo,
-                    i.TransDate,
-                    t.Rate,
-                    t.Startdate,
-                    t.DateInactivate,
-                    i.TransactionType
-                }).Where(i => i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco
-                && i.Branch.ToUpper().Equals(branchName.ToUpper())
-                && (i.TransactionType == TransactionType.Correction || i.TransactionType == TransactionType.Intake)).ToList();
-
-            var intakes = transporterIntakes.GroupBy(i => i.TransCode.Trim().ToUpper()).ToList();
-            intakes.ForEach(i =>
+            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco && t.Tbranch == branchName);
+            foreach (var transporter in transporters)
             {
+                transporter.TransCode = transporter?.TransCode ?? "";
+                var transIntakes = await _context.ProductIntake.Where(i => i.TransDate >= startDate && i.TransDate <= endDate  
+                && i.SaccoCode == sacco && i.Branch == branchName
+                && (i.TransactionType == TransactionType.Correction || i.TransactionType == TransactionType.Intake)).ToListAsync();
+                var transAssignments = await _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transporter.TransCode.ToUpper())
+                && t.saccocode == sacco && t.Branch == branchName).ToListAsync();
 
-
-                if (!string.IsNullOrEmpty(i.Key))
-                {
-                    // Debit supplier transport amount
-                    var suppliers = i.GroupBy(s => s.Sno).ToList();
-                    suppliers.ForEach(s =>
+                var joinedIntakes = transIntakes.Join(transAssignments,
+                    i => i.Sno.Trim().ToUpper(),
+                    t => t.Sno.Trim().ToUpper(),
+                    (i, t) => new
                     {
-                        var intake = s.FirstOrDefault();
-                        decimal? cr = 0;
-                        var dr = s.Sum(t => t.Qsupplied) * intake.Rate;
-                        if (intake.Rate > 0)
-                        {
-                            _context.ProductIntake.Add(new ProductIntake
-                            {
-                                Sno = intake.Sno,
-                                TransDate = endDate,
-                                TransTime = intake.TransTime,
-                                ProductType = "Transport",
-                                Qsupplied = s.Sum(t => t.Qsupplied),
-                                Ppu = intake.Rate,
-                                CR = cr,
-                                DR = dr,
-                                Description = "Transport",
-                                TransactionType = TransactionType.Deduction,
-                                Remarks = intake.Remarks,
-                                AuditId = loggedInUser,
-                                Auditdatetime = DateTime.Now,
-                                Branch = intake.Branch,
-                                SaccoCode = intake.SaccoCode,
-                                DrAccNo = intake.DrAccNo,
-                                CrAccNo = intake.CrAccNo
-                            });
-                        }
+                        i.Qsupplied,
+                        t.Sno,
+                        t.TransCode,
+                        i.SaccoCode,
+                        i.Remarks,
+                        i.TransTime,
+                        i.Ppu,
+                        i.Branch,
+                        i.ProductType,
+                        i.CR,
+                        i.DR,
+                        i.DrAccNo,
+                        i.CrAccNo,
+                        i.TransDate,
+                        t.Rate,
+                        t.Startdate,
+                        t.DateInactivate,
+                        i.TransactionType
+                    });
 
-                        var product = intake?.ProductType ?? "";
-                        var price = _context.DPrices.FirstOrDefault(p => p.Products.ToUpper().Equals(product.ToUpper()));
-                        // Credit transpoter transport amount
-
-                        var TBprice = _context.DTransporters.FirstOrDefault(j => j.ParentT == sacco
-                         && j.Tbranch.ToUpper().Equals(branchName.ToUpper())
-                         && j.TransCode.ToUpper().Equals(intake.TransCode.Trim().ToUpper()));
-
-                        decimal? TPrice = 0;
-                        if (intake.Rate == 0)
-                        {
-                            TPrice = s.Sum(t => t.Qsupplied) * (decimal)TBprice.Rate;
-                        }
-                        else
-                        {
-                            TPrice = s.Sum(t => t.Qsupplied) * intake.Rate;
-                        }
-
-                        cr = TPrice;
-                        dr = 0;
+                // Debit supplier transport amount
+                var suppliers = joinedIntakes.GroupBy(s => s.Sno).ToList();
+                suppliers.ForEach(s =>
+                {
+                    var intake = s.FirstOrDefault();
+                    decimal? cr = 0;
+                    var dr = s.Sum(t => t.Qsupplied) * intake.Rate;
+                    if (intake.Rate > 0)
+                    {
                         _context.ProductIntake.Add(new ProductIntake
                         {
-                            Sno = intake.TransCode.Trim().ToUpper(),
+                            Sno = intake.Sno,
                             TransDate = endDate,
                             TransTime = intake.TransTime,
                             ProductType = "Transport",
@@ -728,12 +687,50 @@ namespace EasyPro.Controllers
                             Auditdatetime = DateTime.Now,
                             Branch = intake.Branch,
                             SaccoCode = intake.SaccoCode,
-                            DrAccNo = price?.TransportDrAccNo ?? "",
-                            CrAccNo = price?.TransportCrAccNo ?? ""
+                            DrAccNo = intake.DrAccNo,
+                            CrAccNo = intake.CrAccNo
                         });
+                    }
+
+                    var product = intake?.ProductType ?? "";
+                    var price = _context.DPrices.FirstOrDefault(p => p.Products.ToUpper().Equals(product.ToUpper()));
+                    // Credit transpoter transport amount
+
+                    var TBprice = _context.DTransporters.FirstOrDefault(j => j.ParentT == sacco
+                     && j.Tbranch.ToUpper().Equals(branchName.ToUpper())
+                     && j.TransCode.ToUpper().Equals(intake.TransCode.Trim().ToUpper()));
+
+                    decimal? TPrice = 0;
+                    if (intake.Rate == 0)
+                        TPrice = s.Sum(t => t.Qsupplied) * (decimal)TBprice.Rate;
+                    else
+                        TPrice = s.Sum(t => t.Qsupplied) * intake.Rate;
+
+                    cr = TPrice;
+                    dr = 0;
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = intake.TransCode.Trim().ToUpper(),
+                        TransDate = endDate,
+                        TransTime = intake.TransTime,
+                        ProductType = "Transport",
+                        Qsupplied = s.Sum(t => t.Qsupplied),
+                        Ppu = intake.Rate,
+                        CR = cr,
+                        DR = dr,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Remarks = intake.Remarks,
+                        AuditId = loggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = intake.Branch,
+                        SaccoCode = intake.SaccoCode,
+                        DrAccNo = price?.TransportDrAccNo ?? "",
+                        CrAccNo = price?.TransportCrAccNo ?? ""
                     });
-                }
-            });
+                });
+
+            }
         }
 
         // GET: DPayrolls/Edit/5

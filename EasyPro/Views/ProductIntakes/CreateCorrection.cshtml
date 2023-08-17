@@ -42,17 +42,9 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Intake Date</label>
-                            @*@if (!ViewBag.setupRole)
-                            {
-                                <script type="text/javascript">
-                                    $(function () {
-                                        $("#transDate").attr("disabled", true);
-                                    });
-                                </script>
-                            }*@
-                                <input id="transDate" asp-for="TransDate" class="form-control" type="date" required />
+                            <input id="transDate" asp-for="TransDate" class="form-control" type="date" required />
                             <span asp-validation-for="TransDate" class="text-danger"></span>
-                            </div>
+                        </div>
                     </div>
                 </div>
                 <hr />
@@ -176,10 +168,10 @@
 <script type="text/javascript">
     $(function () {
         var today = new Date().toISOString().split('T')[0];
+        $("#transDate").val(today);
         var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
         products = products ? products : [];
         document.getElementById('Sno').focus();
-        //$("#transDate").val(today);
         $("#Sno").val("");
         $("#zone").val("");
         $("#Qsupplied").val("");
@@ -219,7 +211,7 @@
         
         $('#Qsupplied').keydown(function (event) {
             if (event.which == 13) {
-                checkifalreadyexist();
+                getSelectedforsave();
             }
         });
 
@@ -266,28 +258,7 @@
                     // ...
                 });  
         };
-        function checkifalreadyexist() {
-            //goselect();
-            var sno = $('#Sno').val();
-            var date = $('#transDate').val();
-            $.ajax(
-                {
-                    type: 'GET',
-                    url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
-                    contentType: 'application/json',
-                    success: function (response) {
-                        if (response) {
-                            checkifdelivered();
-                        } else {
-                            getSelectedforsave();
-                        }
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
-
-                });
-        }
+        
         function checkifdelivered() {
             const response = confirm("Already Delivered today, Do you want to continue?");
             if (response) {
@@ -319,7 +290,7 @@
         };
 
         $('#save').on('click', function () {
-             checkifalreadyexist();
+                getSelectedforsave();
         });
 
         function getSelectedDateIntakes() {

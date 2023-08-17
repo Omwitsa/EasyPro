@@ -174,6 +174,7 @@
                                     <th>Date</th>
                                     <th>Product Type</th>
                                     <th>Quantity</th>
+                                    <th>Unit Price</th>
                                     <th>CR</th>
                                     <th>DR</th>
                                     <th>Balance</th>
@@ -363,50 +364,39 @@
                 $("#shar").val(checkiftoenable1);
                 let itemTableRows = new Array();
                 share = intakes.shares;
-                intakes.forEach(i => {
-                    var ddate = i.TransDate;
-                    share = i.shares;
-                    var ProductType = i.ProductType;
-                    var chek = 1;
-                    if (ProductType === null) {
-                        chek = -1;
-                    }
-                    var dd1 = new Date(ddate).toLocaleDateString();
-                    if (chek>0) {
-                    itemTableRows.push(`<tr>
-                                <td>${dd1}</td>
-                                <td>${i.ProductType}</td>
-                                <td>${i.Qsupplied}</td>
-                                <td>${i.CR}</td>
-                                <td>${i.DR}</td>
-                                <td>${i.Balance}</td>
-                                <td>${i.Description}</td>
-                                <td>${i.Remarks}</td>
-                            </tr>`)
-                    
-                    var Total = 0;
-                    var Total2 = 0;
-                    var netpay = 0;
-                    var totkgs = i.getsumkgs;
-                    
-                    intakes.forEach(i => {
-                        var ddr = 0;
-                        var ccr = 0;
-                        var kgs = 0;
-                        ddr = i.DR;
-                        ccr = i.CR;
-                        Total2 = Total2 + ddr;
-                        Total = Total + ccr;
-                        netpay = Total - Total2;
 
-                    });
-                    $('#netpay').val(netpay);
-                    $('#totaldeductions').val(Total2);
-                    $('#grosspay').val(Total);
-                    $('#totkgs').val(totkgs);
+                let Total = 0;
+                let Total2 = 0;
+                let netpay = 0;
+                let totkgs = 0;
+                intakes.forEach(i => {
+                    share = i.shares;
+                    var chek = i.ProductType === null ? -1 : 1;
+                    var dd1 = new Date(i.TransDate).toLocaleDateString();
+                    if (chek>0) {
+                        itemTableRows.push(`<tr>
+                            <td>${dd1}</td>
+                            <td>${i.ProductType}</td>
+                            <td>${i.Qsupplied}</td>
+                            <td>${i.Ppu}</td>
+                            <td>${i.CR}</td>
+                            <td>${i.DR}</td>
+                            <td>${i.Balance}</td>
+                            <td>${i.Description}</td>
+                            <td>${i.Remarks}</td>
+                        </tr>`)
+
+                        Total2 += i.DR;
+                        Total += i.CR;
+                        totkgs += i.getsumkgs;
+                        netpay = Total - Total2;
                     }
                 });
                
+                $('#netpay').val(netpay);
+                $('#totaldeductions').val(Total2);
+                $('#grosspay').val(Total);
+                $('#totkgs').val(totkgs);
                 $('#shar').val(share);
                 $('#intakes').html(itemTableRows);
             }

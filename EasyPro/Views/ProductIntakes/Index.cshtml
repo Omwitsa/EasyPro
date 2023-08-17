@@ -152,6 +152,14 @@
             $('#transDate').on('click', function () {
                 getkgsfortheday();
             });
+            $("#gfg").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#geeks tr").filter(function () {
+                    $(this).toggle($(this).text()
+                        .toLowerCase().indexOf(value) > -1)
+                });
+            });
+
             function getkgsfortheday() {
                 var date = $('#transDate').val();
                 $.ajax(
@@ -166,45 +174,91 @@
                         }
                     }).then(function () {
 
-                    });
-                function populateIntake(intakes) {
-                    let itemTableRows = new Array();
-
-                    intakes.forEach(i => {
-                        var remarks = 'Intake';
-                        if (i.Remarks != null) {
-                            remarks = i.Remarks;
-                        }
-                        var ddate = i.TransDate;
-                        var dd1 = new Date(ddate).toLocaleDateString();
-                        var d = "/ProductIntakes/Reprint/" + i.Id;
-                        var RePrint = "<a class='btn btn-success text-white' href=" + d + "  >Re-Print</a >";
-                        itemTableRows.push(`<tr>
-                                <td>${i.Sno}</td>
-                                <td>${dd1}</td>
-                                <td>${i.TransTime}</td>
-                                <td>${i.ProductType}</td>
-                                <td>${i.Qsupplied}</td>
-                                <td>${i.Ppu}</td>
-                                <td>${i.CR}</td>
-                                <td>${i.Description}</td>
-                                <td>${remarks}</td>
-                                <td>${RePrint}</td>
-                            </tr>`)
-                    });
-
-                    $('#geeks').html(itemTableRows);
-                }
-            };
-        });
-        $(document).ready(function () {
-            $("#gfg").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#geeks tr").filter(function () {
-                    $(this).toggle($(this).text()
-                        .toLowerCase().indexOf(value) > -1)
                 });
-            });
+            }
         });
+
+        function reprintReceipt(intakeId) {
+            $.ajax(
+            {
+                type: 'GET',
+                url: "reprintReceipt?intakeId=" + intakeId,
+                contentType: 'application/json',
+                success: function (response) {
+                    printReceipt(response);
+                },
+                failure: function (response) {
+                }
+            }).then(function () {
+
+            });
+        }
+
+        function printReceipt(intake) {
+            var content = generateHTML(intake);
+            printJS({
+                printable: content,
+                type: 'raw-html',
+                style: '#printMe { height: 300px; }'
+            });
+        }
+
+        function generateHTML(response) {
+            var mevng = $('#mevng').val();
+            var date = new Date().toLocaleDateString("en-US")
+            var content = `<div class="row" id="printMe">
+                                                <div class="col-xs-12 text-center">
+                                                    <h6>
+                                                        ${response.receiptDetails.Name}</br>
+                                                        Adress: ${response.receiptDetails.Adress}</br>
+                                                        Tell: ${response.receiptDetails.PhoneNo}</br>
+                                                        Town: ${response.receiptDetails.Town}</br>
+                                                        Branch: ${response.receiptDetails.saccoBranch}</br>
+                                                        *************************</br>
+                                                        Product Receipt For: ${date}</br>
+                                                        SNo: ${response.receiptDetails.Sno}</br>
+                                                        Name: ${response.receiptDetails.supName}</br>
+                                                        Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
+                                                        Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
+                                                        Session: ${response.receiptDetails.MornEvening}</br>
+                                                        Received By: ${response.receiptDetails.loggedInUser}</br>
+                                                        DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</br>
+                                                        *************************
+                                                        <hr>
+                                                    </h6>
+                                                </div>
+                                            </div>`;
+
+            return content;
+        }
+
+
+        function populateIntake(intakes) {
+            let itemTableRows = new Array();
+            intakes.forEach(i => {
+                let remarks = 'Intake';
+                if (i.Remarks != null) {
+                    remarks = i.Remarks;
+                }
+                let dd1 = new Date(i.TransDate).toLocaleDateString();
+                let intake = JSON.stringify(i);
+                //var d = "/ProductIntakes/Reprint/" + i.Id;
+                //var RePrint = "<a class='btn btn-success text-white' href=" + d + "  >Re-Print</a >";
+                itemTableRows.push(`<tr>
+                                        <td>${i.Sno}</td>
+                                        <td>${dd1}</td>
+                                        <td>${i.TransTime}</td>
+                                        <td>${i.ProductType}</td>
+                                        <td>${i.Qsupplied}</td>
+                                        <td>${i.Ppu}</td>
+                                        <td>${i.CR}</td>
+                                        <td>${i.Description}</td>
+                                        <td>${remarks}</td>
+                                        <td><a class="btn-success btn-sm" onclick="reprintReceipt('${i.Id}')">Re-print</a></td>
+                                    </tr>`)
+            });
+
+            $('#geeks').html(itemTableRows);
+        }
     </script>
 }

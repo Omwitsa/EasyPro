@@ -38,6 +38,7 @@ namespace EasyPro.ViewModels
         public DateTime? TransDate { get; set; }
         public string ProductType { get; set; }
         public decimal? Qsupplied { get; set; }
+        public decimal? Ppu { get; set; }
         public decimal? CR { get; set; }
         public decimal? DR { get; set; }
         public decimal? Balance { get; set; }

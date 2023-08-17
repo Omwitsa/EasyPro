@@ -29,6 +29,7 @@ using EasyPro.IProvider;
 using EasyPro.Provider;
 using NPOI.SS.Formula.Functions;
 using static EasyPro.ViewModels.AccountingVm;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace EasyPro.Controllers
 {
@@ -377,7 +378,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
 
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco).Select(b => b.Names).ToList();
+            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Branch == saccoBranch).Select(b => b.Names).ToList();
 
             return Json(todaysIntake);
         }
@@ -392,6 +393,7 @@ namespace EasyPro.Controllers
             && L.Branch == saccoBranch && L.TransDate == date && L.Sno.ToUpper().Equals(sno.ToUpper()));
             return Json(checkifdelievedtoday);
         }
+        
         [HttpGet]
         public JsonResult SelectedName(string sno)
         {
@@ -401,6 +403,7 @@ namespace EasyPro.Controllers
             var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
             return Json(todaysIntake.Select(b => b.Names).ToList());
         }
+        
         [HttpGet]
         public JsonResult sumDateIntake(DateTime date)
         {
@@ -426,10 +429,10 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var suppliers = _context.DSuppliers
-                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
             ViewBag.suppliers = suppliers;
             var products = _context.DPrices.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.products = new SelectList(products, "Products", "Products");
@@ -834,35 +837,64 @@ namespace EasyPro.Controllers
                 //var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
             }
 
+            var intake = new ProductIntake
+            {
+                Sno = productIntake.Sno,
+                Qsupplied = (decimal)productIntake.Qsupplied,
+                MornEvening = productIntake.MornEvening,
+                SaccoCode = productIntake.SaccoCode,
+                Branch = saccoBranch,
+            };
+            var receiptDetails = GetReceiptDetails(intake, loggedInUser);
+            return Json(new
+            {
+                receiptDetails,
+            });
+        }
 
-            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
+        [HttpGet]
+        public JsonResult ReprintReceipt(long intakeId)
+        {
+            utilities.SetUpPrivileges(this);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var intake = _context.ProductIntake.FirstOrDefault(i => i.Id == intakeId);
+            var receiptDetails = GetReceiptDetails(intake, loggedInUser);
+            return Json(new
+            {
+                receiptDetails,
+            });
+        }
 
+        private dynamic GetReceiptDetails(ProductIntake intake, string loggedInUser)
+        {
+            intake.Sno = intake?.Sno ?? "";
+            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(intake.SaccoCode.ToUpper()));
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
             // cummulative kgs calc
-            var cumkg = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(sacco.ToUpper()) &&
-            o.Sno == productIntake.Sno && o.Branch.ToUpper().Equals(productIntake.Branch.ToUpper()) &&
+            var cumkg = _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(intake.SaccoCode.ToUpper()) &&
+            o.Sno == intake.Sno && o.Branch.ToUpper().Equals(intake.Branch.ToUpper()) &&
             o.TransDate >= startDate && o.TransDate <= endDate
             && (o.Description == "Intake" || o.Description == "Correction")).Sum(d => d.Qsupplied);
 
             string cummkgs = string.Format("{0:.###}", cumkg);
-            var receiptDetails = new
+
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(intake.Sno) 
+            && s.Scode == intake.SaccoCode && s.Branch == intake.Branch);
+            return new
             {
                 companies.Name,
                 companies.Adress,
                 companies.Town,
                 companies.PhoneNo,
-                saccoBranch,
-                productIntake.Sno,
-                productIntake.SupName,
-                productIntake.Qsupplied,
+                saccoBranch = intake.Branch,
+                intake.Sno,
+                supName = supplier.Names,
+                intake.Qsupplied,
                 cummkgs,
                 loggedInUser,
-                MornEvening = productIntake.MornEvening ?? "Mornnig",
+                MornEvening = intake.MornEvening ?? "Mornnig",
             };
-
-            return Json(new
-            {
-                receiptDetails,
-            });
         }
 
         //public IActionResult printtest(ProductIntake collection)

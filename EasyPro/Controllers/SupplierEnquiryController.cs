@@ -232,6 +232,7 @@ namespace EasyPro.Controllers
                         TransDate = i.TransDate,
                         ProductType = i.ProductType,
                         Qsupplied = i.Qsupplied,
+                        Ppu = i.Ppu,
                         CR = i.CR,
                         DR = i.DR,
                         Balance = bal,
