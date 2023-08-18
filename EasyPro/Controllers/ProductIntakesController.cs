@@ -244,9 +244,12 @@ namespace EasyPro.Controllers
             SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
-            var Todayskg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).ToList().Sum(p => p.Qsupplied);
-            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).ToList().Sum(p => p.Qsupplied);
+            var intakes = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today);
+            var Todayskg = intakes.Sum(p => p.Qsupplied);
+            var TodaysBranchkg = intakes.Where(s => s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+
+
             return View(new ProductIntakeVm
             {
                 Todaykgs = Todayskg,
@@ -374,13 +377,23 @@ namespace EasyPro.Controllers
         [HttpGet]
         public JsonResult SelectedDateIntake(string sno)
         {
+            sno = sno ?? "";
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Branch == saccoBranch).Select(b => b.Names).ToList();
+            var supplier = _context.DSuppliers.FirstOrDefault(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco && L.Branch == saccoBranch);
+            if (supplier == null)
+                supplier = new DSupplier { Names = ""};
 
-            return Json(todaysIntake);
+            var trancode = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(sno.ToUpper()) && t.saccocode == sacco && t.Branch == saccoBranch)?.TransCode ?? "";
+            var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()));
+            if (transporter == null)
+                transporter = new DTransporter { TransName = "", TransCode = ""};
+            return Json(new
+            {
+                supplier,
+                transporter
+            });
         }
 
         [HttpGet]
@@ -403,7 +416,25 @@ namespace EasyPro.Controllers
             var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
             return Json(todaysIntake.Select(b => b.Names).ToList());
         }
-        
+
+        [HttpGet]
+        public JsonResult SpecifiedDateCollected(DateTime date)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var intakes = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date);
+            var Todayskg = intakes.Sum(p => p.Qsupplied);
+            var TodaysBranchkg = intakes.Where(s => s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+
+            return Json(new
+            {
+                Todayskg,
+                TodaysBranchkg
+            });
+        }
+
         [HttpGet]
         public JsonResult sumDateIntake(DateTime date)
         {
@@ -1408,6 +1439,7 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,Zone")] ProductIntake productIntake)
         {
+            GetInitialValues();
             utilities.SetUpPrivileges(this);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             DateTime startdate = new DateTime(productIntake.TransDate.Year, productIntake.TransDate.Month, 1);
@@ -1416,27 +1448,24 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
-            var suppliers = _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode == sacco && s.Active && s.Approval);
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-
             var intakes = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco
             && i.Qsupplied != 0 && i.TransDate >= startdate && i.TransDate <= enddate);
-
+            var supplierList = _context.DSuppliers.Where(s => s.Scode == sacco);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
             {
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+                supplierList = supplierList.Where(s => s.Branch == saccoBranch);
                 intakes = intakes.Where(i => i.Branch == saccoBranch);
             }
 
-
+            var suppliers = supplierList.Where(s => s.Sno == productIntake.Sno && s.Active && s.Approval);
             if (!suppliers.Any())
             {
                 _notyf.Error("Sorry, Supplier Number code does not exist");
-                GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = suppliers,
-                    ProductIntake = new Models.ProductIntake()
+                    DSuppliers = supplierList,
+                    ProductIntake = productIntake
                 };
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
@@ -1444,23 +1473,21 @@ namespace EasyPro.Controllers
             if (!intakes.Any())
             {
                 _notyf.Error("Sorry, Supplier has not deliver any product for this month" + " " + startdate + "To " + " " + enddate);
-                GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = suppliers,
-                    ProductIntake = new Models.ProductIntake()
+                    DSuppliers = supplierList,
+                    ProductIntake = productIntake
                 };
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
             }
             if (string.IsNullOrEmpty(productIntake.Sno))
             {
-                GetInitialValues();
                 _notyf.Error("Sorry, Farmer code cannot be zero");
                 Farmersobj = new FarmersVM()
                 {
-                    DSuppliers = suppliers,
-                    ProductIntake = new Models.ProductIntake()
+                    DSuppliers = supplierList,
+                    ProductIntake = productIntake
                 };
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
@@ -1493,15 +1520,21 @@ namespace EasyPro.Controllers
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(DeductionList));
             }
-            return View(productIntake);
+
+            Farmersobj = new FarmersVM()
+            {
+                DSuppliers = supplierList,
+                ProductIntake = productIntake
+            };
+            return View(Farmersobj);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateTDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            GetInitialValues();
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -1511,11 +1544,10 @@ namespace EasyPro.Controllers
             if (!_context.DTransporters.Any(i => i.TransCode == productIntake.Sno && i.Active == true && i.ParentT == sacco && i.Tbranch == saccoBranch))
             {
                 _notyf.Error("Sorry, Transporter code does not exist");
-                GetInitialValues();
                 Farmersobj = new FarmersVM()
                 {
                     DTransporters = transporters,
-                    ProductIntake = new Models.ProductIntake()
+                    ProductIntake = productIntake
                 };
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
@@ -1527,7 +1559,7 @@ namespace EasyPro.Controllers
                 Farmersobj = new FarmersVM()
                 {
                     DTransporters = transporters,
-                    ProductIntake = new Models.ProductIntake()
+                    ProductIntake = productIntake
                 };
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
@@ -1539,7 +1571,7 @@ namespace EasyPro.Controllers
                 Farmersobj = new FarmersVM()
                 {
                     DTransporters = transporters,
-                    ProductIntake = new Models.ProductIntake()
+                    ProductIntake = productIntake
                 };
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
@@ -1564,9 +1596,14 @@ namespace EasyPro.Controllers
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(TDeductionList));
             }
-            return View(productIntake);
+
+            Farmersobj = new FarmersVM()
+            {
+                DTransporters = transporters,
+                ProductIntake = productIntake
+            };
+            return View(Farmersobj);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]

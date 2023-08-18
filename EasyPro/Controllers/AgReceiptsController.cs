@@ -82,7 +82,6 @@ namespace EasyPro.Controllers
                 ViewBag.checkiftoenable = 1;
             else
                 ViewBag.checkiftoenable = 0;
-
         }
         //PRODUCT SALES
         [HttpPost]

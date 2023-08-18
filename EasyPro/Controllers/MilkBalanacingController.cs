@@ -32,19 +32,26 @@ namespace EasyPro.Controllers
             utilities = new Utilities(context);
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var date = DateTime.Now;
             GetInitialValues();
             utilities.SetUpPrivileges(this);
             PostTransporterIntake();
+
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var startDate = new DateTime(date.Year, date.Month, 1);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var suppliers = _context.TransportersBalancings
-                .Where(i => i.Code.ToUpper().Equals(sacco.ToUpper()) && i.Date >= startDate 
-                && i.Date <= endDate).OrderByDescending(s => s.Date).ToList();
-            
+            var suppliers = await _context.TransportersBalancings
+                .Where(i => i.Code.ToUpper().Equals(sacco.ToUpper()) && i.Date >= startDate
+                && i.Date <= endDate).ToListAsync();
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(u => u.Branch == saccoBranch).ToList();
+
+
+            suppliers = suppliers.OrderByDescending(s => s.Date).ToList();
             return View(suppliers);
         }
 
@@ -212,18 +219,28 @@ namespace EasyPro.Controllers
         {
             transCode = transCode ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var transporterSuppliers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.Active && t.saccocode == sacco)
-                .Select(t => t.Sno);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
-            var notTransporterSuppliers = _context.ProductIntake.Where(i => i.AuditId.ToUpper().Equals(transCode.ToUpper()) 
-                && i.SaccoCode == sacco && !transporterSuppliers.Contains(i.Sno.ToUpper()) && i.TransDate == date)
+            var transports = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) 
+            && t.saccocode == sacco);
+            var intakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                transports = transports.Where(s => s.Branch == saccobranch);
+                intakes = intakes.Where(i => i.Branch == saccobranch);
+            }
+            var transporterSuppliers = transports.Select(t => t.Sno);
+
+            var notTransporterSuppliers = intakes.Where(i => i.AuditId.ToUpper().Equals(transCode.ToUpper()) 
+                && !transporterSuppliers.Contains(i.Sno.ToUpper()) && i.TransDate == date)
                 .Select(t => t.Sno).Distinct().ToList();
 
-            var intakes = _context.ProductIntake.Where(s => s.TransDate == date && s.SaccoCode == sacco && (s.Description == "Intake" || s.Description == "Correction") 
-            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno)) ).OrderByDescending(h=>h.Auditdatetime).ToList();
+            intakes = intakes.Where(s => s.TransDate == date && (s.Description == "Intake" || s.Description == "Correction")
+            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno))).OrderByDescending(h => h.Auditdatetime);
 
-            return intakes;
+            return intakes.ToList();
         }
 
 

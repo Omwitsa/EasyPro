@@ -1,5 +1,5 @@
 // Transporters
-SELECT TransCode, TransName, CertNo, Locations, TregDate, email, Phoneno, Town, Address, Subsidy, Accno, Bcode, BBranch, Active, 'CHANDERA', auditid, GETDATE(), isfrate, rate, canno, tt, 'ELBURGON PROGRESSIVE DAIRY FCS', ttrate, BR, status1, 'Monthly', NULL FROM d_Transporters 
+SELECT TransCode, TransName, CertNo, Locations, TregDate, email, Phoneno, Town, Address, Subsidy, Accno, Bcode, BBranch, Active, 'ELBURGON', auditid, GETDATE(), isfrate, rate, canno, tt, 'ELBURGON PROGRESSIVE DAIRY FCS', ttrate, BR, status1, 'Monthly', NULL FROM d_Transporters 
 
 // Farmers
 SELECT NULL, SNo, Regdate, IdNo, Names, AccNo, Bcode, BBranch, Type, Village, Location, Division, District, 'NAKURU', Trader, 1, 1,
@@ -27,6 +27,18 @@ SELECT SNO, T_Date, '00:00:00.0000000', 'AGROVET', '0', '0', '0', Amount, '0', '
 
 // transporter balancing
 SELECT CAST(auditdatetime AS date), Trans_Code, QNT, QNTY, 0, 0, 0, 'ELBURGON PROGRESSIVE DAIRY FCS', 'ELBURGON' FROM d_TransDetailed ORDER BY ID DESC
+
+// Supplier Deductions
+SELECT SNo, Date_Deduc, '00:00:00.0000000', Description, 0, 0, 0, Amount, 0, Description, 0, Remarks, 2, auditid, GETDATE(), 'ELBURGON', 'ELBURGON PROGRESSIVE DAIRY FCS', 'EP-L-001', 'EP-A-005', 0, NULL, NULL FROM d_supplier_deduc WHERE EndDate = '2023-08-31 00:00:00.000' AND Description IN('advance', 'CLINICAL')
+
+// Transporter Deductions
+SELECT TransCode, TDate_Deduc, '00:00:00.0000000', Description, 0, 0, 0, Amount, 0, Description, 1, Remarks, 2, auditid, GETDATE(), 'ELBURGON', 'ELBURGON PROGRESSIVE DAIRY FCS', 'EP-L-001', 'EP-A-005', 0, NULL, NULL FROM d_Transport_Deduc WHERE startdate = '2023-08-01 00:00:00.000' AND enddate = '2023-08-31 00:00:00.000'
+
+// Shares
+d_sconribution, CONTRIB, d_SharesReport, d_Shares
+
+// Bonus
+d_Bonus
 
 // Pricing
 SELECT * FROM d_Milkintake WHERE TransDate BETWEEN '2023-07-01 00:00:00.000' AND '2023-07-31 00:00:00.000' ORDER BY TransDate

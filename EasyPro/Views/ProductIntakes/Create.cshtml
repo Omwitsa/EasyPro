@@ -119,7 +119,10 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-
+                        <div class="form-group">
+                            <label class="control-label">Transporter</label>
+                            <input id="TransName" class="form-control" readonly />
+                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -209,6 +212,25 @@
                     getSelectedDateIntakes();
                     document.getElementById('Qsupplied').focus();
                 }
+            });
+
+            $("#transDate").change(function () {
+                var date = $('#transDate').val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "specifiedDateCollected?date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#Sn").val(response.Todayskg);
+                            $("#n").val(response.TodaysBranchkg);
+                        },
+                        failure: function (response) {
+
+                        }
+                    }).then(function () {
+
+                });
             });
 
             $('#Qsupplied').keydown(function (event) {
@@ -351,14 +373,14 @@
             function getSelectedDateIntakes() {
                 var sno = $('#Sno').val();
                 var mevng = $('#mevng').val();
-
                 $.ajax(
                     {
                         type: 'GET',
                         url: "selectedDateIntake?sno=" + sno,
                         contentType: 'application/json',
                         success: function (response) {
-                            $("#Names").val(response);
+                            $("#Names").val(response.supplier.Names);
+                            $("#TransName").val(`${response.transporter.TransName}  ${response.transporter.TransCode}`);
                         },
                         failure: function (response) {
                         }
@@ -399,7 +421,6 @@
             }
         function pr()
         {
-            debugger;
             var printer = null;
             var ePosDev = null;
 

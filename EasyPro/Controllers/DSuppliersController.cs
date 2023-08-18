@@ -37,9 +37,8 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             sacco = sacco ?? "";
             ViewData["Getsuppliers"]= Search;
-            var val = _context.DSuppliers
+            var suppliers = _context.DSuppliers
                 .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval);
-            var suppliers = from x in val select x;
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(u => u.Branch == saccoBranch);

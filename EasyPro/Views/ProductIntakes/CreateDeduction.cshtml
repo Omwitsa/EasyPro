@@ -96,7 +96,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Amount</label>
-                                    <input asp-for="ProductIntake.DR" autocomplete="off" class="form-control" required />
+                                    <input id="dr" asp-for="ProductIntake.DR" autocomplete="off" class="form-control" required />
                                     <span asp-validation-for="ProductIntake.DR" class="text-danger"></span>
                                 </div>
                             </div>
@@ -138,6 +138,8 @@
     }
 <script type="text/javascript">
     $(function () {
+        $('#sno').val('');
+        $('#dr').val('');
         var today = new Date().toISOString().split('T')[0];
         $("#transDate").val(today);
 
