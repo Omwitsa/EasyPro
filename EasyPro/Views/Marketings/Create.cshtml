@@ -1,0 +1,188 @@
+﻿@model EasyPro.Models.Coffee.MarketingDeduct
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="col-lg-12 max-auto p-0">
+    <div class="card">
+        <div class="cmp-tb-hd">
+            <h2>Marketing Form</h2>
+        </div>
+        <hr />
+        <h3>CERTIFICATION: REA</h3>
+        <form enctype="multipart/form-data" asp-action="Create">
+            <table id="ExpTable" class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>
+                            OutTurn
+                        </th>
+                        <th>
+                            BulkNo
+                        </th>
+                        <th>
+                            Marks
+                        </th>
+                        <th>
+                            Grower Code
+                        </th>
+                        <th>
+                            Council
+                        </th>
+                        <th>
+                            Mill
+                        </th>
+                        <th>
+                            Grade
+                        </th>
+                        <th>
+                            Bags
+                        </th>
+                        <th>
+                            Pockets
+                        </th>
+                        <th>
+                            Weight
+                        </th>
+                        <th>
+                            Price
+                        </th>
+                        <th>
+                            Buyer
+                        </th>
+                        <th>
+                            Gross
+                        </th>
+                        <th>
+                            Average Price
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Marketing.Count(); i++)
+                    {
+                        <tr>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                @Html.EditorFor(x => x.Marketing[i].OutTurn, new { htmlAttributes = new { @class = "form-control" } })
+                            </td>
+                            <td>
+                                <button id='btndummy-@i' type="button" class="btn btn-sm invisible">Dummy</button>
+                                <button id='btnadd-@i' type="button" class="btn btn-sm btn-secondary visible"
+                                        onclick="AddItem(this)" style="left:90%;position:absolute;">
+                                    Add
+                                </button>
+                                <button id='btnremove-@i' type="button" class="btn btn-sm btn-danger invisible"
+                                        onclick="DeleteItem(this)" style="left:90%;position:absolute;">
+                                    Delete
+                                </button>
+                            </td>
+                            <input type="hidden" id="hdnLastIndex" value="0" />
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </form>
+    </div>
+    
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        $(".custom-file-input").on("change", function () {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+
+
+
+        function DeleteItem(btn) {
+            $(btn).closest('tr').remove();
+        }
+
+
+
+        function AddItem(btn) {
+
+            var table = document.getElementById('ExpTable');
+            var rows = table.getElementsByTagName('tr');
+
+            var rowOuterHtml = rows[rows.length - 1].outerHTML;
+
+            var lastrowIdx = document.getElementById('hdnLastIndex').value;
+
+            var nextrowIdx = eval(lastrowIdx) + 1;
+
+            document.getElementById('hdnLastIndex').value = nextrowIdx;
+
+            rowOuterHtml = rowOuterHtml.replaceAll('_' + lastrowIdx + '_', '_' + nextrowIdx + '_');
+            rowOuterHtml = rowOuterHtml.replaceAll('[' + lastrowIdx + ']', '[' + nextrowIdx + ']');
+            rowOuterHtml = rowOuterHtml.replaceAll('-' + lastrowIdx, '-' + nextrowIdx);
+
+
+            var newRow = table.insertRow();
+            newRow.innerHTML = rowOuterHtml;
+
+
+
+            var btnAddID = btn.id;
+            var btnDeleteid = btnAddID.replaceAll('btnadd', 'btnremove');
+
+            var delbtn = document.getElementById(btnDeleteid);
+            delbtn.classList.add("visible");
+            delbtn.classList.remove("invisible");
+
+
+            var addbtn = document.getElementById(btnAddID);
+            addbtn.classList.remove("visible");
+            addbtn.classList.add("invisible");
+
+        }
+
+    </script>
+}

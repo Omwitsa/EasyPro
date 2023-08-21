@@ -1,0 +1,97 @@
+﻿@model EasyPro.Models.Coffee.Marketing
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Uitamplate.cshtml";
+}
+
+<h2>Edit</h2>
+
+<h4>Marketing</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="OutTurn" class="control-label"></label>
+                <input asp-for="OutTurn" class="form-control" />
+                <span asp-validation-for="OutTurn" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BulkNo" class="control-label"></label>
+                <input asp-for="BulkNo" class="form-control" />
+                <span asp-validation-for="BulkNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Marks" class="control-label"></label>
+                <input asp-for="Marks" class="form-control" />
+                <span asp-validation-for="Marks" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GrowerCode" class="control-label"></label>
+                <input asp-for="GrowerCode" class="form-control" />
+                <span asp-validation-for="GrowerCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Council" class="control-label"></label>
+                <input asp-for="Council" class="form-control" />
+                <span asp-validation-for="Council" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Mill" class="control-label"></label>
+                <input asp-for="Mill" class="form-control" />
+                <span asp-validation-for="Mill" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Grade" class="control-label"></label>
+                <input asp-for="Grade" class="form-control" />
+                <span asp-validation-for="Grade" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Bags" class="control-label"></label>
+                <input asp-for="Bags" class="form-control" />
+                <span asp-validation-for="Bags" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Pockets" class="control-label"></label>
+                <input asp-for="Pockets" class="form-control" />
+                <span asp-validation-for="Pockets" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Weight" class="control-label"></label>
+                <input asp-for="Weight" class="form-control" />
+                <span asp-validation-for="Weight" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Buyer" class="control-label"></label>
+                <input asp-for="Buyer" class="form-control" />
+                <span asp-validation-for="Buyer" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gross" class="control-label"></label>
+                <input asp-for="Gross" class="form-control" />
+                <span asp-validation-for="Gross" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AveragePrice" class="control-label"></label>
+                <input asp-for="AveragePrice" class="form-control" />
+                <span asp-validation-for="AveragePrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
