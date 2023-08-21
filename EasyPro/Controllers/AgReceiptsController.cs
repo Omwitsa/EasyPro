@@ -574,12 +574,11 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var count = _context.AgReceipts
+            var receipts = _context.AgReceipts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
-                .OrderByDescending(u => u.RNo)
-                .Select(b => b.RNo);
-            var selectedno = count.FirstOrDefault();
-            double num = Convert.ToInt32(selectedno);
+                .OrderByDescending(u => u.RNo);
+            var receipt1 = receipts.FirstOrDefault();
+            double num = Convert.ToInt32(receipt1.RNo);
             var receipt = new AgReceipt
             {
                 RNo = "" + (num + 1),
@@ -603,7 +602,7 @@ namespace EasyPro.Controllers
             {
                 transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
                 suppliers = suppliers.Where(s => s.Branch == saccobranch).ToList();
-                products = products.Where(p => p.Branch == saccobranch).ToList();
+                //products = products.Where(p => p.Branch == saccobranch).ToList();
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
             }
             var agrovetsales = new Agrovetsales

@@ -35,9 +35,9 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             GetInitialValues();
             var products = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()));
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                products = products.Where(p => p.Branch == saccobranch);
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    products = products.Where(p => p.Branch == saccobranch);
             return View(await products.ToListAsync());
         }
         private void GetInitialValues()
@@ -303,6 +303,9 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+
+                    var getGLS = _context.AgSupplier1s.FirstOrDefault(g => g.CompanyName.ToUpper().Equals(agProduct.SupplierId.ToUpper())
+                    && g.saccocode == sacco);
                     var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
                     _context.AgProducts4s.Add(new AgProducts4
                     {
@@ -324,8 +327,6 @@ namespace EasyPro.Controllers
                         saccocode = sacco
                     });
 
-                    var getGLS = _context.AgSupplier1s.FirstOrDefault(g => g.CompanyName.ToUpper().Equals(agProduct.SupplierId.ToUpper())
-               && g.saccocode == sacco);
                     _context.Gltransactions.Add(new Gltransaction
                     {
                         AuditId = loggedInUser,

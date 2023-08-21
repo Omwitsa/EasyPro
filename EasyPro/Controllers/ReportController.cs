@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1132,14 +1133,20 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult Intake([Bind("DateFrom,DateTo")] FilterVm filter)
     {
-        var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-        sacco = sacco ?? "";
-        //dSupplier.Scode = sacco;
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
         var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-        productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo 
-        && u.Qsupplied != 0 && u.SaccoCode == sacco && u.Description != "Transport").OrderBy(s => s.Sno);
+        productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo
+        && u.Qsupplied != 0 && u.SaccoCode == sacco && u.Description != "Transport");
+            
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+        if (user.AccessLevel == AccessLevel.Branch)
+            productIntakeobj = productIntakeobj.Where(t => t.Branch == saccobranch).ToList();
+
+        productIntakeobj = productIntakeobj.OrderBy(s => s.Sno);
         return IntakeExcel();
     }
 
@@ -1794,9 +1801,13 @@ namespace EasyPro.Controllers
     }
     public IActionResult IntakeExcel()
     {
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+
         using (var workbook = new XLWorkbook())
         {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var worksheet = workbook.Worksheets.Add("productIntakeobj");
             var currentRow = 1;
             companyobj = _context.DCompanies.Where(u => u.Name == sacco);
@@ -1824,17 +1835,16 @@ namespace EasyPro.Controllers
             decimal sum = 0;
             foreach (var emp in productIntakeobj)
             {
-                var checkifexist = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
-                if (checkifexist.Any())
+                var suppliers = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
+                
+                if (user.AccessLevel == AccessLevel.Branch)
+                    suppliers = suppliers.Where(t => t.Branch == saccobranch);
+                
+                if (suppliers.Any())
                 {
-
-
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
-
-                    var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
-                    foreach (var al in TName)
-                        worksheet.Cell(currentRow, 2).Value = al.Names;
+                    worksheet.Cell(currentRow, 2).Value = suppliers.FirstOrDefault()?.Names ?? "";
                     worksheet.Cell(currentRow, 3).Value = emp.TransDate;
                     worksheet.Cell(currentRow, 4).Value = emp.ProductType;
                     worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
