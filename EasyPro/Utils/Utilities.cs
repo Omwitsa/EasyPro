@@ -25,7 +25,8 @@ namespace EasyPro.Utils
         {
             var sacco = controller.HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var group = controller.HttpContext.Session.GetString(StrValues.UserGroup) ?? "";
-            var usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group)
+            IQueryable<Usergroup> usergroupslist = _context.Usergroups;
+            var usergroup = usergroupslist.FirstOrDefault(u => u.GroupName.Equals(group)
             && u.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
 
             //create a default user group of admin for new society
@@ -33,7 +34,7 @@ namespace EasyPro.Utils
             {
                 var val = new Usergroup
                 {
-                    Id= usergroup.Id,
+                    //Id= usergroup.Id,
                     GroupId = group,
                     GroupName = group,
                     Registration = true,

@@ -1,0 +1,61 @@
+﻿@model EasyPro.Models.Coffee.MarketingDeduct
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<h4>MarketingDeduct</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="saccocode" class="control-label"></label>
+                <input asp-for="saccocode" class="form-control" />
+                <span asp-validation-for="saccocode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Factory" class="control-label"></label>
+                <input asp-for="Factory" class="form-control" />
+                <span asp-validation-for="Factory" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Remarks" class="control-label"></label>
+                <input asp-for="Remarks" class="form-control" />
+                <span asp-validation-for="Remarks" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="one" class="control-label"></label>
+                <input asp-for="one" class="form-control" />
+                <span asp-validation-for="one" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="second" class="control-label"></label>
+                <input asp-for="second" class="form-control" />
+                <span asp-validation-for="second" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AuditDateTime" class="control-label"></label>
+                <input asp-for="AuditDateTime" class="form-control" />
+                <span asp-validation-for="AuditDateTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

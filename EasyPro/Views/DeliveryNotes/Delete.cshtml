@@ -1,0 +1,100 @@
+﻿@model EasyPro.Models.Coffee.DeliveryNote
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Uitamplate.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>DeliveryNote</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Date)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Date)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.NoteNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NoteNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.GrowersCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.GrowersCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CoffeType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CoffeType)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.VehicleNo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VehicleNo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.NoBags)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NoBags)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Driver)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Driver)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Comment)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Comment)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AuditDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AuditDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Branch)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Branch)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.saccocode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.saccocode)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

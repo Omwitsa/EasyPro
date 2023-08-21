@@ -14,37 +14,27 @@ using EasyPro.Constants;
 
 namespace EasyPro.Controllers.Coffee
 {
-    public class MarketersController : Controller
+    public class DeliveryNotesController : Controller
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
         private Utilities utilities;
-        public MarketersController(MORINGAContext context, INotyfService notyf)
+        public DeliveryNotesController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
             utilities = new Utilities(context);
         }
 
-        // GET: Marketers
+        // GET: DeliveryNotes
         public async Task<IActionResult> Index()
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var market = _context.Marketer.Where(n=>n.saccocode == sacco).ToList();
-            return View(market.OrderByDescending(n=>n.Date).ToList());
-        }
-
-        public async Task<IActionResult> MarketerRegIndex()
-        {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var market = _context.MarketerReg.Where(n => n.saccocode == sacco).ToList();
-            return View(market.OrderByDescending(n => n.AuditDateTime).ToList());
+            var delivery = _context.DeliveryNote.ToList();
+            return View(delivery.OrderByDescending(n => n.Date).ToList());
         }
         private void getdefaults()
         {
@@ -52,134 +42,121 @@ namespace EasyPro.Controllers.Coffee
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var factories = _context.DBranch.Where(b => b.Bcode == sacco).OrderBy(n => n.Bname).ToList();
+            ViewBag.Branch = new SelectList(factories.OrderBy(n => n.Bname).Select(k => k.Bname).ToList());
+            List<SelectListItem> Coffee = new()
+            {
+                new SelectListItem { Text = "" },
+                new SelectListItem { Text = "FIRSTS" },
+                new SelectListItem { Text = "SECONDS" },
+                new SelectListItem { Text = "THIRDS" },
+                new SelectListItem { Text = "LIGHTS" },
+                new SelectListItem { Text = "MBUNI" },
+            };
+             ViewBag.Coffee = Coffee;
 
-            var partchments = _context.Parchment.OrderBy(n => n.PName).ToList();
-            var factories = _context.DBranch.Where(b=>b.Bcode== sacco).OrderBy(n => n.Bname).ToList();
-            var Millers = _context.Millers.Where(b=>b.saccocode == sacco).OrderBy(n => n.Name).ToList();
-            var Marketer = _context.MarketerReg.Where(b=>b.saccocode == sacco).OrderBy(n => n.Name).ToList();
-
-            var parchment = _context.Parchment.OrderBy(K => K.PName).ToList();
-            var grading = _context.ParchmentGrading.OrderBy(K => K.PGrading).ToList();
-            var pclass = _context.ParchmentClasses.OrderBy(K => K.PClasses).ToList();
-
-            ViewBag.Category = new SelectList(partchments.OrderBy(n => n.PName).Select(k => k.PName).ToList());
-            ViewBag.Factory = new SelectList(factories.OrderBy(n => n.Bname).Select(k => k.Bname).ToList());
-            ViewBag.Miller = new SelectList(Millers.OrderBy(n => n.Name).Select(k => k.Name).ToList());
-            ViewBag.Marketer = new SelectList(Marketer.OrderBy(n => n.Name).Select(k => k.Name).ToList());
-
-            ViewBag.parchment = new SelectList(parchment.Select(b => b.PName));
-            ViewBag.grading = new SelectList(grading.Select(b => b.PGrading));
-            ViewBag.pclass = new SelectList(pclass.Select(b => b.PClasses));
-
+            List<SelectListItem> comment = new()
+            {
+                new SelectListItem { Text = "" },
+                new SelectListItem { Text = "SAN" },
+                new SelectListItem { Text = "UTZ" },
+                new SelectListItem { Text = "4C" },
+                new SelectListItem { Text = "CP" },
+                new SelectListItem { Text = "FLO" },
+            };
+            ViewBag.Comment = comment;
         }
-        // GET: Marketers/Details/5
+        // GET: DeliveryNotes/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (id == null)
             {
                 return NotFound();
             }
 
-            var marketer = await _context.Marketer
+            var deliveryNote = await _context.DeliveryNote
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (marketer == null)
+            if (deliveryNote == null)
             {
                 return NotFound();
             }
 
-            return View(marketer);
+            return View(deliveryNote);
         }
 
-        // GET: Marketers/Create
+        // GET: DeliveryNotes/Create
         public IActionResult Create()
         {
             utilities.SetUpPrivileges(this);
+            getdefaults();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            getdefaults();
-            Marketer marketer =  new Marketer();
-            //marketer.DPayroll.Add(new DPayroll() { MarketerId=1 });
-            return View(marketer);
-        }
-        public IActionResult MarketerRegCreate()
-        {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            getdefaults();
             return View();
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarketerRegCreate(MarketerReg marketerReg) 
-        {
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            marketerReg.saccocode = sacco;
-            marketerReg.AuditDateTime = DateTime.Now;
-            getdefaults();
-            if (ModelState.IsValid)
-            {
-                _context.Add(marketerReg);
-                await _context.SaveChangesAsync();
-                _notyf.Success("Records saved successfully");
-                return RedirectToAction(nameof(MarketerRegIndex));
-            }
-            return View(marketerReg);
-        }
 
-        // POST: Marketers/Create
+        // POST: DeliveryNotes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,saccocode,MarketerName,Category,Grade,Class,Kgs,Date,Amount,AuditDateTime")] Marketer marketer)
+        public async Task<IActionResult> Create([Bind("Id,Date,Name,NoteNo,GrowersCode,CoffeType,VehicleNo,NoBags,Driver,Comment,UserId,AuditDate,Branch,saccocode")] DeliveryNote deliveryNote)
         {
             utilities.SetUpPrivileges(this);
+            getdefaults();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            marketer.saccocode = sacco;
-            marketer.AuditDateTime = DateTime.Now;
-            getdefaults();
             if (ModelState.IsValid)
             {
-                _context.Add(marketer);
+                deliveryNote.AuditDate = DateTime.Now;
+                deliveryNote.UserId = loggedInUser;
+                deliveryNote.saccocode = sacco;
+                _context.Add(deliveryNote);
                 await _context.SaveChangesAsync();
-                _notyf.Success("Records saved successfully");
                 return RedirectToAction(nameof(Index));
             }
-            return View(marketer);
+            return View(deliveryNote);
         }
 
-        // GET: Marketers/Edit/5
+        // GET: DeliveryNotes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (id == null)
             {
+                getdefaults();
                 return NotFound();
             }
 
-            var marketer = await _context.Marketer.FindAsync(id);
-            if (marketer == null)
+            var deliveryNote = await _context.DeliveryNote.FindAsync(id);
+            if (deliveryNote == null)
             {
+                getdefaults();
                 return NotFound();
             }
-            return View(marketer);
+            return View(deliveryNote);
         }
 
-        // POST: Marketers/Edit/5
+        // POST: DeliveryNotes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,saccocode,MarketerName,Category,Grade,Class,Kgs,Date,Amount,AuditDateTime")] Marketer marketer)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,Date,Name,NoteNo,GrowersCode,CoffeType,VehicleNo,NoBags,Driver,Comment,UserId,AuditDate,Branch,saccocode")] DeliveryNote deliveryNote)
         {
-            if (id != marketer.Id)
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (id != deliveryNote.Id)
             {
                 return NotFound();
             }
@@ -188,12 +165,12 @@ namespace EasyPro.Controllers.Coffee
             {
                 try
                 {
-                    _context.Update(marketer);
+                    _context.Update(deliveryNote);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MarketerExists(marketer.Id))
+                    if (!DeliveryNoteExists(deliveryNote.Id))
                     {
                         return NotFound();
                     }
@@ -204,10 +181,10 @@ namespace EasyPro.Controllers.Coffee
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(marketer);
+            return View(deliveryNote);
         }
 
-        // GET: Marketers/Delete/5
+        // GET: DeliveryNotes/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
             utilities.SetUpPrivileges(this);
@@ -219,17 +196,17 @@ namespace EasyPro.Controllers.Coffee
                 return NotFound();
             }
 
-            var marketer = await _context.Marketer
+            var deliveryNote = await _context.DeliveryNote
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (marketer == null)
+            if (deliveryNote == null)
             {
                 return NotFound();
             }
 
-            return View(marketer);
+            return View(deliveryNote);
         }
 
-        // POST: Marketers/Delete/5
+        // POST: DeliveryNotes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
@@ -238,20 +215,19 @@ namespace EasyPro.Controllers.Coffee
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var marketer = await _context.Marketer.FindAsync(id);
-            _context.Marketer.Remove(marketer);
+            var deliveryNote = await _context.DeliveryNote.FindAsync(id);
+            _context.DeliveryNote.Remove(deliveryNote);
             await _context.SaveChangesAsync();
-            _notyf.Success("Records Deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 
-        private bool MarketerExists(long id)
+        private bool DeliveryNoteExists(long id)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            return _context.Marketer.Any(e => e.Id == id);
+            return _context.DeliveryNote.Any(e => e.Id == id);
         }
     }
 }

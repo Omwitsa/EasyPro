@@ -204,6 +204,7 @@ namespace EasyPro.Models
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<TransportersBalancing> TransportersBalancings { get; set; }
         public virtual DbSet<Mpesab> Mpesabs { get; set; }
+        
         public virtual DbSet<Param> Params { get; set; }
         public virtual DbSet<Passwordhistory> Passwordhistories { get; set; }
         public virtual DbSet<PaymentBooking> PaymentBookings { get; set; }
@@ -10621,5 +10622,11 @@ namespace EasyPro.Models
         public DbSet<EasyPro.Models.Coffee.MarketerReg> MarketerReg { get; set; }
 
         public DbSet<EasyPro.Models.Coffee.Milling_Products> Milling_Products { get; set; }
+
+        public DbSet<DeliveryNote> DeliveryNote { get; set; }
+
+        public DbSet<EasyPro.Models.Coffee.Marketing> Marketing { get; set; }
+
+        public DbSet<EasyPro.Models.Coffee.MarketingDeduct> MarketingDeduct { get; set; }
     }
 }
