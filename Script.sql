@@ -8,8 +8,6 @@ Loan, Compare, isfrate, frate, rate, hast, Br, mno, branchcode, NULL, NULL, aarn
 status4, status5, status6, 'MILK', dob, 0, 0, status1, 0, NULL
 FROM d_Suppliers
 
--- UPDATE d_Suppliers SET Approval = 1
-
 //Transporter Assignment
 SELECT Trans_Code, sno, Rate, startdate, Active, DateInactivate, auditid, GETDATE(), isfrate, 'ELBURGON PROGRESSIVE DAIRY FCS', 'Milk', 'ELBURGON', NULL, NULL FROM d_Transport
  
