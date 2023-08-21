@@ -453,14 +453,14 @@ namespace EasyPro.Controllers
                 };
                 _context.DSuppliers.Add(productIntake);
             });
-            _context.SaveChanges();
-
+            
             if (excelDumps.Any())
             {
                 _context.ExcelDumpSupReg.RemoveRange(excelDumps);
-                _context.SaveChanges();
             }
-            return RedirectToAction("SuppliersImportIndex");
+
+            _context.SaveChanges();
+            return RedirectToAction(nameof(SuppliersImportIndex));
         }
     }
 }
