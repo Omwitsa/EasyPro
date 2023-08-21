@@ -392,26 +392,28 @@ namespace EasyPro.Controllers
 
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var excelDumps = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
-            excelDumps.ForEach(e =>
+            var datatoupload = excelDumps.GroupBy(p => p.SNo.ToUpper()).ToList();
+            datatoupload.ForEach(e =>
             {
+                var getsno = e.FirstOrDefault();
                 var productIntake = new DSupplier
                 {
-                    Sno = e.SNo,
-                    Regdate = e.Reg_date,
-                    Names = e.Names,
-                    PhoneNo = e.PhoneNo,
-                    IdNo = e.IdNo,
-                    Dob = e.DOB,
-                    AccNo = e.Acc_Number,
-                    Bcode = e.Bank_code,
-                    Bbranch = e.Bank_Branch,
-                    Type = e.Gender,
-                    TransCode = e.PaymentMode,
-                    Village = e.Village,
-                    Location = e.LOCATION,
-                    Division = e.WARD,
-                    District = e.SUB_COUNTY,
-                    County = e.COUNTY,
+                    Sno = getsno.SNo,
+                    Regdate = getsno.Reg_date,
+                    Names = getsno.Names,
+                    PhoneNo = getsno.PhoneNo,
+                    IdNo = getsno.IdNo,
+                    Dob = getsno.DOB,
+                    AccNo = getsno.Acc_Number,
+                    Bcode = getsno.Bank_code,
+                    Bbranch = getsno.Bank_Branch,
+                    Type = getsno.Gender,
+                    TransCode = getsno.PaymentMode,
+                    Village = getsno.Village,
+                    Location = getsno.LOCATION,
+                    Division = getsno.WARD,
+                    District = getsno.SUB_COUNTY,
+                    County = getsno.COUNTY,
                     Trader =false,
                     Active =true,
                     Approval= true,
