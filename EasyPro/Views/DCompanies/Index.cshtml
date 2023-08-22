@@ -40,10 +40,10 @@
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
                     <h3 class="text-danger fa-bold">Company/society </h3>
                 </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                        <input id="gfg" type="text" class="form-control"
-                               placeholder="Search here">
-                    </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                    <input id="gfg" type="text" class="form-control"
+                           placeholder="Search here">
+                </div>
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right">
                     <a asp-action="Create" class="btn btn-primary">Create New</a>
                 </div>
@@ -67,9 +67,6 @@
                                     <th>
                                         @Html.DisplayNameFor(model => model.Email)
                                     </th>
-                                    <th>
-                                        @Html.DisplayNameFor(model => model.Website)
-                                    </th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -90,11 +87,8 @@
                                             @Html.DisplayFor(modelItem => item.Email)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Website)
-                                        </td>
-                                        <td>
-                                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> 
-                                            @*<a asp-action="Details" asp-route-id="@item.Id">Details</a>*@
+                                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                            <a asp-action="Delete" id="delete" asp-route-id="@item.Id">Delete</a>
                                         </td>
                                     </tr>
                                 }
@@ -102,19 +96,32 @@
                         </table>
                     </div>
                 </div>
-                
+
             </div>
-            </div>
+        </div>
     </div>
 </div>
 @section scripts{
-    <script>
-        $(document).ready(function () {
-            $("#gfg").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#geeks tr").filter(function () {
-                    $(this).toggle($(this).text()
-                        .toLowerCase().indexOf(value) > -1)
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+            if (checkiftoenable === 0) {
+                $('#delete').hide();
+            }
+            else {
+                $('#delete').show();
+            }
+
+            $(document).ready(function () {
+                $("#gfg").on("keyup", function () {
+                    var value = $(this).val().toLowerCase();
+                    $("#geeks tr").filter(function () {
+                        $(this).toggle($(this).text()
+                            .toLowerCase().indexOf(value) > -1)
+                    });
                 });
             });
         });

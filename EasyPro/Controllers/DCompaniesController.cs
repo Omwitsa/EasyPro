@@ -32,10 +32,13 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-            var companies = _context.DCompanies.OrderByDescending(K => K.Id).ToList();
+            var companies = _context.DCompanies.OrderBy(K => K.Name).ToList();
+            ViewBag.checkiftoenable = 1;
             if (!loggedInUser.ToLower().Equals("psigei"))
+            {
+                ViewBag.checkiftoenable = 0;
                 companies = _context.DCompanies.Where(i=>i.Name.ToUpper().Equals(sacco.ToUpper())).ToList();
-               
+            }
             return View(companies);
         }
 
@@ -199,6 +202,7 @@ namespace EasyPro.Controllers
             var dCompany = await _context.DCompanies.FindAsync(id);
             _context.DCompanies.Remove(dCompany);
             await _context.SaveChangesAsync();
+            _notyf.Success("Saciety deleted successfully");
             return RedirectToAction(nameof(Index));
         }
 
