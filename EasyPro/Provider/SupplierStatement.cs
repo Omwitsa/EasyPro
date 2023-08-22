@@ -90,12 +90,12 @@ namespace EasyPro.Provider
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
 
-            var transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(filter.Code.ToUpper()) && t.saccocode== filter.Sacco);
+            var transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(filter.Code.ToUpper()) && t.saccocode== filter.Sacco && t.Branch == filter.Branch);
             var transporterName = "";
             if (transport != null)
             {
                 transport.TransCode = transport?.TransCode ?? "";
-                var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transport.TransCode.ToUpper()));
+                var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transport.TransCode.ToUpper()) && t.ParentT == filter.Sacco && t.Tbranch == filter.Branch);
                 transporterName = transporter?.TransName ?? "";
             }
             return new

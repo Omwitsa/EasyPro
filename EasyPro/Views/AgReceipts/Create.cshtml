@@ -447,6 +447,7 @@
                 });
 
                 $('#save1').on('click', function () {
+                    $('#save1').button('disable');
                     let print = $('#print').prop('checked');
                     let sms = $('#sms').prop('checked');
                     let net = $('#Net').val();
@@ -466,7 +467,7 @@
                         failure: function (response) {
                         }
                     }).then(function () {
-                        // ...
+                       
                     });
                 });
 
@@ -616,6 +617,7 @@
                 if (!checkbal()) {
                     return;
                 }
+                $('#save1').button('enable');
                 var pcode = $("#pcode").val();
                 var pname = $("#pname").val();
                 var bprice = $("#bprice").val();
@@ -652,6 +654,7 @@
                 if (!checkbal()) {
                     return;
                 }
+                $('#save1').button('enable');
                 var pcode = $("#pcode").val();
                 var pname = $("#pname").val();
                 var bprice = $("#bprice").val();
@@ -687,6 +690,7 @@
                 if (!checkbal()) {
                     return;
                 }
+                $('#save1').button('enable');
                 var pcode = $("#pcode").val();
                 var pname = $("#pname").val();
                 var bprice = $("#bprice").val();

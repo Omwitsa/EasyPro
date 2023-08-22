@@ -119,13 +119,16 @@
 
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Remarks" class="control-label"></label>
                             <input asp-for="Remarks" id="Remarks" class="form-control" />
                             <span asp-validation-for="Remarks" class="text-danger"></span>
+                        </div>
+                    </div>
+                   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Transporter</label>
+                            <input id="TransName" class="form-control" readonly />
                         </div>
                     </div>
                 </div>
@@ -299,14 +302,14 @@
             var zone = $('#zone').val();
             var sno = $('#Sno').val();
             var mevng = $('#mevng').val();
-
             $.ajax(
                 {
                     type: 'GET',
                     url: "selectedDateIntake?sno=" + sno,
                     contentType: 'application/json',
                     success: function (response) {
-                        $("#Names").val(response);
+                        $("#Names").val(response.supplier.Names);
+                        $("#TransName").val(`${response.transporter.TransName}  ${response.transporter.TransCode}`);
                     },
                     failure: function (response) {
                     }
@@ -338,42 +341,39 @@
                 }
             }
          function calculatePrice() {
-                var qty = parseFloat($("#Qsupplied").val());
-                var price = parseFloat($("#Ppu").val());
-                if (qty && price) {
-                    $("#CR").val(qty * price);
-                }
+            var qty = parseFloat($("#Qsupplied").val());
+            var price = parseFloat($("#Ppu").val());
+            if (qty && price) {
+                $("#CR").val(qty * price);
             }
-         function generateHTML(response) {
-                var mevng = $('#mevng').val();
-             var ddate = response.receiptDetails.date;
-             var date = new Date(ddate).toLocaleDateString();
-             var content = `<div class="row" id="printMe">
-                                    <div class="col-xs-12 text-center">
-                                     <h4>
-                                        ${response.receiptDetails.Name}</br>
-                                        Adress: ${response.receiptDetails.Adress}</br>
-                                        Tell: ${response.receiptDetails.PhoneNo}</br>
-                                        Town: ${response.receiptDetails.Town}</br>
-                                        Branch: ${response.receiptDetails.saccoBranch}
-                                      </h4>
-                                     <h5>
-                                        *************************
-                                        Product Receipt For: <span style="font-size: 11px">${date}</span></br>
-                                        SNo: ${response.receiptDetails.Sno}</br>
-                                        Name: ${response.receiptDetails.SupName}</br>
-                                        Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
-                                        Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
-                                        Session: ${response.receiptDetails.MornEvening}</br>
-                                        Received By: ${response.receiptDetails.loggedInUser}
-                                    </h5>
-                                    <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
-                                        *************************
-                                    <hr>
-                                </div>
-                              </div>`;
-                return content;
-            }
-        });
+        }
+         
+        function generateHTML(response) {
+            var mevng = $('#mevng').val();
+            var date = $("#transDate").val();
+            var content = `<div class="row" id="printMe">
+                                        <div class="col-xs-12 text-center">
+                                            ${response.receiptDetails.Name}</br>
+                                            Adress: ${response.receiptDetails.Adress}</br>
+                                            Tell: ${response.receiptDetails.PhoneNo}</br>
+                                            Town: ${response.receiptDetails.Town}</br>
+                                            Branch: ${response.receiptDetails.saccoBranch}</br>
+                                            *************************</br>
+                                            Product Receipt For: ${date}</br>
+                                            SNo: ${response.receiptDetails.Sno}</br>
+                                            Name: ${response.receiptDetails.supName}</br>
+                                            Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
+                                            Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
+                                            Session: ${response.receiptDetails.MornEvening}</br>
+                                            Received By: ${response.receiptDetails.loggedInUser}</br>
+                                            DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</br>
+                                            *************************
+                                            <hr>
+                                        </div>
+                                    </div>`;
+
+            return content;
+        }
+    });
 </script>
 }

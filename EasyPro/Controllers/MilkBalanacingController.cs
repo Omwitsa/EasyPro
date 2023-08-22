@@ -168,16 +168,13 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var agproducts = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
-            var TransportersName = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if(user.AccessLevel == AccessLevel.Branch)
-            {
-                agproducts = agproducts.Where(i => i.Tbranch == saccobranch).ToList();
-                TransportersName = TransportersName.Where(t => t.Tbranch == saccobranch).ToList();
-            }
-            ViewBag.agproductsall = agproducts;
-            ViewBag.Transporterslist = new SelectList(TransportersName, "TransName", "TransName");
+                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
+           
+            ViewBag.agproductsall = transporters;
+            ViewBag.Transporterslist = new SelectList(transporters, "TransName", "TransName");
             if(sacco.ToUpper()== "MBURUGU DAIRY F.C.S")
                 ViewBag.checkiftoenable = 1;
             else

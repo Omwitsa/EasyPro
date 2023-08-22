@@ -265,8 +265,13 @@ namespace EasyPro.Controllers
                 .Select(s => s.Bname).ToList();
 
             ViewBag.branches = new SelectList(branches);
-
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+
             ViewBag.suppliers = suppliers.Select(s => new DSupplier
             {
                 Sno = s.Sno,
@@ -386,7 +391,7 @@ namespace EasyPro.Controllers
                 supplier = new DSupplier { Names = ""};
 
             var trancode = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(sno.ToUpper()) && t.saccocode == sacco && t.Branch == saccoBranch)?.TransCode ?? "";
-            var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()));
+            var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco && t.Tbranch == saccoBranch);
             if (transporter == null)
                 transporter = new DTransporter { TransName = "", TransCode = ""};
             return Json(new

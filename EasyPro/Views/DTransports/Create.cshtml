@@ -186,12 +186,12 @@
         });
 
         function getSelectedDateIntakes() {
+            debugger
             var zone = $('#zone').val();
             zone = zone ? zone : "";
             var sno = $('#sno').val();
             sno = sno ? sno : "";
-            var mevng = $('#mevng').val().toUpperCase();
-            mevng = mevng ? mevng : "";
+            var mevng = $('#mevng').val() ? $('#mevng').val().toUpperCase() : "";
 
             $.ajax(
             {
