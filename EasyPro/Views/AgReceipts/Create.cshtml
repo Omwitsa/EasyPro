@@ -457,9 +457,6 @@
                         contentType: 'application/json',
                         data: JSON.stringify(saleItems),
                         success: function (response) {
-                            if (response.isRedirect) {
-                                window.location.href = response.redirectUrl;
-                            }
                             saleItems = new Array();
                             populateTable();
                             clearafthersave();

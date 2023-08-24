@@ -290,17 +290,19 @@ namespace EasyPro.Controllers
 
         private void SetStandingOrderValues()
         {
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
-
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
 
             var Descriptionname = _context.DDcodes.Where(d => d.Dcode == sacco).Select(b => b.Description).ToList();
             ViewBag.Description = new SelectList(Descriptionname);
 
-            var suppliers = _context.DSuppliers
-                .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            ViewBag.suppliers = suppliers;
+            var suppliers = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper()));
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(t => t.Branch == saccoBranch);
+            ViewBag.suppliers = suppliers.ToList();
         }
 
         [HttpPost]

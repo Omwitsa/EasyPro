@@ -29,11 +29,11 @@ namespace EasyPro.Controllers
         // GET: AgProducts
         public async Task<IActionResult> Index()
         {
+            GetInitialValues();
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            GetInitialValues();
             var products = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()));
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
@@ -85,7 +85,7 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var product = _context.AgProducts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
-                .OrderByDescending(u => u.Id).FirstOrDefault();
+                .OrderByDescending(u => Convert.ToInt32(u.PCode)).FirstOrDefault();
             var num = 0;
             if (product != null)
                 num = Convert.ToInt32(product.PCode);

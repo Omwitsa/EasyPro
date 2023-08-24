@@ -36,10 +36,10 @@ namespace EasyPro
                 
                 options.UseSqlServer(Configuration.GetConnectionString("MoringaDbConnection"));
                 options.EnableSensitiveDataLogging(true);
-            }); 
-                    
-            //services.AddDbContext<BosaDbContext>(options =>
-            //        options.UseSqlServer(Configuration.GetConnectionString("BosaDbConnection")));
+            });
+
+            services.AddDbContext<BosaDbContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("BosaDbConnection")));
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddTransient<IReporting, ReportingConcrete>();
             services.AddTransient<IReportProvider, ReportProvider>();
