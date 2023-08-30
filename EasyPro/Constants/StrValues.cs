@@ -6,6 +6,7 @@
         static public string UserSacco = "UserSacco";
         static public string UserGroup = "UserGroup";
         static public string Branch = "Branch";
+        static public string Slopes = "SLOPES DAIRY COOPERATIVE SOCIETY LTD";
         static public string Ainabkoi = "AINABKOI FCS";
         static public string Tanykina = "TANYKINA Dairy Plant Limited";
         static public string Mburugu = "MBURUGU DAIRY F.C.S";

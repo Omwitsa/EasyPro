@@ -30,6 +30,7 @@ using EasyPro.Provider;
 using NPOI.SS.Formula.Functions;
 using static EasyPro.ViewModels.AccountingVm;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Syncfusion.EJ2.Linq;
 
 namespace EasyPro.Controllers
 {
@@ -66,6 +67,8 @@ namespace EasyPro.Controllers
             && i.TransDate == DateTime.Today);
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccoBranch);
+
+            ViewBag.remarks = StrValues.Slopes == sacco ? "Invoice No." : "Remarks";
 
             // var intaelist = await intakes.OrderByDescending(l => l.Auditdatetime).ToListAsync();
             return View(intakes.OrderByDescending(l => l.Auditdatetime).ToList());
@@ -261,11 +264,25 @@ namespace EasyPro.Controllers
             SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var intakes = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-            && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today);
+            var productIntakes = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && (s.TransactionType == TransactionType.Intake || s.TransactionType == TransactionType.Correction));
+            var intakes = productIntakes.Where(s => s.TransDate == DateTime.Today);
             var Todayskg = intakes.Sum(p => p.Qsupplied);
             var TodaysBranchkg = intakes.Where(s => s.Branch == saccoBranch).Sum(p => p.Qsupplied);
 
+            var remarks = "Remarks";
+            var remarksValue = "";
+            if (StrValues.Slopes == sacco)
+            {
+                var recentIntake = productIntakes.Where(s => s.TransactionType == TransactionType.Intake).OrderByDescending(i => i.Id).FirstOrDefault();
+                long.TryParse(recentIntake?.Remarks ?? "", out long invoiceNo);
+                invoiceNo++;
+                remarks = "Invoice No.";
+                remarksValue = "" + invoiceNo;
+            }
+
+            ViewBag.remarks = remarks;
+            ViewBag.remarksValue = remarksValue;
 
             return View(new ProductIntakeVm
             {
@@ -681,17 +698,26 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(productIntake.Sno))
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
-                return Json("");
+                return Json(new
+                {
+                    success = false
+                });
             }
             if (string.IsNullOrEmpty(productIntake.ProductType))
             {
                 _notyf.Error("Sorry, Kindly select product type");
-                return Json("");
+                return Json(new
+                {
+                    success = false
+                });
             }
             if (productIntake.Qsupplied < 0.01M)
             {
                 _notyf.Error("Sorry, Kindly provide quantity");
-                return Json("");
+                return Json(new
+                {
+                    success = false
+                });
             }
             var suppliers = _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode.ToUpper().Equals(sacco.ToUpper()));
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
@@ -702,12 +728,18 @@ namespace EasyPro.Controllers
             if (supplier == null)
             {
                 _notyf.Error("Sorry, Supplier does not exist");
-                return Json("");
+                return Json(new
+                {
+                    success = false
+                });
             }
             if (!supplier.Active || !supplier.Approval)
             {
                 _notyf.Error("Sorry, Supplier must be approved and active");
-                return Json("");
+                return Json(new
+                {
+                    success = false
+                });
             }
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
@@ -892,18 +924,30 @@ namespace EasyPro.Controllers
                 }
             }
 
-                //    var intakes = _context.ProductIntake
-                //.FirstOrDefault(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                //&& i.Sno == collection.Sno && i.TransDate == collection.TransDate && i.TransTime == collection.TransTime);
-                
+            //    var intakes = _context.ProductIntake
+            //.FirstOrDefault(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            //&& i.Sno == collection.Sno && i.TransDate == collection.TransDate && i.TransTime == collection.TransTime);
+
             //    return RedirectToAction("createprinttest", new { id = intakes.Id });//"Details", "Event", new { id = thisEvent }
 
-                //var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
-                //var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+            //var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
+            //var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+
+            var remarksValue = "";
+            if (StrValues.Slopes == sacco)
+            {
+                var recentIntake = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.TransactionType == TransactionType.Intake)
+                    .OrderByDescending(i => i.Id).FirstOrDefault();
+                long.TryParse(recentIntake?.Remarks ?? "", out long invoiceNo);
+                invoiceNo++;
+                remarksValue = "" + invoiceNo;
+            }
 
             return Json(new
             {
                 receiptDetails,
+                remarksValue,
+                success = true
             });
         }
 
