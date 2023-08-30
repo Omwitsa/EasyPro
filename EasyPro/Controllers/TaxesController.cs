@@ -28,6 +28,9 @@ namespace EasyPro.Controllers
         // GET: Taxes
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.Taxes.Where(t => t.SaccoCode == sacco).ToListAsync());
@@ -36,6 +39,9 @@ namespace EasyPro.Controllers
         // GET: Taxes/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -55,6 +61,9 @@ namespace EasyPro.Controllers
         // GET: Taxes/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
@@ -76,6 +85,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Type,Computation,GlAccount,Rate,Scope,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] Tax tax)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             tax.Rate = tax?.Rate ?? 0;
             if (tax.Rate < 1)
@@ -100,6 +112,9 @@ namespace EasyPro.Controllers
         // GET: Taxes/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
@@ -124,6 +139,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Type,Computation,GlAccount,Rate,Scope,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] Tax tax)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != tax.Id)
@@ -164,6 +182,9 @@ namespace EasyPro.Controllers
         // GET: Taxes/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -185,6 +206,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var tax = await _context.Taxes.FindAsync(id);
             _context.Taxes.Remove(tax);

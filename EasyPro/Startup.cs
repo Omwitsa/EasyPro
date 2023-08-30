@@ -50,8 +50,8 @@ namespace EasyPro
                 config.Position = NotyfPosition.TopCenter; 
             });
             services.AddDistributedMemoryCache();
-            services.AddSession(options => {
-                options.IdleTimeout = TimeSpan.FromHours(1);//You can set Time   
+            services.AddSession(options => {   
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
             });
             services.AddControllersWithViews();
             services.AddControllers().AddNewtonsoftJson(options =>

@@ -29,6 +29,9 @@ namespace EasyPro.Controllers
         // GET: DMilkQualities
         public IActionResult Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -41,7 +44,9 @@ namespace EasyPro.Controllers
             var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var startDate = month.AddMonths(0);
             var endDate = month.AddMonths(1).AddDays(-1);
-
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -84,8 +89,10 @@ namespace EasyPro.Controllers
             var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var startDate = month.AddMonths(0);
             var endDate = month.AddMonths(1).AddDays(-1);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             ViewBag.brances = saccoBranch;
@@ -97,8 +104,10 @@ namespace EasyPro.Controllers
             var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var startDate = month.AddMonths(0);
             var endDate = month.AddMonths(1).AddDays(-1);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
-
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var brances = _context.DBranch.Where(a => a.Bcode == sacco).OrderBy(K => K.Bname).Select(b => b.Bname).ToList();
@@ -108,18 +117,18 @@ namespace EasyPro.Controllers
         }
         public IActionResult MilkControll()
         {
-            utilities.SetUpPrivileges(this);
-            GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
-
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
             var today = DateTime.Now;
             var month = new DateTime(today.Year, today.Month, 1);
             var startdate = month;
             var enddate = month.AddMonths(1).AddDays(-1);
-
-
 
             var milkcontrols = _context.milkcontrol2.Where(i => i.code.ToUpper().Equals(sacco.ToUpper())
             && i.transdate >= startdate && i.transdate <= enddate).ToList();
@@ -175,6 +184,9 @@ namespace EasyPro.Controllers
 
         public IActionResult MilkcontrolDetails(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -231,6 +243,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectsCreate([Bind("Id,Intake, SQuantity, Reject, transdate, auditid, cfa, Spillage, FromStation, Tostation, Bf, code, Branch")] milkcontrol2 milkcontrol2)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -265,7 +280,9 @@ namespace EasyPro.Controllers
             var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var startDate = month.AddMonths(0);
             var endDate = month.AddMonths(1).AddDays(-1);
-
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -350,6 +367,9 @@ namespace EasyPro.Controllers
         // GET: DMilkQualities/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -418,6 +438,9 @@ namespace EasyPro.Controllers
         // GET: DMilkQualities/Create
         public IActionResult MilktransferCreate()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -428,10 +451,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MilktransferCreate([Bind("Id, Transdate, fromStation, Tostation, FromBranch, ToBranch, auditid, Intake, Code")] Milktransfer milktransfer)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var user = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(user))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             if (milktransfer.Intake == 0)
             {
                 _notyf.Error("Sorry, Intake cannot be zero");
@@ -457,6 +482,9 @@ namespace EasyPro.Controllers
         }
         public IActionResult Create()
         {
+            var user = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(user))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -620,10 +648,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,RejDate,ApproxKgs,DeKgs,ContCpcity,Ttransporter,Conttype,TransMode,Organoleptic,Rez,Lact,PlateCount,Alcohol,TimeIn,TimeOut,Pcheck,Dramsk,RejReasons,Auditid,Auditdatetime,Antibiotic,Branch")] DMilkQuality dMilkQuality)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var user = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(user))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
                 dMilkQuality.code = sacco;
@@ -639,9 +669,12 @@ namespace EasyPro.Controllers
         // GET: DMilkQualities/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -662,9 +695,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,RejDate,ApproxKgs,DeKgs,ContCpcity,Ttransporter,Conttype,TransMode,Organoleptic,Rez,Lact,PlateCount,Alcohol,TimeIn,TimeOut,Pcheck,Dramsk,RejReasons,Auditid,Auditdatetime")] DMilkQuality dMilkQuality)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             if (id != dMilkQuality.Id)
             {
                 return NotFound();
@@ -696,9 +732,12 @@ namespace EasyPro.Controllers
         // GET: DMilkQualities/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -715,9 +754,12 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> RejectsDelete(long? id)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -735,9 +777,12 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> MilktransferDelete(long? id)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -756,9 +801,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MilktransferDeleteConfirmed(long id)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             var milktransfer = await _context.Milktransfer.FindAsync(id);
             _context.Milktransfer.Remove(milktransfer);
             await _context.SaveChangesAsync();
@@ -768,9 +816,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectsDeleteConfirmed(long id)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             var milkcontrol2 = await _context.milkcontrol2.FindAsync(id);
             _context.milkcontrol2.Remove(milkcontrol2);
             await _context.SaveChangesAsync();
@@ -782,9 +833,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            utilities.SetUpPrivileges(this);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var dMilkQuality = await _context.DMilkQuality.FindAsync(id);
             _context.DMilkQuality.Remove(dMilkQuality);
             await _context.SaveChangesAsync();

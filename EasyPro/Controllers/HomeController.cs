@@ -46,6 +46,9 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -189,6 +192,9 @@ namespace EasyPro.Controllers
 
         public IActionResult NewUI()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             return View();
         }
         public IActionResult Login()

@@ -30,6 +30,9 @@ namespace EasyPro.Controllers
         // GET: DSupplierDeducs
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View(await _context.DSupplierDeducs.ToListAsync());
         }
@@ -37,6 +40,9 @@ namespace EasyPro.Controllers
         // GET: DSupplierDeducs/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -56,6 +62,9 @@ namespace EasyPro.Controllers
         // GET: DSupplierDeducs/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -92,6 +101,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,DateDeduc,Description,Amount,Period,StartDate,EndDate,Auditid,Auditdatetime,Yyear,Remarks,Branch,Bonus,Status1,Status2,Status3,Status4,Status5,Status6,Branchcode")] DSupplierDeduc dSupplierDeduc)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dSupplier1 = _context.DSupplierDeducs.Where(i => i.Sno == dSupplierDeduc.Sno).Count();
             if (dSupplier1 != 0)
@@ -113,6 +125,9 @@ namespace EasyPro.Controllers
         // GET: DSupplierDeducs/Edit/5 
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -134,6 +149,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,DateDeduc,Description,Amount,Period,StartDate,EndDate,Auditid,Auditdatetime,Yyear,Remarks,Branch,Bonus,Status1,Status2,Status3,Status4,Status5,Status6,Branchcode")] DSupplierDeduc dSupplierDeduc)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != dSupplierDeduc.Id)
             {
@@ -166,6 +184,9 @@ namespace EasyPro.Controllers
         // GET: DSupplierDeducs/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -187,6 +208,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dSupplierDeduc = await _context.DSupplierDeducs.FindAsync(id);
             _context.DSupplierDeducs.Remove(dSupplierDeduc);
@@ -201,6 +225,9 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> GetStandingOrder()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.StandingOrder.Where(o => o.SaccoCode == sacco && !o.Status).OrderByDescending(m=>m.Id).ToListAsync());
@@ -208,12 +235,18 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> GetStandingOrderStop()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.StandingOrder.Where(o => o.SaccoCode == sacco && o.Status).OrderByDescending(m => m.Id).ToListAsync());
         }
         public async Task<IActionResult> Stop(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dPreSet = await _context.StandingOrder.FindAsync(id);
             if (id != dPreSet.Id)
@@ -246,6 +279,9 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> ResumeStop(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var StandingOrder = await _context.StandingOrder.FindAsync(id);
             if (id != StandingOrder.Id)
@@ -283,6 +319,9 @@ namespace EasyPro.Controllers
 
         public IActionResult StandingOrder()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetStandingOrderValues();
             return View();
@@ -309,6 +348,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> StandingOrder([Bind("Id,Sno,TransDate,StartDate,EndDate,Duration,Amount,Description,AuditId,Auditdatetime,SaccoCode,Zone")] StandingOrder standingOrder)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetStandingOrderValues();
             if (string.IsNullOrEmpty(standingOrder.Sno))
@@ -352,6 +394,9 @@ namespace EasyPro.Controllers
 
         public IActionResult ProcessStandingOrder()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";

@@ -28,6 +28,9 @@ namespace EasyPro.Controllers
         // GET: CProducts
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.CProducts.Where(p => p.SaccoCode == sacco).ToListAsync());
@@ -36,6 +39,9 @@ namespace EasyPro.Controllers
         // GET: CProducts/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -55,6 +61,9 @@ namespace EasyPro.Controllers
         // GET: CProducts/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
@@ -78,6 +87,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Type,Category,Ref,BarCode,Price,CustomerTax,Cost,Notes,ARGlAccount,APGlAccount,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] CProduct cProduct)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (ModelState.IsValid)
@@ -94,8 +106,11 @@ namespace EasyPro.Controllers
         // GET: CProducts/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            SetInitialValues();
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
+            SetInitialValues();
             if (id == null)
             {
                 return NotFound();
@@ -116,6 +131,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Type,Category,Ref,BarCode,Price,CustomerTax,Cost,Notes,ARGlAccount,APGlAccount,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] CProduct cProduct)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != cProduct.Id)
@@ -149,6 +167,9 @@ namespace EasyPro.Controllers
         // GET: CProducts/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -170,6 +191,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var cProduct = await _context.CProducts.FindAsync(id);
             _context.CProducts.Remove(cProduct);

@@ -27,12 +27,18 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> GetBills()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View(await _context.Bills.ToListAsync());
         }
 
         public IActionResult CreateBill()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
@@ -52,9 +58,11 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBill(Bill bill)
         {
-            utilities.SetUpPrivileges(this);
             bill.Ref = bill?.Ref ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             bill.SaccoCode = sacco;
             var product = _context.VProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(bill.Ref.ToUpper()) && p.SaccoCode == sacco);
@@ -95,12 +103,18 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> GetRefunds()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View(await _context.Refunds.ToListAsync());
         }
 
         public IActionResult CreateRefund()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
@@ -110,8 +124,10 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRefund(Refund refund)
         {
-            utilities.SetUpPrivileges(this);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             refund.SaccoCode = sacco;
 

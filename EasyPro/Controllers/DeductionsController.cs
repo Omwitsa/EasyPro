@@ -29,6 +29,9 @@ namespace EasyPro.Controllers
         // GET: Deductions
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -44,6 +47,9 @@ namespace EasyPro.Controllers
         // GET: Deductions/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id == null)
             {
                 return NotFound();
@@ -62,6 +68,9 @@ namespace EasyPro.Controllers
         // GET: Deductions/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -74,6 +83,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Accno,SaccoCode")] Deduction deduction)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             deduction.SaccoCode = sacco;
@@ -95,6 +107,9 @@ namespace EasyPro.Controllers
         // GET: Deductions/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id == null)
@@ -117,6 +132,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Accno,SaccoCode")] Deduction deduction)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -152,6 +170,9 @@ namespace EasyPro.Controllers
         // GET: Deductions/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id == null)
@@ -174,6 +195,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var deduction = await _context.Deductions.FindAsync(id);
             _context.Deductions.Remove(deduction);
             await _context.SaveChangesAsync();

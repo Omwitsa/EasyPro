@@ -29,11 +29,13 @@ namespace EasyPro.Controllers
         // GET: AgProducts
         public async Task<IActionResult> Index()
         {
-            GetInitialValues();
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
             var products = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()));
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
@@ -60,6 +62,9 @@ namespace EasyPro.Controllers
         // GET: AgProducts/Details/5
         public async Task<IActionResult> Details(string id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -79,6 +84,9 @@ namespace EasyPro.Controllers
         // GET: AgProducts/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -109,10 +117,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,PCode,PName,SNo,Qin,Qout,DateEntered,LastDUpdated,UserId,AuditDate,OBal,SupplierId,Serialized,Unserialized,Seria,Pprice,Sprice,Branch,Draccno,Craccno,Ai,Expirydate,Run,Process1,Process2,Remarks,saccocode")] AgProduct agProduct)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             var checkproductExist = _context.AgProducts.Any(a => a.saccocode == sacco && a.PName.ToLower().Equals(agProduct.PName.ToLower()) && a.Branch == saccobranch);
             if (checkproductExist)
             {
@@ -199,6 +209,9 @@ namespace EasyPro.Controllers
 
         public IActionResult UnApprovedProducts()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var products4s = _context.AgProducts4s.Where(p => p.saccocode == sacco && !p.Approved).ToList();
@@ -207,6 +220,9 @@ namespace EasyPro.Controllers
 
         public IActionResult ApproveProduct(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -256,6 +272,9 @@ namespace EasyPro.Controllers
         // GET: AgProducts/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
 
@@ -282,10 +301,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,PCode,PName,SNo,Qin,Qout,DateEntered,LastDUpdated,UserId,AuditDate,OBal,SupplierId,Serialized,Unserialized,Seria,Pprice,Sprice,Branch,Draccno,Craccno,Ai,Expirydate,Run,Process1,Process2,Remarks,saccocode")] AgProduct agProduct)
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id != agProduct.Id)
             {
@@ -364,6 +385,9 @@ namespace EasyPro.Controllers
         // GET: AgProducts/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -386,6 +410,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var agProduct = await _context.AgProducts.FindAsync(id);
             _context.AgProducts.Remove(agProduct);

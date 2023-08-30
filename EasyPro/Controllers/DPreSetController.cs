@@ -30,6 +30,9 @@ namespace EasyPro.Controllers
         // GET: DPreSets
         public async Task<IActionResult> Index(string Search)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -42,6 +45,9 @@ namespace EasyPro.Controllers
         //
         public async Task<IActionResult> UnaprovedIndex(string Search)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -57,6 +63,9 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> ResumeStop(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var dPreSet = await _context.d_PreSets.FindAsync(id);
@@ -212,6 +221,9 @@ namespace EasyPro.Controllers
         // GET: DPreSets/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id == null)
@@ -232,6 +244,9 @@ namespace EasyPro.Controllers
         // GET: DPreSets/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -244,6 +259,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,Deduction,Remark,StartDate,Rate,Stopped,Auditdatetime,AuditId,Rated,Status,Status2,Status3,Status4,Status5,Status6,saccocode,BranchCode")] DPreSet dPreSet)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (ModelState.IsValid)
@@ -258,6 +276,9 @@ namespace EasyPro.Controllers
         // GET: DPreSets/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id == null)
@@ -280,6 +301,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,Deduction,Remark,StartDate,Rate,Stopped,Auditdatetime,AuditId,Rated,Status,Status2,Status3,Status4,Status5,Status6,saccocode,BranchCode")] DPreSet dPreSet)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id != dPreSet.Id)
@@ -313,6 +337,9 @@ namespace EasyPro.Controllers
         // GET: DPreSets/Delete/5
         public async Task<IActionResult> Stop(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var dPreSet = await _context.d_PreSets.FindAsync(id);
@@ -347,6 +374,9 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -368,6 +398,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var dPreSet = await _context.d_PreSets.FindAsync(id);

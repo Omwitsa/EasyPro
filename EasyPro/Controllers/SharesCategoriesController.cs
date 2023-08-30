@@ -27,6 +27,9 @@ namespace EasyPro.Controllers
         // GET: SharesCategories
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.SharesCategories.Where(c => c.SaccoCode == sacco).ToListAsync());
@@ -35,6 +38,9 @@ namespace EasyPro.Controllers
         // GET: SharesCategories/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -54,6 +60,9 @@ namespace EasyPro.Controllers
         // GET: SharesCategories/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View();
         }
@@ -65,6 +74,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,MinAmount,MaxAmount,SaccoCode")] SharesCategory sharesCategory)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             sharesCategory.MinAmount = sharesCategory?.MinAmount ?? 0;
             sharesCategory.MaxAmount = sharesCategory?.MaxAmount ?? 0;
@@ -109,6 +121,9 @@ namespace EasyPro.Controllers
         // GET: SharesCategories/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -130,6 +145,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,MinAmount,MaxAmount,SaccoCode")] SharesCategory sharesCategory)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != sharesCategory.Id)
             {
@@ -194,6 +212,9 @@ namespace EasyPro.Controllers
         // GET: SharesCategories/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -215,6 +236,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sharesCategory = await _context.SharesCategories.FindAsync(id);
             _context.SharesCategories.Remove(sharesCategory);

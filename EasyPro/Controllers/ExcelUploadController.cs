@@ -34,8 +34,10 @@ namespace EasyPro.Controllers
 
         public IActionResult SuppliersImportIndex()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
 
@@ -49,6 +51,9 @@ namespace EasyPro.Controllers
         }
         public IActionResult Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
@@ -57,9 +62,11 @@ namespace EasyPro.Controllers
         }
         public ActionResult RegImport(String scodes)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             string branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
             if (loggedInUser.ToLower().Equals("psigei"))
@@ -105,9 +112,11 @@ namespace EasyPro.Controllers
         }
         public ActionResult Import()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             string branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
             IFormFile file = Request.Form.Files[0];
@@ -145,7 +154,10 @@ namespace EasyPro.Controllers
             return this.Content(str_excel_grid);
         }
         public ActionResult RegDownload()
-        { 
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             string Files = "wwwroot/UploadExcel/CoreProgramm_ExcelImportSuppliers.xlsx";
             byte[] fileBytes = System.IO.File.ReadAllBytes(Files);
             System.IO.File.WriteAllBytes(Files, fileBytes);
@@ -153,7 +165,10 @@ namespace EasyPro.Controllers
             return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, "registration.xlsx");
         }
         public ActionResult Download()
-        { 
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             string Files = "wwwroot/UploadExcel/CoreProgramm_ExcelImport.xlsx";
             byte[] fileBytes = System.IO.File.ReadAllBytes(Files);
             System.IO.File.WriteAllBytes(Files, fileBytes);
@@ -162,9 +177,11 @@ namespace EasyPro.Controllers
         }
         public IActionResult Approve()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
@@ -284,15 +301,20 @@ namespace EasyPro.Controllers
 
         public IActionResult DeductionUploadForm()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View();
         }
 
         public ActionResult ImportDeductions()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             string branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
             IFormFile file = Request.Form.Files[0];
@@ -332,9 +354,11 @@ namespace EasyPro.Controllers
 
         public IActionResult ApproveUploadedDeduction()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
             var excelDumps = _context.ExcelDeductionDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
@@ -376,11 +400,12 @@ namespace EasyPro.Controllers
 
         public IActionResult RegApprove(string scodes)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-
-            string loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
             if (loggedInUser.ToLower().Equals("psigei"))
             {

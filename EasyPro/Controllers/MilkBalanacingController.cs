@@ -34,6 +34,9 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             GetInitialValues();
             utilities.SetUpPrivileges(this);
             PostTransporterIntake();
@@ -45,7 +48,6 @@ namespace EasyPro.Controllers
             var suppliers = await _context.TransportersBalancings
                 .Where(i => i.Code.ToUpper().Equals(sacco.ToUpper()) && i.Date >= startDate
                 && i.Date <= endDate).ToListAsync();
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(u => u.Branch == saccoBranch).ToList();
@@ -94,6 +96,9 @@ namespace EasyPro.Controllers
 
         public IActionResult Create(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
@@ -110,6 +115,9 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -135,6 +143,9 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -156,6 +167,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dSupplier = await _context.TransportersBalancings.FindAsync(id);
             _context.TransportersBalancings.Remove(dSupplier);
@@ -352,6 +366,9 @@ namespace EasyPro.Controllers
 
         private IActionResult PrintP(TransportersBalancing balancing)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             PrintDocument printDocument = new PrintDocument();
             printDocument.PrintPage += 
                 (sender, args) => printDocument_PrintPage(balancing, args);

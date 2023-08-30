@@ -57,6 +57,9 @@ namespace EasyPro.Controllers
         [HttpGet]
         public IActionResult DownloadReport()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -64,6 +67,9 @@ namespace EasyPro.Controllers
         [HttpGet]
         public IActionResult DownloadTransportersBalReport()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -71,6 +77,9 @@ namespace EasyPro.Controllers
 
         public IActionResult TestReport()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var webReport = new WebReport();
             webReport.Report.Load(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "report.frx"));
@@ -81,6 +90,9 @@ namespace EasyPro.Controllers
         [HttpGet]//DownloadDispatchBalReport
         public IActionResult DownloadDispatchBalReport()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -88,6 +100,9 @@ namespace EasyPro.Controllers
         [HttpGet]
         public IActionResult DownloadTReport()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -95,6 +110,9 @@ namespace EasyPro.Controllers
         [HttpGet]
         public IActionResult DownloadPReport()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -102,12 +120,18 @@ namespace EasyPro.Controllers
         [HttpGet]
         public IActionResult DownloadActiveSuppliersPReport()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
         }
         public IActionResult FlmdData(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
 
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -203,6 +227,9 @@ namespace EasyPro.Controllers
         [HttpPost]
         public IActionResult FlmdDataExcel([Bind("DateFrom,DateTo")] FilterVm filter)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             suppliersobj = _context.DSuppliers
@@ -212,6 +239,9 @@ namespace EasyPro.Controllers
         }
         public IActionResult FlmdDataDownloadExcel()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             using (var workbook = new XLWorkbook())
             {
@@ -273,12 +303,18 @@ namespace EasyPro.Controllers
         }
         public IActionResult DownloadcorrectionIntakeReport()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
         }
         public IActionResult DownloadSalesReport()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var debtors = _context.DDebtors.Where(g => g.Dcode == sacco).ToList();
@@ -317,6 +353,9 @@ namespace EasyPro.Controllers
         [HttpPost]
         public IActionResult Suppliers([Bind("DateFrom,DateTo")] FilterVm filter)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             suppliersobj = _context.DSuppliers.Where(u => u.Scode == sacco);
@@ -325,6 +364,9 @@ namespace EasyPro.Controllers
         [HttpPost]
         public IActionResult SuppliersPdf([Bind("DateFrom,DateTo")] FilterVm filter)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             suppliersobj = _context.DSuppliers.Where(u => u.Scode == sacco);
@@ -336,6 +378,9 @@ namespace EasyPro.Controllers
         [HttpPost]
         public IActionResult Transporter([Bind("DateFrom,DateTo")] FilterVm filter)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
@@ -344,6 +389,9 @@ namespace EasyPro.Controllers
         [HttpPost]
         public IActionResult TransporterPdf([Bind("DateFrom,DateTo")] FilterVm filter)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             //var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
@@ -359,6 +407,9 @@ namespace EasyPro.Controllers
         [HttpPost]
         public IActionResult SuppliersPayrollDetail([Bind("DateFrom,DateTo,BankName")] FilterVm filter)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             dpayrollobj = _context.DPayrolls
@@ -371,6 +422,9 @@ namespace EasyPro.Controllers
         [HttpPost]
         public IActionResult SuppliersPayrollExcel([Bind("DateFrom,DateTo")] FilterVm filter)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
             dpayrollobj = _context.DPayrolls
@@ -385,6 +439,9 @@ namespace EasyPro.Controllers
         }
         public IActionResult suppliersPayrollExcel(DateTime startDate, DateTime endDate)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             using (var workbook = new XLWorkbook())
             {
@@ -603,6 +660,9 @@ namespace EasyPro.Controllers
     [HttpGet]
     public IActionResult SuppliersPayrollPdf(DateTime? dateFrom, DateTime? dateTo)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         dpayrollobj = _context.DPayrolls
@@ -618,13 +678,18 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult SuppliersActive([Bind("DateFrom,DateTo")] FilterVm filter)
     {
-
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         return SuppliersActiveExcel(filter);
     }
 
     [HttpPost]
     public IActionResult SuppliersInActive([Bind("DateFrom,DateTo")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
         sacco = sacco ?? "";
@@ -651,6 +716,9 @@ namespace EasyPro.Controllers
     [HttpGet]
     public IActionResult SuppliersActivePdf(DateTime? dateFrom, DateTime? dateTo)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         var activeSuppliers = _context.ProductIntake.Where(i => i.TransDate >= dateFrom && i.TransDate <= dateTo)
@@ -678,6 +746,9 @@ namespace EasyPro.Controllers
     [HttpGet]
     public IActionResult SuppliersInActivePdf(DateTime? dateFrom, DateTime? dateTo)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
         sacco = sacco ?? "";
@@ -696,6 +767,9 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult BranchIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
@@ -710,8 +784,10 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult BranchIntakeAudit([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
         sacco = sacco ?? "";
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
         var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
@@ -736,6 +812,9 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult correctionIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
@@ -750,6 +829,9 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult SalesReport([Bind("DateFrom,DateTo,Debtor")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
         var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
@@ -763,6 +845,9 @@ namespace EasyPro.Controllers
 
     public IActionResult SalesReportExcel(FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         decimal totalAmount = 0, totalQuantity = 0;
         using (var workbook = new XLWorkbook())
         {
@@ -840,6 +925,9 @@ namespace EasyPro.Controllers
     [HttpGet]
     public IActionResult BranchIntakePdf(DateTime? dateFrom, DateTime? dateTo, string branch)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var filter = new FilterVm
         {
             DateFrom = dateFrom,
@@ -862,6 +950,9 @@ namespace EasyPro.Controllers
     [HttpPost]
     public async Task<IActionResult> DSumarryIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         var endDate = Convert.ToDateTime(filter.DateTo.ToString());
@@ -878,6 +969,9 @@ namespace EasyPro.Controllers
     [HttpPost] //DownloadDispatchBalReport
     public async Task<IActionResult> TransportersBalancing([Bind("DateFrom,DateTo,Branch,Transporter")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         var endDate = Convert.ToDateTime(filter.DateTo.ToString());
@@ -895,6 +989,9 @@ namespace EasyPro.Controllers
     [HttpPost]
     public async Task<IActionResult> DownloadDispatchBalReport([Bind("DateFrom,DateTo,Branch,Transporter")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         var endDate = Convert.ToDateTime(filter.DateTo.ToString());
@@ -910,6 +1007,9 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult TransportersPayrollExcel([Bind("DateFrom,DateTo")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         transporterpayrollobj = _context.DTransportersPayRolls
@@ -931,6 +1031,9 @@ namespace EasyPro.Controllers
     [HttpGet]
     public IActionResult TransportersPayrollPdf(DateTime? dateFrom, DateTime? dateTo)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         transporterpayrollobj = _context.DTransportersPayRolls
@@ -946,6 +1049,9 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult Deductions([Bind("DateFrom,DateTo")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
@@ -1108,6 +1214,9 @@ namespace EasyPro.Controllers
     [HttpGet]
     public IActionResult DeductionsPdf(DateTime? dateFrom, DateTime? dateTo)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= dateFrom && u.TransDate <= dateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
@@ -1120,6 +1229,9 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult TDeductions([Bind("DateFrom,DateTo")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
@@ -1133,10 +1245,12 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult Intake([Bind("DateFrom,DateTo")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
         var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-
+        
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
         var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
         productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo
@@ -1162,6 +1276,9 @@ namespace EasyPro.Controllers
     [HttpGet]
     public IActionResult IntakePdf(DateTime? dateFrom, DateTime? dateTo)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
         productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= dateFrom && u.TransDate <= dateTo && u.Qsupplied != 0 && u.SaccoCode == sacco);
@@ -1174,6 +1291,9 @@ namespace EasyPro.Controllers
     [HttpPost]
     public IActionResult TIntake([Bind("DateFrom,DateTo")] FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
 
@@ -1194,6 +1314,9 @@ namespace EasyPro.Controllers
     [HttpGet]
     public IActionResult TIntakePdf(DateTime? dateFrom, DateTime? dateTo)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
 
@@ -1211,6 +1334,9 @@ namespace EasyPro.Controllers
 
     public IActionResult TransporterExcel()
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         using (var workbook = new XLWorkbook())
         {
@@ -1271,6 +1397,9 @@ namespace EasyPro.Controllers
     }
     public IActionResult TransportersPayrollExcel()
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         using (var workbook = new XLWorkbook())
         {
@@ -1418,6 +1547,9 @@ namespace EasyPro.Controllers
 
     public IActionResult SuppliersPayrollDetailExcel()
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         using (var workbook = new XLWorkbook())
         {
@@ -1518,6 +1650,9 @@ namespace EasyPro.Controllers
 
     public IActionResult SuppliersActiveExcel(FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         //var DateFro = Convert.ToDateTime(DateFrom.ToString());
         //var DateT = Convert.ToDateTime(DateTo.ToString());
@@ -1618,6 +1753,9 @@ namespace EasyPro.Controllers
     }
     public IActionResult SuppliersInActiveExcel(FilterVm filter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         //var DateFro = Convert.ToDateTime(DateFrom.ToString());
         //var DateT = Convert.ToDateTime(DateTo.ToString());
@@ -1711,6 +1849,9 @@ namespace EasyPro.Controllers
 
     public IActionResult Excel()
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         using (var workbook = new XLWorkbook())
         {
@@ -1801,9 +1942,11 @@ namespace EasyPro.Controllers
     }
     public IActionResult IntakeExcel()
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
         var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
 
         using (var workbook = new XLWorkbook())
@@ -1868,6 +2011,9 @@ namespace EasyPro.Controllers
     }
     public async Task<IActionResult> DSumarryIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         using (var workbook = new XLWorkbook())
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2052,6 +2198,9 @@ namespace EasyPro.Controllers
     }
     public async Task<IActionResult> TransportersBalancingExcel(DateTime DateFrom, DateTime DateTo, string Transporter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         using (var workbook = new XLWorkbook())
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2122,6 +2271,9 @@ namespace EasyPro.Controllers
     }
     public async Task<IActionResult> DispatchBalancingExcel(DateTime DateFrom, DateTime DateTo, string Transporter)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         using (var workbook = new XLWorkbook())
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2193,6 +2345,9 @@ namespace EasyPro.Controllers
     }
     public IActionResult CorrectionIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         using (var workbook = new XLWorkbook())
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2271,6 +2426,9 @@ namespace EasyPro.Controllers
     }
     public IActionResult BranchIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         using (var workbook = new XLWorkbook())
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2350,6 +2508,9 @@ namespace EasyPro.Controllers
     }
     public IActionResult BranchIntakeAuditExcel(DateTime DateFrom, DateTime DateTo, string Branch)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         using (var workbook = new XLWorkbook())
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2454,6 +2615,9 @@ namespace EasyPro.Controllers
     }
     public IActionResult TIntakeExcel(DateTime DateFrom, DateTime DateTo)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         var DateFro = Convert.ToDateTime(DateFrom.ToString());
         var DateT = Convert.ToDateTime(DateTo.ToString());
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2535,6 +2699,9 @@ namespace EasyPro.Controllers
     }
     public IActionResult DeductionsExcel()
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         using (var workbook = new XLWorkbook())
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2625,6 +2792,9 @@ namespace EasyPro.Controllers
     }
     public IActionResult TDeductionsExcel()
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         using (var workbook = new XLWorkbook())
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -2719,6 +2889,9 @@ namespace EasyPro.Controllers
     [ValidateAntiForgeryToken]
     public IActionResult ExportAllSuppliers(string County)
     {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
         utilities.SetUpPrivileges(this);
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         using (var workbook = new XLWorkbook())

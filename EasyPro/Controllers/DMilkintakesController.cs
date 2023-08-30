@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EasyPro.Models;
 using EasyPro.Utils;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
@@ -21,6 +23,9 @@ namespace EasyPro.Controllers
         // GET: DMilkintakes
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View(await _context.DMilkintakes.ToListAsync());
         }
@@ -28,6 +33,9 @@ namespace EasyPro.Controllers
         // GET: DMilkintakes/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -46,6 +54,9 @@ namespace EasyPro.Controllers
         // GET: DMilkintakes/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View();
         }
@@ -57,6 +68,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,Qsupplied,Ppu,TransTime,CR,DR,BAL,AuditId,Auditdatetime,Paid,Lr,Remark,Descript,Comment,Status1,Location,LocalId,Run,Type,Productprocess")] DMilkintake dMilkintake)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
@@ -70,6 +84,9 @@ namespace EasyPro.Controllers
         // GET: DMilkintakes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -91,6 +108,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,TransDate,Qsupplied,Ppu,TransTime,CR,DR,BAL,AuditId,Auditdatetime,Paid,Lr,Remark,Descript,Comment,Status1,Location,LocalId,Run,Type,Productprocess")] DMilkintake dMilkintake)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != dMilkintake.Id)
             {
@@ -123,6 +143,9 @@ namespace EasyPro.Controllers
         // GET: DMilkintakes/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -144,6 +167,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dMilkintake = await _context.DMilkintakes.FindAsync(id);
             _context.DMilkintakes.Remove(dMilkintake);

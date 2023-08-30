@@ -29,6 +29,9 @@ namespace EasyPro.Controllers
         // GET: Glsetups
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.Glsetups.Where(g => g.saccocode == sacco).ToListAsync());
@@ -37,6 +40,9 @@ namespace EasyPro.Controllers
         // GET: Glsetups/Details/5
         public async Task<IActionResult> Details(string id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -56,6 +62,9 @@ namespace EasyPro.Controllers
         // GET: Glsetups/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             SetInitialValues();
             utilities.SetUpPrivileges(this);
             return View();
@@ -145,6 +154,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run,saccocode")] Glsetup glsetup)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             glsetup.NewGlopeningBalDate = DateTime.Now;
             if (ModelState.IsValid)
@@ -152,7 +164,6 @@ namespace EasyPro.Controllers
                 try
                 {
                     var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                    var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                     if (string.IsNullOrEmpty(glsetup.AccNo))
                     {
                         _notyf.Error("Sorry, Kindly provide account No.");
@@ -202,6 +213,9 @@ namespace EasyPro.Controllers
         // GET: Glsetups/Edit/5
         public async Task<IActionResult> Edit(long Glid)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             SetInitialValues();
             utilities.SetUpPrivileges(this);
             if (Glid == 0)
@@ -223,10 +237,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long Glid, [Bind("Glid,GlCode,GlAccName,AccNo,GlAccType,GlAccGroup,GlAccMainGroup,NormalBal,GlAccStatus,OpeningBal,CurrentBal,Bal,CurrCode,AuditOrg,AuditId,AuditDate,Curr,Actuals,Budgetted,TransDate,IsSubLedger,AccCategory,NewGlopeningBal,NewGlopeningBalDate,Branch,Hcode,Mcode,Hname,Header,Mheader,Iorder,Border,Type,Subtype,IsRearning,Issuspense,Run,saccocode")] Glsetup glsetup)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (Glid != glsetup.Glid)
             {
                 return NotFound();
@@ -266,7 +282,7 @@ namespace EasyPro.Controllers
                     glsetup.AuditDate = DateTime.Now;
                     glsetup.Branch = "Null";
                     glsetup.saccocode = sacco;
-                    glsetup.AuditId = LoggedInUser;
+                    glsetup.AuditId = loggedInUser;
                     _context.Update(glsetup);
                     await _context.SaveChangesAsync();
                 }
@@ -289,6 +305,9 @@ namespace EasyPro.Controllers
         // GET: Glsetups/Delete/5
         public async Task<IActionResult> Delete(string Glid)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (Glid == null)
             {
@@ -310,6 +329,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string Glid)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var glsetup = await _context.Glsetups.FindAsync(Glid);
             _context.Glsetups.Remove(glsetup);

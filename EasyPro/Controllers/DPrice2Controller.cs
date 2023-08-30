@@ -29,6 +29,9 @@ namespace EasyPro.Controllers
         // GET: DPrice2
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.d_Price2
@@ -38,6 +41,9 @@ namespace EasyPro.Controllers
         // GET: DPrice2/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id == null)
             {
                 return NotFound();
@@ -56,6 +62,9 @@ namespace EasyPro.Controllers
         // GET: DPrice2/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -75,10 +84,13 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,Name,Price,Date,UserId,Branch,SaccoCode,Product,Active")] DPrice2 dPrice2)
         {
-            utilities.SetUpPrivileges(this);
+            
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             var checkname = _context.DSuppliers.FirstOrDefault(h => h.Scode.ToUpper().Equals(sacco.ToUpper()) && h.Branch == saccoBranch && h.Sno.ToUpper().Equals(dPrice2.Sno.ToUpper()));
             if (checkname == null)
             {
@@ -110,6 +122,10 @@ namespace EasyPro.Controllers
         // GET: DPrice2/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             if (id == null)
             {
                 return NotFound();
@@ -120,7 +136,7 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-            utilities.SetUpPrivileges(this);
+            
             GetInitialValues();
             return View(dPrice2);
         }
@@ -132,6 +148,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,Name,Price,Date,UserId,Branch,SaccoCode,Product,Active")] DPrice2 dPrice2)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != dPrice2.Id)
             {
@@ -144,7 +163,6 @@ namespace EasyPro.Controllers
                 {
                     var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                     var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-                    var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                     dPrice2.SaccoCode = sacco;
                     dPrice2.Branch = saccoBranch;
                     dPrice2.UserId = loggedInUser;
@@ -171,6 +189,9 @@ namespace EasyPro.Controllers
         // GET: DPrice2/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -192,6 +213,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dPrice2 = await _context.d_Price2.FindAsync(id);
             _context.d_Price2.Remove(dPrice2);

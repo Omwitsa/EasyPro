@@ -25,6 +25,9 @@ namespace EasyPro.Controllers
         }
         public IActionResult TransportersIndex()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             DateTime Now = DateTime.Today;
             DateTime startDate = new DateTime(Now.Year, Now.Month, 1);
@@ -39,6 +42,9 @@ namespace EasyPro.Controllers
         }
         public IActionResult Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             DateTime Now = DateTime.Today;
             DateTime startDate = new DateTime(Now.Year, Now.Month, 1);
@@ -54,6 +60,9 @@ namespace EasyPro.Controllers
 
         public IActionResult DefaultIndex()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             DateTime Now = DateTime.Today;
             DateTime startDate = new DateTime(Now.Year, Now.Month, 1);

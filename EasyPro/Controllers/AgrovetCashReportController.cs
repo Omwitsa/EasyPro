@@ -25,11 +25,13 @@ namespace EasyPro.Controllers
         }
         public IActionResult Index()
         {
-            utilities.SetUpPrivileges(this);
             DateTime Now = DateTime.Today;
             DateTime startDate = new DateTime(Now.Year, Now.Month, 1);
             DateTime enDate = startDate.AddMonths(1).AddDays(-1);
-
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var Salescheckoff = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())

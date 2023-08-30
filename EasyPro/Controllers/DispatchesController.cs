@@ -28,6 +28,9 @@ namespace EasyPro.Controllers
         // GET: Dispatches
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -41,6 +44,9 @@ namespace EasyPro.Controllers
         // GET: Dispatches Branch
         public async Task<IActionResult> BranchIndex()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -55,6 +61,9 @@ namespace EasyPro.Controllers
         // GET: Dispatches/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -74,6 +83,9 @@ namespace EasyPro.Controllers
         // GET: Dispatches/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -81,6 +93,9 @@ namespace EasyPro.Controllers
         // GET: Dispatches/Create
         public IActionResult BranchCreate()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -101,6 +116,9 @@ namespace EasyPro.Controllers
         {
             try
             {
+                var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                if (string.IsNullOrEmpty(loggedInUser))
+                    return Redirect("~/");
                 utilities.SetUpPrivileges(this);
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                 var branch = HttpContext.Session.GetString(StrValues.Branch);
@@ -166,6 +184,9 @@ namespace EasyPro.Controllers
         {
             try
             {
+                var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                if (string.IsNullOrEmpty(loggedInUser))
+                    return Redirect("~/");
                 utilities.SetUpPrivileges(this);
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                 var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco &&i.Branch=="MAIN" && i.Transdate == dispatch.Transdate);
@@ -222,6 +243,9 @@ namespace EasyPro.Controllers
         // GET: Dispatches/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id == null)
@@ -244,6 +268,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Dcode,DName,Transdate,Dispatchkgs,TIntake,auditid")] Dispatch dispatch)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -280,6 +307,9 @@ namespace EasyPro.Controllers
         // GET: Dispatches/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -336,6 +366,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dispatch = await _context.Dispatch.FindAsync(id);
             _context.Dispatch.Remove(dispatch);

@@ -29,6 +29,9 @@ namespace EasyPro.Controllers
         // GET: DDebtors
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -57,6 +60,9 @@ namespace EasyPro.Controllers
         // GET: DDebtors/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -76,6 +82,9 @@ namespace EasyPro.Controllers
         // GET: DDebtors/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
@@ -88,6 +97,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Dcode,Dname,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Price,AccDr,AccCr,Crate,Drcess,Crcess,Capp")] DDebtor dDebtor)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -102,7 +114,6 @@ namespace EasyPro.Controllers
                 dDebtor.Dcode = sacco;
                 dDebtor.Active = true;
                 dDebtor.Auditdatetime = DateTime.Now;
-                var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
                 dDebtor.Auditid = loggedInUser;
                 _context.Add(dDebtor);
                 _notyf.Success("Debtor saved successfully");
@@ -115,6 +126,9 @@ namespace EasyPro.Controllers
         // GET: DDebtors/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id == null)
@@ -137,6 +151,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Dcode,Dname,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Price,AccDr,AccCr,Crate,Drcess,Crcess,Capp")] DDebtor dDebtor)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != dDebtor.Id)
@@ -153,7 +170,6 @@ namespace EasyPro.Controllers
                     dDebtor.Dcode = sacco;
                     dDebtor.Active = true;
                     dDebtor.Auditdatetime = DateTime.Now;
-                    var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
                     dDebtor.Auditid = loggedInUser;
                     _context.Add(dDebtor);
                     _context.Update(dDebtor);
@@ -179,6 +195,9 @@ namespace EasyPro.Controllers
         // GET: DDebtors/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id == null)
@@ -201,6 +220,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dDebtor = await _context.DDebtors.FindAsync(id);
             _context.DDebtors.Remove(dDebtor);

@@ -30,6 +30,9 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> IndexAsync()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             DateTime Now = DateTime.Today;
             DateTime startDate = new DateTime(Now.Year, Now.Month, 1);

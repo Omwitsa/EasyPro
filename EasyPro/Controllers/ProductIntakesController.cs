@@ -53,10 +53,12 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes
         public IActionResult Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
             var intakes = _context.ProductIntake.Where(i => i.TransactionType == TransactionType.Intake
@@ -104,10 +106,12 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> TDeductionList()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction
             && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
@@ -135,10 +139,12 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> DeductionList()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var productIntakes = await _context.ProductIntake.Where(c => c.TransactionType == TransactionType.Deduction
             && c.Qsupplied == 0 && c.SaccoCode == sacco && c.TransDate == DateTime.Today).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
@@ -177,11 +183,13 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> CorrectionList()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-
+            
             var intakes = _context.ProductIntake
                 .Where(c => c.TransactionType == TransactionType.Correction && c.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && c.TransDate == DateTime.Today);
@@ -193,6 +201,9 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> StaffDeductionList()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -221,6 +232,9 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -240,6 +254,9 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -259,6 +276,9 @@ namespace EasyPro.Controllers
 
         public IActionResult PrintSupplierStatement()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var branches = _context.DBranch.Where(s => s.Bcode == sacco)
@@ -267,7 +287,6 @@ namespace EasyPro.Controllers
             ViewBag.branches = new SelectList(branches);
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch);
@@ -351,6 +370,9 @@ namespace EasyPro.Controllers
 
         public IActionResult PrintTransporterStatement()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var branches = _context.DBranch.Where(s => s.Bcode == sacco)
@@ -496,11 +518,13 @@ namespace EasyPro.Controllers
 
         public IActionResult CreateDeduction()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco);
             if (user.AccessLevel == AccessLevel.Branch)
@@ -518,6 +542,9 @@ namespace EasyPro.Controllers
 
         public IActionResult CreateTDeduction()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -534,6 +561,9 @@ namespace EasyPro.Controllers
         }
         public IActionResult CreateStaffDeduction()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -608,6 +638,9 @@ namespace EasyPro.Controllers
         }
         public IActionResult CreateCorrection()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -628,6 +661,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,DrAccNo,CrAccNo,Print,SMS,Zone,MornEvening")] ProductIntakeVm productIntake)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             return View(productIntake);
         }
 
@@ -919,10 +955,12 @@ namespace EasyPro.Controllers
         //public IActionResult printtest(ProductIntake collection)
         public IActionResult createprinttest(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var collection = _context.ProductIntake.FirstOrDefault(u => u.Id == id);
             var company = _context.DCompanies.Where(u => u.Name == sacco);
@@ -950,10 +988,12 @@ namespace EasyPro.Controllers
         }
         public IActionResult complainprinttest(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var collection = _context.ProductIntake.Where(u => u.Id == id);
             return View(id);
@@ -971,10 +1011,12 @@ namespace EasyPro.Controllers
         }
         public IActionResult printtest(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var collection = _context.ProductIntake.Where(u => u.Id == id);
             //intakes.ToList()
@@ -1224,6 +1266,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,Zone")] ProductIntake productIntake)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             GetInitialValues();
             utilities.SetUpPrivileges(this);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -1231,8 +1276,7 @@ namespace EasyPro.Controllers
             DateTime enddate = startdate.AddMonths(1).AddDays(-1);
             productIntake.Description = productIntake?.Description ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-
+            
             var intakes = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco
             && i.Qsupplied != 0 && i.TransDate >= startdate && i.TransDate <= enddate);
             var supplierList = _context.DSuppliers.Where(s => s.Scode == sacco);
@@ -1319,6 +1363,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateTDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             GetInitialValues();
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -1394,6 +1441,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateStaffDeduction([Bind("Id,Empno, Date, Deduction, Amount, Remarks, AuditId, saccocode")] EmployeesDed employeesDed)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -1441,6 +1491,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCorrection([Bind("Id, Sno, TransDate, ProductType, Qsupplied, Ppu, CR, DR, Balance, Description, Remarks, AuditId, Auditdatetime, Branch, DrAccNo, CrAccNo, Print, SMS,Zone,MornEvening")] ProductIntakeVm productIntake)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             return View(productIntake);
         }
 
@@ -1746,6 +1799,9 @@ namespace EasyPro.Controllers
 
         public IActionResult Reprint(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var collection = _context.ProductIntake.FirstOrDefault(u => u.Id == id);
             //printtest(collection);
             return RedirectToAction(nameof(Index));
@@ -1774,6 +1830,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch")] ProductIntake productIntake)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             productIntake.Description = productIntake?.Description ?? "";
             if (id != productIntake.Id)
@@ -1807,6 +1866,9 @@ namespace EasyPro.Controllers
         // GET: ProductIntakes/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -1828,6 +1890,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var productIntake = await _context.ProductIntake.FindAsync(id);
             _context.ProductIntake.Remove(productIntake);

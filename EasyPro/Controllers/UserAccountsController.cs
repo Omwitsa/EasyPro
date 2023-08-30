@@ -29,6 +29,9 @@ namespace EasyPro.Controllers
         // GET: UserAccounts
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
@@ -39,6 +42,9 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -58,6 +64,9 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
@@ -97,6 +106,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone,AccessLevel")] UserAccount userAccount)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             try
             {
@@ -135,6 +147,9 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
@@ -154,6 +169,9 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/change branch/
         public async Task<IActionResult> ChangeBranch(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
@@ -179,6 +197,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeBranch(long id, [Bind("Id,user,Branch")] ChangeBranchVM changeBranchVM)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != changeBranchVM.Id)
             {
@@ -243,6 +264,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone,AccessLevel")] UserAccount userAccount)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != userAccount.Userid)
             {
@@ -281,6 +305,9 @@ namespace EasyPro.Controllers
         // GET: UserAccounts/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -302,6 +329,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var userAccount = await _context.UserAccounts.FindAsync(id);
             _context.UserAccounts.Remove(userAccount);
@@ -316,6 +346,9 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> ResetPasswordList()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.UserAccounts
@@ -324,6 +357,9 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> ResetPassword(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -342,6 +378,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(long id, [Bind("Userid,UserName,UserLoginIds,Password,UserGroup,PassExpire,DateCreated,Superuser,AssignGl,Branchcode,Levels,Authorize,Status,Branch,Sign,Phone")] UserAccount userAccount)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != userAccount.Userid)
             {

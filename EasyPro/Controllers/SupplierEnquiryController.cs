@@ -32,10 +32,12 @@ namespace EasyPro.Controllers
         public DTmpTransEnquery DTmpTransEnqueryobj { get; set; }
         public IActionResult Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             GetInitialValues();
             DateTime now = DateTime.Now;
@@ -139,10 +141,12 @@ namespace EasyPro.Controllers
         //}
         public IActionResult Transporters()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             DateTime now = DateTime.Now;
             DateTime startDate = new DateTime(now.Year, now.Month, 1);
             DateTime enDate = startDate.AddMonths(1).AddDays(-1);
@@ -339,6 +343,9 @@ namespace EasyPro.Controllers
 
         public IActionResult SharesInquiry()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;

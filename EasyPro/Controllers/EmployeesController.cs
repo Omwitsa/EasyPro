@@ -28,6 +28,9 @@ namespace EasyPro.Controllers
         // GET: Employees
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.Employees
@@ -37,6 +40,9 @@ namespace EasyPro.Controllers
         // GET: Employees/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -56,6 +62,9 @@ namespace EasyPro.Controllers
         // GET: Employees/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
@@ -84,6 +93,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,EmpNo,MemberNo,SaccoCode,Surname,Othernames,IDNO,Category,Department,EmpStatus,nationality,gender,DOB,maritalstatus,RELIGION,EMAIL,MOBILE,NSSFCode,NHIFCode,PinNo,eposition,BankAccNo,Bank,AUDITTIME,EmpDate")] Employee employee)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             employee.SaccoCode = sacco;
@@ -99,6 +111,9 @@ namespace EasyPro.Controllers
         // GET: Employees/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             SetInitialValues();
             if (id == null)
             {
@@ -120,6 +135,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,EmpNo,MemberNo,SaccoCode,Surname,Othernames,IDNO,Category,Department,EmpStatus,nationality,gender,DOB,maritalstatus,RELIGION,EMAIL,MOBILE,NSSFCode,NHIFCode,PinNo,eposition,BankAccNo,Bank,AUDITTIME,EmpDate")] Employee employee)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id != employee.Id)
             {
                 return NotFound();
@@ -151,6 +169,9 @@ namespace EasyPro.Controllers
         // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id == null)
             {
                 return NotFound();
@@ -171,6 +192,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var employee = await _context.Employees.FindAsync(id);
             _context.Employees.Remove(employee);
             await _context.SaveChangesAsync();

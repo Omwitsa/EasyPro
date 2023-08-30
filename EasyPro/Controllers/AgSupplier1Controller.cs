@@ -28,6 +28,9 @@ namespace EasyPro.Controllers
         // GET: AgSupplier1
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -44,6 +47,9 @@ namespace EasyPro.Controllers
         // GET: AgSupplier1/Details/5
         public async Task<IActionResult> Details(string id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id == null)
             {
                 return NotFound();
@@ -62,8 +68,11 @@ namespace EasyPro.Controllers
         // GET: AgSupplier1/Create
         public IActionResult Create()
         {
-            GetInitialValues();
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View();
         }
@@ -75,6 +84,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("id,SupplierId,CompanyName,ContactPerson,ContactTitle,Address,Email,Phone,Fax,saccocode,AccDr,AccCr")] AgSupplier1 agSupplier1)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (_context.AgSupplier1s.Any(i => i.SupplierId == agSupplier1.SupplierId && i.saccocode.ToUpper().Equals(sacco.ToUpper())))
@@ -97,6 +109,9 @@ namespace EasyPro.Controllers
         // GET: AgSupplier1/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -122,6 +137,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("id,SupplierId,CompanyName,ContactPerson,ContactTitle,Address,Email,Phone,Fax,saccocode,AccDr,AccCr")] AgSupplier1 agSupplier1)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id != agSupplier1.id)
@@ -158,6 +176,9 @@ namespace EasyPro.Controllers
         // GET: AgSupplier1/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             if (id == null)
@@ -181,6 +202,9 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
             var agSupplier1 = await _context.AgSupplier1s.FindAsync(id);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             _context.AgSupplier1s.Remove(agSupplier1);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

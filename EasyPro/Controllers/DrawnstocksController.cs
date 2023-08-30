@@ -30,6 +30,9 @@ namespace EasyPro.Controllers
         // GET: Drawnstocks
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -54,6 +57,9 @@ namespace EasyPro.Controllers
         // GET: Drawnstocks/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id == null)
             {
                 return NotFound();
@@ -72,6 +78,9 @@ namespace EasyPro.Controllers
         // GET: Drawnstocks/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
@@ -97,6 +106,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Date,Description,Quantity,Totalamount,Productid,Productname,Username,Priceeach,Month,Year,BranchF,Branch,Updated,Buying,Ai,Commission,auditdatetime")] Drawnstock drawnstock)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
@@ -210,6 +222,9 @@ namespace EasyPro.Controllers
         // GET: Drawnstocks/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id == null)
             {
                 return NotFound();
@@ -230,6 +245,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Date,Description,Quantity,Totalamount,Productid,Productname,Username,Priceeach,Month,Year,Branch,Updated,Buying,Ai,Commission")] Drawnstock drawnstock)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id != drawnstock.Id)
             {
                 return NotFound();
@@ -261,6 +279,9 @@ namespace EasyPro.Controllers
         // GET: Drawnstocks/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id == null)
             {
                 return NotFound();
@@ -281,6 +302,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var drawnstock = await _context.Drawnstocks.FindAsync(id);
             _context.Drawnstocks.Remove(drawnstock);
             await _context.SaveChangesAsync();

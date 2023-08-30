@@ -27,12 +27,18 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> GetInvoices()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View(await _context.CInvoices.ToListAsync());
         }
 
         public IActionResult CreateInvoice()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
@@ -52,11 +58,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateInvoice(CInvoice invoice)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             invoice.SaccoCode = sacco;
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-
             var product = _context.CProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(invoice.Ref.ToUpper()) && p.SaccoCode == sacco);
             var customer = _context.Customers.FirstOrDefault(v => v.Name.ToUpper().Equals(invoice.Customer.ToUpper()) && v.SaccoCode == sacco);
             var tax = _context.Taxes.FirstOrDefault(t => t.Name.ToUpper().Equals(product.CustomerTax.ToUpper())
@@ -96,12 +103,18 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> GetCreditNotes()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View(await _context.CreditNotes.ToListAsync());
         }
 
         public IActionResult CreateCreditNote()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
@@ -111,10 +124,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCreditNote(CreditNote note)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             note.SaccoCode = sacco;
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
             var product = _context.CProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(note.Ref.ToUpper()) && p.SaccoCode == sacco);
             var customer = _context.Customers.FirstOrDefault(v => v.Name.ToUpper().Equals(note.Customer.ToUpper()) && v.SaccoCode == sacco);

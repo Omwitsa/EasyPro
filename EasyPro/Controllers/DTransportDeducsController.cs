@@ -9,6 +9,8 @@ using EasyPro.Models;
 using EasyPro.ViewModels.TransportersVM;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
+using EasyPro.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
@@ -28,6 +30,9 @@ namespace EasyPro.Controllers
         // GET: DTransportDeducs
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var today = DateTime.Now;
             var month = new DateTime(today.Year, today.Month, 1);
@@ -57,6 +62,9 @@ namespace EasyPro.Controllers
         // GET: DTransportDeducs/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -76,6 +84,9 @@ namespace EasyPro.Controllers
         // GET: DTransportDeducs/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             Transportersobj = new TransportersVM()
@@ -114,6 +125,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,TransCode,TdateDeduc,Description,Amount,Period,Startdate,Enddate,Auditid,Remarks,Auditdatetime,Yyear,Rate,Ai")] DTransportDeduc dTransportDeduc)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dSupplier1 = _context.DTransporters.Where(i => i.TransCode == dTransportDeduc.TransCode).Count();
             if (dSupplier1 != 0)
@@ -136,6 +150,9 @@ namespace EasyPro.Controllers
         // GET: DTransportDeducs/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -157,6 +174,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,TdateDeduc,Description,Amount,Period,Startdate,Enddate,Auditid,Remarks,Auditdatetime,Yyear,Rate,Ai")] DTransportDeduc dTransportDeduc)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != dTransportDeduc.Id)
             {
@@ -191,6 +211,9 @@ namespace EasyPro.Controllers
         // GET: DTransportDeducs/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -212,6 +235,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dTransportDeduc = await _context.DTransportDeducs.FindAsync(id);
             _context.DTransportDeducs.Remove(dTransportDeduc);

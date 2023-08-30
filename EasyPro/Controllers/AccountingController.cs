@@ -27,8 +27,11 @@ namespace EasyPro.Controllers
         }
         public IActionResult JournalPosting()
         {
-            utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
             var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).ToList();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
 
@@ -65,6 +68,9 @@ namespace EasyPro.Controllers
 
         public IActionResult Budget()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var perMonth = new string[] { "Yes", "No" };
             ViewBag.perMonth = new SelectList(perMonth);
@@ -163,6 +169,9 @@ namespace EasyPro.Controllers
 
         public IActionResult GLInquiry()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).ToList();
@@ -242,6 +251,9 @@ namespace EasyPro.Controllers
 
         public IActionResult JournalListing()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View();
         }
@@ -433,6 +445,9 @@ namespace EasyPro.Controllers
 
         public IActionResult TrialBalance()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View();
         }
@@ -528,6 +543,9 @@ namespace EasyPro.Controllers
 
         public IActionResult IncomeStatement()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View();
         }
@@ -627,6 +645,9 @@ namespace EasyPro.Controllers
 
         public IActionResult BalanceSheet()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             return View();
         }

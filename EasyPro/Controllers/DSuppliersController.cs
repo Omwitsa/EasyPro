@@ -31,10 +31,12 @@ namespace EasyPro.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string Search,int? pageNumber, int? pageSize)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             sacco = sacco ?? "";
             ViewData["Getsuppliers"]= Search;
             var suppliers = _context.DSuppliers
@@ -49,11 +51,12 @@ namespace EasyPro.Controllers
         [HttpGet]
         public async Task<IActionResult> UnApprovedList(string Search)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
-            sacco = sacco ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var suppliers = from x in _context.DSuppliers
                     .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval)
                             select x;
@@ -81,6 +84,9 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> SaccoSupplierSummery()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var counties = _context.County.Select(c => c.Name).ToList();
             ViewBag.counties = new SelectList(counties);
@@ -181,11 +187,13 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> SaccoSupplierSummerycounty()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-
+            
             var counties = _context.County.Select(c => c.Name).ToList();
             ViewBag.counties = new SelectList(counties);
             var countyPOS = _context.DCompanies.Where(n => n.Province != null).ToList().GroupBy(s => s.Province).ToList();
@@ -247,7 +255,9 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> SaccoSuppliers(string id)
         {
-
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             ViewBag.sacco = id;
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(id.ToUpper()));
@@ -255,7 +265,9 @@ namespace EasyPro.Controllers
         }
         public async Task<IActionResult> SaccoSuppliersdetails(string id)
         {
-
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             ViewBag.sacco = id;
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(id.ToUpper()));
@@ -306,6 +318,9 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -325,6 +340,9 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
 
@@ -402,6 +420,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,County,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run,Zone")] DSupplier dSupplier)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -448,6 +469,9 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             if (id == null)
@@ -470,6 +494,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,LocalId,Sno,Regdate,IdNo,Names,AccNo,Bcode,Bbranch,Type,Village,Location,Division,District,County,Trader,Active,Approval,Branch,PhoneNo,Address,Town,Email,TransCode,Sign,Photo,AuditId,Auditdatetime,Scode,Loan,Compare,Isfrate,Frate,Rate,Hast,Br,Mno,Branchcode,HasNursery,Notrees,Aarno,Tmd,Landsize,Thcpactive,Thcppremium,Status,Status2,Status3,Status4,Status5,Status6,Types,Dob,Freezed,Mass,Status1,Run,Zone")] DSupplier dSupplier)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != dSupplier.Id)
             {
@@ -514,6 +541,9 @@ namespace EasyPro.Controllers
         // GET: DSuppliers/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -535,6 +565,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var dSupplier = await _context.DSuppliers.FindAsync(id);
             _context.DSuppliers.Remove(dSupplier);

@@ -28,10 +28,12 @@ namespace EasyPro.Controllers
         // GET: ParchmentFactoryPricings
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var list = _context.ParchmentFactoryPricing.Where(n => n.saccocode == sacco).ToList();
             return View(list);
         }
@@ -51,6 +53,9 @@ namespace EasyPro.Controllers
         // GET: ParchmentFactoryPricings/Details/5
         public async Task<IActionResult> Details(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id == null)
             {
                 return NotFound();
@@ -69,6 +74,9 @@ namespace EasyPro.Controllers
         // GET: ParchmentFactoryPricings/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             getinitials();
             return View();
@@ -97,10 +105,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Factory,Parchment,Grading,Class,Price,saccocode,Date,Year,AuditDateTime")] ParchmentFactoryPricing parchmentFactoryPricing)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             parchmentFactoryPricing.Year = parchmentFactoryPricing.Date.Year.ToString();// "2023";
             var dSupplierExists = _context.ParchmentFactoryPricing.Any(i => i.Factory == parchmentFactoryPricing.Factory
             && i.Grading == parchmentFactoryPricing.Grading && i.Parchment == parchmentFactoryPricing.Parchment
@@ -128,6 +138,9 @@ namespace EasyPro.Controllers
         // GET: ParchmentFactoryPricings/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             getinitials();
             if (id == null)
             {
@@ -149,10 +162,12 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Factory,Parchment,Grading,Class,Price,saccocode,Date,Year,AuditDateTime")] ParchmentFactoryPricing parchmentFactoryPricing)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             getinitials();
             if (id != parchmentFactoryPricing.Id)
             {
@@ -189,6 +204,9 @@ namespace EasyPro.Controllers
         // GET: ParchmentFactoryPricings/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             if (id == null)
             {
                 return NotFound();
@@ -209,6 +227,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             var parchmentFactoryPricing = await _context.ParchmentFactoryPricing.FindAsync(id);
             _context.ParchmentFactoryPricing.Remove(parchmentFactoryPricing);
             await _context.SaveChangesAsync();

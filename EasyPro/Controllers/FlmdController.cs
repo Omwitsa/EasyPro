@@ -25,6 +25,9 @@ namespace EasyPro.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             return View(await _context.FLMD.Where(s => s.SaccoCode== sacco).ToListAsync());
@@ -32,6 +35,9 @@ namespace EasyPro.Controllers
 
         public IActionResult Create(string sno)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             ViewBag.sno = sno ?? "0";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -43,6 +49,9 @@ namespace EasyPro.Controllers
 
         public IActionResult Details(string id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var suppliers = _context.DSuppliers

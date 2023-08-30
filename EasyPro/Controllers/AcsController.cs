@@ -34,6 +34,9 @@ namespace EasyPro.Controllers
 
         public IActionResult Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var filters = new string[] { "SNO", "MemberNo" };
             ViewBag.filters = new SelectList(filters);

@@ -29,6 +29,9 @@ namespace EasyPro.Controllers
         // GET: Venders
         public async Task<IActionResult> Index()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.Venders.Where(v => v.SaccoCode == sacco).ToListAsync());
@@ -37,6 +40,9 @@ namespace EasyPro.Controllers
         // GET: Venders/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -56,6 +62,9 @@ namespace EasyPro.Controllers
         // GET: Venders/Create
         public IActionResult Create()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             return View();
@@ -75,6 +84,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Street1,Street2,City,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,Ref,Industry,APGlAccount,Bank,BankAccount,Notes,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] Vender vender)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (ModelState.IsValid)
             {
@@ -91,6 +103,9 @@ namespace EasyPro.Controllers
         // GET: Venders/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetInitialValues();
             if (id == null)
@@ -113,6 +128,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Street1,Street2,City,Country,PhoneNo,Mobile,Email,WebSite,SalesPerson,PurchasePaymentTerms,SalesPaymentTerms,FiscalPosition,Ref,Industry,APGlAccount,Bank,BankAccount,Notes,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] Vender vender)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id != vender.Id)
             {
@@ -147,6 +165,9 @@ namespace EasyPro.Controllers
         // GET: Venders/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             if (id == null)
             {
@@ -168,6 +189,9 @@ namespace EasyPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var vender = await _context.Venders.FindAsync(id);
             _context.Venders.Remove(vender);
