@@ -259,13 +259,7 @@
                 <hr />
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
-                        <a id="next1" class="btn btn-success">Next</a>
-                    </div>
-                    <div class="col-sm-4 col-xs-12">
                         <a id="next" class="btn btn-success">Next</a>
-                    </div>
-                    <div class="col-sm-4 col-xs-12">
-                        <a id="next2" class="btn btn-success">Next</a>
                     </div>
                 </div>
 
@@ -355,6 +349,7 @@
         $(function () {
             let isStaff = false;
             let isCash = false;
+            let hasSend = true;
             let saleItems = new Array();
             $("#pname").val("");
             $("#sname").val("");
@@ -363,8 +358,6 @@
             $('#transpoterDetails').hide();
             $('#staffDetails').hide();
             $('#next').hide();
-            $('#next1').hide();
-            $('#next2').hide();
             $('#bprice1').hide();
 
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
@@ -386,8 +379,6 @@
                     $("#sno").val("");
                     $("#tsno").val("");
                     $("#sname").val("");
-                    $('#next1').hide();
-                    $('#next2').hide();
                     $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'checkOff') {
@@ -400,8 +391,6 @@
                     $("#sno").val("");
                     $("#tsno").val("");
                     $("#sname").val("");
-                    $('#next1').hide();
-                    $('#next2').hide();
                     $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'transporter') {
@@ -414,9 +403,7 @@
                     $("#sno").val("");
                     $("#tsno").val("");
                     $("#sname").val("");
-                    $('#next').hide();
-                    $('#next1').show();
-                    $('#next2').hide();
+                    $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'staff') {
                     isStaff = true;
@@ -428,9 +415,7 @@
                     $("#sno").val("");
                     $("#tsno").val("");
                     $("#sname").val("");
-                    $('#next').hide();
-                    $('#next1').hide();
-                    $('#next2').show();
+                    $('#next').show();
                 }
 
                 let journalDetails = new Array();
@@ -446,8 +431,14 @@
                     populateDetailsTable();
                 });
 
-                $('#save1').on('click', function () {
-                    $('#save1').button('disable');
+                $('#save1').on('click', function (event) {
+                    if (hasSend){
+                        return;
+                    }
+                    //$(this).attr('disabled', 'disabled');
+                    $("#save1").attr("disabled", "disabled");
+                    event.preventDefault()
+                    event.stopImmediatePropagation();
                     let print = $('#print').prop('checked');
                     let sms = $('#sms').prop('checked');
                     let net = $('#Net').val();
@@ -457,6 +448,8 @@
                         contentType: 'application/json',
                         data: JSON.stringify(saleItems),
                         success: function (response) {
+                            $("#save1").removeAttr("disabled");
+                            $("#RNo").val(response.rno)
                             saleItems = new Array();
                             populateTable();
                             clearafthersave();
@@ -502,7 +495,6 @@
                     var qty = parseFloat($("#qnty").val());
                     var price = parseFloat($("#sprice").val());
                     $("#totalamnt").val(qty * price);
-
                 }
             });
             $('#new').on('click', function () {
@@ -611,113 +603,9 @@
             }
 
             $('#next').on('click', function () {
-                if (!checkbal()) {
-                    return;
-                }
-                $('#save1').button('enable');
-                var pcode = $("#pcode").val();
-                var pname = $("#pname").val();
-                var bprice = $("#bprice").val();
-                var sprice = $("#sprice").val();
-                var qnty = $("#qnty").val();
-                var totalamnt = parseFloat($("#totalamnt").val());
-                var total = parseFloat($("#Amnttopay").val());
-                var tpay = parseFloat($("#ttolpaid").val());
-
-                saleItems.push({
-                    Sno: $("#sno").val(),
-                    sprice: sprice,
-                    totalamnt: totalamnt,
-                    pname: pname,
-                    pcode: pcode,
-                    Description: pname,
-                    DateTime: $("#date").val(),
-                    TransDate: $("#TDate").val(),
-                    TransTime: $("#date").val(),
-                    ProductType: "AGROVET",
-                    Qsupplied: $("#qnty").val(),
-                    Ppu: $("#sprice").val(),
-                    CR: "0",
-                    DR: totalamnt,
-                    Balance: totalamnt,
-                    Paid: "true",
-                    Remarks: pname,
-                    Branch: $("#bname").val(),
-                });
-                populateTable();
-            });
-
-            $('#next1').on('click', function () {
-                if (!checkbal()) {
-                    return;
-                }
-                $('#save1').button('enable');
-                var pcode = $("#pcode").val();
-                var pname = $("#pname").val();
-                var bprice = $("#bprice").val();
-                var sprice = $("#sprice").val();
-                var qnty = $("#qnty").val();
-                var totalamnt = parseFloat($("#totalamnt").val());
-                var total = parseFloat($("#Amnttopay").val());
-                var tpay = parseFloat($("#ttolpaid").val());
-
-                saleItems.push({
-                    Sno: $("#tsno").val(),
-                    sprice: sprice,
-                    totalamnt: totalamnt,
-                    pname: pname,
-                    pcode: pcode,
-                    Description: pname,
-                    DateTime: $("#date").val(),
-                    TransDate: $("#TDate").val(),
-                    TransTime: $("#date").val(),
-                    ProductType: "AGROVET",
-                    Qsupplied: $("#qnty").val(),
-                    Ppu: $("#sprice").val(),
-                    CR: "0",
-                    DR: totalamnt,
-                    Balance: totalamnt,
-                    Paid: "true",
-                    Remarks: pname,
-                    Branch: $("#bname").val(),
-                });
-                populateTable();
-            });
-            $('#next2').on('click', function () {
-                if (!checkbal()) {
-                    return;
-                }
-                $('#save1').button('enable');
-                var pcode = $("#pcode").val();
-                var pname = $("#pname").val();
-                var bprice = $("#bprice").val();
-                var sprice = $("#sprice").val();
-                var qnty = $("#qnty").val();
-                var totalamnt = parseFloat($("#totalamnt").val());
-                var total = parseFloat($("#Amnttopay").val());
-                var tpay = parseFloat($("#ttolpaid").val());
-
-                saleItems.push({
-                    Sno: $("#sname").val(),
-                    sprice: sprice,
-                    totalamnt: totalamnt,
-                    pname: pname,
-                    pcode: pcode,
-                    Description: pname,
-                    DateTime: $("#date").val(),
-                    TransDate: $("#TDate").val(),
-                    TransTime: $("#date").val(),
-                    ProductType: "AGROVET",
-                    Qsupplied: $("#qnty").val(),
-                    Ppu: $("#sprice").val(),
-                    CR: "0",
-                    DR: totalamnt,
-                    Balance: totalamnt,
-                    Paid: "true",
-                    Remarks: pname,
-                    Branch: $("#bname").val(),
-                });
-                populateTable();
+                event.preventDefault()
+                hasSend = false;
+                getSoldItems();
             });
 
             function checkbal() {
@@ -764,6 +652,64 @@
                 var final = totalamnt + total;
                 $("#Amnttopay").val(final);
                 $("#balance").val(final - tpay);
+            }
+
+            function getSoldItems() {
+                var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
+                if (!checkbal()) {
+                    return;
+                }
+                //$('#save1').attr('disabled', true);
+                var pcode = $("#pcode").val();
+                var pname = $("#pname").val();
+                var bprice = $("#bprice").val();
+                var sprice = $("#sprice").val();
+                var qnty = $("#qnty").val();
+                var totalamnt = parseFloat($("#totalamnt").val());
+                var total = parseFloat($("#Amnttopay").val());
+                var tpay = parseFloat($("#ttolpaid").val());
+
+                saleItems.push({
+                    Sno: $("#sno").val(),
+                    sprice: sprice,
+                    totalamnt: totalamnt,
+                    pname: pname,
+                    pcode: pcode,
+                    Description: pname,
+                    DateTime: $("#date").val(),
+                    TransDate: $("#TDate").val(),
+                    TransTime: $("#date").val(),
+                    ProductType: "AGROVET",
+                    Qsupplied: $("#qnty").val(),
+                    Ppu: $("#sprice").val(),
+                    CR: "0",
+                    DR: totalamnt,
+                    Balance: totalamnt,
+                    Paid: "true",
+                    Remarks: pname,
+                    Branch: $("#bname").val(),
+                });
+
+                getProductBal(pname);
+                populateTable();
+            }
+
+            function getProductBal(pname) {
+                $.ajax(
+                {
+                    type: 'GET',
+                    url: "getProductBal?pname=" + pname,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        var soldProducts = saleItems.filter(p => p.Description.trim() === pname);
+                        soldProducts.forEach(p => response.OBal -= p.Qsupplied);
+                        $("#sbal").val(response.OBal);
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+                });
             }
 
             function calculatePrice() {

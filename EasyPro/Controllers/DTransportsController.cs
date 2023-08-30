@@ -213,6 +213,7 @@ namespace EasyPro.Controllers
                 dTransport.saccocode = sacco;
                 dTransport.Branch = saccoBranch;
                 _context.Add(dTransport);
+                _context.SaveChanges();
 
                 UpdateTransporter(dTransport);
                 _notyf.Success("Assignment saved successfully");

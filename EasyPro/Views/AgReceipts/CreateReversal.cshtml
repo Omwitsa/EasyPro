@@ -432,7 +432,9 @@
                     populateDetailsTable();
                 });
 
-                $('#save1').on('click', function () {
+                $('#save1').on('click', function (event) {
+                    event.preventDefault()
+                    event.stopImmediatePropagation();
                     $.ajax({
 
                         type: 'POST',

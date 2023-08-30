@@ -29,14 +29,24 @@ namespace EasyPro.Controllers
         // GET: DPayrolls
         public async Task<IActionResult> Index()
         {
+            utilities.SetUpPrivileges(this);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var startDate = month.AddMonths(-1);
             var endDate = month.AddDays(-1);
 
-            utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var payroll = await _context.DPayrolls.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndofPeriod == endDate).Join(
-                _context.DSuppliers.Where(d => d.Scode.ToUpper().Equals(sacco.ToUpper())),
+            var suppliers = await _context.DSuppliers.Where(d => d.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var payrolls = await _context.DPayrolls.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndofPeriod == endDate).ToListAsync();
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                suppliers = suppliers.Where(i => i.Branch == saccoBranch).ToList();
+                payrolls = payrolls.Where(i => i.Branch == saccoBranch).ToList();
+            }
+                
+            var payroll = payrolls.Join(suppliers,
                 p => p.Sno.ToUpper(),
                 s => s.Sno.ToUpper(),
                 (p, s) => new PayrollVm
@@ -66,7 +76,7 @@ namespace EasyPro.Controllers
                     Tractor = p.Tractor,
                     Extension = p.extension,
                     SMS = p.SMS,
-                }).ToListAsync();
+                }).ToList();
 
             return View(payroll);
         }
@@ -110,6 +120,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var branchNames = _context.DBranch.Where(b => b.Bcode == sacco)
                 .Select(b => b.Bname.ToUpper());
 
@@ -156,8 +167,8 @@ namespace EasyPro.Controllers
             }
             calcstandingorder(startDate, period.EndDate, sacco, loggedInUser);
 
-            var selectdistinctdedname = _context.d_PreSets.Where(b => b.saccocode == sacco)
-            .Select(b => b.Deduction.ToUpper()).Distinct();
+            var preSets = _context.d_PreSets.Where(b => b.saccocode == sacco);
+            var selectdistinctdedname = preSets.Select(b => b.Deduction.ToUpper()).Distinct();
             foreach (var dedtype in selectdistinctdedname)
             {
                 var deletesdefaultded = productIntakeslist.Where(i => i.TransDate >= startDate && i.TransDate <= period.EndDate

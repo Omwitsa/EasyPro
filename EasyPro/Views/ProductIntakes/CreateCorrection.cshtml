@@ -215,7 +215,7 @@
         
         $('#Qsupplied').keydown(function (event) {
             if (event.which == 13) {
-                getSelectedforsave();
+                checkifalreadyexist();
             }
         });
 
@@ -263,7 +263,28 @@
                     // ...
                 });  
         };
-        
+        function checkifalreadyexist() {
+            //goselect();
+            var sno = $('#Sno').val();
+            var date = $('#transDate').val();
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response) {
+                            checkifdelivered();
+                        } else {
+                            getSelectedforsave();
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+                });
+        }
         function checkifdelivered() {
             const response = confirm("Already Delivered today, Do you want to continue?");
             if (response) {
@@ -295,7 +316,7 @@
         };
 
         $('#save').on('click', function () {
-                getSelectedforsave();
+                checkifalreadyexist();
         });
 
         function getSelectedDateIntakes() {

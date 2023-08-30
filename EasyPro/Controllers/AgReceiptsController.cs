@@ -16,6 +16,7 @@ using EasyPro.IProvider;
 using System.Drawing.Printing;
 using System.Drawing;
 using NPOI.SS.Formula.Functions;
+using Stripe;
 
 namespace EasyPro.Controllers
 {
@@ -136,49 +137,56 @@ namespace EasyPro.Controllers
                 }
 
                 var products = _context.AgProducts.Where(p => p.saccocode == sacco);
-                intakes.ForEach(t =>
+                foreach(var intake in intakes)
                 {
-                    t.Description = t?.Description ?? "";
-                    t.SaccoCode = sacco;
-                    t.Branch = saccobranch;
-                    t.TransactionType = TransactionType.Deduction;
-                    t.TransTime = DateTime.Now.TimeOfDay;
-                    t.AuditId = loggedInUser;
-                    t.Auditdatetime = DateTime.Now;
-                    t.DrAccNo = t.DrAccNo;
-                    t.CrAccNo = t.CrAccNo;
-                    if (t.Sno == "")
-                    {
-                        t.Sno = "cash";
-                    }
-                    t.Zone = t.Zone;
+                    intake.Description = intake?.Description ?? "";
+                    intake.SaccoCode = sacco;
+                    intake.Branch = saccobranch;
+                    intake.TransactionType = TransactionType.Deduction;
+                    intake.TransTime = DateTime.Now.TimeOfDay;
+                    intake.AuditId = loggedInUser;
+                    intake.Auditdatetime = DateTime.Now;
+                    intake.DrAccNo = intake.DrAccNo;
+                    intake.CrAccNo = intake.CrAccNo;
+                    if (intake.Sno == "")
+                        intake.Sno = "cash";
+                    intake.Zone = intake.Zone;
 
                     var cashchecker = false;
                     if (cash == "")
                         cashchecker = true;
 
-                    var product = products.FirstOrDefault(p => p.PName.ToUpper().Equals(t.Description.ToUpper()));
+                    var product = products.FirstOrDefault(p => p.PName.ToUpper().Equals(intake.Description.ToUpper()));
                     if (product != null)
                     {
-                        var bal = product.OBal - (double?)t.Qsupplied;
+                        var bal = product.OBal - (double?)intake.Qsupplied;
+
+                        var receiptExist = _context.AgReceipts.Any(r => r.RNo == RNo && r.PCode == product.PCode && r.TDate == intake.TransDate && r.Amount == intake.DR
+                        && r.SNo == intake.Sno && r.Remarks == intake.Description && r.saccocode == sacco && r.Branch == intake.Branch);
+                        if (receiptExist)
+                        {
+                            _notyf.Error("Sorry, Similar product has already been issued to the client today");
+                            return Json("");
+                        }
+
                         _context.AgReceipts.Add(new AgReceipt
                         {
                             RNo = RNo,
                             PCode = product.PCode,
-                            TDate = t.TransDate,
-                            Amount = t.DR,
-                            SNo = t.Sno,
-                            Qua = (double?)t.Qsupplied,
+                            TDate = intake.TransDate,
+                            Amount = intake.DR,
+                            SNo = intake.Sno,
+                            Qua = (double?)intake.Qsupplied,
                             SBal = bal,
                             UserId = loggedInUser,
                             AuditDate = DateTime.Now,
                             Cash = cashchecker,
-                            Sno1 = t.Sno,
+                            Sno1 = intake.Sno,
                             Transby = "",
                             Idno = "",
                             Mobile = "",
-                            Remarks = t.Description,
-                            Branch = t.Branch,
+                            Remarks = intake.Description,
+                            Branch = intake.Branch,
                             Sprice = product.Sprice,
                             Bprice = product.Pprice,
                             Ai = 0,
@@ -187,18 +195,18 @@ namespace EasyPro.Controllers
                             Completed = 0,
                             Salesrep = "",
                             saccocode = sacco,
-                            Zone = t.Zone,
+                            Zone = intake.Zone,
                         });
 
                         _context.Gltransactions.Add(new Gltransaction
                         {
                             AuditId = loggedInUser,
-                            TransDate = t.TransDate,
-                            Amount = (decimal)t.DR,
+                            TransDate = intake.TransDate,
+                            Amount = (decimal)intake.DR,
                             AuditTime = DateTime.Now,
                             DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
-                            Source = t.Sno,
-                            TransDescript = t.Remarks,
+                            Source = intake.Sno,
+                            TransDescript = intake.Remarks,
                             Transactionno = $"{loggedInUser}{DateTime.Now}",
                             SaccoCode = sacco,
                             DrAccNo = product.Draccno,
@@ -209,11 +217,11 @@ namespace EasyPro.Controllers
                         {
                             _context.EmployeesDed.Add(new EmployeesDed
                             {
-                                Empno = t.Sno,
-                                Date = t.TransDate,
+                                Empno = intake.Sno,
+                                Date = intake.TransDate,
                                 Deduction = "Store",
-                                Amount = (decimal)t.DR,
-                                Remarks = t.Remarks,
+                                Amount = (decimal)intake.DR,
+                                Remarks = intake.Remarks,
                                 AuditId = loggedInUser,
                                 saccocode = sacco
                             });
@@ -224,8 +232,7 @@ namespace EasyPro.Controllers
                         product.OBal = bal;
                     }
 
-                });
-
+                }
 
                 if (!isStaff && cash != "")
                     _context.ProductIntake.AddRange(intakes);
@@ -247,7 +254,6 @@ namespace EasyPro.Controllers
                             Source = loggedInUser,
                             Code = sacco
                         });
-
                 }
 
                 _context.SaveChanges();
@@ -255,7 +261,15 @@ namespace EasyPro.Controllers
                 if (print)
                     PrintP(intakes, RNo);
 
-                return Json("");
+                var receipts = _context.AgReceipts
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+                .OrderByDescending(u => u.RNo);
+                var receipt1 = receipts.FirstOrDefault();
+                double rno = Convert.ToInt32(receipt1.RNo);
+                return Json(new
+                {
+                    rno = (rno + 1)
+                });
             }
             catch (Exception e)
             {
@@ -683,6 +697,8 @@ namespace EasyPro.Controllers
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
             }
 
+            var productNames = products.Select(b => b.PName);
+            ViewBag.agproductsall = new SelectList(productNames, "");
             var agrovetsales = new Agrovetsales
             {
                 AgReceipt = receipt,
@@ -822,6 +838,20 @@ namespace EasyPro.Controllers
         {
             GetInitialValuesAsync();
             return _context.AgReceipts.Any(e => e.RId == id);
+        }
+
+        [HttpGet]
+        public JsonResult GetProductBal(string pname)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            var product = _context.AgProducts.FirstOrDefault(p => p.PName == pname && p.saccocode == sacco && p.Branch == saccobranch);
+            if (product == null)
+                product = new AgProduct { OBal = 0 };
+            return Json(product);
         }
     }
 }
