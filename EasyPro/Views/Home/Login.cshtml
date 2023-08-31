@@ -87,10 +87,10 @@
         }
     </style>
     <div class="container-fluid">
-        
+
         <div class="row">
             <div class="col-lg-1"></div>
-            <div >
+            <div>
                 <div class="col-lg-10 col-sm-10 col-xl-10" style=" background-color:white; margin-top:50px;">
                     @if (TempData["success"] != null)
                     {
@@ -117,10 +117,13 @@
                                     <div style="padding:8px;margin:8px;color:white">
                                         <div class="d-sm-none d-md-none d-none d-lg-block" style="height:80px;"></div>
                                         <label style="color:black">User Name</label>
-                                        <input type="text" name="Username" class="castomtextbox" placeholder="Username" />
+                                        <input type="text" id="username" onchange="username" name="Username" class="castomtextbox" placeholder="Username" />
                                         <label style="color:black">Password</label>
                                         <input type="password" name="Password" class="castomtextbox" placeholder="Password" />
                                         <br /> <br />
+                                        @*<select id="listcode"    class="form-control">
+                                            <option value=""></option>
+                                        </select>*@
                                         <input type="submit" class="castombuttonnn" value="Login" />
                                     </div>
                                 }
@@ -138,11 +141,11 @@
 
                                             </div>
                                             @*<div class="col-sm-6">
-                                            Don't have an account?
-                                            <span>
-                                                <a style="color:cornflowerblue" asp-area="" asp-controller="Users" asp-action="Create">Sign up</a>
-                                            </span>
-                                        </div>*@
+                                                    Don't have an account?
+                                                    <span>
+                                                        <a style="color:cornflowerblue" asp-area="" asp-controller="Users" asp-action="Create">Sign up</a>
+                                                    </span>
+                                                </div>*@
                                         </div>
                                     </div>
 
@@ -163,5 +166,27 @@
         </div>
     </div>
 </body>
-    </html>
-      
+</html>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script type="text/javascript">
+    $(function () {
+     
+            let subcounties = @Html.Raw(Json.Serialize(ViewBag.SubCountyName));
+            $('#listcode').hide();
+            debugger
+            $('#username').on('change', function () {
+                let user1 = $("#username").val();
+                debugger
+                if (user1.toUpperCase() === "PSIGEI") {
+                    $('#listcode').show(); username
+                    $.each(subcounties, function () {
+                        $('#listcode').append($("<option />").val(this.Name).text(this.Name));
+                    });
+                }
+            });
+        }
+</script>
+}

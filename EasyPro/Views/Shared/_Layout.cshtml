@@ -788,14 +788,14 @@
                                     </li>
                                     <li>
                                         <a asp-controller="WeighBridgeNotes" asp-action="Index">WeighBridge Statement</a>
-                                        <a asp-controller="Millings" asp-action="Index">Milling</a>
+                                        @*<a asp-controller="Millings" asp-action="Index">Milling</a>*@
                                     </li>
                                     <li>
                                         <a asp-controller="MillerProductsDetails" asp-action="Index">Milling Products</a>
                                     </li>
-                                    <li>
+                                    @*<li>
                                         <a asp-controller="Milling_Products" asp-action="Index">Milling Products</a>
-                                    </li>
+                                    </li>*@
                                 }
                                 @if (ViewBag.Marketing)
                                 {
@@ -1106,8 +1106,8 @@
                                     <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
                                 </li>
                                 @*<li>
-                    <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
-                </li>*@
+                                    <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
+                                </li>*@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTransportersBalReport">Transporters Balancing</a>
                                 </li>
