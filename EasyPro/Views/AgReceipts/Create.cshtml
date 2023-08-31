@@ -669,8 +669,10 @@
                 var total = parseFloat($("#Amnttopay").val());
                 var tpay = parseFloat($("#ttolpaid").val());
 
+                var sno = $("#sno").val() ? $("#sno").val() : $("#tsno").val();
+                sno = sno ? sno : $("#sname").val();
                 saleItems.push({
-                    Sno: $("#sno").val(),
+                    Sno: sno,
                     sprice: sprice,
                     totalamnt: totalamnt,
                     pname: pname,
