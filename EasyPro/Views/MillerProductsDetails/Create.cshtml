@@ -14,13 +14,13 @@
 
         <hr />
 
-        <form asp-action="Create">
+        <form enctype="multipart/form-data" asp-action="Create">
             <div class="row">
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
                         <label asp-for="Factory" class="control-label"></label>
-                        <select id="glAcc" asp-for="Factory" class="form-control" asp-items="@ViewBag.Factory">
+                        <select id="factory" asp-for="Factory" class="form-control" asp-items="@ViewBag.Factory">
                             <option value="" disabled selected hidden>Please select </option>
                         </select>
                         <span asp-validation-for="Factory" class="text-danger"></span>
@@ -28,12 +28,12 @@
                     
                     <div class="form-group">
                         <label asp-for="CbkCode" class="control-label"></label>
-                        <input asp-for="CbkCode" class="form-control" />
+                        <input id="CbkCode" asp-for="CbkCode" class="form-control" />
                         <span asp-validation-for="CbkCode" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="OutNumber" class="control-label"></label>
-                        <input asp-for="OutNumber" class="form-control" />
+                        <input id="OutNumber" asp-for="OutNumber" class="form-control" />
                         <span asp-validation-for="OutNumber" class="text-danger"></span>
                     </div>
 
@@ -44,24 +44,24 @@
                     <div class="form-group">
 
                         <label asp-for="Category" class="control-label"></label>
-                        <select id="glAcc" asp-for="Category" class="form-control" asp-items="@ViewBag.Category">
+                        <select id="Category" asp-for="Category" class="form-control" asp-items="@ViewBag.Category">
                             <option value="" disabled selected hidden>Please select Category</option>
                         </select>
                         <span asp-validation-for="Category" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Season" class="control-label"></label>
-                        <input asp-for="Season" class="form-control" />
+                        <input id="Season" asp-for="Season" class="form-control" />
                         <span asp-validation-for="Season" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="MillerID" class="control-label"></label>
-                        <input asp-for="MillerID" class="form-control" />
+                        <input id="MillerID" asp-for="MillerID" class="form-control" />
                         <span asp-validation-for="MillerID" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Certification" class="control-label"></label>
-                        <input asp-for="Certification" class="form-control" />
+                        <input id="Certification" asp-for="Certification" class="form-control" />
                         <span asp-validation-for="Certification" class="text-danger"></span>
                     </div>
                 </div>
@@ -70,22 +70,22 @@
 
                     <div class="form-group">
                         <label asp-for="DeliveryDate" class="control-label"></label>
-                        <input asp-for="DeliveryDate" type="date" class="form-control" />
+                        <input id="DeliveryDate" asp-for="DeliveryDate" type="date" class="form-control" />
                         <span asp-validation-for="DeliveryDate" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="MillingDate" class="control-label"></label>
-                        <input asp-for="MillingDate" type="date" class="form-control" />
+                        <input id="MillingDate" asp-for="MillingDate" type="date" class="form-control" />
                         <span asp-validation-for="MillingDate" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="MillingLoss" class="control-label"></label>
-                        <input asp-for="MillingLoss" class="form-control" />
+                        <input id="MillingLoss" asp-for="MillingLoss" class="form-control" />
                         <span asp-validation-for="MillingLoss" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="MoistureParch" class="control-label"></label>
-                        <input asp-for="MoistureParch" class="form-control" />
+                        <input id="MoistureParch" asp-for="MoistureParch" class="form-control" />
                         <span asp-validation-for="MoistureParch" class="text-danger"></span>
                     </div>
                 </div>
@@ -93,22 +93,22 @@
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <div class="form-group">
                         <label asp-for="MostureClean" class="control-label"></label>
-                        <input asp-for="MostureClean" class="form-control" />
+                        <input id="MostureClean" asp-for="MostureClean" class="form-control" />
                         <span asp-validation-for="MostureClean" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="MillingCHarges" class="control-label"></label>
-                        <input asp-for="MillingCHarges" class="form-control" />
+                        <input id="MillingCHarges" asp-for="MillingCHarges" class="form-control" />
                         <span asp-validation-for="MillingCHarges" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="ExportsCost" class="control-label"></label>
-                        <input asp-for="ExportsCost" class="form-control" />
+                        <input id="ExportsCost" asp-for="ExportsCost" class="form-control" />
                         <span asp-validation-for="ExportsCost" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="VatCost" class="control-label"></label>
-                        <input asp-for="VatCost" class="form-control" />
+                        <input id="VatCost" asp-for="VatCost" class="form-control" />
                         <span asp-validation-for="VatCost" class="text-danger"></span>
                     </div>
                 </div>
@@ -132,25 +132,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.Weights.Count; i++)
+                        @for (int i = 0; i < Model.MillerProductsWeight.Count(); i++)
+                            @* @foreach (var item in Model) *@
                         {
                             <tr>
                                 <td>
-                                    @Html.EditorFor(x=> x.Weights[i].WeightNoteNo,new {htmlAttributes=new {@class="form-control"}})
+                                    @* @Html.TextBoxFor(m => Model.People[i].Name) *@
+                                    @Html.EditorFor(x=> x.MillerProductsWeight[i].WeightNoteNo,new {htmlAttributes=new {@class="form-control",id="wght"}})
                                 </td>
 
                                 <td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.Weights[i].Bags,new {htmlAttributes=new {@class="form-control"}})
+                                        @Html.EditorFor(x=> x.MillerProductsWeight[i].Bags,new {htmlAttributes=new {@class="form-control",id="bgs"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.Weights[i].GrossWeight,new {htmlAttributes=new {@class="form-control"}})
+                                        @Html.EditorFor(x=> x.MillerProductsWeight[i].GrossWeight,new {htmlAttributes=new {@class="form-control",id="grosswght"}})
                                 </td>
                                 <td>
-                                    <button id="btndummy-@i" type="button" class="btn btn-sm btn-secondary invisible">Dummy</button>
-                                    <button id="btnadd-@i" type="button" class="btn btn-sm btn-secondary visible" onclick="AddItem(this)" style="left:90%;position:absolute">Add</button>
+                                    
+                                    <button id="btnadd-@i" type="button" class="btn btn-sm btn-secondary visible" onclick="AddItem(this)" style="position:absolute">Add</button>
                                     <button id="btnremove-@i" type="button" class="btn btn-sm btn-danger invisible" onclick="DeleteItem(this)" style="left:90%;position:absolute">Delete</button>
                                 </td>
 
@@ -162,17 +164,17 @@
                 <table id="ExpTable1" class="table table-hover">
                     <thead>
                         <tr>
-                            <th>
+                            <th class="col-lg-2 col-md-2 col-sm-4 col-xs-12"  style="align-content:center">
                                 Grade
                             </th>
-                            <th>
+                            <th class="col-lg-2 col-md-2 col-sm-4 col-xs-12" style="align-content:center">
                                 Bags
                             </th>
-                            <th>
+                            <th class="col-lg-2 col-md-2 col-sm-4 col-xs-12" style="align-content:center">
                                 Pkts(Kgs)
                             </th>
 
-                            <th>
+                            <th >
                                 Net(Kgs)
                             </th>
                             <th>
@@ -188,41 +190,41 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.MilledProducts.Count; i++)
+                        @for (int i = 0; i < Model.MillerProductslist.Count(); i++)
                         {
                             <tr>
                                 <td>
-                                    @Html.EditorFor(x=> x.MilledProducts[i].Grade,new {htmlAttributes=new {@class="form-control"}})
+                                    @Html.EditorFor(x=> x.MillerProductslist[i].Grade,new {htmlAttributes=new {@class="form-control",id="grade"}})
                                 </td>
 
                                 <td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].Bags,new {htmlAttributes=new {@class="form-control"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].Bags,new {htmlAttributes=new {@class="form-control",id="bags"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].Pkts,new {htmlAttributes=new {@class="form-control"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].Pkts,new {htmlAttributes=new {@class="form-control",id="packets"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].NetKgs,new {htmlAttributes=new {@class="form-control"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].NetKgs,new {htmlAttributes=new {@class="form-control",id="netKgs"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].PercentageTotal,new {htmlAttributes=new {@class="form-control"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].PercentageTotal,new {htmlAttributes=new {@class="form-control",id="miller%Prod"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].MillClass,new {htmlAttributes=new {@class="form-control"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].MillClass,new {htmlAttributes=new {@class="form-control",id="millClass"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].BulkNo,new {htmlAttributes=new {@class="form-control"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].BulkNo,new {htmlAttributes=new {@class="form-control",id="BulkNo"}})
                                 </td>
                                 <td>
                                    
-                                    <button id="btnadd1-@i" type="button" class="btn btn-sm btn-secondary visible" onclick="AddItem1(this)" style="left:90%;position:absolute">Add</button>
+                                    <button id="btnadd1-@i" type="button" class="btn btn-sm btn-secondary visible" onclick="AddItem1(this)" style="position:absolute">Add</button>
                                     <button id="btnremove1-@i" type="button" class="btn btn-sm btn-danger invisible" onclick="DeleteItem1(this)" style="left:90%;position:absolute">Delete</button>
                                 </td>
 
@@ -233,7 +235,7 @@
                 </table>
 
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="submit" id="save" class="btn btn-success">Save</button>
                 </div>
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                     <a asp-action="Index" class="btn btn-primary">Back to List</a>
@@ -259,7 +261,8 @@
         }
 
 
-
+        let productItems = new Array();
+        let productItems1 = new Array();
         function AddItem(btn) {
 
             var table = document.getElementById('ExpTable');
@@ -294,6 +297,17 @@
             var addbtn = document.getElementById(btnAddID);
             addbtn.classList.remove("visible");
             addbtn.classList.add("invisible");
+            
+            // var weight = $("#wght").val();
+            // var bags = $("#bgs").val();
+            // var gross = $("#grosswght").val();
+            // productItems.push({
+            //     weight: weight,
+            //     bags: bags,
+            //     gross: gross,
+                
+            // });
+            
 
         }
         function AddItem1(btn) {
@@ -330,8 +344,48 @@
             var addbtn1 = document.getElementById(btnAddID1);
             addbtn1.classList.remove("visible");
             addbtn1.classList.add("invisible");
-
         }
+        //     var grade = $("#grade").val();
+        //     var bags = $("#bags").val();
+        //     var packets = $("#packets").val();
+        //     var netKgs = $("#netKgs").val();
+        //     var millerProd = $("#miller%Prod").val();
+        //     var millClass = $("#millClass").val();
+        //     var bulkNo = $("#BulkNo").val();
+        //     productItems1.push({
+        //         grade: grade,
+        //         bags: bags,
+        //         packets: packets,
+        //         netKgs: netKgs,
+        //         millerProd: millerProd,
+        //         millClass: millClass,
+        //         bulkNo: bulkNo,
+
+        //     });
+        // }
+        // $('#save').on('click', function () {
+        //     let print = $('#print').prop('checked');
+        //     let sms = $('#sms').prop('checked');
+        //     let net = $('#Net').val();
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: "Create",
+        //         contentType: 'application/json',
+        //         data: JSON.stringify(productItems, productItems1),
+        //         success: function (response) {
+        //             if (response.isRedirect) {
+        //                 window.location.href = response.redirectUrl;
+        //             }
+        //             // saleItems = new Array();
+        //             // populateTable();
+        //             // clearafthersave();
+        //         },
+        //         failure: function (response) {
+        //         }
+        //     }).then(function () {
+        //         // ...
+        //     });
+        // });
     </script>
       
 

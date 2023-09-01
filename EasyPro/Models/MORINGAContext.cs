@@ -312,7 +312,7 @@ namespace EasyPro.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=DESKTOP-5GQU4IS;Database=MORINGA;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=198.38.85.55;Database=MORINGA;Trusted_Connection=False;User Id=atm;Password=atm;MultipleActiveResultSets=true");
             }
         }
 

@@ -8,10 +8,6 @@ namespace EasyPro.Models.Coffee
     {
         [Key]
         public long Id { get; set; }
-
-        [ForeignKey("MillerProductsDetails")]
-        public long MillerProductsDetailsId { get; set; }
-        public virtual MillerProductsDetails MillerProductsDetails { get; set; }
         public string Grade { get; set; }
         public decimal Bags { get; set; }
         public decimal Pkts { get; set; }
@@ -19,6 +15,10 @@ namespace EasyPro.Models.Coffee
         public decimal PercentageTotal { get; set; }
         public int MillClass { get; set; }
         public string BulkNo { get; set; }
-       
+        [ForeignKey("MillerProductsDetails")]
+        public long MillerProductsDetailsId { get; set; }
+        public virtual MillerProductsDetails Details { get; set; }
+        //public virtual List<MillerProducts> ProductList { get; set; } = new List<MillerProducts>();
+
     }
 }
