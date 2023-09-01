@@ -156,13 +156,35 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
-
+            if (string.IsNullOrEmpty(dPrice2.Product))
+            {
+                _notyf.Error("Sorry, Kindly provide product");
+                return View();
+            }
+            if (dPrice2.Price < 0)
+            {
+                _notyf.Error("Sorry, Kindly provide price");
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 try
                 {
                     var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                     var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+                    var productIntakes = _context.ProductIntake
+                       .Where(p => p.TransDate >= dPrice2.Date && p.Sno.ToUpper().Equals(dPrice2.Sno.ToUpper()) && (p.TransactionType == TransactionType.Intake || p.TransactionType == TransactionType.Correction)
+                       && p.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
+
+                    productIntakes.ForEach(p =>
+                    {
+                        p.Ppu = dPrice2.Price;
+                        if (p.CR != 0)
+                            p.CR = dPrice2.Price * p.Qsupplied;
+                        if (p.DR != 0)
+                            p.DR = dPrice2.Price * p.Qsupplied * -1;
+                    });
+
                     dPrice2.SaccoCode = sacco;
                     dPrice2.Branch = saccoBranch;
                     dPrice2.UserId = loggedInUser;
