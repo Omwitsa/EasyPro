@@ -13,7 +13,7 @@
         <h3>CERTIFICATION: REA</h3>
         <form enctype="multipart/form-data" asp-action="Create">
             <div class="row">
-                <div class="col-lg-12">
+                <div class="col-lg-4">
                     <label asp-for="Date" class="control-label"></label>
                     <input asp-for="Date" type="date" class="form-control" />
                     <span asp-validation-for="Date" class="text-danger"></span>
@@ -64,7 +64,7 @@
                         <th>
                             Average Price
                         </th>
-                        <th></th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -116,11 +116,11 @@
                             <td>
                                 <button id='btndummy-@i' type="button" class="btn btn-sm invisible">Dummy</button>
                                 <button id='btnadd-@i' type="button" class="btn btn-sm btn-secondary visible"
-                                        onclick="AddItem(this)" style="left:90%;position:absolute;">
+                                        onclick="AddItem(this)" style="left:100%;position:absolute;">
                                     Add
                                 </button>
                                 <button id='btnremove-@i' type="button" class="btn btn-sm btn-danger invisible"
-                                        onclick="DeleteItem(this)" style="left:90%;position:absolute;">
+                                        onclick="DeleteItem(this)" style="left: 100%; position: absolute;">
                                     Delete
                                 </button>
                             </td>

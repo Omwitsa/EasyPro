@@ -199,9 +199,14 @@ namespace EasyPro.Controllers
         }
         public IActionResult Login()
         {
+            GetInitialValues();
             return View();
         }
-
+        private void GetInitialValues()
+        {
+            var SubCountyName = _context.DCompanies.OrderBy(K => K.Name).ToList();
+            ViewBag.SubCountyName = SubCountyName;
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login([Bind("Username,Password")] LoginVm login)
@@ -210,6 +215,7 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    GetInitialValues();
                     if (string.IsNullOrEmpty(login.Username))
                     {
                         _notyf.Error("Sorry, Kindly provide username");
@@ -242,6 +248,7 @@ namespace EasyPro.Controllers
                     }
 
                     HttpContext.Session.SetString(StrValues.LoggedInUser, user.UserLoginIds);
+
                     HttpContext.Session.SetString(StrValues.UserSacco, user.Branchcode);
                     HttpContext.Session.SetString(StrValues.UserGroup, user.UserGroup);
                     HttpContext.Session.SetString(StrValues.Branch, user.Branch);
