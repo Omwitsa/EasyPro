@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using System.Linq.Expressions;
 using EasyPro.ViewModels.CoffeVM;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.InkML;
 
 namespace EasyPro.Controllers.Coffee
 {
@@ -37,13 +38,13 @@ namespace EasyPro.Controllers.Coffee
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var weighing = _context.MillerProductsDetails.Where(n => n.Saccocode == sacco);
+            var weighing = _context.MillerProductsDetails.Where(n => n.Saccocode == sacco).ToList();
             //MillingProductsVm newItem = new  MillingProductsVm();
             //newItem.MillerProd = weighing;
             //newItem.Weights.Add(new MillerProductsWeight() { Id = 0 });
             //newItem.MilledProducts.Add(new MillerProducts() { Id = 0 });
 
-            return View(weighing.OrderByDescending(v => v.Date));
+            return View(weighing.OrderBy(n=>n.Id));
         }
         private void getdefaults()
         {
@@ -89,11 +90,9 @@ namespace EasyPro.Controllers.Coffee
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            MillerProductsDetails weights = new MillerProductsDetails();
-            weights.DeliveryDate = DateTime.Now;
-            weights.MillingDate = DateTime.Now;
-            weights.Weights.Add(new MillerProductsWeight() { Id = 0 });
-            weights.MilledProducts.Add(new MillerProducts() { Id = 0 });
+            MillerProductsDetails allclass= new MillerProductsDetails();
+            allclass.MillerProductslist.Add(new MillerProducts() { Id = 1 });
+            allclass.MillerProductsWeight.Add(new MillerProductsWeight() { Id = 1 });
             //weights.MillerProd = new MillerProductsDetails();
             //weights.MillerProd.DeliveryDate = DateTime.Now;
             //weights.MillerProd.MillingDate = DateTime.Now ;
@@ -101,7 +100,7 @@ namespace EasyPro.Controllers.Coffee
             //weights.MilledProducts = new List<MillerProducts>();
             //weights.MillerProd.DeliveryDate = DateTime.Now;
             //weights.MillerProd.MillingDate = DateTime.Now;
-            return View(weights);
+            return View(allclass);
         }
 
         // POST: MillerProductsDetails/Create
@@ -109,7 +108,9 @@ namespace EasyPro.Controllers.Coffee
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create( MillerProductsDetails millerProductsDetails, List<MillerProductsWeight> Weights, List<MillerProducts> MilledProducts)
+
+        //public async Task<IActionResult> Create([Bind("Id,Factory,Saccocode,CbkCode,OutNumber,Category,Season,MillerID,Certification,DeliveryDate,MillingDate,MillingLoss,MoistureParch,MostureClean,MillingCHarges,ExportsCost,VatCost,Date,AuditDateTime")] MillerProductsDetails millerProductsDetails, List<MillerProductsWeight> Weights, List<MillerProducts> MilledProducts)
+        public async Task<IActionResult> Create(MillerProductsDetails millerProductsDetails)
         {
             try {
                 utilities.SetUpPrivileges(this);
@@ -120,61 +121,90 @@ namespace EasyPro.Controllers.Coffee
                     millerProductsDetails.Saccocode = sacco;
                     millerProductsDetails.AuditDateTime = DateTime.Now;
                     millerProductsDetails.Date = DateTime.Now;
-                    _context.Add(millerProductsDetails);
 
-                Weights.ForEach(t =>
-                    {
-                        t.WeightNoteNo = t.WeightNoteNo;
-                        t.Bags = t.Bags;
-                        t.GrossWeight = t.GrossWeight;
+                _context.Add(millerProductsDetails);
+                //Weights.ForEach(t =>
+                //    {
+                //        t.WeightNoteNo = t.WeightNoteNo;
+                //        t.Bags = t.Bags;
+                //        t.GrossWeight = t.GrossWeight;
 
-                        //var product = _context.MillerProductsWeight.FirstOrDefault(p => p.WeightNoteNo.Equals(t.WeightNoteNo)
-                        //&& p.Bags == t.Bags && p.GrossWeight == t.GrossWeight);
-                        //if (product == null)
-                        //{
+                //        //var product = _context.MillerProductsWeight.FirstOrDefault(p => p.WeightNoteNo.Equals(t.WeightNoteNo)
+                //        //&& p.Bags == t.Bags && p.GrossWeight == t.GrossWeight);
+                //        //if (product == null)
+                //        //{
 
-                            _context.MillerProductsWeight.Add(new MillerProductsWeight
-                            {
-                                WeightNoteNo = t.WeightNoteNo,
-                                Bags = t.Bags,
-                                GrossWeight = t.GrossWeight,
+                //        _context.MillerProductsWeight.Add(new MillerProductsWeight
+                //        {
+                //            WeightNoteNo = t.WeightNoteNo,
+                //            Bags = t.Bags,
+                //            GrossWeight = t.GrossWeight,
 
-                            });
+                //        });
 
-                        //}
 
-                    });
-                    MilledProducts.ForEach(t =>
-                    {
-                        t.Grade = t.Grade;
-                        t.Bags = t.Bags;
-                        t.Pkts = t.Pkts;
-                        t.PercentageTotal = t.PercentageTotal;
-                        t.MillClass = t.MillClass;
-                        t.BulkNo = t.BulkNo;
+                //        //}
 
-                        //var product = _context.MillerProducts.FirstOrDefault(p => p.Grade.Equals(t.Grade)
-                        //&& p.Bags == t.Bags && p.MillClass == t.MillClass);
-                        //if (product == null)
-                        //{
+                //    });
+                //    MilledProducts.ForEach(t =>
+                //    {
+                //        t.Grade = t.Grade;
+                //        t.Bags = t.Bags;
+                //        t.Pkts = t.Pkts;
+                //        t.NetKgs = t.NetKgs; 
+                //        t.PercentageTotal = t.PercentageTotal;
+                //        t.MillClass = t.MillClass;
+                //        t.BulkNo = t.BulkNo;
 
-                            _context.MillerProducts.Add(new MillerProducts
-                            {
-                                Grade = t.Grade,
-                                Bags = t.Bags,
-                                Pkts = t.Pkts,
-                                PercentageTotal = t.PercentageTotal,
-                                MillClass = t.MillClass,
-                                BulkNo = t.BulkNo,
+                //        //var product = _context.MillerProducts.FirstOrDefault(p => p.Grade.Equals(t.Grade)
+                //        //&& p.Bags == t.Bags && p.MillClass == t.MillClass);
+                //        //if (product == null)
+                //        //{
 
-                            });
+                //        _context.MillerProducts.Add(new MillerProducts
+                //        {
+                //            Grade = t.Grade,
+                //            Bags = t.Bags,
+                //            Pkts = t.Pkts,
+                //            NetKgs = t.NetKgs,
+                //            PercentageTotal = t.PercentageTotal,
+                //            MillClass = t.MillClass,
+                //            BulkNo = t.BulkNo,
 
-                        //}
+                //        });
 
-                    });
+                //        //}
 
-                   
-                    await _context.SaveChangesAsync();
+                //    });
+
+                //_context.MillerProductsDetails.Add(new MillerProductsDetails
+                //{
+                //    Id=0,
+                //    Factory = millerProductsDetails.Factory,
+                //    Saccocode=sacco,
+                //    CbkCode = millerProductsDetails.CbkCode,
+                //    OutNumber = millerProductsDetails.OutNumber,
+                //    Category = millerProductsDetails.Category,
+                //    Season = millerProductsDetails.Season,
+                //    MillerID = millerProductsDetails.MillerID,
+                //    Certification = millerProductsDetails.Certification,
+                //    DeliveryDate = millerProductsDetails.DeliveryDate,
+                //    MillingDate = millerProductsDetails.MillingDate,
+                //    MillingLoss = millerProductsDetails.MillingLoss,
+                //    MoistureParch = millerProductsDetails.MoistureParch,
+                //    MostureClean = millerProductsDetails.MostureClean,
+                //    MillingCHarges = millerProductsDetails.MillingCHarges,
+                //    ExportsCost = millerProductsDetails.ExportsCost,
+                //    VatCost = millerProductsDetails.VatCost,
+                //    Date = millerProductsDetails.Date,
+                //    AuditDateTime = millerProductsDetails.AuditDateTime,
+                //    Weights = millerProductsDetails.Weights,    
+                //    MilledProducts = millerProductsDetails.MilledProducts,  
+
+
+                //}
+                //); 
+                await _context.SaveChangesAsync();
                     
                     //_context.Add(millerProductsDetails);
                     //await _context.SaveChangesAsync();

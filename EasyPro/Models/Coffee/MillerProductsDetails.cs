@@ -45,7 +45,11 @@ namespace EasyPro.Models.Coffee
         public DateTime AuditDateTime { get; set; }
        
         public DateTime Date { get; set; }
-        public virtual List<MillerProductsWeight> Weights { get; set; } = new List<MillerProductsWeight>();
-        public virtual List<MillerProducts> MilledProducts { get; set; } = new List<MillerProducts>();
+       
+        //public virtual List<MillerProductsWeight> Weights { get; set; } //= new List<MillerProductsWeight>();
+     
+        public virtual List<MillerProducts> MillerProductslist { get; set; } = new List<MillerProducts>();
+        public virtual List<MillerProductsWeight> MillerProductsWeight { get; set; } = new List<MillerProductsWeight>();
+        //public virtual List<MillerProducts> MilledProducts { get; set; } = new List<MillerProducts>();
     }
 }

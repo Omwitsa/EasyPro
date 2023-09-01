@@ -14,7 +14,7 @@
 
         <hr />
 
-        <form asp-action="Create">
+        <form enctype="multipart/form-data" asp-action="Create">
             <div class="row">
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -132,23 +132,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.Weights.Count; i++)
+                        @for (int i = 0; i < Model.MillerProductsWeight.Count(); i++)
                             @* @foreach (var item in Model) *@
                         {
                             <tr>
                                 <td>
                                     @* @Html.TextBoxFor(m => Model.People[i].Name) *@
-                                    @Html.EditorFor(x=> x.Weights[i].WeightNoteNo,new {htmlAttributes=new {@class="form-control",id="wght"}})
+                                    @Html.EditorFor(x=> x.MillerProductsWeight[i].WeightNoteNo,new {htmlAttributes=new {@class="form-control",id="wght"}})
                                 </td>
 
                                 <td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.Weights[i].Bags,new {htmlAttributes=new {@class="form-control",id="bgs"}})
+                                        @Html.EditorFor(x=> x.MillerProductsWeight[i].Bags,new {htmlAttributes=new {@class="form-control",id="bgs"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.Weights[i].GrossWeight,new {htmlAttributes=new {@class="form-control",id="grosswght"}})
+                                        @Html.EditorFor(x=> x.MillerProductsWeight[i].GrossWeight,new {htmlAttributes=new {@class="form-control",id="grosswght"}})
                                 </td>
                                 <td>
                                     
@@ -190,37 +190,37 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.MilledProducts.Count; i++)
+                        @for (int i = 0; i < Model.MillerProductslist.Count(); i++)
                         {
                             <tr>
                                 <td>
-                                    @Html.EditorFor(x=> x.MilledProducts[i].Grade,new {htmlAttributes=new {@class="form-control",id="grade"}})
+                                    @Html.EditorFor(x=> x.MillerProductslist[i].Grade,new {htmlAttributes=new {@class="form-control",id="grade"}})
                                 </td>
 
                                 <td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].Bags,new {htmlAttributes=new {@class="form-control",id="bags"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].Bags,new {htmlAttributes=new {@class="form-control",id="bags"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].Pkts,new {htmlAttributes=new {@class="form-control",id="packets"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].Pkts,new {htmlAttributes=new {@class="form-control",id="packets"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].NetKgs,new {htmlAttributes=new {@class="form-control",id="netKgs"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].NetKgs,new {htmlAttributes=new {@class="form-control",id="netKgs"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].PercentageTotal,new {htmlAttributes=new {@class="form-control",id="miller%Prod"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].PercentageTotal,new {htmlAttributes=new {@class="form-control",id="miller%Prod"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].MillClass,new {htmlAttributes=new {@class="form-control",id="millClass"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].MillClass,new {htmlAttributes=new {@class="form-control",id="millClass"}})
                                 </td>
                                 <td>
 
-                                        @Html.EditorFor(x=> x.MilledProducts[i].BulkNo,new {htmlAttributes=new {@class="form-control",id="BulkNo"}})
+                                        @Html.EditorFor(x=> x.MillerProductslist[i].BulkNo,new {htmlAttributes=new {@class="form-control",id="BulkNo"}})
                                 </td>
                                 <td>
                                    
@@ -298,20 +298,20 @@
             addbtn.classList.remove("visible");
             addbtn.classList.add("invisible");
             
-            var weight = $("#wght").val();
-            var bags = $("#bgs").val();
-            var gross = $("#grosswght").val();
-            productItems.push({
-                weight: weight,
-                bags: bags,
-                gross: gross,
+            // var weight = $("#wght").val();
+            // var bags = $("#bgs").val();
+            // var gross = $("#grosswght").val();
+            // productItems.push({
+            //     weight: weight,
+            //     bags: bags,
+            //     gross: gross,
                 
-            });
+            // });
             
 
         }
         function AddItem1(btn) {
-           
+
             var table = document.getElementById('ExpTable1');
             var rows = table.getElementsByTagName('tr');
 
@@ -344,47 +344,48 @@
             var addbtn1 = document.getElementById(btnAddID1);
             addbtn1.classList.remove("visible");
             addbtn1.classList.add("invisible");
-            var grade = $("#grade").val();
-            var bags = $("#bags").val();
-            var packets = $("#packets").val();
-            var netKgs = $("#netKgs").val();
-            var millerProd = $("#miller%Prod").val();
-            var millClass = $("#millClass").val();
-            var bulkNo = $("#BulkNo").val();
-            productItems1.push({
-                grade: grade,
-                bags: bags,
-                packets: packets,
-                netKgs: netKgs,
-                millerProd: millerProd,
-                millClass: millClass,
-                bulkNo: bulkNo,
-
-            });
         }
-        $('#save').on('click', function () {
-            let print = $('#print').prop('checked');
-            let sms = $('#sms').prop('checked');
-            let net = $('#Net').val();
-            $.ajax({
-                type: 'POST',
-                url: "Create",
-                contentType: 'application/json',
-                data: JSON.stringify(productItems, productItems1),
-                success: function (response) {
-                    if (response.isRedirect) {
-                        window.location.href = response.redirectUrl;
-                    }
-                    // saleItems = new Array();
-                    // populateTable();
-                    // clearafthersave();
-                },
-                failure: function (response) {
-                }
-            }).then(function () {
-                // ...
-            });
-        });
+        //     var grade = $("#grade").val();
+        //     var bags = $("#bags").val();
+        //     var packets = $("#packets").val();
+        //     var netKgs = $("#netKgs").val();
+        //     var millerProd = $("#miller%Prod").val();
+        //     var millClass = $("#millClass").val();
+        //     var bulkNo = $("#BulkNo").val();
+        //     productItems1.push({
+        //         grade: grade,
+        //         bags: bags,
+        //         packets: packets,
+        //         netKgs: netKgs,
+        //         millerProd: millerProd,
+        //         millClass: millClass,
+        //         bulkNo: bulkNo,
+
+        //     });
+        // }
+        // $('#save').on('click', function () {
+        //     let print = $('#print').prop('checked');
+        //     let sms = $('#sms').prop('checked');
+        //     let net = $('#Net').val();
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: "Create",
+        //         contentType: 'application/json',
+        //         data: JSON.stringify(productItems, productItems1),
+        //         success: function (response) {
+        //             if (response.isRedirect) {
+        //                 window.location.href = response.redirectUrl;
+        //             }
+        //             // saleItems = new Array();
+        //             // populateTable();
+        //             // clearafthersave();
+        //         },
+        //         failure: function (response) {
+        //         }
+        //     }).then(function () {
+        //         // ...
+        //     });
+        // });
     </script>
       
 
