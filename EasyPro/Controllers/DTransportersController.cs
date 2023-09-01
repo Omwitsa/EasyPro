@@ -90,7 +90,6 @@ namespace EasyPro.Controllers
             ViewBag.banksname = new SelectList(banksname);
 
             var brances = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            
 
             var bankbrances = _context.DBankBranch.Where(i => i.BankCode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToList();
             ViewBag.bankbrances = new SelectList(bankbrances);
@@ -105,7 +104,7 @@ namespace EasyPro.Controllers
 
             ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
             ViewBag.locations = new SelectList(locations.OrderBy(K => K.Lname).Select(b => b.Lname));
-
+            ViewBag.isSlopes = StrValues.Slopes == sacco;
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
@@ -137,14 +136,17 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode")] DTransporter dTransporter)
+        public async Task<IActionResult> Create([Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode,TraderRate")] DTransporter dTransporter)
         {
             try
             {
+                dTransporter.Rate = dTransporter?.Rate ?? 0;
+                dTransporter.TraderRate = dTransporter?.TraderRate ?? 0;
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 if (string.IsNullOrEmpty(loggedInUser))
                     return Redirect("~/");
                 utilities.SetUpPrivileges(this);
+                GetInitialValues();
                 if (dTransporter == null)
                 {
                     _notyf.Error("Transporter cannot be empty");
@@ -158,7 +160,6 @@ namespace EasyPro.Controllers
                     && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
                 if (dTransporterExists)
                 {
-                    GetInitialValues();
                     _notyf.Error("Transporter Code entered already exist");
                     return View();
                 }
@@ -167,7 +168,6 @@ namespace EasyPro.Controllers
                     && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
                 if (dTransporterExistsIDNo)
                 {
-                    GetInitialValues();
                     _notyf.Error("Transporter IDNo entered already exist");
                     return View();
                 }
@@ -206,6 +206,10 @@ namespace EasyPro.Controllers
             {
                 return NotFound();
             }
+            dTransporter.Rate = dTransporter?.Rate ?? 0;
+            dTransporter.TraderRate = dTransporter?.TraderRate ?? 0;
+            ViewBag.transporterRate = dTransporter.Rate > 0;
+            ViewBag.traderRate = dTransporter.TraderRate > 0;
             return View(dTransporter);
         }
         
@@ -291,8 +295,10 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode")] DTransporter dTransporter)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode,TraderRate")] DTransporter dTransporter)
         {
+            dTransporter.Rate = dTransporter?.Rate ?? 0;
+            dTransporter.TraderRate = dTransporter?.TraderRate ?? 0;
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");

@@ -234,6 +234,8 @@ namespace EasyPro.Controllers
                         product.OBal = bal;
                     }
 
+                    intake.Qsupplied = 0;
+                    intake.Ppu = 0;
                 }
 
                 if (!isStaff && cash != "")
@@ -537,6 +539,8 @@ namespace EasyPro.Controllers
                         product.Qin = bal;
                         product.Qout = bal;
                         product.OBal = bal;
+                        t.Qsupplied = 0;
+                        t.Ppu = 0;
                     }
                 });
 
@@ -544,8 +548,6 @@ namespace EasyPro.Controllers
                 {
                     _context.ProductIntake.AddRange(intakes);
                 }
-
-
 
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");

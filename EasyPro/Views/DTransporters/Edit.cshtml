@@ -107,16 +107,50 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="col-sm-3 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="form-group">
+                                <label class="control-label">
+                                    <input id="societyPay" type="checkbox" />Paid By Society
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-12" id="trans_rate">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Is Paid By Society</label>
+                                <label class="control-label">Transporter Rate</label>
                                 <input asp-for="Rate" autocomplete="off" class="form-control" />
                                 <span asp-validation-for="Rate" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                 </div>
+                @if (ViewBag.isSlopes)
+                {
+                    <div class="row">
+                        <div class="col-sm-3 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="form-group">
+                                    <label class="control-label">
+                                        <input id="trader" type="checkbox" />Trader
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3 col-xs-12" id="trader_rate">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Transporter Rate</label>
+                                    <input asp-for="TraderRate" autocomplete="off" class="form-control" />
+                                    <span asp-validation-for="TraderRate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
                 <b class="text-info">Bank Activities</b>
                 <hr />
                 <div class="row">
@@ -165,6 +199,30 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script type="text/javascript">
     $(function () {
+        let hasRate = '@ViewBag.transporterRate' == 'True';
+        let isTrader = '@ViewBag.traderRate' == 'True';
+        $("#societyPay").prop("checked", hasRate);
+        $("#trader").prop("checked", isTrader);
+        if (!$('#societyPay').is(':checked')) {
+            $('#trans_rate').hide();
+        }
+        $('#societyPay').click(function () {
+            if ($(this).is(':checked')) {
+                $('#trans_rate').show();
+            } else {
+                $('#trans_rate').hide();
+            }
+        });
+        if (!$('#trader').is(':checked')) {
+            $('#trader_rate').hide();
+        }
+        $('#trader').click(function () {
+            if ($(this).is(':checked')) {
+                $('#trader_rate').show();
+            } else {
+                $('#trader_rate').hide();
+            }
+        });
         $('#route').val('');
         var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
         if (checkiftoenable === 0) {

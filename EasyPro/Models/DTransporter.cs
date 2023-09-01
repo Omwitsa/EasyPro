@@ -33,6 +33,7 @@ namespace EasyPro.Models
         public string Auditdatetime { get; set; }
         public string Isfrate { get; set; }
         public double? Rate { get; set; }
+        public double? TraderRate { get; set; }
         public string Canno { get; set; }
         public bool Tt { get; set; }
         public string ParentT { get; set; }
