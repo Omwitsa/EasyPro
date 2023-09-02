@@ -10,6 +10,7 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
+using Syncfusion.EJ2.Linq;
 
 namespace EasyPro.Controllers
 {
@@ -682,13 +683,30 @@ namespace EasyPro.Controllers
                         i.TransactionType
                     });
 
+                
                 // Debit supplier transport amount
                 var suppliers = joinedIntakes.GroupBy(s => s.Sno).ToList();
                 suppliers.ForEach(s =>
                 {
                     var intake = s.FirstOrDefault();
+                    var product = intake?.ProductType ?? "";
+                    var price = _context.DPrices.FirstOrDefault(s => s.SaccoCode == sacco && s.Products.ToUpper().Equals(product.ToUpper()));
                     decimal? cr = 0;
-                    var dr = s.Sum(t => t.Qsupplied) * intake.Rate;
+                    var framersTotal = s.Sum(t => t.Qsupplied);
+                    var dr = framersTotal  * intake.Rate;
+                    if(StrValues.Slopes == sacco)
+                    {
+                        var daysInMonth = DateTime.DaysInMonth(endDate.Year, endDate.Month);
+                        var averageSupplied = framersTotal / daysInMonth;
+                        if(price != null)
+                        {
+                            if(averageSupplied >= price.SubsidyQty)
+                            {
+                                var intakes = _context.ProductIntake.Where(i => i.Sno == intake.Sno && i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= endDate);
+                                intakes.ForEach(i => i.CR = framersTotal * (price.SubsidyPrice + intake.Rate));
+                            }
+                        }
+                    }
                     if (intake.Rate > 0)
                     {
                         _context.ProductIntake.Add(new ProductIntake
@@ -713,19 +731,32 @@ namespace EasyPro.Controllers
                         });
                     }
 
-                    var product = intake?.ProductType ?? "";
-                    var price = _context.DPrices.FirstOrDefault(p => p.Products.ToUpper().Equals(product.ToUpper()));
                     // Credit transpoter transport amount
 
                     var TBprice = _context.DTransporters.FirstOrDefault(j => j.ParentT == sacco
                      && j.Tbranch.ToUpper().Equals(branchName.ToUpper())
                      && j.TransCode.ToUpper().Equals(intake.TransCode.Trim().ToUpper()));
 
+                    TBprice.Rate = TBprice?.Rate ?? 0;
                     decimal? TPrice = 0;
                     if (intake.Rate == 0)
-                        TPrice = s.Sum(t => t.Qsupplied) * (decimal)TBprice.Rate;
+                        TPrice = framersTotal * (decimal)TBprice.Rate;
                     else
-                        TPrice = s.Sum(t => t.Qsupplied) * intake.Rate;
+                        TPrice = framersTotal * intake.Rate;
+
+                    if (StrValues.Slopes == sacco)
+                    {
+                        var daysInMonth = DateTime.DaysInMonth(endDate.Year, endDate.Month);
+                        var averageSupplied = framersTotal / daysInMonth;
+                        TBprice.TraderRate = TBprice?.TraderRate ?? 0;
+                        if (price != null)
+                        {
+                            if (averageSupplied >= price.SubsidyQty)
+                            {
+                                TPrice = framersTotal * ((decimal)TBprice.Rate + (decimal)TBprice.TraderRate);
+                            }
+                        }
+                    }
 
                     cr = TPrice;
                     dr = 0;

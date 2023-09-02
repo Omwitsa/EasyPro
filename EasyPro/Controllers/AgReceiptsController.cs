@@ -104,13 +104,6 @@ namespace EasyPro.Controllers
                 DateTime startD = new DateTime(Now.Year, Now.Month, 1);
                 DateTime enDate = startD.AddMonths(1).AddDays(-1);
 
-                DateTime tdate = intakes.FirstOrDefault().TransDate;
-                if (tdate < startD)
-                {
-                    _notyf.Error("Sorry, The Deduction Date is not within the current Period");
-                    return Json("");
-                }
-
                 if (!intakes.Any())
                 {
                     _notyf.Error("Sorry, Kindly provide records");
