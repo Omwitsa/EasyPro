@@ -1243,7 +1243,7 @@ namespace EasyPro.Controllers
     }
 
     [HttpPost]
-    public IActionResult Intake([Bind("DateFrom,DateTo")] FilterVm filter)
+    public async Task<IActionResult> Intake([Bind("DateFrom,DateTo")] FilterVm filter)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
@@ -1253,15 +1253,14 @@ namespace EasyPro.Controllers
         
         var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
         var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-        productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo
-        && u.Qsupplied != 0 && u.SaccoCode == sacco && u.Description != "Transport");
+        productIntakeobj = await _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo
+        && u.Qsupplied != 0 && u.SaccoCode == sacco && u.Description != "Transport").ToListAsync();
             
         var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
         if (user.AccessLevel == AccessLevel.Branch)
             productIntakeobj = productIntakeobj.Where(t => t.Branch == saccobranch).ToList();
 
-        productIntakeobj = productIntakeobj.OrderBy(s => s.Sno);
-        return IntakeExcel();
+        return await IntakeExcel();
     }
 
     [HttpPost]
@@ -1940,7 +1939,7 @@ namespace EasyPro.Controllers
             }
         }
     }
-    public IActionResult IntakeExcel()
+    public async Task<IActionResult> IntakeExcel()
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
@@ -1976,18 +1975,17 @@ namespace EasyPro.Controllers
             worksheet.Cell(currentRow, 6).Value = "Price";
             worksheet.Cell(currentRow, 7).Value = "Description";
             decimal sum = 0;
+            var suppliers = await _context.DSuppliers.Where(u => u.Scode == sacco).ToListAsync();
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(t => t.Branch == saccobranch).ToList();
             foreach (var emp in productIntakeobj)
             {
-                var suppliers = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
-                
-                if (user.AccessLevel == AccessLevel.Branch)
-                    suppliers = suppliers.Where(t => t.Branch == saccobranch);
-                
-                if (suppliers.Any())
+                var supplier = suppliers.FirstOrDefault(u => u.Sno == emp.Sno);
+                if (supplier != null)
                 {
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                    worksheet.Cell(currentRow, 2).Value = suppliers.FirstOrDefault()?.Names ?? "";
+                    worksheet.Cell(currentRow, 2).Value = supplier?.Names ?? "";
                     worksheet.Cell(currentRow, 3).Value = emp.TransDate;
                     worksheet.Cell(currentRow, 4).Value = emp.ProductType;
                     worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
