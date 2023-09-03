@@ -598,11 +598,11 @@ namespace EasyPro.Controllers
             await GetInitialValuesAsync();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var receipts = _context.AgReceipts
+            var receipts = await _context.AgReceipts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
-                .OrderByDescending(u => u.RNo);
-            var receipt1 = receipts.FirstOrDefault();
-            double num = Convert.ToInt32(receipt1.RNo);
+                .OrderByDescending(u => u.RNo).ToListAsync();
+            var receiptNo = receipts.FirstOrDefault()?.RNo ?? "0";
+            double num = Convert.ToInt32(receiptNo);
             var receipt = new AgReceipt
             {
                 RNo = "" + (num + 1),

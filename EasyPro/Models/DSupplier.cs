@@ -14,7 +14,6 @@ namespace EasyPro.Models
         public long? LocalId { get; set; }
         [Required]
         public string Sno { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? Regdate { get; set; }
         public string IdNo { get; set; }
         public string Names { get; set; }
