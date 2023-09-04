@@ -1,10 +1,11 @@
 ﻿using EasyPro.ViewModels.FarmersVM;
 using System;
+using System.Threading.Tasks;
 
 namespace EasyPro.IProvider
 {
     public interface IStatement
     {
-        dynamic GenerateStatement(StatementFilter filter);
+        Task<dynamic> GenerateStatement(StatementFilter filter);
     }
 }

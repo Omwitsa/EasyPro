@@ -21,6 +21,7 @@ namespace EasyPro.ViewModels.FarmersVM
         public string Code { get; set; }
         public DateTime Date { get; set; }
         public string Branch { get; set; }
+        public string LoggedInUser { get; set; }
         public string Sacco { get; set; }
     }
 }

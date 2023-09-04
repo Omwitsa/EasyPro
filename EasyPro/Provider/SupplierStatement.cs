@@ -12,6 +12,8 @@ using EasyPro.ViewModels.FarmersVM;
 using EasyPro.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Stripe;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace EasyPro.Provider
 {
@@ -22,19 +24,19 @@ namespace EasyPro.Provider
         {
             _context = context;
         }
-        public dynamic GenerateStatement(StatementFilter filter)
+        public async Task<dynamic> GenerateStatement(StatementFilter filter)
         {
             filter.Code = filter.Code ?? "";
             filter.Branch = filter.Branch ?? "";
-          
+
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            var productIntakeslist = await _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
+            && i.TransDate >= startDate && i.TransDate <= endDate && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()))
+                .ToListAsync();
 
-            var intakes = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
-            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate
-            && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
+            var intakes = productIntakeslist.Where(i => (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
                 .OrderBy(i => i.TransDate).ToList();
 
             var dailyGroupedIntakes = intakes.GroupBy(i => i.TransDate).ToList();
@@ -59,11 +61,9 @@ namespace EasyPro.Provider
                 grossPay += (qty * price);
             });
 
-            var deductionIntakes = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
-            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate && i.TransactionType == TransactionType.Deduction
+            var deductionIntakes = productIntakeslist.Where(i => i.TransactionType == TransactionType.Deduction
             && i.DR > 0).OrderBy(i => i.TransDate).ToList();
             var totalDeductions = deductionIntakes.Sum(d => d.DR);
-
             var transportationDeductions = deductionIntakes.Where(i => i.Description == "Transport");
             var deductions = new List<dynamic>
             {

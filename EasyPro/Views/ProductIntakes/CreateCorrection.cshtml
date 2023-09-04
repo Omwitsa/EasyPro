@@ -120,7 +120,7 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="Remarks" class="control-label"></label>
+                            <label class="control-label">@ViewBag.remarks</label>
                             <input asp-for="Remarks" id="Remarks" class="form-control" />
                             <span asp-validation-for="Remarks" class="text-danger"></span>
                         </div>
@@ -173,6 +173,7 @@
         $("#print").prop("checked", true);
         var today = new Date().toISOString().split('T')[0];
         $("#transDate").val(today);
+        $("#Remarks").val(@ViewBag.remarksValue);
         var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
         products = products ? products : [];
         document.getElementById('Sno').focus();
@@ -246,16 +247,19 @@
                         $("#Sno").val('');
                         $("#Qsupplied").val('');
                         document.getElementById('Sno').focus();
-                        getkgsfortheday();
-                        if (print){
-                            var content = generateHTML(response);
-                            printJS({
-                                printable: content,
-                                type: 'raw-html',
-                                style: '.blueText {color:blue;}'
-                            });
+                        response = response ? response : {};
+                        if (response.success) {
+                            $("#Remarks").val(response.remarksValue);
+                            getkgsfortheday();
+                            if (print) {
+                                var content = generateHTML(response);
+                                printJS({
+                                    printable: content,
+                                    type: 'raw-html',
+                                    style: '.blueText {color:blue;}'
+                                });
+                            }
                         }
-                        
                     },
                     failure: function (response) {
                     }

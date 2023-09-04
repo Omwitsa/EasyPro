@@ -86,12 +86,7 @@
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
             $('#sno').on('keyup', function () {
-                var sno = $("#sno").val();
-                var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
-                var suppliers = suppliers.filter(p => p.Sno === sno);
-                if (suppliers[0]) {
-                    $("#name").val(suppliers[0].Names);
-                }
+                getSupplier();
             });
 
             $('#print').on('click', function () {
@@ -132,6 +127,24 @@
                     });
                 }
             });
+
+            function getSupplier() {
+                var sno = $('#sno').val();
+                var branch = $("#branch").val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: `selectedDateIntake?sno=${sno}&branch=${branch}`,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#name").val(response.supplier.Names);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
 
             function generateHTML(response, filter) {
                 var mevng = $('#mevng').val();

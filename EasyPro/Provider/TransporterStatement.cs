@@ -3,9 +3,11 @@ using EasyPro.IProvider;
 using EasyPro.Models;
 using EasyPro.ViewModels.FarmersVM;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasyPro.Provider
 {
@@ -17,23 +19,24 @@ namespace EasyPro.Provider
             _context = context;
         }
 
-        public dynamic GenerateStatement(StatementFilter filter)
+        public async Task<dynamic> GenerateStatement(StatementFilter filter)
         {
             filter.Code = filter.Code ?? "";
             filter.Branch = filter.Branch ?? "";
 
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var transporterFarmers = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(filter.Code.ToUpper()) 
+            var transporterFarmers = await _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(filter.Code.ToUpper()) 
                 && t.saccocode == filter.Sacco && t.Branch.ToUpper().Equals(filter.Branch.ToUpper()))
-                .Select(t => t.Sno).ToList();
+                .Select(t => t.Sno).ToListAsync();
 
-            var intakes = _context.ProductIntake.Where(i => transporterFarmers.Contains(i.Sno) && i.SaccoCode == filter.Sacco
-            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate && i.CR > 0)
+            var productIntakes = await _context.ProductIntake.Where(i => i.SaccoCode == filter.Sacco
+            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate)
+                .ToListAsync();
+
+            var intakes = productIntakes.Where(i => transporterFarmers.Contains(i.Sno) && i.CR > 0)
                 .OrderBy(i => i.TransDate).ToList();
-
             var supplierGroupedIntakes = intakes.GroupBy(i => i.Sno).ToList();
-
             var transporters = new List<dynamic>();
             decimal totalKgs = 0;
             decimal? grossPay = 0;
@@ -54,8 +57,7 @@ namespace EasyPro.Provider
                 grossPay += (qty * transport.Rate);
             });
 
-            var deductionIntakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) && i.SaccoCode == filter.Sacco
-            && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate
+            var deductionIntakes = productIntakes.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) 
             && i.DR > 0).OrderBy(i => i.TransDate).ToList();
             var totalDeductions = deductionIntakes.Sum(d => d.DR);
 

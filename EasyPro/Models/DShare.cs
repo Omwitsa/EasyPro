@@ -32,6 +32,7 @@ namespace EasyPro.Models
         public decimal? Premium { get; set; }
         public decimal? Spu { get; set; }
         public string? SaccoCode { get; set; }
+        public string? Branch { get; set; }
         public string? zone { get; set; }
     }
 }
