@@ -1,5 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using EasyPro.Constants;
 using EasyPro.IProvider;
 using EasyPro.Models;
@@ -425,12 +426,15 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            sacco = sacco ?? "";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             dpayrollobj = _context.DPayrolls
-                .Where(p => p.EndofPeriod >= filter.DateFrom && p.EndofPeriod <= filter.DateTo && p.SaccoCode == sacco)
-                .OrderBy(s => s.Sno);
+                .Where(p => p.EndofPeriod >= filter.DateFrom && p.EndofPeriod <= filter.DateTo && p.SaccoCode == sacco);
+            if (user.AccessLevel == AccessLevel.Branch)
+                dpayrollobj = dpayrollobj.Where(i => i.Branch == saccoBranch).ToList();
 
+            dpayrollobj = dpayrollobj.OrderBy(s => s.Sno);
             DateTime month =  (DateTime)filter.DateTo;
             var startDate = new DateTime(month.Year, month.Month, 1);//month.AddMonths(0);
             var endDate = startDate.AddMonths(1).AddDays(-1);
@@ -604,10 +608,15 @@ namespace EasyPro.Controllers
 
         private List<payrolldetail> Gedpayrolldata(DateTime startDate, DateTime endDate)
         {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            IQueryable<DPayroll> dPayrolls = _context.DPayrolls;
-            var payrolllist = dPayrolls.Where(m => m.SaccoCode == sacco
-            && (m.EndofPeriod >= startDate && m.EndofPeriod <= endDate)).ToList().GroupBy(s => s.Sno).ToList();
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            IQueryable<DPayroll> dPayrolls = _context.DPayrolls.Where(m => m.SaccoCode == sacco
+            && (m.EndofPeriod >= startDate && m.EndofPeriod <= endDate));
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                dPayrolls = dPayrolls.Where(i => i.Branch == saccoBranch);
+            var payrolllist = dPayrolls.ToList().GroupBy(s => s.Sno).ToList();
             var payrollData = new List<payrolldetail>();
             payrolllist.ForEach(d =>
             {

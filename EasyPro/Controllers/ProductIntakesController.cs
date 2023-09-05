@@ -283,6 +283,7 @@ namespace EasyPro.Controllers
             }
 
             ViewBag.remarks = remarks;
+            ViewBag.slopes = StrValues.Slopes == sacco;
             ViewBag.remarksValue = remarksValue;
 
             return View(new ProductIntakeVm
@@ -447,6 +448,27 @@ namespace EasyPro.Controllers
             return Json(new
             {
                 supplier,
+                transporter
+            });
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetTransporterDetails(string transCode)
+        {
+            transCode = transCode ?? "";
+            utilities.SetUpPrivileges(this);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var branch = HttpContext.Session.GetString(StrValues.Branch);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var transporters = await _context.DTransporters.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.ParentT == sacco).ToListAsync();
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporters = transporters.Where(s => s.Tbranch.ToUpper().Equals(branch.ToUpper())).ToList();
+            var transporter = transporters.FirstOrDefault();
+            if (transporter == null)
+                transporter = new DTransporter { TransName = "", TransCode = "" };
+            return Json(new
+            {
                 transporter
             });
         }
@@ -690,6 +712,7 @@ namespace EasyPro.Controllers
 
             ViewBag.remarks = remarks;
             ViewBag.remarksValue = remarksValue;
+            ViewBag.slopes = StrValues.Slopes == sacco;
 
             var Todayskg = intakes.Sum(p => p.Qsupplied);
             var TodaysBranchkg = intakes.Where(s => s.Branch == saccoBranch).Sum(p => p.Qsupplied);
@@ -714,15 +737,20 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> Save([FromBody] ProductIntakeVm productIntake)
+        public async Task<JsonResult> Save([FromBody] ProductIntakeVm productIntake, string transCode)
         {
+            transCode = transCode ?? "";
             utilities.SetUpPrivileges(this);
             await SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             productIntake.Branch = saccoBranch;
+            productIntake.Sno = productIntake?.Sno ?? "";
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
+            productIntake.CR = productIntake?.CR ?? 0;
+            productIntake.DR = productIntake?.DR ?? 0;
+            productIntake.Auditdatetime = DateTime.Now;
             productIntake.Description = productIntake?.Description ?? "";
             if (string.IsNullOrEmpty(productIntake.Sno))
             {
@@ -804,7 +832,7 @@ namespace EasyPro.Controllers
                 TransactionType = productIntake.TransactionType,
                 Remarks = productIntake.Remarks,
                 AuditId = loggedInUser,
-                Auditdatetime = DateTime.Now,
+                Auditdatetime = productIntake.Auditdatetime,
                 Branch = productIntake.Branch,
                 SaccoCode = productIntake.SaccoCode,
                 DrAccNo = productIntake.DrAccNo,
@@ -816,16 +844,29 @@ namespace EasyPro.Controllers
 
             await calcDefaultdeductions(collection);
 
-            var transports = await _context.DTransports.Where(t => t.Sno == productIntake.Sno && t.Active
-            && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) && t.saccocode == sacco).ToListAsync();
+            var activeAssignments = await _context.DTransports.Where(t => t.Active && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) && t.saccocode == sacco).ToListAsync();
+            var transports = activeAssignments.Where(t => t.Sno == productIntake.Sno).ToList();
             if (user.AccessLevel == AccessLevel.Branch)
                 transports = transports.Where(s => s.Branch == saccoBranch).ToList();
+
+            var transporters = await _context.DTransporters.Where(h => h.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
 
             var transport = transports.FirstOrDefault();
             if (!string.IsNullOrEmpty(productIntake.MornEvening))
                 transport = transports.FirstOrDefault(t => t.Morning == productIntake.MornEvening);
-
-            if (transport != null)
+            if(StrValues.Slopes == sacco)
+            {
+                transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()));
+                if (transport == null)
+                    transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()));
+            }
+            transport = transport == null ? new DTransport() : transport;
+            transport.Rate = transport?.Rate ?? 0;
+            transport.TransCode = StrValues.Slopes == sacco ? transCode : transport?.TransCode ?? "";
+            var transporter = transporters.FirstOrDefault(t => t.TransCode.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()));
+            if (transporter != null)
             {
                 // Debit supplier transport amount
                 productIntake.CR = 0;
@@ -858,16 +899,11 @@ namespace EasyPro.Controllers
 
                 // Credit transpoter transport amount
                 ///CHECK IF TRANSPORTER IS PAID BY SOCIETY
-                var transporterscheck = _context.DTransporters.FirstOrDefault(h => h.ParentT.ToUpper().Equals(sacco.ToUpper())
-                && h.Tbranch.ToUpper().Equals(saccoBranch.ToUpper()));
-                if (transport.Rate == 0 && transporterscheck.Rate > 0)
-                {
-                    productIntake.CR = productIntake.Qsupplied * (decimal)transporterscheck.Rate;
-                }
+                
+                if (transport.Rate == 0 && transporter.Rate > 0)
+                    productIntake.CR = productIntake.Qsupplied * (decimal)transporter.Rate;
                 else
-                {
                     productIntake.CR = productIntake.Qsupplied * transport.Rate;
-                }
 
                 productIntake.DR = 0;
                 _context.ProductIntake.Add(new ProductIntake
@@ -1326,6 +1362,7 @@ namespace EasyPro.Controllers
                     SaccoCode = sacco,
                     DrAccNo = glsforbonus.Dedaccno,
                     CrAccNo = glsforbonus.Contraacc,
+                    Branch = saccoBranch
                 });
 
             }
@@ -1575,19 +1612,24 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> SaveCorrection([FromBody] ProductIntakeVm productIntake)
+        public async Task<JsonResult> SaveCorrection([FromBody] ProductIntakeVm productIntake, string transCode)
         {
+            transCode = transCode ?? "";
             await SetIntakeInitialValues(); 
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             productIntake.SaccoCode = sacco;
-            //var branch = _context.DBranch.FirstOrDefault(b => b.Bcode.ToUpper().Equals(sacco.ToUpper()));
             productIntake.Branch = saccoBranch;
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
-            productIntake.Description = productIntake?.Description ?? "";
-            productIntake.DR = 0;
+            productIntake.CR = productIntake?.CR ?? 0;
+            productIntake.DR = productIntake?.DR ?? 0;
+            productIntake.Auditdatetime = DateTime.Now;
+            productIntake.Description = "Correction";
+            productIntake.AuditId = loggedInUser ?? "";
+            productIntake.TransactionType = TransactionType.Correction;
+            productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
 
             if (string.IsNullOrEmpty(productIntake.Sno))
             {
@@ -1636,14 +1678,6 @@ namespace EasyPro.Controllers
                 });
             }
            
-            productIntake.AuditId = loggedInUser ?? "";
-            productIntake.Description = "Correction";
-            productIntake.TransactionType = TransactionType.Correction;
-            productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
-            productIntake.Auditdatetime = DateTime.Now;
-            //productIntake.Balance = utilities.GetBalance(productIntake);
-            //_context.Add(productIntake);
-
             var prices = 0;
             decimal totalamount = 0;
 
@@ -1705,16 +1739,29 @@ namespace EasyPro.Controllers
 
             await calcDefaultdeductions(collection);
 
-            var transports = await _context.DTransports.Where(t => t.Sno == productIntake.Sno && t.Active
-            && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper())
-            && t.saccocode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var activeAssignments = await _context.DTransports.Where(t => t.Active && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) && t.saccocode == sacco).ToListAsync();
+            var transports = activeAssignments.Where(t => t.Sno == productIntake.Sno).ToList();
             if (user.AccessLevel == AccessLevel.Branch)
                 transports = transports.Where(s => s.Branch == saccoBranch).ToList();
-            if (!string.IsNullOrEmpty(productIntake.MornEvening))
-                transports = transports.Where(t => t.Morning == productIntake.MornEvening).ToList();
+
+            var transporters = await _context.DTransporters.Where(h => h.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
 
             var transport = transports.FirstOrDefault();
-            if (transport != null)
+            if (!string.IsNullOrEmpty(productIntake.MornEvening))
+                transport = transports.FirstOrDefault(t => t.Morning == productIntake.MornEvening);
+            if (StrValues.Slopes == sacco)
+            {
+                transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()));
+                if (transport == null)
+                    transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()));
+            }
+            transport = transport == null ? new DTransport() : transport;
+            transport.Rate = transport?.Rate ?? 0;
+            transport.TransCode = StrValues.Slopes == sacco ? transCode : transport?.TransCode ?? "";
+            var transporter = transporters.FirstOrDefault(t => t.TransCode.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()));
+            if (transporter != null)
             {
                 // Debit supplier transport amount
                 productIntake.CR = 0;
@@ -1790,31 +1837,7 @@ namespace EasyPro.Controllers
                     MornEvening = productIntake.MornEvening
                 });
             }
-            //decimal? amount = 0;
-            //if (productIntake.Qsupplied > 1)
-            //{
-            //     amount = productIntake.CR > 0 ? productIntake.CR : productIntake.CR;
-            //}
-            //else
-            //{
-            //    amount = productIntake.DR > 0 ? productIntake.DR : productIntake.DR;
-            //    amount = amount * -1;
-
-            //}
-            //_context.Gltransactions.Add(new Gltransaction
-            //{
-            //    AuditId = auditId,
-            //    TransDate = DateTime.Today,
-            //    Amount = (decimal)amount,
-            //    AuditTime = DateTime.Now,
-            //    Source = productIntake.Sno,
-            //    TransDescript = "Correction",
-            //    Transactionno = $"{auditId}{DateTime.Now}",
-            //    SaccoCode = sacco,
-            //    DrAccNo = productIntake.DrAccNo,
-            //    CrAccNo = productIntake.CrAccNo,
-            //});
-
+           
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var intakes = await _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
@@ -1881,10 +1904,6 @@ namespace EasyPro.Controllers
                 MornEvening = productIntake.MornEvening ?? "Mornnig",
                 date = productIntake.TransDate
             };
-
-            /*
-            
-             */
 
             _context.SaveChanges();
             _notyf.Success("Correction saved successfully");

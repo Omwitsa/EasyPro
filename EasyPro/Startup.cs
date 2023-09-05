@@ -51,7 +51,7 @@ namespace EasyPro
             });
             services.AddDistributedMemoryCache();
             services.AddSession(options => {   
-                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.IdleTimeout = TimeSpan.FromHours(1);
             });
             services.AddControllersWithViews();
             services.AddControllers().AddNewtonsoftJson(options =>
