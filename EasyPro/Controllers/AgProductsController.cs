@@ -36,11 +36,12 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
-            var products = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()));
+            var products = await _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+                .OrderBy(p => p.PName).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
-                products = products.Where(p => p.Branch == saccobranch);
-            return View(await products.ToListAsync());
+                products = products.Where(p => p.Branch == saccobranch).ToList();
+            return View(products);
         }
         private void GetInitialValues()
         {

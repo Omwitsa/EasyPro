@@ -55,7 +55,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Product Name</label>
-                                <select id="pname" asp-for="AgReceipt.PCode" class="form-control" asp-items="@ViewBag.agproductsall">
+                                <select id="pname" asp-for="AgReceipt.PCode" class="chzn-select form-control" asp-items="@ViewBag.agproductsall">
                                 </select>
                                 <span asp-validation-for="AgReceipt.PCode" class="text-danger"></span>
                             </div>
@@ -247,11 +247,7 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                @*<label asp-for="AgReceipt.Branch" class="control-label"></label>
-                                <select id="bname" asp-for="AgReceipt.Branch" class="form-control" asp-items="@ViewBag.branches">
-                                <option value="" disabled selected hidden>Please select</option>
-                                </select>
-                                <span asp-validation-for="AgReceipt.Branch" class="text-danger"></span>*@
+                                
                             </div>
                         </div>
                     </div>
@@ -287,24 +283,24 @@
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                @*<label class="control-label">Total Amount</label>
-                                <input id="Amnttopay" class="form-control" readonly />*@
+                                <label class="control-label">Total Amount</label>
+                                <input id="Amnttopay" class="form-control" readonly />
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                @*<label class="control-label">Receive Amount</label>
-                                <input id="ttolpaid" class="form-control" readonly />*@
+                                <label class="control-label">Receive Amount</label>
+                                <input id="ttolpaid" class="form-control" readonly />
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                @*<label class="control-label">Balance Amount</label>
-                                <input id="balance" class="form-control" readonly />*@
+                                <label class="control-label">Balance Amount</label>
+                                <input id="balance" class="form-control" readonly />
                             </div>
                         </div>
                     </div>
@@ -347,6 +343,7 @@
     }
     <script type="text/javascript">
         $(function () {
+            $(".chzn-select").chosen();
             let isStaff = false;
             let isCash = false;
             let hasSend = true;
@@ -660,11 +657,31 @@
                 title = isCash ? "Agrovet Cash Sales Receipt" : title;
                 title = isStaff ? "Agrovet Staff Sales Receipt" : title;
                 title = isTransporter ? "Agrovet Transporter Sales Receipt" : title;
-                let itemContent = "";
-                saleItems.forEach(i => {
-                    itemContent = `${itemContent}${i.pname}      ${i.Qsupplied}      ${i.DR}</br>`;
-                })
-                var items = `Name:      Qnty:      Amount:  </br>${itemContent}`;
+                let totalAmount = 0;
+                var itemContentArr = saleItems.map(i => {
+                    totalAmount += i.DR;
+                    return `<tr>
+                                <td colspan="5">${i.pname}</td>
+                                <td>${i.Qsupplied}</td>
+                                <td colspan="2">${i.DR}</td>
+                            </tr>`;
+                });
+
+                var itemContent = itemContentArr.join('');
+                itemContent = `${itemContent}
+                                <tr>
+                                    <td colspan="6">Total:</td>
+                                    <td colspan="2">${totalAmount}</td>
+                                </tr>`;
+                items = `<table class="table">
+                            <tr>
+                                <th colspan="5">Name:</th>
+                                <th>Qnty:</th>   
+                                <th colspan="2">Amount:</th>
+                            </tr>
+                            <tbody>${itemContent}</tbody>
+                        </table>`;
+
                 var content = `<div class="row" id="printMe">
                                             <div class="col-xs-12 text-center">
                                                 ${response.receiptDetails.Name}</br>
@@ -691,7 +708,9 @@
                 let itemTableRows = new Array();
                 $("#Gross").val("");
                 $("#Deductions").val("");
+                let Amnttopay = 0;
                 saleItems.forEach(i => {
+                    Amnttopay += i.DR;
                     itemTableRows.push(`<tr>
                                     <td>${i.pcode}</td>
                                     <td>${i.pname}</td>
@@ -703,9 +722,8 @@
                 });
 
                 $('#details').html(itemTableRows);
-                var final = totalamnt + total;
-                $("#Amnttopay").val(final);
-                $("#balance").val(final - tpay);
+                $("#Amnttopay").val(Amnttopay);
+                $("#balance").val(0);
             }
 
             function getSoldItems() {
@@ -743,7 +761,6 @@
                     Balance: totalamnt,
                     Paid: "true",
                     Remarks: pname,
-                    Branch: $("#bname").val(),
                 });
 
                 getProductBal(pname);

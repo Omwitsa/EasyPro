@@ -772,7 +772,8 @@ namespace EasyPro.Controllers
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var transporters = await _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
-            var products = await _context.AgProducts.Where(p => p.saccocode == sacco).ToListAsync();
+            var products = await _context.AgProducts.Where(p => p.saccocode == sacco)
+                .OrderBy(p => p.PName).ToListAsync();
             var intakes = await _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())
             && u.TransDate >= startDate && u.TransDate <= endDate).ToListAsync();
             var staff = await _context.Employees.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();

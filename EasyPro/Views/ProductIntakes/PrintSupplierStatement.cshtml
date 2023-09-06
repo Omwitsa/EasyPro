@@ -149,7 +149,6 @@
             function generateHTML(response, filter) {
                 var mevng = $('#mevng').val();
                 var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
-                debugger
                 var supplierSummery = response.supplies.map(s => {
                     let transDate = new Date(s.date).toLocaleDateString();
                     return `<tr>
