@@ -367,7 +367,7 @@
             else {
                 $('#zone1').hide();
             }
-
+            
             $('input[type="radio"]').click(function () {
                 if ($(this).prop("checked") && $(this).attr('id') == 'cash') {
                     isStaff = false;
@@ -449,10 +449,13 @@
                         data: JSON.stringify(saleItems),
                         success: function (response) {
                             $("#save1").removeAttr("disabled");
-                            $("#RNo").val(response.rno)
-                            saleItems = new Array();
+                            $("#RNo").val(response.rno);
+                            if (print) {
+                                printReceipt(response, saleItems);
+                            }
                             populateTable();
                             clearafthersave();
+                            saleItems = new Array();
                         },
                         failure: function (response) {
                         }
@@ -632,6 +635,57 @@
             $('#qnty').on('keyup', function () {
                 calculatePrice();
             });
+
+            function printReceipt(intake, saleItems) {
+                var content = generateHTML(intake, saleItems);
+                printJS({
+                    printable: content,
+                    type: 'raw-html',
+                    style: '#printMe { font-size: 12px; }'
+                });
+            }
+
+            function generateHTML(response, saleItems) {
+                var mevng = $('#mevng').val();
+                var date = new Date().toLocaleDateString("en-US");
+                let isFarmer = $('#checkOff').prop("checked");
+                let isCash = $('#cash').prop("checked");
+                let isTransporter = $('#transporter').prop("checked");
+                let isStaff = $('#staff').prop("checked");
+
+                let sno = isFarmer ? `SNo: ${response.receiptDetails.Sno}</br>` : "";
+                let supName = isFarmer ? `Name: ${response.receiptDetails.supName}</br>` : "";
+                let title = "Agrovet Sales Receipt";
+                title = isFarmer ? "CheckOff Agrovet Receipt" : title;
+                title = isCash ? "Agrovet Cash Sales Receipt" : title;
+                title = isStaff ? "Agrovet Staff Sales Receipt" : title;
+                title = isTransporter ? "Agrovet Transporter Sales Receipt" : title;
+                let itemContent = "";
+                saleItems.forEach(i => {
+                    itemContent = `${itemContent}${i.pname}      ${i.Qsupplied}      ${i.DR}</br>`;
+                })
+                var items = `Name:      Qnty:      Amount:  </br>${itemContent}`;
+                var content = `<div class="row" id="printMe">
+                                            <div class="col-xs-12 text-center">
+                                                ${response.receiptDetails.Name}</br>
+                                                Adress: ${response.receiptDetails.Adress}</br>
+                                                Tell: ${response.receiptDetails.PhoneNo}</br>
+                                                Town: ${response.receiptDetails.Town}</br>
+                                                Branch: ${response.receiptDetails.saccoBranch}</br>
+                                                *************************</br>
+                                                ${title}</br>
+                                                ${sno}
+                                                ${supName}
+                                                ${items}
+                                                Received By: ${response.receiptDetails.loggedInUser}</br>
+                                                DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</br>
+                                                *************************
+                                                <hr>
+                                            </div>
+                                        </div>`;
+
+                return content;
+            }
 
             function populateTable() {
                 let itemTableRows = new Array();

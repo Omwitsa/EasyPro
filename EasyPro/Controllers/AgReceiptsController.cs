@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Constants;
+using EasyPro.IProvider;
+using EasyPro.Models;
+using EasyPro.Utils;
+using EasyPro.ViewModels;
+using EasyPro.ViewModels.TranssupplyVM;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using EasyPro.Models;
-using AspNetCoreHero.ToastNotification.Abstractions;
-using EasyPro.Utils;
-using Microsoft.AspNetCore.Http;
-using EasyPro.Constants;
-using EasyPro.ViewModels.TranssupplyVM;
-using EasyPro.ViewModels;
-using EasyPro.IProvider;
-using System.Drawing.Printing;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
-using NPOI.SS.Formula.Functions;
-using Stripe;
+using System.Drawing.Printing;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
@@ -96,7 +94,7 @@ namespace EasyPro.Controllers
         }
         //PRODUCT SALES
         [HttpPost]
-        public JsonResult Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool isCash, bool sms, bool print, decimal net)
+        public async Task<JsonResult> Save([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool isCash, bool sms, bool print, decimal net)
         {
             try
             {
@@ -115,7 +113,6 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly Farmers Number");
                     return Json("");
                 }
-
                 
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -134,6 +131,7 @@ namespace EasyPro.Controllers
                 var products = _context.AgProducts.Where(p => p.saccocode == sacco);
                 foreach(var intake in intakes)
                 {
+                    intake.Sno = intake?.Sno ?? "";
                     intake.Description = intake?.Description ?? "";
                     intake.SaccoCode = sacco;
                     intake.Branch = saccobranch;
@@ -143,27 +141,18 @@ namespace EasyPro.Controllers
                     intake.Auditdatetime = DateTime.Now;
                     intake.DrAccNo = intake.DrAccNo;
                     intake.CrAccNo = intake.CrAccNo;
-                    if (intake.Sno == "")
+                    if (string.IsNullOrEmpty(intake.Sno))
                         intake.Sno = "cash";
                     intake.Zone = intake.Zone;
 
                     var cashchecker = false;
-                    if (cash == "")
+                    if (string.IsNullOrEmpty(cash))
                         cashchecker = true;
 
                     var product = products.FirstOrDefault(p => p.PName.ToUpper().Equals(intake.Description.ToUpper()));
                     if (product != null)
                     {
                         var bal = product.OBal - (double?)intake.Qsupplied;
-
-                        var receiptExist = _context.AgReceipts.Any(r => r.RNo == RNo && r.PCode == product.PCode && r.TDate == intake.TransDate && r.Amount == intake.DR
-                        && r.SNo == intake.Sno && r.Remarks == intake.Description && r.saccocode == sacco && r.Branch == intake.Branch);
-                        if (receiptExist)
-                        {
-                            _notyf.Error("Sorry, Similar product has already been issued to the client today");
-                            return Json("");
-                        }
-
                         _context.AgReceipts.Add(new AgReceipt
                         {
                             RNo = RNo,
@@ -206,6 +195,7 @@ namespace EasyPro.Controllers
                             SaccoCode = sacco,
                             DrAccNo = product.Draccno,
                             CrAccNo = product.Craccno,
+                            Branch = saccobranch
                         });
                         //NEED TO BE CREATED STAFF DEDUCTION TABLE FOR ALL DEDUCTIONS
                         if (isStaff == true)
@@ -255,8 +245,10 @@ namespace EasyPro.Controllers
 
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");
-                if (print)
-                    PrintP(intakes, RNo);
+
+                var receiptDetails = await GetReceiptDetails(intakes);
+                //PrintP(intakes, RNo);
+
 
                 var receipts = _context.AgReceipts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
@@ -265,13 +257,176 @@ namespace EasyPro.Controllers
                 double rno = Convert.ToInt32(receipt1.RNo);
                 return Json(new
                 {
-                    rno = (rno + 1)
+                    rno = (rno + 1),
+                    receiptDetails
                 });
             }
             catch (Exception e)
             {
                 return Json("");
             }
+        }
+
+        private async Task<dynamic> GetReceiptDetails(List<ProductIntake> intakes)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            // cummulative kgs calc
+
+            var sno = intakes.FirstOrDefault()?.Sno ?? "";
+            var suppliers = await _context.DSuppliers.Where(s => s.Sno.ToUpper().Equals(sno.ToUpper()) && s.Scode == sacco).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+
+            var supplier = suppliers.FirstOrDefault();
+            if (supplier == null)
+                supplier = new DSupplier();
+            //string pname = string.Format("{0:.###}", i.Remarks).PadLeft(8);
+            //string BQnty = string.Format("{0:.###}", i.Qua).PadLeft(12);
+            //string Amt = string.Format("{0:.###}", i.Amount).PadLeft(14);
+            //string Body = pname + BQnty + BQnty + Amt;
+
+                // var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(intake.Sno)
+                //&& s.Scode == intake.SaccoCode && s.Branch == intake.Branch);
+
+
+                /*
+
+                ProductIntake items = sender as ProductIntake;
+                var R = rNo;
+                if (items != null)
+                {
+                    // Start printing your items.
+                    var agReceiptsvalues = _context.AgReceipts.Where(k=>k.TDate== items.TransDate 
+                    && k.SNo.ToUpper().Equals(items.Sno.ToUpper()) && k.RNo==R).ToList();
+                    DateTime startDate = new DateTime(items.TransDate.Year, items.TransDate.Month, 1);
+                    DateTime enDate = startDate.AddMonths(1).AddDays(-1);
+
+                    var productIntakes = _context.ProductIntake.FirstOrDefault(u => u.Id == items.Id);
+
+                    var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
+                    u.Sno.ToString() == items.Sno && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
+
+
+
+                    Graphics graphics = e.Graphics;
+                    Font font = new Font("Times New Roman", 8);
+                    float fontHeight = font.GetHeight();
+
+                    int startX = 10;
+                    int startY = -40;
+                    int offset = 40;
+
+
+                    graphics.DrawString(companies.Name, font, new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    graphics.DrawString(companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    graphics.DrawString(companies.Town.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    graphics.DrawString("Tell: " + companies.PhoneNo.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    graphics.DrawString("Branch: " + saccoBranch, font, new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    string line = "---------------------------------------------";
+                    graphics.DrawString(line, font, new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    var datet = items.TransDate.ToString("dd/MM/yyy");
+                    string sno = items.Sno.PadRight(10);
+                    if(sno.ToUpper()!="CASH" && sno.ToUpper() != "STAFF")
+                    {
+                        graphics.DrawString("CheckOff Agrovet Receipt".PadRight(15), new Font("Times New Roman", 12), new SolidBrush(Color.Black), startX, startY + offset);
+                        offset = offset + (int)fontHeight + 5;
+                        graphics.DrawString("SNo: " + sno, font, new SolidBrush(Color.Black), startX, startY + offset);
+                        offset = offset + (int)fontHeight + 5;
+
+                        string name = supplier.Names.ToString();
+                        graphics.DrawString("Name: " + name, font, new SolidBrush(Color.Black), startX, startY + offset);
+                        offset = offset + (int)fontHeight + 5;
+                    }
+
+                    if (sno.ToUpper() == "CASH" )
+                    {
+                        graphics.DrawString("Agrovet Cash Sales Receipt".PadRight(15), new Font("Times New Roman", 12), new SolidBrush(Color.Black), startX, startY + offset);
+                        offset = offset + (int)fontHeight + 5;
+                    }
+
+                    if (sno.ToUpper() == "STAFF")
+                    {
+                        graphics.DrawString("Agrovet Staff Sales Receipt".PadRight(15), new Font("Times New Roman", 12), new SolidBrush(Color.Black), startX, startY + offset);
+                        offset = offset + (int)fontHeight + 5;
+                    }
+                    graphics.DrawString("Date"+ items.TransDate, new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    string HName = "Name".PadLeft(16);
+                    string HQnty = "Qnty".PadLeft(17);
+                    string HAmount = "Amount".PadLeft(18);
+                    string Heading = HName + HQnty + HAmount;
+                    graphics.DrawString(Heading, new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    agReceiptsvalues.ForEach(i => {
+                        string pname = string.Format("{0:.###}", i.Remarks).PadLeft(8);
+                        string BQnty = string.Format("{0:.###}", i.Qua).PadLeft(12);
+                        string Amt = string.Format("{0:.###}", i.Amount).PadLeft(14);
+                        string Body = pname + BQnty + BQnty + Amt;
+
+                        graphics.DrawString(Body, new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+                        offset = offset + (int)fontHeight + 5;
+                    });
+
+                    string line1 = "---------------------------------------------";
+                    graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    graphics.DrawString("Served By: " + loggedInUser, font, new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+
+                    graphics.DrawString("Date: " + DateTime.Now, font, new SolidBrush(Color.Black), startX, startY + offset);
+
+                    offset = offset + (int)fontHeight + 5;
+
+                    string line2 = "---------------------------------------------";
+                    graphics.DrawString(line2, font, new SolidBrush(Color.Black), startX, startY + offset);
+
+                    offset = offset + (int)fontHeight + 5;
+                    startY = startY + 20;
+                    string dev = "DEVELOP BY: AMTECH TECHNOLOGIES LIMITED";
+                    graphics.DrawString(dev.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+
+                    offset = offset + (int)fontHeight + 5;
+                    startY = startY + 20;
+                    string dev1 = " ";
+                    graphics.DrawString(dev1.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+                    offset = offset + (int)fontHeight + 5;
+                    graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
+
+
+                }
+                 */
+            return new
+            {
+                companies.Name,
+                companies.Adress,
+                companies.Town,
+                companies.PhoneNo,
+                saccoBranch,
+                supplier.Sno,
+                supName = supplier.Names,
+                loggedInUser,
+            };
         }
 
         //start

@@ -1039,8 +1039,14 @@ namespace EasyPro.Controllers
 
             var cumkg = intakes.Sum(d => d.Qsupplied);
             string cummkgs = string.Format("{0:.###}", cumkg);
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(intake.Sno) 
-            && s.Scode == intake.SaccoCode && s.Branch == intake.Branch);
+            var suppliers = await _context.DSuppliers.Where(s => s.Sno.ToUpper().Equals(intake.Sno) 
+            && s.Scode == intake.SaccoCode).ToListAsync();
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == intake.Branch).ToList();
+
+            var supplier = suppliers.FirstOrDefault();
             return new
             {
                 companies.Name,
