@@ -26,8 +26,8 @@ namespace EasyPro.Provider
 
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var transporterFarmers = await _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(filter.Code.ToUpper()) 
-                && t.saccocode == filter.Sacco && t.Branch.ToUpper().Equals(filter.Branch.ToUpper()))
+            var transporterFarmers = await _context.DTransports.Where(t =>t.Active && t.TransCode.ToUpper().Equals(filter.Code.ToUpper()) 
+                && t.saccocode == filter.Sacco && t.Branch.ToUpper().Equals(filter.Branch.ToUpper()) )
                 .Select(t => t.Sno).ToListAsync();
 
             var productIntakes = await _context.ProductIntake.Where(i => i.SaccoCode == filter.Sacco
