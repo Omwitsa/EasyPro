@@ -88,7 +88,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco);
+            var todaysIntake = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco && L.Branch== saccoBranch);
 
             return Json(todaysIntake);
         }
@@ -240,7 +240,7 @@ namespace EasyPro.Controllers
                         CR = i.CR,
                         DR = i.DR,
                         Balance = bal,
-                        Description = i.Remarks,
+                        Description = i.Description,
                         Remarks = i.Remarks,
                         Auditdatetime = DateTime.Now,
                         //shares= ViewBag.shares,
@@ -250,8 +250,18 @@ namespace EasyPro.Controllers
 
             });
 
-            
+            var trancode = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && t.saccocode == sacco && t.Branch == saccobranch)?.TransCode ?? "";
+            var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco && t.Tbranch == saccobranch);
+            if (transporter != null)
+            {
+                MilkEnquryVM.Add(new MilkEnqury
+                {
+                    Transporter = transporter.TransName,
+                });
+            }
+
             var shar = ViewBag.shares;
+
             if (shar > 0)
             {
                 MilkEnquryVM.Add( new MilkEnqury

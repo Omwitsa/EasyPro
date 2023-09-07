@@ -488,6 +488,7 @@ namespace EasyPro.Controllers
                     });
                 }
             });
+            _context.SaveChanges();
         }
         private void calcstandingorder(DateTime startDate, DateTime endDate, string sacco, string loggedInUser)
         {
@@ -703,7 +704,7 @@ namespace EasyPro.Controllers
                             DR = dr,
                             Description = "Transport",
                             TransactionType = TransactionType.Deduction,
-                            Remarks = intake.Remarks,
+                            Remarks = "Transport",
                             AuditId = loggedInUser,
                             Auditdatetime = DateTime.Now,
                             Branch = intake.Branch,
@@ -741,7 +742,7 @@ namespace EasyPro.Controllers
                         DR = dr,
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
-                        Remarks = intake.Remarks,
+                        Remarks = "Transport",
                         AuditId = loggedInUser,
                         Auditdatetime = DateTime.Now,
                         Branch = intake.Branch,

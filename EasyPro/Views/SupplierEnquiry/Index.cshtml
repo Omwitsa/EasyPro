@@ -62,8 +62,9 @@
                         <div class="col-lg-3 col-xs-12">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
-                                    <label class="control-label">Maximum Loan Amt</label>
-                                    <input id="maxloan" readonly autocomplete="off" class="form-control font-weight-bold w3-text-green" />
+                                    <label class="control-label">Transporter Name</label>
+                                    <input id="maxloan" readonly autocomplete="off" disabled hidden class="form-control font-weight-bold w3-text-green" />
+                                    <input id="Transporter" readonly autocomplete="off" disabled class="form-control font-weight-bold w3-text-green" />
                                 </div>
                             </div>
                         </div>
@@ -359,6 +360,7 @@
             function populateIntake(intake) {
                 var selectVal = $("#sno").val();
                 var share = 0;
+                var Transporter = 0;
                 var checkiftoenable1 = @Html.Raw(Json.Serialize(ViewBag.shares));
                 $("#shar").val(checkiftoenable1);
                 let itemTableRows = new Array();
@@ -370,6 +372,7 @@
                 let totkgs = 0;
                 intake.entries.forEach(i => {
                     share = i.shares;
+                    Transporter = i.Transporter;
                     var chek = i.ProductType === null ? -1 : 1;
                     var dd1 = new Date(i.TransDate).toLocaleDateString();
                     if (chek>0) {
@@ -396,6 +399,7 @@
                 $('#grosspay').val(Total);
                 $('#totkgs').val(intake.getsumkgs);
                 $('#shar').val(share);
+                $('#Transporter').val(Transporter);
                 $('#intakes').html(itemTableRows);
             }
         });
