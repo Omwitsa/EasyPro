@@ -514,6 +514,7 @@ namespace EasyPro.Controllers
                     });
                 }
             });
+            _context.SaveChanges();
         }
         
         private async Task CalcDefaultdeductions(DateTime startDate, DateTime endDate, List<ProductIntake> productIntakeslist)
@@ -696,7 +697,7 @@ namespace EasyPro.Controllers
                             DR = dr,
                             Description = "Transport",
                             TransactionType = TransactionType.Deduction,
-                            Remarks = intake.Remarks,
+                            Remarks = "Transport",
                             AuditId = loggedInUser,
                             Auditdatetime = DateTime.Now,
                             Branch = intake.Branch,
@@ -725,7 +726,7 @@ namespace EasyPro.Controllers
                         DR = dr,
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
-                        Remarks = intake.Remarks,
+                        Remarks = "Transport",
                         AuditId = loggedInUser,
                         Auditdatetime = DateTime.Now,
                         Branch = intake.Branch,

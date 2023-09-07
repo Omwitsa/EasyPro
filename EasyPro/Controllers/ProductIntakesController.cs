@@ -474,13 +474,13 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult checkifalreadyexist(string sno, DateTime date)
+        public JsonResult checkifalreadyexist(string sno, DateTime date, string type)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var checkifdelievedtoday = _context.ProductIntake.Any(L => L.SaccoCode == sacco
-            && L.Branch == saccoBranch && L.TransDate == date && L.Sno.ToUpper().Equals(sno.ToUpper()));
+            && L.Branch == saccoBranch && L.TransDate == date && L.ProductType.ToUpper().Equals(type.ToUpper()) && L.Description == "Transport" && L.Sno.ToUpper().Equals(sno.ToUpper()));
             return Json(checkifdelievedtoday);
         }
         
@@ -520,14 +520,14 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var Todayskg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date).Sum(p => p.Qsupplied);
-            var TodaysSubtractedkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.DR>0 && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date).Sum(p => p.Qsupplied);
+            //var TodaysSubtractedkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.DR>0 && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date).Sum(p => p.Qsupplied);
             var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
-            var TodaysBranchkgSubtracted = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.DR>0 && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+            // var TodaysBranchkgSubtracted = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.DR>0 && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
 
             return Json(new dailymilkVM
             {
-                Todayskg = Todayskg - TodaysSubtractedkg,
-                TodaysBranchkg = TodaysBranchkg- TodaysBranchkgSubtracted
+                Todayskg = Todayskg, //- TodaysSubtractedkg,
+                TodaysBranchkg = TodaysBranchkg  //- TodaysBranchkgSubtracted
             });
         }
         private async Task SetIntakeInitialValues()
@@ -872,13 +872,20 @@ namespace EasyPro.Controllers
                 productIntake.CR = 0;
                 productIntake.DR = productIntake.Qsupplied * transport.Rate;
                 productIntake.Balance = productIntake.Balance - productIntake.DR;
+
+                decimal kgsToEnter = (decimal)productIntake.Qsupplied;
+                if (sacco == "ELBURGON PROGRESSIVE DAIRY FCS")
+                {
+                    kgsToEnter = 0;
+                }
+
                 collection = new ProductIntake
                 {
                     Sno = productIntake.Sno.Trim().ToUpper(),
                     TransDate = productIntake?.TransDate ?? DateTime.Today,
                     TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                     ProductType = productIntake.ProductType,
-                    Qsupplied = (decimal)productIntake.Qsupplied,
+                    Qsupplied = kgsToEnter,
                     Ppu = transport.Rate,
                     CR = productIntake.CR,
                     DR = productIntake.DR,
@@ -1777,6 +1784,11 @@ namespace EasyPro.Controllers
                     productIntake.CR = (decimal?)((productIntake.Qsupplied * transport.Rate) * -1);
                     productIntake.DR = 0;
                 }
+                decimal kgsToEnter = (decimal)productIntake.Qsupplied;
+                if (sacco == "ELBURGON PROGRESSIVE DAIRY FCS")
+                {
+                    kgsToEnter=0;
+                }
 
                 productIntake.Balance = productIntake.Balance + productIntake.CR;
                 collection = new ProductIntake
@@ -1785,7 +1797,7 @@ namespace EasyPro.Controllers
                     TransDate = (DateTime)productIntake.TransDate,
                     TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                     ProductType = productIntake.ProductType,
-                    Qsupplied = (decimal)productIntake.Qsupplied,
+                    Qsupplied = kgsToEnter,
                     Ppu = transport.Rate,
                     CR = productIntake.CR,
                     DR = productIntake.DR,

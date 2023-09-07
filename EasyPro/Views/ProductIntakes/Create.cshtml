@@ -349,10 +349,11 @@
             function checkifalreadyexist() {
                 var sno = $('#Sno').val();
                 var date = $("#transDate").val();
+                var type = $("#ProductType").val();
                 $.ajax(
                     {
                         type: 'GET',
-                        url: "checkifalreadyexist?sno=" + sno + "&date=" + date,
+                        url: "checkifalreadyexist?sno=" + sno + "&date=" + date + "&type=" + type,
                         contentType: 'application/json',
                         success: function (response) {
                             if (response) {
