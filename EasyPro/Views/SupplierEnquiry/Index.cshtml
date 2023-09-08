@@ -360,11 +360,12 @@
             function populateIntake(intake) {
                 var selectVal = $("#sno").val();
                 var share = 0;
-                var Transporter = 0;
+                var transporter = 0;
                 var checkiftoenable1 = @Html.Raw(Json.Serialize(ViewBag.shares));
                 $("#shar").val(checkiftoenable1);
                 let itemTableRows = new Array();
                 share = intake.entries.shares;
+                transporter = intake.entries.transporter;
 
                 let Total = 0;
                 let Total2 = 0;
@@ -372,7 +373,8 @@
                 let totkgs = 0;
                 intake.entries.forEach(i => {
                     share = i.shares;
-                    Transporter = i.Transporter;
+                    transporter = i.Transporter;
+                    
                     var chek = i.ProductType === null ? -1 : 1;
                     var dd1 = new Date(i.TransDate).toLocaleDateString();
                     if (chek>0) {
@@ -399,7 +401,7 @@
                 $('#grosspay').val(Total);
                 $('#totkgs').val(intake.getsumkgs);
                 $('#shar').val(share);
-                $('#Transporter').val(Transporter);
+                $('#Transporter').val(transporter);
                 $('#intakes').html(itemTableRows);
             }
         });

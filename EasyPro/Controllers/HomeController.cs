@@ -55,8 +55,8 @@ namespace EasyPro.Controllers
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
             ViewBag.isElburgon = StrValues.Elburgon == sacco;
-            if(StrValues.Elburgon != sacco)
-            {
+            //if(StrValues.Elburgon != sacco)
+           // {
                 IQueryable<DSupplier> suppliers = _context.DSuppliers;
                 var supplierList = await suppliers.Where(m => m.Scode == sacco).ToListAsync();
                 double totalSuppliers = supplierList.Count();
@@ -185,7 +185,7 @@ namespace EasyPro.Controllers
                 ViewBag.agrovet = 0;
                 ViewBag.bonus = 0;
                 ViewBag.shares = 0;
-            }
+            //}
  
             return View();
         }

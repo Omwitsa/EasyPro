@@ -926,7 +926,7 @@ namespace EasyPro.Controllers
                     Balance = productIntake.Balance,
                     Description = "Transport",
                     TransactionType = TransactionType.Deduction,
-                    Remarks = productIntake.Remarks,
+                    Remarks ="Intake for"+ productIntake.Sno ,
                     AuditId = loggedInUser,
                     Auditdatetime = productIntake.Auditdatetime,
                     Branch = productIntake.Branch,
@@ -1542,7 +1542,16 @@ namespace EasyPro.Controllers
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
                 productIntake.AuditId = auditId ?? "";
                 productIntake.Qsupplied = 0;
-                productIntake.CR = 0;
+                if (productIntake.DR > 0)
+                {
+                    productIntake.DR = productIntake.DR;
+                    productIntake.CR = 0;
+                }
+                else
+                {
+                    productIntake.CR = (productIntake.DR * -1);
+                    productIntake.DR = 0;
+                }
                 string re = productIntake.Remarks;
                 if (string.IsNullOrEmpty(productIntake.Remarks))
                     re = productIntake.ProductType;
@@ -1844,7 +1853,7 @@ namespace EasyPro.Controllers
                     Balance = productIntake.Balance,
                     Description = "Transport",
                     TransactionType = TransactionType.Deduction,
-                    Remarks = productIntake.Remarks,
+                    Remarks = "Intake for" + productIntake.Sno,
                     AuditId = loggedInUser,
                     Auditdatetime = productIntake.Auditdatetime,
                     Branch = productIntake.Branch,
