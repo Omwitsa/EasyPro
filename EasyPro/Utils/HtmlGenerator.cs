@@ -81,7 +81,7 @@ namespace EasyPro.Utils
             return sb.ToString();
         }
 
-        public static string GenerateIntakesHtml(IEnumerable<ProductIntake> productIntakeobj, DCompany company, string title, IQueryable<DSupplier> suppliers)
+        public static string GenerateIntakesHtml(IEnumerable<ProductIntake> productIntakeobj, DCompany company, string title, IEnumerable<DSupplier> suppliers)
         {
             var sb = new StringBuilder();
             sb.Append(@"
@@ -123,9 +123,12 @@ namespace EasyPro.Utils
                                         <tbody>
             ", title);
 
+            decimal total = 0;
             foreach (var intake in productIntakeobj)
             {
-                var supplier = suppliers.FirstOrDefault(s => s.Sno.ToString() == intake.Sno);
+                total += intake.Qsupplied;
+                intake.Sno = intake?.Sno ?? "";
+                var supplier = suppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(intake.Sno.ToUpper()));
                 var supplierName = supplier?.Names ?? "";
                 var checkifexist = suppliers.Where(u => u.Sno == intake.Sno);
                 if (checkifexist.Any())
@@ -145,6 +148,14 @@ namespace EasyPro.Utils
                               intake.Qsupplied, intake.Ppu, intake.Description);
                 }
             }
+
+            sb.AppendFormat(@"
+                            <tr>
+                                <td>Total Kgs</td>
+                                <td>{0}</td>
+                            </tr>
+                            ",
+                            total);
 
             sb.Append(@"
                                     </tbody>
@@ -635,7 +646,7 @@ namespace EasyPro.Utils
             return sb.ToString();
         }
 
-        public static string GenerateSuppliersDeductionsHtml(IEnumerable<ProductIntake> productIntakeobj, DCompany company, string title, IQueryable<DSupplier> suppliers)
+        public static string GenerateSuppliersDeductionsHtml(IEnumerable<ProductIntake> productIntakeobj, DCompany company, string title, IEnumerable<DSupplier> suppliers)
         {
             var sb = new StringBuilder();
             sb.Append(@"
@@ -780,6 +791,155 @@ namespace EasyPro.Utils
                               Supplier.Type, Supplier.Village, Supplier.Location, Supplier.Division,
                               Supplier.District, Supplier.County);
             }
+
+            sb.Append(@"
+                                    </tbody>
+                                </table>
+                            </body>
+                        </html>");
+            return sb.ToString();
+        }
+
+        public static string GenerateDailySummaryHtml(List<IGrouping<DateTime, ProductIntake>> intakes, DCompany company, string title)
+        {
+            var sb = new StringBuilder();
+            sb.Append(@"
+                        <html>
+                            <head>
+                            </head>
+                            <body>");
+
+            sb.AppendFormat(@"<table>
+                                <tr>
+                                    <td>{0}</td>
+                                </tr>
+                                <tr>
+                                   <td>{1}</td>
+                                </tr>
+                                <tr>
+                                   <td>{2}</td>
+                                </tr>
+                                <tr>
+                                   <td>{3}</td>
+                                </tr>
+                              </table>",
+                              company.Name, company.Adress, company.Town, company.Email);
+
+            sb.AppendFormat(@"
+                                <div class='header'><h3>{0} List</h3></div><hr/>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th></th>
+                                                <th>Qsupplied</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+            ", title);
+
+            decimal totalKgs = 0;
+            foreach (var intake in intakes)
+            {
+                var date = intake.Key.ToString("MM/dd/yyyy");
+                var qnty = intake.Sum(i => i.Qsupplied);
+                totalKgs += qnty;
+                sb.AppendFormat(@"
+                            <tr>
+                                <td>{0}</td>
+                                <td></td>
+                                <td>{1}</td>
+                            </tr>
+                            ",
+                              date, qnty);
+            }
+
+            sb.AppendFormat(@"
+                            <tr>
+                                <td>TotalKgs</td>
+                                <td></td>
+                                <td>{0}</td>
+                            </tr>
+                            ",
+                             totalKgs);
+
+            sb.Append(@"
+                                    </tbody>
+                                </table>
+                            </body>
+                        </html>");
+            return sb.ToString();
+        }
+
+        public static string GenerateBankPayrollHtml(IEnumerable<DPayroll> dpayrollobj, DCompany company, string title, IQueryable<DSupplier> suppliers)
+        {
+            var sb = new StringBuilder();
+            sb.Append(@"
+                        <html>
+                            <head>
+                            </head>
+                            <body>");
+
+            sb.AppendFormat(@"<table>
+                                <tr>
+                                    <td>{0}</td>
+                                </tr>
+                                <tr>
+                                   <td>{1}</td>
+                                </tr>
+                                <tr>
+                                   <td>{2}</td>
+                                </tr>
+                                <tr>
+                                   <td>{3}</td>
+                                </tr>
+                              </table>",
+                              company.Name, company.Adress, company.Town, company.Email);
+
+            sb.AppendFormat(@"
+                                <div class='header'><h3>{0} List</h3></div><hr/>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Sno</th>
+                                                <th>Name</th>
+                                                <th>IdNo</th>
+                                                <th>Bank</th>
+                                                <th>AccNo</th>
+                                                <th>Branch</th>
+                                                <th>Net Pay</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+            ", title);
+
+            decimal? total = 0;
+            foreach (var payroll in dpayrollobj)
+            {
+                var supplier = suppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(payroll.Sno.ToUpper()));
+                total += payroll.Npay;
+                sb.AppendFormat(@"
+                            <tr>
+                                <td>{0}</td>
+                                <td>{1}</td>
+                                <td>{2}</td>
+                                <td>{3}</td>
+                                <td>{4}</td>
+                                <td>{5}</td>
+                                <td>{6}</td>
+                            </tr>
+                            ",
+                              payroll.Sno, supplier.Names, supplier.IdNo, supplier.Bcode, supplier.AccNo, supplier.Bbranch, payroll.Npay);
+            }
+
+            sb.AppendFormat(@"
+                            <tr>
+                                <td>Total:</td>
+                                <td></td>
+                                <td>{0}</td>
+                            </tr>
+                            ",
+                             total);
 
             sb.Append(@"
                                     </tbody>

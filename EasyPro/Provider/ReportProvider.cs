@@ -5,10 +5,13 @@ using EasyPro.IProvider;
 using EasyPro.Models;
 using EasyPro.Utils;
 using EasyPro.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace EasyPro.Provider
 {
@@ -56,10 +59,14 @@ namespace EasyPro.Provider
             return _converter.Convert(htmlToPdfDocument);
         }
 
-        public byte[] GetIntakesPdf(IEnumerable<ProductIntake> productIntakeobj, DCompany company, string title, TransactionType type)
+        public async Task<byte[]> GetIntakesPdf(IEnumerable<ProductIntake> productIntakeobj, DCompany company, string title, TransactionType type, string loggedInUser, string saccoBranch)
         {
             title = title ?? "";
-            var suppliers = _context.DSuppliers.Where(s => s.Scode == company.Name);
+            var suppliers = await _context.DSuppliers.Where(s => s.Scode == company.Name).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(i => i.Branch == saccoBranch).ToList();
+
             var content = HtmlGenerator.GenerateIntakesHtml(productIntakeobj, company, title, suppliers);
             if(type == TransactionType.Deduction)
                 content = HtmlGenerator.GenerateSuppliersDeductionsHtml(productIntakeobj, company, title, suppliers);
@@ -225,6 +232,29 @@ namespace EasyPro.Provider
             return _converter.Convert(htmlToPdfDocument);
         }
 
+        public byte[] GetDailySummary(List<IGrouping<DateTime, ProductIntake>> intakes, DCompany company, string title)
+        {
+            title = title ?? "";
+            var objectSettings = new ObjectSettings
+            {
+                PagesCount = true,
+                HtmlContent = HtmlGenerator.GenerateDailySummaryHtml(intakes, company, title),
+                WebSettings = { DefaultEncoding = "utf-8" },
+                HeaderSettings = { FontSize = 10, Right = "Page [page] of [toPage]", Line = true },
+                FooterSettings = { FontSize = 8, Center = title, Line = true },
+            };
+
+            recieptGlobalSettings.DocumentTitle = $"{title}";
+            HtmlToPdfDocument htmlToPdfDocument = new HtmlToPdfDocument()
+            {
+                GlobalSettings = pdfGlobalSettings,
+                Objects = { objectSettings },
+            };
+
+            return _converter.Convert(htmlToPdfDocument);
+        }
+
+
         public byte[] GetAgSalesReport(List<AgReceipt> receipts, DSupplier supplier)
         {
             var objectSettings = new ObjectSettings
@@ -237,6 +267,33 @@ namespace EasyPro.Provider
             HtmlToPdfDocument htmlToPdfDocument = new HtmlToPdfDocument()
             {
                 GlobalSettings = recieptGlobalSettings,
+                Objects = { objectSettings },
+            };
+
+            return _converter.Convert(htmlToPdfDocument);
+        }
+
+        public byte[] GetBankPayroll(IEnumerable<DPayroll> dpayrollobj, DCompany company, string title, string loggedInUser, string saccoBranch)
+        {
+            title = title ?? "";
+            var suppliers = _context.DSuppliers.Where(s => s.Scode == company.Name);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(i => i.Branch == saccoBranch);
+
+            var objectSettings = new ObjectSettings
+            {
+                PagesCount = true,
+                HtmlContent = HtmlGenerator.GenerateBankPayrollHtml(dpayrollobj, company, title, suppliers),
+                WebSettings = { DefaultEncoding = "utf-8" },
+                HeaderSettings = { FontSize = 10, Right = "Page [page] of [toPage]", Line = true },
+                FooterSettings = { FontSize = 8, Center = title, Line = true },
+            };
+
+            recieptGlobalSettings.DocumentTitle = $"{title}";
+            HtmlToPdfDocument htmlToPdfDocument = new HtmlToPdfDocument()
+            {
+                GlobalSettings = pdfGlobalSettings,
                 Objects = { objectSettings },
             };
 

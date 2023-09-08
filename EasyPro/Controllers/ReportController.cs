@@ -7,16 +7,12 @@ using EasyPro.Models;
 using EasyPro.Repository;
 using EasyPro.Utils;
 using EasyPro.ViewModels;
-using EasyPro.ViewModels.Reports;
 using FastReport.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
-using OfficeOpenXml;
-using OfficeOpenXml.Table;
-using Stripe;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -346,10 +342,9 @@ namespace EasyPro.Controllers
                 Transportersdetails = Transportersdetails.Where(i => i.Tbranch == saccoBranch).ToList();
             ViewBag.Transportersdetails = Transportersdetails;
 
-            var bankname = _context.DPayrolls.Where(i => i.SaccoCode == sacco).ToList();
-            if (user.AccessLevel == AccessLevel.Branch)
-                bankname = bankname.Where(i => i.Branch == saccoBranch).ToList();
-            ViewBag.bankname = new SelectList(bankname.OrderBy(m => m.Bank).Select(h => h.Bank).Distinct());
+            var bankNames = _context.DBanks.Where(b => b.BankCode == sacco)
+                .OrderBy(b => b.BankName).Select(b => b.BankName);
+            ViewBag.bankname = new SelectList(bankNames);
         }
         [HttpPost]
         public IActionResult Suppliers([Bind("DateFrom,DateTo")] FilterVm filter)
@@ -421,7 +416,35 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public IActionResult SuppliersPayrollExcel([Bind("DateFrom,DateTo")] FilterVm filter)
+        public JsonResult BankPayrollPdf([FromBody] FilterVm filter)
+        {
+            return Json(new
+            {
+                redirectUrl = Url.Action("BankPayrollPdf", new { dateFrom = filter.DateFrom, dateTo = filter.DateTo, bank = filter.BankName }),
+                isRedirect = true
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> BankPayrollPdf(DateTime? dateFrom, DateTime? dateTo, string bank)
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            dpayrollobj = await _context.DPayrolls
+                .Where(p => p.EndofPeriod >= dateFrom && p.Bank == bank && p.Npay > 0 && p.EndofPeriod <= dateTo && p.SaccoCode == sacco)
+                .OrderBy(s => s.Sno).ToListAsync();
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = $"Payment Report ({dateTo})";
+            var pdfFile = _reportProvider.GetBankPayroll(dpayrollobj, company, title, loggedInUser, saccoBranch);
+            return File(pdfFile, "application/pdf");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SuppliersPayrollExcel([Bind("DateFrom,DateTo")] FilterVm filter)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -429,8 +452,8 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            dpayrollobj = _context.DPayrolls
-                .Where(p => p.EndofPeriod >= filter.DateFrom && p.EndofPeriod <= filter.DateTo && p.SaccoCode == sacco);
+            dpayrollobj = await _context.DPayrolls
+                .Where(p => p.EndofPeriod >= filter.DateFrom && p.EndofPeriod <= filter.DateTo && p.SaccoCode == sacco).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
                 dpayrollobj = dpayrollobj.Where(i => i.Branch == saccoBranch).ToList();
 
@@ -439,9 +462,9 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(month.Year, month.Month, 1);//month.AddMonths(0);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            return suppliersPayrollExcel(startDate, endDate);
+            return await suppliersPayrollExcel(startDate, endDate);
         }
-        public IActionResult suppliersPayrollExcel(DateTime startDate, DateTime endDate)
+        public async Task<IActionResult> suppliersPayrollExcel(DateTime startDate, DateTime endDate)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -449,7 +472,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             using (var workbook = new XLWorkbook())
             {
-                var worksheet = workbook.Worksheets.Add("dpayrollobj");
+                var worksheet = workbook.Worksheets.Add("Farmers Payroll");
 
                 var currentRow = 1;
                 companyobj = _context.DCompanies.Where(u => u.Name == sacco);
@@ -464,7 +487,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 2).Value = emp.Email;
                 }
                 currentRow = 5;
-                worksheet.Cell(currentRow, 2).Value = "Suppliers Payroll Report";
+                worksheet.Cell(currentRow, 2).Value = "Farmers Payroll Report";
                 var EndofPeriod = dpayrollobj.FirstOrDefault();
                 worksheet.Cell(currentRow, 4).Value = EndofPeriod.EndofPeriod;
                 
@@ -518,7 +541,7 @@ namespace EasyPro.Controllers
                 decimal? loans = 0;
                 decimal? Registration = 0;
 
-                var payrollData = Gedpayrolldata(startDate, endDate);
+                var payrollData = await Gedpayrolldata(startDate, endDate);
                 Transport = payrollData.Sum(k => k.Transport);
                 Agrovet = payrollData.Sum(k => k.Agrovet);
                 Bonus = payrollData.Sum(k => k.Bonus);
@@ -601,60 +624,64 @@ namespace EasyPro.Controllers
                     var content = stream.ToArray();
                     return File(content,
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        "Suppliers Payroll Report.xlsx");
+                        "Farmers Payroll Report.xlsx");
                 }
             }
         }
 
-        private List<payrolldetail> Gedpayrolldata(DateTime startDate, DateTime endDate)
+    private async Task<List<payrolldetail>> Gedpayrolldata(DateTime startDate, DateTime endDate)
+    {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        var dPayrolls = await _context.DPayrolls.Where(m => m.SaccoCode == sacco
+        && (m.EndofPeriod >= startDate && m.EndofPeriod <= endDate)).ToListAsync();
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+        if (user.AccessLevel == AccessLevel.Branch)
+            dPayrolls = dPayrolls.Where(i => i.Branch == saccoBranch).ToList();
+        var payrolllist = dPayrolls.GroupBy(s => s.Sno).ToList();
+        var payrollData = new List<payrolldetail>();
+        var suppliers = await _context.DSuppliers.Where(m => m.Scode == sacco).ToListAsync();
+        if (user.AccessLevel == AccessLevel.Branch)
+            suppliers = suppliers.Where(i => i.Branch == saccoBranch).ToList();
+            // m.Sno.ToUpper().Equals(val.Sno.ToUpper())
+        payrolllist.ForEach(d =>
         {
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            IQueryable<DPayroll> dPayrolls = _context.DPayrolls.Where(m => m.SaccoCode == sacco
-            && (m.EndofPeriod >= startDate && m.EndofPeriod <= endDate));
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                dPayrolls = dPayrolls.Where(i => i.Branch == saccoBranch);
-            var payrolllist = dPayrolls.ToList().GroupBy(s => s.Sno).ToList();
-            var payrollData = new List<payrolldetail>();
-            payrolllist.ForEach(d =>
+            var val = d.FirstOrDefault();
+            var supplier = suppliers.FirstOrDefault(m => m.Sno.ToUpper().Equals(val.Sno.ToUpper()));
+            payrollData.Add(new payrolldetail
             {
-                var val = d.FirstOrDefault();
-                var Name = _context.DSuppliers.FirstOrDefault(m => m.Scode == sacco && m.Sno.ToUpper().Equals(val.Sno.ToUpper())).Names;
-                payrollData.Add(new payrolldetail
-                {
-                    Sno = val.Sno,
-                    Name = Name,
-                    IdNo = val.IdNo,
-                    Transport=val.Transport,
-                    Agrovet= val.Agrovet,
-                    Bonus=val.Bonus,
-                    Hshares=val.Hshares,
-                    Advance=val.Advance,
-                    Midmonth=val.Midmonth,
-                    MIDPAY=val.MIDPAY,
-                    Others=val.Others,
-                    Tractor=val.Tractor,
-                    CLINICAL=val.CLINICAL,
-                    Registration = val.Registration,
-                    extension=val.extension,
-                    AI=val.AI,
-                    CurryForward=val.CurryForward,
-                    SMS=val.SMS,
-                    Tdeductions=val.Tdeductions,
-                    KgsSupplied=val.KgsSupplied,
-                    Gpay=val.Gpay,
-                    Npay=val.Npay,
-                    Bank=val.Bank,
-                    AccountNumber=val.AccountNumber,
-                    Bbranch=val.Bbranch,
-                    Branch=val.Branch
-                });
-                _context.SaveChanges();
+                Sno = val.Sno,
+                Name = supplier.Names,
+                IdNo = val.IdNo,
+                Transport=val.Transport,
+                Agrovet= val.Agrovet,
+                Bonus=val.Bonus,
+                Hshares=val.Hshares,
+                Advance=val.Advance,
+                Midmonth=val.Midmonth,
+                MIDPAY=val.MIDPAY,
+                Others=val.Others,
+                Tractor=val.Tractor,
+                CLINICAL=val.CLINICAL,
+                Registration = val.Registration,
+                extension=val.extension,
+                AI=val.AI,
+                CurryForward=val.CurryForward,
+                SMS=val.SMS,
+                Tdeductions=val.Tdeductions,
+                KgsSupplied=val.KgsSupplied,
+                Gpay=val.Gpay,
+                Npay=val.Npay,
+                Bank=val.Bank,
+                AccountNumber=val.AccountNumber,
+                Bbranch=val.Bbranch,
+                Branch=val.Branch
             });
-            return payrollData;
-        }
+            _context.SaveChanges();
+        });
+        return payrollData;
+    }
 
     [HttpPost]
     public JsonResult SuppliersPayrollPdf([FromBody] FilterVm filter)
@@ -798,9 +825,7 @@ namespace EasyPro.Controllers
             return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         sacco = sacco ?? "";
-        var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-        var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-
+       
         var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
         if (user.AccessLevel == AccessLevel.Branch)
         {
@@ -816,7 +841,7 @@ namespace EasyPro.Controllers
             branchobj = _context.DBranch.Where(u => u.Bcode == sacco);
         else
             branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
-        return BranchIntakeAuditExcel(DateFrom, DateTo, filter.Branch);
+        return BranchIntakeAuditExcel(filter.DateFrom, filter.DateTo, filter.Branch);
     }
     [HttpPost]
     public IActionResult correctionIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
@@ -975,6 +1000,7 @@ namespace EasyPro.Controllers
             branchobj = await _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == Branch).ToListAsync();
         return await DSumarryIntakeExcel(DateFrom, DateTo, Branch);
     }
+
     [HttpPost] //DownloadDispatchBalReport
     public async Task<IActionResult> TransportersBalancing([Bind("DateFrom,DateTo,Branch,Transporter")] FilterVm filter)
     {
@@ -987,13 +1013,11 @@ namespace EasyPro.Controllers
         var DateFrom = new DateTime(endDate.Year, endDate.Month, 1);
         var DateTo = DateFrom.AddMonths(1).AddDays(-1);
         var Branch = filter.Branch;
-        var Transporter = filter.Transporter;
+        transporterobj = await _context.DTransporters.Where(u => u.ParentT == sacco).ToListAsync();
+            if (!string.IsNullOrEmpty(filter.Transporter))
+                transporterobj = transporterobj.Where(u => u.TransCode.ToUpper().Equals(filter.Transporter.ToUpper())).ToList();
 
-        if (Transporter == null)
-            transporterobj = await _context.DTransporters.Where(u => u.ParentT == sacco).ToListAsync();
-        else
-            transporterobj = await _context.DTransporters.Where(u => u.ParentT == sacco && u.TransCode == Transporter).ToListAsync();
-        return await TransportersBalancingExcel(DateFrom, DateTo, Transporter);
+        return await TransportersBalancingExcel(DateFrom, DateTo, filter.Transporter);
     }
     [HttpPost]
     public async Task<IActionResult> DownloadDispatchBalReport([Bind("DateFrom,DateTo,Branch,Transporter")] FilterVm filter)
@@ -1221,17 +1245,20 @@ namespace EasyPro.Controllers
     }
 
     [HttpGet]
-    public IActionResult DeductionsPdf(DateTime? dateFrom, DateTime? dateTo)
+    public async Task<IActionResult> DeductionsPdf(DateTime? dateFrom, DateTime? dateTo)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
             return Redirect("~/");
-        var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-        sacco = sacco ?? "";
-        productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= dateFrom && u.TransDate <= dateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
+        var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+        productIntakeobj = await _context.ProductIntake.Where(u => u.TransDate >= dateFrom && u.TransDate <= dateTo && u.Qsupplied == 0 && u.SaccoCode == sacco).ToListAsync();
+        if (user.AccessLevel == AccessLevel.Branch)
+            productIntakeobj = productIntakeobj.Where(i => i.Branch == saccoBranch).ToList();
         var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
         var title = "Suppliers Deductions";
-        var pdfFile = _reportProvider.GetIntakesPdf(productIntakeobj, company, title, TransactionType.Deduction);
+        var pdfFile = await _reportProvider.GetIntakesPdf(productIntakeobj, company, title, TransactionType.Deduction, loggedInUser, saccoBranch);
         return File(pdfFile, "application/pdf");
     }
 
@@ -1273,6 +1300,111 @@ namespace EasyPro.Controllers
     }
 
     [HttpPost]
+    public async Task<IActionResult> DailySummary([Bind("DateFrom,DateTo")] FilterVm filter)
+    {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+
+        var productIntakes = await GetIntakes(filter);
+        var intakes = productIntakes.OrderBy(i => i.TransDate).GroupBy(i => i.TransDate).ToList();
+        using (var workbook = new XLWorkbook())
+        {
+            var worksheet = workbook.Worksheets.Add("Daily Summary");
+            var currentRow = 1;
+            companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+            foreach (var emp in companyobj)
+            {
+                worksheet.Cell(currentRow, 2).Value = emp.Name;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = emp.Town;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = emp.Email;
+            }
+            currentRow = 5;
+            worksheet.Cell(currentRow, 2).Value = "Daily Summary";
+
+            currentRow = 6;
+            worksheet.Cell(currentRow, 1).Value = "Date";
+            worksheet.Cell(currentRow, 2).Value = "Qsupplied";
+            decimal sum = 0;
+            
+            foreach (var intake in intakes)
+            {
+                var qnty = intake.Sum(i => i.Qsupplied);
+               currentRow++;
+                worksheet.Cell(currentRow, 1).Value = intake.Key;
+                worksheet.Cell(currentRow, 2).Value = qnty;
+                sum += qnty;
+            }
+            currentRow++;
+            worksheet.Cell(currentRow, 1).Value = "Total Kgs";
+            worksheet.Cell(currentRow, 2).Value = sum;
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                return File(content,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Daily Summary.xlsx");
+            }
+        }
+    }
+
+    [HttpPost]
+    public JsonResult DailySummaryPdf([FromBody] FilterVm filter)
+    {
+        return Json(new
+        {
+            redirectUrl = Url.Action("DailySummaryPdf", new { dateFrom = filter.DateFrom, dateTo = filter.DateTo }),
+            isRedirect = true
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DailySummaryPdf(DateTime? dateFrom, DateTime? dateTo)
+    {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
+        
+        var productIntakes = await GetIntakes(new FilterVm
+        {
+            DateFrom = dateFrom,
+            DateTo = dateTo
+        });
+        var intakes = productIntakes.OrderBy(i => i.TransDate).GroupBy(i => i.TransDate).ToList();
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+        var title = "Daily Summary";
+        var pdfFile = _reportProvider.GetDailySummary(intakes, company, title);
+        return File(pdfFile, "application/pdf");
+    }
+
+    private async Task<List<ProductIntake>> GetIntakes(FilterVm filter)
+    {
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+
+        var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
+        var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
+        var intakes = await _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo
+        && u.Qsupplied != 0 && u.SaccoCode == sacco && u.Description != "Transport").ToListAsync();
+
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+        if (user.AccessLevel == AccessLevel.Branch)
+            intakes = intakes.Where(t => t.Branch == saccobranch).ToList();
+
+        return intakes;
+    }
+
+    [HttpPost]
     public JsonResult IntakePdf([FromBody] FilterVm filter)
     {
         return Json(new
@@ -1282,20 +1414,23 @@ namespace EasyPro.Controllers
         });
     }
     [HttpGet]
-    public IActionResult IntakePdf(DateTime? dateFrom, DateTime? dateTo)
+    public async Task<IActionResult> IntakePdf(DateTime? dateFrom, DateTime? dateTo)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
             return Redirect("~/");
-        var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-        sacco = sacco ?? "";
-        productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= dateFrom && u.TransDate <= dateTo && u.Qsupplied != 0 && u.SaccoCode == sacco);
-
+        var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        productIntakeobj = await _context.ProductIntake.Where(u => u.TransDate >= dateFrom && u.TransDate <= dateTo && u.Qsupplied != 0 && u.SaccoCode == sacco).ToListAsync();
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+        if (user.AccessLevel == AccessLevel.Branch)
+            productIntakeobj = productIntakeobj.Where(i => i.Branch == saccoBranch).ToList();
         var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
         var title = "Intakes";
-        var pdfFile = _reportProvider.GetIntakesPdf(productIntakeobj, company, title, TransactionType.Intake);
+        var pdfFile = await _reportProvider.GetIntakesPdf(productIntakeobj, company, title, TransactionType.Intake, loggedInUser, saccoBranch);
         return File(pdfFile, "application/pdf");
     }
+
     [HttpPost]
     public IActionResult TIntake([Bind("DateFrom,DateTo")] FilterVm filter)
     {
@@ -2016,6 +2151,7 @@ namespace EasyPro.Controllers
             }
         }
     }
+
     public async Task<IActionResult> DSumarryIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -2513,7 +2649,7 @@ namespace EasyPro.Controllers
             }
         }
     }
-    public IActionResult BranchIntakeAuditExcel(DateTime DateFrom, DateTime DateTo, string Branch)
+    public IActionResult BranchIntakeAuditExcel(DateTime? DateFrom, DateTime? DateTo, string Branch)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))

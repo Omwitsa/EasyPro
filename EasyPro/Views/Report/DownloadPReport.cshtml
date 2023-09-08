@@ -7,7 +7,7 @@
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Suppliers Genaral Payroll Report</h3>
+                    <h3 class="card-title">Farmers Genaral Payroll Report</h3>
                 </div>
 
                 <div class="card-body register-card-body">
@@ -97,7 +97,7 @@
                                 <div class="col-sm-4 col-xs-12">
                                     <div class="form-group">
                                         <label class="control-label">Select Bank</label>
-                                        <select asp-for="BankName" class="form-control" asp-items="@ViewBag.bankname" required>
+                                        <select id="bank" asp-for="BankName" class="form-control" asp-items="@ViewBag.bankname" required>
                                             <option value="General"></option>
                                         </select>
                                     </div>
@@ -105,19 +105,19 @@
                                 <div class="col-sm-4 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateFrom" class="control-label"></label>
-                                        <input id="sup_payroll_from" asp-for="DateFrom" class="form-control" type="date" />
+                                        <input id="bank_pay_from" asp-for="DateFrom" class="form-control" type="date" />
                                         <span asp-validation-for="DateFrom" class="text-danger"></span>
                                     </div>
                                     <button type="submit" class="btn btn-success">Export to Excel</button>
                                 </div>
-
+                                
                                 <div class="col-sm-4 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateTo" class="control-label"></label>
-                                        <input id="sup_payroll_to" asp-for="DateTo" class="form-control" type="date" />
+                                        <input id="bank_pay_to" asp-for="DateTo" class="form-control" type="date" />
                                         <span asp-validation-for="DateTo" class="text-danger"></span>
                                     </div>
-                                    @*<a id="sup_payroll_pdf" class="btn btn-info">Export to PDF</a>*@
+                                    <a id="bank_payroll_pdf" class="btn btn-info">Export to PDF</a>
                                 </div>
                             </div>
                         </form>
@@ -139,6 +139,8 @@
                 $("#sup_payroll_to").val(today);
                 $("#trans_payrol_from").val(today);
                 $("#trans_payrol_to").val(today);
+                $("#bank_pay_from").val(today);
+                $("#bank_pay_to").val(today);
 
                 $('#sup_payroll_pdf').on('click', function () {
                     let from = $("#sup_payroll_from").val();
@@ -150,7 +152,7 @@
                     };
                     $.ajax({
                         type: 'POST',
-                        url: "SuppliersPayrollPdf",
+                        url: "BankPayrollPdf",
                         contentType: 'application/json',
                         data: JSON.stringify(filter),
                         success: function (response) {
@@ -189,6 +191,33 @@
                         // ...
                     });
                 });
+                $('#bank_payroll_pdf').on('click', function () {
+                    let from = $("#bank_pay_from").val();
+                    let to = $("#bank_pay_to").val();
+                    let bank = $("#bank").val();
+
+                    var filter = {
+                        dateFrom: from,
+                        dateTo: to,
+                        bankName: bank
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: "BankPayrollPdf",
+                        contentType: 'application/json',
+                        data: JSON.stringify(filter),
+                        success: function (response) {
+                            if (response.isRedirect) {
+                                window.open(response.redirectUrl);
+                            }
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                });
+            
             });
         </script>
     }

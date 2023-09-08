@@ -3,41 +3,44 @@
 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
     <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-            <form asp-controller="Report" asp-antiforgery="true" asp-action="correctionIntake" method="post">
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Branch" class="control-label"> Branch Milk Correction</label>
-                            <select id="ProductType" asp-for="Branch" class="form-control" asp-items="@ViewBag.brances">
-                                <option value=""></option>
-                            </select>
-                            <span asp-validation-for="Branch" class="text-danger"></span>
-                        </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Intake Summary</h3>
+                </div>
+
+                <div class="card-body register-card-body">
+                    <div class="form-row">
+                        <form asp-controller="Report" asp-antiforgery="true" asp-action="DailySummary" method="post">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateFrom" class="control-label"></label>
+                                        <input id="daily_summary_from" asp-for="DateFrom" class="form-control" type="date" />
+                                        <span asp-validation-for="DateFrom" class="text-danger"></span>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success">Export to Excel</button>
+                                </div>
+                                
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateTo" class="control-label"></label>
+                                        <input id="daily_summary_to" asp-for="DateTo" class="form-control" type="date" />
+                                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                                    </div>
+
+                                    <a id="daily_summary_pdf" class="btn btn-info">Export to PDF</a>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="DateFrom" class="control-label"></label>
-                            <input required asp-for="DateFrom" class="form-control" type="date" />
-                            <span asp-validation-for="DateFrom" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="DateTo" class="control-label"></label>
-                            <input required asp-for="DateTo" class="form-control" type="date" />
-                            <span asp-validation-for="DateTo" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-success">Export to Excel</button>
-            </form>
+            </div>
         </div>
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Suppliers Intake Report</h3>
+                    <h3 class="card-title">Farmers Intake Report</h3>
                 </div>
 
                 <div class="card-body register-card-body">
@@ -53,7 +56,7 @@
 
                                     <button type="submit" class="btn btn-success">Export to Excel</button>
                                 </div>
-
+                                
                                 <div class="col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateTo" class="control-label"></label>
@@ -67,92 +70,6 @@
                         </form>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <br />
-    <hr />
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Branch Suppliers Intake Report</h3>
-                </div>
-                <div class="card-body register-card-body">
-                    <div class="form-row">
-                        <form asp-controller="Report" asp-antiforgery="true" asp-action="BranchIntake" method="post">
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label asp-for="Branch" class="control-label"></label>
-                                        <select id="branch" asp-for="Branch" class="form-control" asp-items="@ViewBag.brances">
-                                            <option value=""></option>
-                                        </select>
-                                        <span asp-validation-for="Branch" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label asp-for="DateFrom" class="control-label"></label>
-                                        <input id="branch_sup_intake_from" asp-for="DateFrom" class="form-control" type="date" />
-                                        <span asp-validation-for="DateFrom" class="text-danger"></span>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-success">Export to Excel</button>
-                                </div>
-
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label asp-for="DateTo" class="control-label"></label>
-                                        <input id="branch_sup_intake_to" asp-for="DateTo" class="form-control" type="date" />
-                                        <span asp-validation-for="DateTo" class="text-danger"></span>
-                                    </div>
-
-                                    <a id="branch_sup_intake_pdf" class="btn btn-info">Export to PDF</a>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Summary Suppliers Intake Report</h3>
-                </div>
-                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="DSumarryIntake" method="post">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label asp-for="Branch" class="control-label"></label>
-                                <select id="ProductType" asp-for="Branch" class="form-control" asp-items="@ViewBag.brances">
-                                    <option value="" disabled selected hidden>Please Choose...</option>
-                                </select>
-                                <span asp-validation-for="Branch" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-                            <div class="form-group">
-                                <label asp-for="DateTo" class="control-label"></label>
-                                <input required asp-for="DateTo" class="form-control" type="date" />
-                                <span asp-validation-for="DateTo" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body register-card-body">
-                        <div class="form-row">
-                            <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -205,7 +122,187 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Summary Farmers Intake Report</h3>
+                </div>
+                <form autocomplete="off" asp-controller="Report" asp-antiforgery="true" asp-action="DSumarryIntake" method="post">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Branch" class="control-label"></label>
+                                <select id="ProductType" asp-for="Branch" class="form-control" asp-items="@ViewBag.brances">
+                                    <option value="" disabled selected hidden>Please Choose...</option>
+                                </select>
+                                <span asp-validation-for="Branch" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                            <div class="form-group">
+                                <label asp-for="DateTo" class="control-label"></label>
+                                <input required asp-for="DateTo" class="form-control" type="date" />
+                                <span asp-validation-for="DateTo" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body register-card-body">
+                        <div class="form-row">
+                            <button type="submit" id="btnsubmit" class="btn btn-success">Export to Excel</button>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br />
+    <hr />
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Branch Farmers Intake Report</h3>
+                </div>
+                <div class="card-body register-card-body">
+                    <div class="form-row">
+                        <form asp-controller="Report" asp-antiforgery="true" asp-action="BranchIntake" method="post">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="Branch" class="control-label"></label>
+                                        <select id="branch" asp-for="Branch" class="form-control" asp-items="@ViewBag.brances">
+                                            <option value=""></option>
+                                        </select>
+                                        <span asp-validation-for="Branch" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateFrom" class="control-label"></label>
+                                        <input id="branch_sup_intake_from" asp-for="DateFrom" class="form-control" type="date" />
+                                        <span asp-validation-for="DateFrom" class="text-danger"></span>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success">Export to Excel</button>
+                                </div>
+
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateTo" class="control-label"></label>
+                                        <input id="branch_sup_intake_to" asp-for="DateTo" class="form-control" type="date" />
+                                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                                    </div>
+
+                                    <a id="branch_sup_intake_pdf" class="btn btn-info">Export to PDF</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <form asp-controller="Report" asp-antiforgery="true" asp-action="correctionIntake" method="post">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Branch" class="control-label"> Branch Milk Correction</label>
+                            <select id="ProductType" asp-for="Branch" class="form-control" asp-items="@ViewBag.brances">
+                                <option value=""></option>
+                            </select>
+                            <span asp-validation-for="Branch" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="DateFrom" class="control-label"></label>
+                            <input required asp-for="DateFrom" class="form-control" type="date" />
+                            <span asp-validation-for="DateFrom" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="DateTo" class="control-label"></label>
+                            <input required asp-for="DateTo" class="form-control" type="date" />
+                            <span asp-validation-for="DateTo" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Export to Excel</button>
+            </form>
+        </div>
     </div>
 </div>
 
-  
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#daily_summary_to").val(today);
+            $("#daily_summary_from").val(today);
+            $("#supplier_intake_from").val(today);
+            $("#supplier_intake_to").val(today);
+            $('#daily_summary_pdf').on('click', function () {
+                let from = $("#daily_summary_from").val();
+                let to = $("#daily_summary_to").val();
+                var filter = {
+                    dateFrom: from,
+                    dateTo: to,
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "DailySummaryPdf",
+                    contentType: 'application/json',
+                    data: JSON.stringify(filter),
+                    success: function (response) {
+                        if (response.isRedirect) {
+                            window.open(response.redirectUrl);
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+
+            $('#supplier_intake_pdf').on('click', function () {
+                let from = $("#supplier_intake_from").val();
+                let to = $("#supplier_intake_to").val();
+                var filter = {
+                    dateFrom: from,
+                    dateTo: to,
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "IntakePdf",
+                    contentType: 'application/json',
+                    data: JSON.stringify(filter),
+                    success: function (response) {
+                        if (response.isRedirect) {
+                            window.open(response.redirectUrl);
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+
+        });
+    </script>
+}

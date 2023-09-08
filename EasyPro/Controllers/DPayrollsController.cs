@@ -81,7 +81,7 @@ namespace EasyPro.Controllers
                     Tractor = p.Tractor,
                     Extension = p.extension,
                     SMS = p.SMS,
-                }).ToList();
+                }).OrderBy(p => p.Bank).ToList();
 
             return View(payroll);
         }

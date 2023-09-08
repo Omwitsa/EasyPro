@@ -56,6 +56,7 @@
                             <div class="nk-int-st">
                                 <label class="control-label">Product Name</label>
                                 <select id="pname" asp-for="AgReceipt.PCode" class="chzn-select form-control" asp-items="@ViewBag.agproductsall">
+                                    <option value=""></option>
                                 </select>
                                 <span asp-validation-for="AgReceipt.PCode" class="text-danger"></span>
                             </div>
@@ -448,11 +449,17 @@
                             $("#save1").removeAttr("disabled");
                             $("#RNo").val(response.rno);
                             if (print) {
-                                printReceipt(response, saleItems);
+                                var content = generateHTML(response, saleItems);
+                                printJS({
+                                    printable: content,
+                                    type: 'raw-html',
+                                    style: '#printMe { font-size: 12px; }'
+                                });
                             }
-                            populateTable();
                             clearafthersave();
                             saleItems = new Array();
+                            populateTable();
+                            
                         },
                         failure: function (response) {
                         }
@@ -478,9 +485,6 @@
             });
             $('#pname').on('change', function () {
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
-                $("#sno").val("");
-                $("#sname").val("");
-                $("#tsno").val("");
                 var selectVal = $("#pname").val();
                 var selectProducts = products.filter(p => p.PName.trim() === selectVal);
                 if (selectProducts[0]) {
@@ -632,15 +636,6 @@
             $('#qnty').on('keyup', function () {
                 calculatePrice();
             });
-
-            function printReceipt(intake, saleItems) {
-                var content = generateHTML(intake, saleItems);
-                printJS({
-                    printable: content,
-                    type: 'raw-html',
-                    style: '#printMe { font-size: 12px; }'
-                });
-            }
 
             function generateHTML(response, saleItems) {
                 var mevng = $('#mevng').val();

@@ -338,18 +338,35 @@ namespace EasyPro.Controllers
         }
 
         // GET: DSuppliers/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
 
+            var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+
+            var supNo = "";
+            //if(StrValues.Slopes == sacco)
+            //{
+            //    suppliers = suppliers.OrderByDescending(s => Convert.ToInt32(s.Sno.TrimStart('0'))).ToList();
+            //    var supplier = suppliers.FirstOrDefault();
+            //    int.TryParse(supplier.Sno, out int sno);
+            //    supNo = "0" + sno++;
+            //}
+            
             return View(new DSupplier { 
                 Active = true,
                 Regdate=DateTime.Today,
-                Dob = DateTime.Today
+                Dob = DateTime.Today,
+                Sno = supNo
             });
         }
         private void GetInitialValues()
