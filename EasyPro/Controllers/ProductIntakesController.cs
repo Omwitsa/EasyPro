@@ -1542,7 +1542,16 @@ namespace EasyPro.Controllers
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
                 productIntake.AuditId = auditId ?? "";
                 productIntake.Qsupplied = 0;
-                productIntake.CR = 0;
+                if (productIntake.DR > 0)
+                {
+                    productIntake.DR = productIntake.DR;
+                    productIntake.CR = 0;
+                }
+                else
+                {
+                    productIntake.CR = (productIntake.DR * -1);
+                    productIntake.DR = 0;
+                }
                 string re = productIntake.Remarks;
                 if (string.IsNullOrEmpty(productIntake.Remarks))
                     re = productIntake.ProductType;

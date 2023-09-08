@@ -453,6 +453,7 @@
                             populateTable();
                             clearafthersave();
                             saleItems = new Array();
+                            populateDetailsTable();
                         },
                         failure: function (response) {
                         }
@@ -476,6 +477,7 @@
                     $('#details').html(itemTableRows);
                 }
             });
+
             $('#pname').on('change', function () {
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
                 $("#sno").val("");

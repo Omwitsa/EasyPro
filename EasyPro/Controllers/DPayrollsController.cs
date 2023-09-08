@@ -154,8 +154,8 @@ namespace EasyPro.Controllers
                 _context.DTransportersPayRolls.RemoveRange(transportersPayRolls);
                 _context.SaveChanges();
             }
-
-            var productIntakeslist = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= period.EndDate).ToListAsync();
+            IQueryable<ProductIntake> productIntakes1 = _context.ProductIntake;
+            var productIntakeslist = productIntakes1.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= period.EndDate).ToList();
             if (user.AccessLevel == AccessLevel.Branch)
                 productIntakeslist = productIntakeslist.Where(p => p.Branch == saccoBranch).ToList();
             if (sacco != "MBURUGU DAIRY F.C.S")
@@ -654,8 +654,10 @@ namespace EasyPro.Controllers
                 getsuppliers.ForEach(n =>
                 {
                     var supplierDetails = n.FirstOrDefault();
-                    var kilos = productIntakeslist.Where(l =>l.TransDate>= startDate && l.TransDate<= endDate && l.TransactionType == TransactionType.Intake || l.TransactionType == TransactionType.Correction).Sum(w => w.Qsupplied);
-                    var totalshare = _context.DShares.Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.Branch == saccoBranch && f.Sno.ToUpper().Equals(supplierDetails.Sno.ToUpper())).Sum(n => n.Amount);
+                    var kilos = productIntakeslist.Where(l =>l.TransDate>= startDate  && l.TransDate<= endDate && l.Sno.ToUpper().Equals(supplierDetails.Sno.ToUpper()) && l.TransactionType == TransactionType.Intake || l.TransactionType == TransactionType.Correction).Sum(w => w.Qsupplied);
+                    if (kilos > 0)
+                    {
+                        var totalshare = _context.DShares.Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.Branch == saccoBranch && f.Sno.ToUpper().Equals(supplierDetails.Sno.ToUpper())).Sum(n => n.Amount);
                     if (totalshare < 20000)
                     {
                         _context.DShares.Add(new DShare
@@ -712,6 +714,7 @@ namespace EasyPro.Controllers
                             CrAccNo = glsforbonus.Contraacc,
                             Branch = saccoBranch,
                         });
+                    }
                     }
                 });
             }
