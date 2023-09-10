@@ -139,7 +139,7 @@ namespace EasyPro.Controllers
 
         //    return Json(Total);
         //}
-        public IActionResult Transporters()
+        public async Task<IActionResult> Transporters()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -150,11 +150,17 @@ namespace EasyPro.Controllers
             DateTime now = DateTime.Now;
             DateTime startDate = new DateTime(now.Year, now.Month, 1);
             DateTime enDate = startDate.AddMonths(1).AddDays(-1);
-            var transporters = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()));
+            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(t => t.Tbranch == saccobranch);
+                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
 
+            var codes = transporters.Select(t => t.TransCode).ToList();
+            if (StrValues.Slopes == sacco)
+                codes = transporters.OrderBy(t => t.CertNo).Select(t => t.CertNo).ToList();
+
+            ViewBag.slopes = StrValues.Slopes == sacco;
+            ViewBag.codes = new SelectList(codes);
             ViewBag.transporters = transporters.Select(s => new DTransporter
             {
                 TransCode = s.TransCode,
@@ -293,6 +299,9 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            if (StrValues.Slopes == sacco)
+                sno = _context.DTransporters.FirstOrDefault(t => t.CertNo == sno)?.TransCode ?? "";
 
             var intakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
            .Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();

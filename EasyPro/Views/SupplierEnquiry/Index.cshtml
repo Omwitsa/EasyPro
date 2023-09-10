@@ -374,10 +374,8 @@
                 intake.entries.forEach(i => {
                     share = i.shares;
                     transporter = i.Transporter;
-                    
-                    var chek = i.ProductType === null ? -1 : 1;
                     var dd1 = new Date(i.TransDate).toLocaleDateString();
-                    if (chek>0) {
+                    if (i.ProductType && ((i.CR || i.DR) || (!i.CR && !i.DR && i.Description != "Transport"))) {
                         itemTableRows.push(`<tr>
                             <td>${dd1}</td>
                             <td>${i.ProductType}</td>

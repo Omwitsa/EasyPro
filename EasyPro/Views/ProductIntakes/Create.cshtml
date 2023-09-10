@@ -22,8 +22,10 @@
                         <div class="col-sm-3 col-xs-12">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
-                                    <label class="control-label">Trans No.</label>
-                                    <input id="transCode" class="form-control" />
+                                    <label class="control-label">Transporter</label>
+                                    <select id="transporter" class="chzn-select form-control" asp-items="@ViewBag.vehicles">
+                                        <option value=""></option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -163,6 +165,7 @@
     }
 <script type="text/javascript">
     $(function () {
+            $(".chzn-select").chosen();
             $("#print").prop("checked", true);
             var today = new Date().toISOString().split('T')[0];
             $("#transDate").val(today);
@@ -211,12 +214,12 @@
                 getSelectedDateIntakes();
             });
 
-            $('#transCode').on('keyup', function () {
-                var transCode = $("#transCode").val();
+            $('#transporter').on('change', function () {
+                var vehicleNo = $("#transporter").val();
                 $.ajax(
                 {
                     type: 'GET',
-                    url: "getTransporterDetails?transCode=" + transCode,
+                    url: "getTransporterDetails?vehicleNo=" + vehicleNo,
                     contentType: 'application/json',
                     success: function (response) {
                         $("#TransName").val(response.transporter.TransName);
@@ -228,7 +231,6 @@
                 });
             });
 
-            // transCode
             $('#Sno').keydown(function (event) {
                 if (event.which == 13) {
                     getSelectedDateIntakes();
@@ -267,8 +269,8 @@
             function getSelectedforsave() {
             var print = $('#print').is(':checked');
             var sms = $('#SMS').is(':checked');
-            var transCode = $("#transCode").val();
-            transCode = transCode ? transCode : "";
+            var vehicleNo = $("#transporter").val();
+            vehicleNo = vehicleNo ? vehicleNo : "";
             var intake = {
                 sno: $("#Sno").val(),
                 transDate: $("#transDate").val(),
@@ -286,7 +288,7 @@
             };
             $.ajax({
                 type: 'POST',
-                url: "save?transCode=" + transCode,
+                url: "save?vehicleNo=" + vehicleNo,
                 contentType: 'application/json',
                 data: JSON.stringify(intake),
                 success: function (response) {

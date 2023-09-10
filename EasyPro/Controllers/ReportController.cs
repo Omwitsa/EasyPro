@@ -1432,18 +1432,19 @@ namespace EasyPro.Controllers
     }
 
     [HttpPost]
-    public IActionResult TIntake([Bind("DateFrom,DateTo")] FilterVm filter)
+    public async Task<IActionResult> TIntake([Bind("DateFrom,DateTo")] FilterVm filter)
     {
+        var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
             return Redirect("~/");
-        var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-        sacco = sacco ?? "";
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        transporterobj = await _context.DTransporters.Where(u => u.ParentT == sacco).ToListAsync();
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+        if (user.AccessLevel == AccessLevel.Branch)
+            transporterobj = transporterobj.Where(i => i.Tbranch == saccobranch);
 
-        var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-        var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-        transporterobj = _context.DTransporters.Where(u => u.ParentT == sacco);
-        return TIntakeExcel(DateFrom, DateTo);
+        return await TIntakeExcel(filter.DateFrom, filter.DateTo);
     }
     [HttpPost]
     public JsonResult TIntakePdf([FromBody] FilterVm filter)
@@ -1503,7 +1504,7 @@ namespace EasyPro.Controllers
             worksheet.Cell(currentRow, 1).Value = "TransCode";
             worksheet.Cell(currentRow, 2).Value = "Name";
             worksheet.Cell(currentRow, 3).Value = "RegDate";
-            worksheet.Cell(currentRow, 4).Value = "IDNo";
+            worksheet.Cell(currentRow, 4).Value = "CertNo";
             worksheet.Cell(currentRow, 5).Value = "Phone";
             worksheet.Cell(currentRow, 6).Value = "Bank";
             worksheet.Cell(currentRow, 7).Value = "AccNo";
@@ -2756,13 +2757,11 @@ namespace EasyPro.Controllers
             }
         }
     }
-    public IActionResult TIntakeExcel(DateTime DateFrom, DateTime DateTo)
+    public async Task<IActionResult> TIntakeExcel(DateTime? DateFrom, DateTime? DateTo)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
             return Redirect("~/");
-        var DateFro = Convert.ToDateTime(DateFrom.ToString());
-        var DateT = Convert.ToDateTime(DateTo.ToString());
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
         var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
         using (var workbook = new XLWorkbook())
@@ -2788,44 +2787,41 @@ namespace EasyPro.Controllers
             worksheet.Cell(currentRow, 2).Value = "Name";
             worksheet.Cell(currentRow, 3).Value = "TransDate";
             worksheet.Cell(currentRow, 4).Value = "ProductType";
-            worksheet.Cell(currentRow, 5).Value = "SNO";
+            worksheet.Cell(currentRow, 5).Value = "Remarks";
             worksheet.Cell(currentRow, 6).Value = "Qsupplied";
             worksheet.Cell(currentRow, 7).Value = "Price";
             worksheet.Cell(currentRow, 8).Value = "Description";
+            worksheet.Cell(currentRow, 9).Value = "CertNo";
             decimal sum = 0, totalkg = 0;
 
+            var intakes = await _context.ProductIntake.Where(i => i.TransDate >= DateFrom && i.TransDate <= DateTo && i.SaccoCode == sacco).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                intakes = intakes.Where(i => i.Branch == saccoBranch).ToList();
             foreach (var emp in transporterobj)
             {
-                var TransporterExist = _context.ProductIntake.Any(u => u.Sno == emp.TransCode && u.TransDate >= DateFro && u.TransDate <= DateT && u.SaccoCode == sacco);
-                if (TransporterExist)
+                productIntakeobj = intakes.Where(u => u.Sno == emp.TransCode && u.Qsupplied != 0);
+                foreach (var empintake in productIntakeobj)
                 {
-                    productIntakeobj = _context.ProductIntake.Where(u => u.Sno == emp.TransCode && u.TransDate >= DateFro && u.TransDate <= DateT && u.Qsupplied != 0 && u.SaccoCode == sacco);
-                    foreach (var empintake in productIntakeobj)
-                    {
-                        currentRow++;
-                        worksheet.Cell(currentRow, 1).Value = empintake.Sno;
-                        var transporters = _context.DTransporters.FirstOrDefault(u => u.TransCode == empintake.Sno && u.ParentT == sacco && u.Tbranch == saccoBranch);
-                        var intake = _context.ProductIntake.FirstOrDefault(i => i.TransDate == empintake.TransDate
-                        && i.TransTime == empintake.TransTime && i.SaccoCode == sacco && i.Branch == saccoBranch
-                        && i.Sno != empintake.Sno);
-                            if (intake != null)
-                            {
-                                worksheet.Cell(currentRow, 2).Value = transporters?.TransName ?? "";
-                                worksheet.Cell(currentRow, 3).Value = empintake.TransDate;
-                                worksheet.Cell(currentRow, 4).Value = empintake.ProductType;
-                                worksheet.Cell(currentRow, 5).Value = intake.Sno;
-                                worksheet.Cell(currentRow, 6).Value = empintake.Qsupplied;
-                                worksheet.Cell(currentRow, 7).Value = empintake.Ppu;
-                                worksheet.Cell(currentRow, 8).Value = empintake.Description;
-                                sum += (empintake.Qsupplied);
-                                totalkg += (empintake.Qsupplied);
-                            }
-                    }
                     currentRow++;
-                    worksheet.Cell(currentRow, 5).Value = "Total Kgs";
-                    worksheet.Cell(currentRow, 6).Value = totalkg;
-                    totalkg = 0;
-                }
+                    worksheet.Cell(currentRow, 1).Value = empintake.Sno;
+                    var transporters = transporterobj.FirstOrDefault(u => u.TransCode == empintake.Sno);
+
+                    worksheet.Cell(currentRow, 2).Value = transporters?.TransName ?? "";
+                    worksheet.Cell(currentRow, 3).Value = empintake.TransDate;
+                    worksheet.Cell(currentRow, 4).Value = empintake.ProductType;
+                    worksheet.Cell(currentRow, 5).Value = empintake.Remarks;
+                    worksheet.Cell(currentRow, 6).Value = empintake.Qsupplied;
+                    worksheet.Cell(currentRow, 7).Value = empintake.Ppu;
+                    worksheet.Cell(currentRow, 8).Value = empintake.Description;
+                    worksheet.Cell(currentRow, 9).Value = transporters?.CertNo ?? "";
+                    sum += (empintake.Qsupplied);
+                    totalkg += (empintake.Qsupplied);
+                    }
+                currentRow++;
+                worksheet.Cell(currentRow, 5).Value = "Total Kgs";
+                worksheet.Cell(currentRow, 6).Value = totalkg;
+                totalkg = 0;
             }
             currentRow++;
             worksheet.Cell(currentRow, 5).Value = "Total Kgs";

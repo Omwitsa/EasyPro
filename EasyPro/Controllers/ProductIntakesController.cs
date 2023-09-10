@@ -453,15 +453,15 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetTransporterDetails(string transCode)
+        public async Task<JsonResult> GetTransporterDetails(string vehicleNo)
         {
-            transCode = transCode ?? "";
+            vehicleNo = vehicleNo ?? "";
             utilities.SetUpPrivileges(this);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var branch = HttpContext.Session.GetString(StrValues.Branch);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            var transporters = await _context.DTransporters.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.ParentT == sacco).ToListAsync();
+            var transporters = await _context.DTransporters.Where(t => t.CertNo.ToUpper().Equals(vehicleNo.ToUpper()) && t.ParentT == sacco).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
                 transporters = transporters.Where(s => s.Tbranch.ToUpper().Equals(branch.ToUpper())).ToList();
             var transporter = transporters.FirstOrDefault();
@@ -551,6 +551,13 @@ namespace EasyPro.Controllers
 
             var zones  = await _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToListAsync();
             ViewBag.zones = new SelectList(zones);
+
+            var transporters = await _context.DTransporters.Where(t => t.ParentT == sacco).OrderBy(t => t.CertNo).ToListAsync();
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
+
+            var vehicles = transporters.Select(t => t.CertNo).ToList();
+            ViewBag.vehicles = new SelectList(vehicles);
 
             if (zones.Count != 0)
                 ViewBag.checkiftoenable = 1;
@@ -737,9 +744,9 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> Save([FromBody] ProductIntakeVm productIntake, string transCode)
+        public async Task<JsonResult> Save([FromBody] ProductIntakeVm productIntake, string vehicleNo)
         {
-            transCode = transCode ?? "";
+            vehicleNo = vehicleNo ?? "";
             utilities.SetUpPrivileges(this);
             await SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -856,15 +863,17 @@ namespace EasyPro.Controllers
             var transport = transports.FirstOrDefault();
             if (!string.IsNullOrEmpty(productIntake.MornEvening))
                 transport = transports.FirstOrDefault(t => t.Morning == productIntake.MornEvening);
-            if(StrValues.Slopes == sacco)
+
+            var transNo = transporters.FirstOrDefault(t => t.CertNo.Trim().ToUpper().Equals(vehicleNo.Trim().ToUpper()))?.TransCode ?? "";
+            if (StrValues.Slopes == sacco)
             {
-                transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()));
+                transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transNo.ToUpper()) && t.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()));
                 if (transport == null)
-                    transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()));
+                    transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transNo.ToUpper()));
             }
             transport = transport == null ? new DTransport() : transport;
             transport.Rate = transport?.Rate ?? 0;
-            transport.TransCode = StrValues.Slopes == sacco ? transCode : transport?.TransCode ?? "";
+            transport.TransCode = StrValues.Slopes == sacco ? transNo : transport?.TransCode ?? "";
             var transporter = transporters.FirstOrDefault(t => t.TransCode.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()));
             if (transporter != null)
             {
@@ -1634,9 +1643,9 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> SaveCorrection([FromBody] ProductIntakeVm productIntake, string transCode)
+        public async Task<JsonResult> SaveCorrection([FromBody] ProductIntakeVm productIntake, string vehicleNo)
         {
-            transCode = transCode ?? "";
+            vehicleNo = vehicleNo ?? "";
             await SetIntakeInitialValues(); 
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -1773,15 +1782,16 @@ namespace EasyPro.Controllers
             var transport = transports.FirstOrDefault();
             if (!string.IsNullOrEmpty(productIntake.MornEvening))
                 transport = transports.FirstOrDefault(t => t.Morning == productIntake.MornEvening);
+            var transNo = transporters.FirstOrDefault(t => t.CertNo.Trim().ToUpper().Equals(vehicleNo.Trim().ToUpper()))?.TransCode ?? "";
             if (StrValues.Slopes == sacco)
             {
-                transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) && t.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()));
+                transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transNo.ToUpper()) && t.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()));
                 if (transport == null)
-                    transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()));
+                    transport = activeAssignments.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transNo.ToUpper()));
             }
             transport = transport == null ? new DTransport() : transport;
             transport.Rate = transport?.Rate ?? 0;
-            transport.TransCode = StrValues.Slopes == sacco ? transCode : transport?.TransCode ?? "";
+            transport.TransCode = StrValues.Slopes == sacco ? transNo : transport?.TransCode ?? "";
             var transporter = transporters.FirstOrDefault(t => t.TransCode.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()));
             if (transporter != null)
             {
@@ -1840,6 +1850,9 @@ namespace EasyPro.Controllers
                     productIntake.DR = (decimal?)((productIntake.CR) * -1);
                     productIntake.CR = 0;
                 }
+
+                if(StrValues.Slopes != sacco)
+                    productIntake.Remarks = "Intake for " + productIntake.Sno;
                 _context.ProductIntake.Add(new ProductIntake
                 {
                     Sno = transport.TransCode.Trim(),
@@ -1853,7 +1866,7 @@ namespace EasyPro.Controllers
                     Balance = productIntake.Balance,
                     Description = "Transport",
                     TransactionType = TransactionType.Deduction,
-                    Remarks = "Intake for" + productIntake.Sno,
+                    Remarks = productIntake.Remarks,
                     AuditId = loggedInUser,
                     Auditdatetime = productIntake.Auditdatetime,
                     Branch = productIntake.Branch,

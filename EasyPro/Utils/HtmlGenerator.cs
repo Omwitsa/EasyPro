@@ -435,7 +435,7 @@ namespace EasyPro.Utils
                                                 <th>TransCode</th>
                                                 <th>Name</th>
                                                 <th>RegDate</th>
-                                                <th>IDNo</th>
+                                                <th>CertNo</th>
                                                 <th>Phone</th>
                                                 <th>Bank</th>
                                                 <th>AccNo</th>

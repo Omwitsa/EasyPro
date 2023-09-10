@@ -48,8 +48,10 @@
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">TranCode</label>
-                                <input id="sno" autocomplete="off" class="form-control" required />
+                                <label class="control-label">Transporter</label>
+                                <select id="sno" class="chzn-select form-control" asp-items="@ViewBag.codes">
+                                    <option value=""></option>
+                                </select>
                                 <span class="text-danger"></span>
                             </div>
                         </div>
@@ -220,7 +222,7 @@
     <script type="text/javascript">
         $(function ()
         {
-            document.getElementById('sno').focus();
+            $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
@@ -249,21 +251,26 @@
                 });
             });
 
-            $('#sno').on('keyup', function () {
-                var suppliers = @Html.Raw(Json.Serialize(ViewBag.transporters));
+            $('#sno').on('change', function () {
+                let isSlopes = '@ViewBag.slopes' === 'True';
+                var transporters = @Html.Raw(Json.Serialize(ViewBag.transporters));
                 var selectVal = $("#sno").val().toUpperCase();
                 var sno = $("#sno").val().toUpperCase();
                 var idno = $("#idno").val();
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
-                var selectsuppliers = suppliers.filter(p => p.TransCode === selectVal);
-                if (selectsuppliers[0]) {
-                    $("#names").val(selectsuppliers[0].TransName);
-                    $("#idno").val(selectsuppliers[0].CertNo);
-                    $("#phoneno").val(selectsuppliers[0].Phoneno);
-                    $("#bname").val(selectsuppliers[0].Bcode);
-                    $("#accno").val(selectsuppliers[0].Accno);
-                    $("#bbranch").val(selectsuppliers[0].Bbranch);
+                var selectTransporters = transporters.filter(p => p.TransCode === selectVal);
+                if (isSlopes){
+                    selectTransporters = transporters.filter(p => p.CertNo === selectVal);
+                }
+                    
+                if (selectTransporters[0]) {
+                    $("#names").val(selectTransporters[0].TransName);
+                    $("#idno").val(selectTransporters[0].CertNo);
+                    $("#phoneno").val(selectTransporters[0].Phoneno);
+                    $("#bname").val(selectTransporters[0].Bcode);
+                    $("#accno").val(selectTransporters[0].Accno);
+                    $("#bbranch").val(selectTransporters[0].Bbranch);
                     $.ajax({
                         type: 'POST',
                         url: "SuppliedProductsTransporter?sno=" + sno + "&date1=" + date1 + "&date2=" + date2 + "",

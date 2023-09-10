@@ -610,7 +610,8 @@
             $('#next').on('click', function () {
                 event.preventDefault()
                 hasSend = false;
-                getSoldItems();
+                var pname = $("#pname").val();
+                getProductBal(pname);
             });
 
             function checkbal() {
@@ -618,7 +619,7 @@
                 var qntybal = parseFloat($("#sbal").val());
                 if (qnty > qntybal)
                 {
-                    error.textContent = "You Quantity cannot be grater than the Balance in stock"
+                    error.textContent = "Quantity cannot be grater than the Balance in stock"
                     error.style.color = "red"
                     document.getElementById('qnty').focus();
                     return false;
@@ -759,7 +760,6 @@
                     Remarks: pname,
                 });
 
-                getProductBal(pname);
                 populateTable();
             }
 
@@ -772,6 +772,12 @@
                     success: function (response) {
                         var soldProducts = saleItems.filter(p => p.Description.trim() === pname);
                         soldProducts.forEach(p => response.OBal -= p.Qsupplied);
+                        if(response.OBal > 0){
+                            getSoldItems();
+                        }
+                        else{
+                            alert("Sorry, Kindly check on your stock balance");
+                        }
                         $("#sbal").val(response.OBal);
                     },
                     failure: function (response) {
