@@ -433,7 +433,6 @@
                     if (hasSend){
                         return;
                     }
-                    //$(this).attr('disabled', 'disabled');
                     $("#save1").attr("disabled", "disabled");
                     event.preventDefault()
                     event.stopImmediatePropagation();
@@ -641,12 +640,13 @@
 
             function generateHTML(response, saleItems) {
                 var mevng = $('#mevng').val();
+                var ReceiptNo = $('#RNo').val();
                 var date = new Date().toLocaleDateString("en-US");
                 let isFarmer = $('#checkOff').prop("checked");
                 let isCash = $('#cash').prop("checked");
                 let isTransporter = $('#transporter').prop("checked");
                 let isStaff = $('#staff').prop("checked");
-
+                var transDate = new Date($("#TDate").val()).toLocaleDateString('en-GB');;
                 let sno = isFarmer ? `SNo: ${response.receiptDetails.Sno}</br>` : "";
                 let supName = isFarmer ? `Name: ${response.receiptDetails.supName}</br>` : "";
                 let title = "Agrovet Sales Receipt";
@@ -678,9 +678,13 @@
                             </tr>
                             <tbody>${itemContent}</tbody>
                         </table>`;
-
+                var cumAmount = "Cummulative Amount: "+ response.receiptDetails.cummAmount + "</br>";
+                cumAmount = isCash ? "" : cumAmount;
                 var content = `<div class="row" id="printMe">
                                             <div class="col-xs-12 text-center">
+                                                Receipt No.: ${ReceiptNo}</br>
+                                                Date: ${transDate}</br>
+                                                *************************</br>
                                                 ${response.receiptDetails.Name}</br>
                                                 Adress: ${response.receiptDetails.Adress}</br>
                                                 Tell: ${response.receiptDetails.PhoneNo}</br>
@@ -691,6 +695,8 @@
                                                 ${sno}
                                                 ${supName}
                                                 ${items}
+                                                *************************</br>
+                                                ${cumAmount}
                                                 Received By: ${response.receiptDetails.loggedInUser}</br>
                                                 DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</br>
                                                 *************************

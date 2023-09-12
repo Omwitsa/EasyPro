@@ -4,6 +4,7 @@ using EasyPro.Models;
 using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace EasyPro.Controllers
             _notyf = notyf;
             utilities = new Utilities(context);
         }
-        public  IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -35,9 +36,13 @@ namespace EasyPro.Controllers
 
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-            var agProducts = _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
+            var agProducts = await _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
             && i.AuditDate >= startDate && i.AuditDate <= enDate)
-            .OrderByDescending(s => s.AuditDate).ToList(); 
+            .OrderByDescending(s => s.AuditDate).ToListAsync();
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                agProducts = agProducts.Where(s => s.Branch == saccobranch).ToList();
             return View(agProducts);
         }
 

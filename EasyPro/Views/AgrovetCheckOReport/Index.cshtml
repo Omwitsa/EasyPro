@@ -80,6 +80,7 @@
                             <table class="table table-hover" id="customers">
                                 <tr>
                                     <th>Date</th>
+                                    <th>Receipt No.</th>
                                     <th>Code</th>
                                     <th>Product</th>
                                     <th>SNo</th>
@@ -145,33 +146,28 @@
                 $('#Tbuying').val('0');
                 $('#Tselling').val('0');
                 $('#TPL').val('0');
+                let Tselling = 0;
                 intakes.forEach(i => {
-                    var ddate = i.TDate;
-                    var type = "CheckOff";
-                    var dd1 = new Date(ddate).toLocaleDateString();
+                    Tselling += i.Amount;
+                    let type = "CheckOff";
+                    let dd1 = new Date(i.TDate).toLocaleDateString();
                     itemTableRows.push(`<tr>
-                                <td>${dd1}</td>
-                                <td>${i.PCode}</td>
-                                <td>${i.Remarks}</td>
-                                <td>${i.SNo}</td>
-                                <td>${i.Qua}</td>
-                                <td>${i.Amount}</td>
-                                <td>${i.Transby}</td>
-                                <td>${i.UserId}</td>
-                                <td>${i.Branch}</td>
-                                <td>${type}</td>
-                            </tr>`)
+                            <td>${dd1}</td>
+                            <td>${i.RNo}</td>
+                            <td>${i.PCode}</td>
+                            <td>${i.Remarks}</td>
+                            <td>${i.SNo}</td>
+                            <td>${i.Qua}</td>
+                            <td>${i.Amount}</td>
+                            <td>${i.Transby}</td>
+                            <td>${i.UserId}</td>
+                            <td>${i.Branch}</td>
+                            <td>${type}</td>
+                        </tr>`)
 
-                    var Tselling = 0;
-
-                    intakes.forEach(i => {
-                        var sale = 0;
-                        sale =  i.Amount;
-                        Tselling = Tselling + sale;
-                    });
-                    $('#Tselling').val(Tselling);
                 });
 
+                $('#Tselling').val(Tselling);
                 $('#intakes').html(itemTableRows);
             }
         });

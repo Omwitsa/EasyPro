@@ -354,14 +354,13 @@ namespace EasyPro.Controllers
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
 
             var supNo = "";
-            //if(StrValues.Slopes == sacco)
-            //{
-            //    suppliers = suppliers.OrderByDescending(s => Convert.ToInt32(s.Sno.TrimStart('0'))).ToList();
-            //    var supplier = suppliers.FirstOrDefault();
-            //    int.TryParse(supplier.Sno, out int sno);
-            //    supNo = "0" + sno++;
-            //}
-            
+            if (StrValues.Slopes == sacco)
+            {
+                var supplier = suppliers.OrderByDescending(s => s.Id).FirstOrDefault();
+                int.TryParse(supplier.Sno.TrimStart('0'), out int sno);
+                supNo = "0" + ++sno;
+            }
+
             return View(new DSupplier { 
                 Active = true,
                 Regdate=DateTime.Today,

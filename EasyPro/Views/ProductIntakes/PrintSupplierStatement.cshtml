@@ -88,7 +88,7 @@
             $('#sno').on('keyup', function () {
                 getSupplier();
             });
-
+            let isSlopes = '@ViewBag.slopes' === 'True';
             $('#print').on('click', function () {
                 var branch = $("#branch").val();
                 var date = $("#date").val();
@@ -107,7 +107,6 @@
                         type: 'POST',
                         url: "printSupplierStatement",
                         contentType: 'application/json',
-
                         data: JSON.stringify(filter),
                         success: function (response) {
                             $("#branch").val('');
@@ -194,6 +193,15 @@
                                     <tbody>${strDeductionSummery}</tbody>
                                    </table>`;
 
+                let bankDetails = "";
+                if (!isSlopes){
+                    bankDetails = `*************************</br>
+                                    BANK DETAILS</br>
+                                    *************************</br>
+                                    Bank Name: ${response.supplier.Bcode}</br>
+                                    Bank Branch: ${response.supplier.Bbranch}</br>
+                                    Acc No.: ${response.supplier.AccNo}</br>`;
+                }
                 var content = `<div class="row" id="printMe">
                                         <div class="col-xs-12 text-center">
                                              <h4>
@@ -223,12 +231,7 @@
                                                 Total Deductions Kshs: ${response.totalDeductions}</br>
                                                 *************************</br>
                                                 Net Pay Kshs: ${response.netPay}</br>
-                                                *************************</br>
-                                                BANK DETAILS</br>
-                                                *************************</br>
-                                                Bank Name: ${response.supplier.Bcode}</br>
-                                                Bank Branch: ${response.supplier.Bbranch}</br>
-                                                Acc No.: ${response.supplier.AccNo}</br>
+                                                ${bankDetails}
                                                 *************************</br>
                                                 ${response.company.SupStatementNote}
                                             </h5>

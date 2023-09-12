@@ -80,6 +80,7 @@
                             <table class="table table-hover" id="customers">
                                 <tr>
                                     <th>Date</th>
+                                    <th>Receipt No.</th>
                                     <th>Code</th>
                                     <th>Product</th>
                                     <th>SNo</th>
@@ -146,41 +147,34 @@
                 $('#Tbuying').val('0');
                 $('#Tselling').val('0');
                 $('#TPL').val('0');
+                let Tbuying = 0;
+                let Tselling = 0;
+                let TPL = 0;
                 intakes.forEach(i => {
-                    var ddate = i.TDate;
-                    var buying = i.Qua * i.Bprice;
-                    var selling = i.Qua * i.Sprice;
-                    var PL = selling - buying;
-                    var dd1 = new Date(ddate).toLocaleDateString();
+                    let ddate = i.TDate;
+                    let buying = i.Qua * i.Bprice;
+                    Tbuying += buying;
+                    let selling = i.Qua * i.Sprice;
+                    Tselling += selling;
+                    let PL = selling - buying;
+                    TPL += PL;
+                    let dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
-                                <td>${dd1}</td>
-                                <td>${i.PCode}</td>
-                                <td>${i.Remarks}</td>
-                                <td>${i.SNo}</td>
-                                <td>${i.Qua}</td>
-                                <td>${buying}</td>
-                                <td>${selling}</td>
-                                <td>${PL}</td>
-                            </tr>`)
-
-                    var Tbuying = 0;
-                    var Tselling = 0;
-                    var TPL = 0;
-
-                    intakes.forEach(i => {
-                        var buy = 0;
-                        var sale = 0;
-                        buy = i.Qua * i.Bprice;
-                        sale = i.Qua * i.Sprice;
-                        Tbuying = Tbuying + buy;
-                        Tselling = Tselling + sale;
-                        TPL = Tselling-Tbuying;
-                    });
-                    $('#Tbuying').val(Tbuying);
-                    $('#Tselling').val(Tselling);
-                    $('#TPL').val(TPL);
+                            <td>${dd1}</td>
+                            <td>${i.RNo}</td>
+                            <td>${i.PCode}</td>
+                            <td>${i.Remarks}</td>
+                            <td>${i.SNo}</td>
+                            <td>${i.Qua}</td>
+                            <td>${buying}</td>
+                            <td>${selling}</td>
+                            <td>${PL}</td>
+                        </tr>`);
                 });
 
+                $('#Tbuying').val(Tbuying);
+                $('#Tselling').val(Tselling);
+                $('#TPL').val(TPL);
                 $('#intakes').html(itemTableRows);
             }
         });

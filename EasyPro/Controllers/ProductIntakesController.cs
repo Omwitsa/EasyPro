@@ -31,6 +31,7 @@ using NPOI.SS.Formula.Functions;
 using static EasyPro.ViewModels.AccountingVm;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Syncfusion.EJ2.Linq;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace EasyPro.Controllers
 {
@@ -301,8 +302,9 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var branches = _context.DBranch.Where(s => s.Bcode == sacco)
-                .Select(s => s.Bname).ToList();
-            
+            .Select(s => s.Bname).ToList();
+
+            ViewBag.slopes = StrValues.Slopes == sacco;
             ViewBag.branches = new SelectList(branches);
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
@@ -329,6 +331,7 @@ namespace EasyPro.Controllers
             filter.LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
+            ViewBag.slopes = StrValues.Slopes == filter.Sacco;
 
             var productIntakeslist = await _context.ProductIntake.Where(n => n.Sno.ToUpper().Equals(filter.Code.ToUpper())
                 && n.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper()) && n.TransDate >= startDate

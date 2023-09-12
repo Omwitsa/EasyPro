@@ -55,7 +55,8 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Product Name</label>
-                                <select id="pname" asp-for="AgReceipt.PCode" class="form-control" asp-items="@ViewBag.agproductsall">
+                                <select id="pname" asp-for="AgReceipt.PCode" class="chzn-select form-control" asp-items="@ViewBag.agproductsall">
+                                    <option value=""></option>
                                 </select>
                                 <span asp-validation-for="AgReceipt.PCode" class="text-danger"></span>
                             </div>
@@ -262,15 +263,10 @@
 
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
-                        <a id="next1" class="btn btn-success">Next</a>
-                    </div>
-                    <div class="col-sm-4 col-xs-12">
                         <a id="next" class="btn btn-success">Next</a>
                     </div>
-                    <div class="col-sm-4 col-xs-12">
-                        <a id="next2" class="btn btn-success">Next</a>
-                    </div>
                 </div>
+
                 <hr />
                 <div class="bsc-tbl-hvr table-border-style">
                     <div class="table-responsive">
@@ -340,7 +336,8 @@
     }
 <script type="text/javascript">
     $(function () {
-            let saleItems = new Array();
+        $(".chzn-select").chosen();
+        let saleItems = new Array();
         let isStaff = false;
         let isCash = false;
             $("#pname").val("");
@@ -350,8 +347,6 @@
             $('#transpoterDetails').hide();
             $('#staffDetails').hide();
             $('#next').hide();
-            $('#next1').hide();
-            $('#next2').hide();
             $('#bprice1').hide();
 
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
@@ -365,7 +360,7 @@
             $('input[type="radio"]').click(function () {
                 if ($(this).prop("checked") && $(this).attr('id') == 'cash') {
                     isStaff = false;
-                    let isCash = true;
+                    isCash = true;
                     $('#cash_details').show();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
@@ -373,13 +368,11 @@
                     $("#sno").val("");
                     $("#tsno").val("");
                     $("#sname").val("");
-                    $('#next1').hide();
-                    $('#next2').hide();
                     $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'checkOff') {
                     isStaff = false;
-                    let isCash = false;
+                    isCash = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').show();
                     $('#transpoterDetails').hide();
@@ -387,13 +380,11 @@
                     $("#sno").val("");
                     $("#tsno").val("");
                     $("#sname").val("");
-                    $('#next1').hide();
-                    $('#next2').hide();
                     $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'transporter') {
                     isStaff = false;
-                    let isCash = false;
+                    isCash = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
                     $('#staffDetails').hide();
@@ -401,13 +392,11 @@
                     $("#sno").val("");
                     $("#tsno").val("");
                     $("#sname").val("");
-                    $('#next').hide();
-                    $('#next1').show();
-                    $('#next2').hide();
+                    $('#next').show();
                 }
                 if ($(this).prop("checked") && $(this).attr('id') == 'staff') {
                     isStaff = true;
-                    let isCash = false;
+                    isCash = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
@@ -415,9 +404,7 @@
                     $("#sno").val("");
                     $("#tsno").val("");
                     $("#sname").val("");
-                    $('#next').hide();
-                    $('#next1').hide();
-                    $('#next2').show();
+                    $('#next').show();
                 }
                 let journalDetails = new Array();
                 $('#drAmt').on('blur', function () {
@@ -433,18 +420,35 @@
                 });
 
                 $('#save1').on('click', function (event) {
+                    if (hasSend) {
+                        return;
+                    }
+                    $("#save1").attr("disabled", "disabled");
                     event.preventDefault()
                     event.stopImmediatePropagation();
+                    let print = $('#print').prop('checked');
+                    let sms = $('#sms').prop('checked');
+                    let net = $('#Net').val();
                     $.ajax({
 
                         type: 'POST',
-                        url: "SaveReturns?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&isCash=" + isCash ,
+                        url: "SaveReturns?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&isCash=" + isCash,
                         contentType: 'application/json',
                         data: JSON.stringify(saleItems),
                         success: function (response) {
+                            $("#save1").removeAttr("disabled");
+                            $("#RNo").val(response.rno);
+                            if (print) {
+                                var content = generateHTML(response, saleItems);
+                                printJS({
+                                    printable: content,
+                                    type: 'raw-html',
+                                    style: '#printMe { font-size: 12px; }'
+                                });
+                            }
+                            clearafthersave();
                             saleItems = new Array();
                             populateTable();
-                            clearafthersave();
                             populateDetailsTable();
                         },
                         failure: function (response) {
@@ -492,25 +496,25 @@
                 clearafthersave();
             });
 
-        function clearafthersave() {
-            $("#pcode").val("");
-            $("#pname").val("");
-            $("#tsno").val("");
-            $("#tname").val("");
-            $("#sno").val("");
-            $("#names").val("");
-            $("#qnty").val("0");
-            $("#Amnttopay").val("0");
-            $("#ttolpaid").val("0");
-            $("#balance").val("0");
-            $("#sbal").val("0");
-            $("#bprice").val("0");
-            $("#sprice").val("0");
-            $("#totalamnt").val("0");
-            $("#Gross").val("0");
-            $("#Deductions").val("0");
-            $("#Net").val("0");
-        }
+            function clearafthersave() {
+                $("#pcode").val("");
+                $("#pname").val("");
+                $("#tsno").val("");
+                $("#tname").val("");
+                $("#sno").val("");
+                $("#names").val("");
+                $("#qnty").val("0");
+                $("#Amnttopay").val("0");
+                $("#ttolpaid").val("0");
+                $("#balance").val("0");
+                $("#sbal").val("0");
+                $("#bprice").val("0");
+                $("#sprice").val("0");
+                $("#totalamnt").val("0");
+                $("#Gross").val("0");
+                $("#Deductions").val("0");
+                $("#Net").val("0");
+            }
 
             $('#tsno').on('keyup', function () {
                 var products = @Html.Raw(Json.Serialize(Model.DTransporter));
@@ -587,6 +591,103 @@
             }
 
             $('#next').on('click', function () {
+                event.preventDefault()
+                hasSend = false;
+                var pname = $("#pname").val();
+                getProductBal(pname);
+            });
+
+            function checkbal() {
+                var qnty = parseFloat($("#qnty").val());
+                var qntybal = parseFloat($("#sbal").val());
+                if (qnty > qntybal) {
+                    error.textContent = "Quantity cannot be grater than the Balance in stock"
+                    error.style.color = "red"
+                    document.getElementById('qnty').focus();
+                    return false;
+                }
+                return true;
+            }
+
+            $('#ttolpaid').on('keyup', function () {
+                var qty = parseFloat($("#Amnttopay").val());
+                var price = parseFloat($("#ttolpaid").val());
+                if (qty && price) {
+                    $("#balance").val(qty - price);
+                }
+            });
+            $('#qnty').on('keyup', function () {
+                calculatePrice();
+            });
+
+            function populateTable() {
+                let itemTableRows = new Array();
+                $("#Gross").val("");
+                $("#Deductions").val("");
+                let Amnttopay = 0;
+                saleItems.forEach(i => {
+                    Amnttopay += i.DR;
+                    itemTableRows.push(`<tr>
+                                            <td>${i.pcode}</td>
+                                            <td>${i.pname}</td>
+                                            <td>${i.Qsupplied}</td>
+                                            <td>${i.sprice}</td>
+                                            <td>${i.totalamnt}</td>
+                                            <td>${i.Sno}</td>
+                                        </tr>`);
+                });
+
+                $('#details').html(itemTableRows);
+                $("#Amnttopay").val(Amnttopay);
+                $("#balance").val(0);
+            }
+
+            function populateDetailsTable() {
+                let itemTableRows = new Array();
+                saleItems.forEach(j => {
+                    drAmt = j.isdebit ? j.amount : 0;
+                    crAmt = j.isdebit ? 0 : j.amount;
+                    itemTableRows.push(`<tr>
+                            <td>${j.glAcc}</td>
+                            <td>${drAmt}</td>
+                            <td>${crAmt}</td>
+                        </tr>`);
+                });
+
+                $('#details').html(itemTableRows);
+            }
+
+            function getProductBal(pname) {
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "getProductBal?pname=" + pname,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            var soldProducts = saleItems.filter(p => p.Description.trim() === pname);
+                            soldProducts.forEach(p => response.OBal -= p.Qsupplied);
+                            if (response.OBal > 0) {
+                                getSoldItems();
+                            }
+                            else {
+                                alert("Sorry, Kindly check on your stock balance");
+                            }
+                            $("#sbal").val(response.OBal);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
+
+            function getSoldItems() {
+
+                var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
+                if (!checkbal()) {
+                    return;
+                }
+                //$('#save1').attr('disabled', true);
                 var pcode = $("#pcode").val();
                 var pname = $("#pname").val();
                 var bprice = $("#bprice").val();
@@ -595,8 +696,11 @@
                 var totalamnt = parseFloat($("#totalamnt").val());
                 var total = parseFloat($("#Amnttopay").val());
                 var tpay = parseFloat($("#ttolpaid").val());
+
+                var sno = $("#sno").val() ? $("#sno").val() : $("#tsno").val();
+                sno = sno ? sno : $("#sname").val();
                 saleItems.push({
-                    Sno: $("#sno").val(),
+                    Sno: sno,
                     sprice: sprice,
                     totalamnt: totalamnt,
                     pname: pname,
@@ -613,125 +717,12 @@
                     Balance: totalamnt,
                     Paid: "true",
                     Remarks: pname,
-                    Branch: $("#bname").val(),
                 });
+
                 populateTable();
-            });
-
-        $('#next1').on('click', function () {
-            if (!checkbal()) {
-                return;
             }
-            var pcode = $("#pcode").val();
-            var pname = $("#pname").val();
-            var bprice = $("#bprice").val();
-            var sprice = $("#sprice").val();
-            var qnty = $("#qnty").val();
-            var totalamnt = parseFloat($("#totalamnt").val());
-            var total = parseFloat($("#Amnttopay").val());
-            var tpay = parseFloat($("#ttolpaid").val());
 
-            saleItems.push({
-                Sno: $("#tsno").val(),
-                sprice: sprice,
-                totalamnt: totalamnt,
-                pname: pname,
-                pcode: pcode,
-                Description: pname,
-                DateTime: $("#date").val(),
-                TransDate: $("#TDate").val(),
-                TransTime: $("#date").val(),
-                ProductType: "AGROVET",
-                Qsupplied: $("#qnty").val(),
-                Ppu: $("#sprice").val(),
-                CR: "0",
-                DR: totalamnt,
-                Balance: totalamnt,
-                Paid: "true",
-                Remarks: pname,
-                Branch: $("#bname").val(),
-            });
-            populateTable();
-        });
-        $('#next2').on('click', function () {
-            if (!checkbal()) {
-                return;
-            }
-            var pcode = $("#pcode").val();
-            var pname = $("#pname").val();
-            var bprice = $("#bprice").val();
-            var sprice = $("#sprice").val();
-            var qnty = $("#qnty").val();
-            var totalamnt = parseFloat($("#totalamnt").val());
-            var total = parseFloat($("#Amnttopay").val());
-            var tpay = parseFloat($("#ttolpaid").val());
 
-            saleItems.push({
-                Sno: $("#sname").val(),
-                sprice: sprice,
-                totalamnt: totalamnt,
-                pname: pname,
-                pcode: pcode,
-                Description: pname,
-                DateTime: $("#date").val(),
-                TransDate: $("#TDate").val(),
-                TransTime: $("#date").val(),
-                ProductType: "AGROVET",
-                Qsupplied: $("#qnty").val(),
-                Ppu: $("#sprice").val(),
-                CR: "0",
-                DR: totalamnt,
-                Balance: totalamnt,
-                Paid: "true",
-                Remarks: pname,
-                Branch: $("#bname").val(),
-            });
-            populateTable();
-        });
-        function checkbal() {
-            if (!checkbal()) {
-                return;
-            }
-            var qnty = $("#qnty").val();
-            var qntybal = $("#sbal").val();
-            if (qnty > qntybal) {
-                error.textContent = "You Quantity cannot be grater than the Balance in stock"
-                error.style.color = "red"
-                document.getElementById('qnty').focus();
-                return false;
-            }
-            return true;
-        }
-
-            $('#ttolpaid').on('keyup', function () {
-                var qty = parseFloat($("#Amnttopay").val());
-                var price = parseFloat($("#ttolpaid").val());
-                if (qty && price) {
-                    $("#balance").val(qty - price);
-                }
-            });
-            $('#qnty').on('keyup', function () {
-                calculatePrice();
-            });
-
-            function populateTable() {
-                let itemTableRows = new Array();
-                saleItems.forEach(i => {
-                    itemTableRows.push(`<tr>
-				            <td>${i.pcode}</td>
-                            <td>${i.pname}</td>
-                            <td>${i.Qsupplied}</td>
-                            <td>${i.sprice}</td>
-                            <td>${i.totalamnt}</td>
-                            <td>${i.Sno}</td>
-			            </tr>`);
-                });
-
-                $('#details').html(itemTableRows);
-                var final = totalamnt + total;
-                $("#Amnttopay").val(final);
-                $("#balance").val(final - tpay);
-            }
 
             function calculatePrice() {
                 var qty = parseFloat($("#qnty").val());

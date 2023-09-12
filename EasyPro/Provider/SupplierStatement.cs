@@ -62,22 +62,24 @@ namespace EasyPro.Provider
             });
 
             var deductionIntakes = productIntakeslist.Where(i => i.TransactionType == TransactionType.Deduction
-            && i.DR > 0).OrderBy(i => i.TransDate).ToList();
-            var totalDeductions = deductionIntakes.Sum(d => d.DR);
-            var transportationDeductions = deductionIntakes.Where(i => i.Description == "Transport");
-            var deductions = new List<dynamic>
+            && (i.CR > 0 || i.DR > 0)).OrderBy(i => i.TransDate).ToList();
+            var totalDeductions = deductionIntakes.Sum(d => d.DR) - deductionIntakes.Sum(d => d.CR);
+            var deductions = new List<dynamic>();
+            if (filter.Sacco != StrValues.Slopes)
             {
-                new
+                var transportationDeductions = deductionIntakes.Where(i => i.Description == "Transport");
+                deductions.Add(new
                 {
                     TransDate = endDate,
                     Description = "Transport",
                     DR = transportationDeductions.Sum(i => i.DR)
-                }
-            };
+                });
+            }
 
             var otherDeductions = deductionIntakes.Where(i => i.Description != "Transport").ToList();
             otherDeductions.ForEach(i =>
             {
+                i.DR = i.DR - i.CR;
                 deductions.Add(new
                 {
                     i.TransDate, 

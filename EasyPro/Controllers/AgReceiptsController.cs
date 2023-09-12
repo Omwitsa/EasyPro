@@ -291,131 +291,15 @@ namespace EasyPro.Controllers
             //string Amt = string.Format("{0:.###}", i.Amount).PadLeft(14);
             //string Body = pname + BQnty + BQnty + Amt;
 
-                // var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(intake.Sno)
-                //&& s.Scode == intake.SaccoCode && s.Branch == intake.Branch);
+            // var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(intake.Sno)
+            //&& s.Scode == intake.SaccoCode && s.Branch == intake.Branch);
 
+            var receipts = await _context.AgReceipts.Where(r => r.SNo.ToUpper().Equals(sno.ToUpper()) && r.saccocode == sacco
+            && r.TDate >= startDate && r.TDate <= endDate).ToListAsync();
+            if (user.AccessLevel == AccessLevel.Branch)
+                receipts = receipts.Where(s => s.Branch == saccoBranch).ToList();
 
-                /*
-
-                ProductIntake items = sender as ProductIntake;
-                var R = rNo;
-                if (items != null)
-                {
-                    // Start printing your items.
-                    var agReceiptsvalues = _context.AgReceipts.Where(k=>k.TDate== items.TransDate 
-                    && k.SNo.ToUpper().Equals(items.Sno.ToUpper()) && k.RNo==R).ToList();
-                    DateTime startDate = new DateTime(items.TransDate.Year, items.TransDate.Month, 1);
-                    DateTime enDate = startDate.AddMonths(1).AddDays(-1);
-
-                    var productIntakes = _context.ProductIntake.FirstOrDefault(u => u.Id == items.Id);
-
-                    var supplier = _context.DSuppliers.FirstOrDefault(u => u.Scode.ToUpper().Equals(sacco.ToUpper()) &&
-                    u.Sno.ToString() == items.Sno && u.Branch.ToUpper().Equals(saccoBranch.ToUpper()));
-
-
-
-                    Graphics graphics = e.Graphics;
-                    Font font = new Font("Times New Roman", 8);
-                    float fontHeight = font.GetHeight();
-
-                    int startX = 10;
-                    int startY = -40;
-                    int offset = 40;
-
-
-                    graphics.DrawString(companies.Name, font, new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    graphics.DrawString(companies.Adress.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    graphics.DrawString(companies.Town.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    graphics.DrawString("Tell: " + companies.PhoneNo.PadLeft(10), font, new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    graphics.DrawString("Branch: " + saccoBranch, font, new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    string line = "---------------------------------------------";
-                    graphics.DrawString(line, font, new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    var datet = items.TransDate.ToString("dd/MM/yyy");
-                    string sno = items.Sno.PadRight(10);
-                    if(sno.ToUpper()!="CASH" && sno.ToUpper() != "STAFF")
-                    {
-                        graphics.DrawString("CheckOff Agrovet Receipt".PadRight(15), new Font("Times New Roman", 12), new SolidBrush(Color.Black), startX, startY + offset);
-                        offset = offset + (int)fontHeight + 5;
-                        graphics.DrawString("SNo: " + sno, font, new SolidBrush(Color.Black), startX, startY + offset);
-                        offset = offset + (int)fontHeight + 5;
-
-                        string name = supplier.Names.ToString();
-                        graphics.DrawString("Name: " + name, font, new SolidBrush(Color.Black), startX, startY + offset);
-                        offset = offset + (int)fontHeight + 5;
-                    }
-
-                    if (sno.ToUpper() == "CASH" )
-                    {
-                        graphics.DrawString("Agrovet Cash Sales Receipt".PadRight(15), new Font("Times New Roman", 12), new SolidBrush(Color.Black), startX, startY + offset);
-                        offset = offset + (int)fontHeight + 5;
-                    }
-
-                    if (sno.ToUpper() == "STAFF")
-                    {
-                        graphics.DrawString("Agrovet Staff Sales Receipt".PadRight(15), new Font("Times New Roman", 12), new SolidBrush(Color.Black), startX, startY + offset);
-                        offset = offset + (int)fontHeight + 5;
-                    }
-                    graphics.DrawString("Date"+ items.TransDate, new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    string HName = "Name".PadLeft(16);
-                    string HQnty = "Qnty".PadLeft(17);
-                    string HAmount = "Amount".PadLeft(18);
-                    string Heading = HName + HQnty + HAmount;
-                    graphics.DrawString(Heading, new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    agReceiptsvalues.ForEach(i => {
-                        string pname = string.Format("{0:.###}", i.Remarks).PadLeft(8);
-                        string BQnty = string.Format("{0:.###}", i.Qua).PadLeft(12);
-                        string Amt = string.Format("{0:.###}", i.Amount).PadLeft(14);
-                        string Body = pname + BQnty + BQnty + Amt;
-
-                        graphics.DrawString(Body, new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
-                        offset = offset + (int)fontHeight + 5;
-                    });
-
-                    string line1 = "---------------------------------------------";
-                    graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    graphics.DrawString("Served By: " + loggedInUser, font, new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-
-                    graphics.DrawString("Date: " + DateTime.Now, font, new SolidBrush(Color.Black), startX, startY + offset);
-
-                    offset = offset + (int)fontHeight + 5;
-
-                    string line2 = "---------------------------------------------";
-                    graphics.DrawString(line2, font, new SolidBrush(Color.Black), startX, startY + offset);
-
-                    offset = offset + (int)fontHeight + 5;
-                    startY = startY + 20;
-                    string dev = "DEVELOP BY: AMTECH TECHNOLOGIES LIMITED";
-                    graphics.DrawString(dev.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
-
-                    offset = offset + (int)fontHeight + 5;
-                    startY = startY + 20;
-                    string dev1 = " ";
-                    graphics.DrawString(dev1.PadRight(13), new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
-                    offset = offset + (int)fontHeight + 5;
-                    graphics.DrawString(line1, font, new SolidBrush(Color.Black), startX, startY + offset);
-
-
-                }
-                 */
+            var cummAmount = receipts.Sum(r => r.Amount);
             return new
             {
                 companies.Name,
@@ -425,6 +309,7 @@ namespace EasyPro.Controllers
                 saccoBranch,
                 supplier.Sno,
                 supName = supplier.Names,
+                cummAmount,
                 loggedInUser,
             };
         }
@@ -576,8 +461,6 @@ namespace EasyPro.Controllers
                 DateTime startD = new DateTime(Now.Year, Now.Month, 1);
                 DateTime enDate = startD.AddMonths(1).AddDays(-1);
 
-               
-
                 if (!intakes.Any())
                 {
                     _notyf.Error("Sorry, Kindly provide records");
@@ -588,12 +471,6 @@ namespace EasyPro.Controllers
                 if (!isCash && cash == "")
                 {
                     _notyf.Error("Sorry, Kindly Farmers Number");
-                    return Json("");
-                }
-
-                if (tdate < startD)
-                {
-                    _notyf.Error("Sorry, The Deduction Date is not within the current Period");
                     return Json("");
                 }
 
@@ -614,10 +491,9 @@ namespace EasyPro.Controllers
                     t.Auditdatetime = DateTime.Now;
                     t.DrAccNo = t.DrAccNo;
                     t.CrAccNo = t.CrAccNo;
-                    if (t.Sno == "")
-                    {
+                    if (string.IsNullOrEmpty(t.Sno))
                         t.Sno = "cash";
-                    }
+                    
                     var cashchecker = false;
                     if (cash == "")
                         cashchecker = true;
