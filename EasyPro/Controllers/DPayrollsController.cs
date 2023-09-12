@@ -939,33 +939,69 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(period.Year, period.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var nextMonth = startDate.AddMonths(1);
+            var productty = "Carry Forward";
+            var thismonthdescription = "Carry Forward";
+            var forlastmonthremarks = "Carry Forward";
+
+            ViewBag.isElburgon = StrValues.Elburgon == sacco;
+            if (StrValues.Elburgon == sacco)
+            {
+                productty = "Others";
+                thismonthdescription = endDate.Month.ToString() + endDate.Year.ToString() + "Arrears";
+                forlastmonthremarks = endDate.Month.ToString() + endDate.Year.ToString() + "Arrears CF";
+            }
 
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
             suppliers.ForEach(s =>
             {
                 var payrolls = _context.DPayrolls.Where(p => p.SaccoCode == sacco
-                && p.EndofPeriod == endDate && p.Sno.ToUpper().Equals(s.Sno.ToUpper())).ToList();
+                && p.EndofPeriod == endDate && p.Sno.ToUpper().Equals(s.Sno.ToUpper()) && p.Branch.ToUpper().Equals(s.Branch.ToUpper())).ToList();
 
                 var netPay = payrolls.Sum(p => p.Npay);
                 var debited = _context.ProductIntake.Any(i => i.SaccoCode == sacco && i.Sno.ToUpper().Equals(s.Sno.ToUpper())
-                && i.TransDate >= nextMonth && i.Description == "Carry Forward");
+                && i.TransDate >= nextMonth && i.Branch.ToUpper().Equals(s.Branch.ToUpper()) && i.Description == "Carry Forward" );
                 if (netPay < 0 && !debited)
                 {
+                    //credit privious month
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = s.Sno.ToString(),
+                        TransDate = endDate,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                        ProductType = productty,
+                        Qsupplied = 0,
+                        Ppu = 0,
+                        CR = netPay,
+                        DR = 0,
+                        Balance = 0,
+                        Description = "Carry Forward",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = false,
+                        Remarks = forlastmonthremarks,
+                        AuditId = auditId,
+                        Auditdatetime = DateTime.Now,
+                        Branch = s.Branch,
+                        SaccoCode = sacco,
+                        DrAccNo = "",
+                        CrAccNo = "",
+                        Posted = false
+                    });
+                    //debit next month
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = s.Sno.ToString(),
                         TransDate = nextMonth,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                        ProductType = "Carry Forward",
+                        ProductType = productty,
                         Qsupplied = 0,
                         Ppu = 0,
                         CR = 0,
-                        DR = -netPay,
+                        DR = netPay,
                         Balance = 0,
                         Description = "Carry Forward",
                         TransactionType = TransactionType.Deduction,
                         Paid = false,
-                        Remarks = "Carry Forward",
+                        Remarks = thismonthdescription,
                         AuditId = auditId,
                         Auditdatetime = DateTime.Now,
                         Branch = s.Branch,
@@ -981,28 +1017,53 @@ namespace EasyPro.Controllers
             Transporters.ForEach(s =>
             {
                 var payrolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == sacco
-                && p.EndPeriod == endDate && p.Code.ToUpper().Equals(s.TransCode.ToUpper())).ToList();
+                && p.EndPeriod == endDate && p.Code.ToUpper().Equals(s.TransCode.ToUpper()) && p.Branch.ToUpper().Equals(s.Tbranch.ToUpper())).ToList();
 
                 var netPay = payrolls.Sum(p => p.NetPay);
                 var debited = _context.ProductIntake.Any(i => i.SaccoCode == sacco && i.Sno.ToUpper().Equals(s.TransCode.ToUpper())
-                && i.TransDate >= nextMonth && i.Description == "Carry Forward");
+                && i.TransDate >= nextMonth && i.Description == "Carry Forward" && i.Branch.ToUpper().Equals(s.Tbranch.ToUpper()));
                 if (netPay < 0 && !debited)
                 {
+                    //INSERT TO LAST MONTH
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = s.TransCode.ToString(),
+                        TransDate = endDate,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                        ProductType = productty,
+                        Qsupplied = 0,
+                        Ppu = 0,
+                        CR = netPay,
+                        DR = 0,
+                        Balance = 0,
+                        Description = "Carry Forward",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = false,
+                        Remarks = forlastmonthremarks,
+                        AuditId = auditId,
+                        Auditdatetime = DateTime.Now,
+                        Branch = s.Tbranch,
+                        SaccoCode = sacco,
+                        DrAccNo = "",
+                        CrAccNo = "",
+                        Posted = false
+                    });
+                    //INSERT TO NEXT MONTH
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = s.TransCode.ToString(),
                         TransDate = nextMonth,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                        ProductType = "Carry Forward",
+                        ProductType = productty,
                         Qsupplied = 0,
                         Ppu = 0,
-                        CR = 0,
-                        DR = -netPay,
+                        CR = netPay,
+                        DR = 0,
                         Balance = 0,
                         Description = "Carry Forward",
                         TransactionType = TransactionType.Deduction,
                         Paid = false,
-                        Remarks = "Carry Forward",
+                        Remarks = thismonthdescription,
                         AuditId = auditId,
                         Auditdatetime = DateTime.Now,
                         Branch = s.Tbranch,
