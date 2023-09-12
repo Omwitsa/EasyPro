@@ -176,6 +176,7 @@
         $("#print").prop("checked", true);
         var today = new Date().toISOString().split('T')[0];
         $("#transDate").val(today);
+        let isSlopes = '@ViewBag.slopes' === 'True';
         $("#Remarks").val(@ViewBag.remarksValue);
         var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
         products = products ? products : [];
@@ -347,25 +348,29 @@
         });
 
         function getSelectedDateIntakes() {
-            var zone = $('#zone').val();
             var sno = $('#Sno').val();
             var mevng = $('#mevng').val();
+            //var date = $('#transDate').val() ? $('#transDate').val() : new Date();
+            var date = $('#transDate').val();
             $.ajax(
                 {
                     type: 'GET',
-                    url: "selectedDateIntake?sno=" + sno,
+                    url: "selectedDateIntake?sno=" + sno + "&date=" + date,
                     contentType: 'application/json',
                     success: function (response) {
                         $("#Names").val(response.supplier.Names);
                         let transName = `${response.transporter.TransName}  ${response.transporter.TransCode}`;
                         transName = isSlopes ? $("#TransName").val() : transName;
                         $("#TransName").val(transName);
+                        if (response.invoiceNo && isSlopes){
+                            $("#Remarks").val(response.invoiceNo);
+                        }
                     },
                     failure: function (response) {
                     }
                 }).then(function () {
 
-                });
+            });
         }
 
         $('#Qsupplied').on('keyup', function () {

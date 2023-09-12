@@ -422,36 +422,48 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> SelectedDateIntake(string sno, string branch)
+        public async Task<JsonResult> SelectedDateIntake(string sno, DateTime? date)
         {
             sno = sno ?? "";
             utilities.SetUpPrivileges(this);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            branch = branch ?? HttpContext.Session.GetString(StrValues.Branch);
+            var branch = HttpContext.Session.GetString(StrValues.Branch);
+            var supplier = new DSupplier { Names = "" };
+            var transporter = new DTransporter { TransName = "", TransCode = "" };
             var suppliers = await _context.DSuppliers.Where(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(s => s.Branch.ToUpper().Equals(branch.ToUpper())).ToList();
-            var supplier = suppliers.FirstOrDefault();
-            if (supplier == null)
-                supplier = new DSupplier { Names = ""};
+            if (suppliers.Any())
+                supplier = suppliers.FirstOrDefault();
+            if (StrValues.Slopes != sacco)
+            {
+                var transports = await _context.DTransports.Where(t => t.Sno.ToUpper().Equals(sno.ToUpper()) && t.saccocode == sacco).ToListAsync();
+                if (user.AccessLevel == AccessLevel.Branch)
+                    transports = transports.Where(s => s.Branch.ToUpper().Equals(branch.ToUpper())).ToList();
+                var trancode = transports.FirstOrDefault()?.TransCode ?? "";
 
-            var transports = await _context.DTransports.Where(t => t.Sno.ToUpper().Equals(sno.ToUpper()) && t.saccocode == sacco).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transports = transports.Where(s => s.Branch.ToUpper().Equals(branch.ToUpper())).ToList();
-            var trancode = transports.FirstOrDefault()?.TransCode ?? "";
+                var transporters = await _context.DTransporters.Where(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco).ToListAsync();
+                if (user.AccessLevel == AccessLevel.Branch)
+                    transporters = transporters.Where(s => s.Tbranch.ToUpper().Equals(branch.ToUpper())).ToList();
+                if (transporters.Any())
+                    transporter = transporters.FirstOrDefault();
+            }
 
-            var transporters = await _context.DTransporters.Where(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(s => s.Tbranch.ToUpper().Equals(branch.ToUpper())).ToList();
-            var transporter = transporters.FirstOrDefault();
-            if (transporter == null)
-                transporter = new DTransporter { TransName = "", TransCode = ""};
+            var invoiceNo = "";
+            if(StrValues.Slopes == sacco)
+            {
+                var intake = await _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.TransDate == date && i.SaccoCode == sacco)
+                    .OrderByDescending(i => i.Id).FirstOrDefaultAsync();
+                if (intake != null)
+                    invoiceNo = intake?.Remarks ?? "";
+            }
             return Json(new
             {
                 supplier,
-                transporter
+                transporter,
+                invoiceNo
             });
         }
 
@@ -807,6 +819,21 @@ namespace EasyPro.Controllers
                 {
                     success = false
                 });
+            }
+            if (StrValues.Slopes == sacco)
+            {
+                if (string.IsNullOrEmpty(productIntake.Remarks))
+                {
+                    _notyf.Error("Sorry, Kindly provide invoice No.");
+                    return Json(new
+                    {
+                        success = false
+                    });
+                }
+
+                var intakes = _context.ProductIntake.Where(i => i.Remarks == productIntake.Remarks);
+                if (intakes.Any())
+                    _context.ProductIntake.RemoveRange(intakes);
             }
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
@@ -1688,6 +1715,20 @@ namespace EasyPro.Controllers
                 {
                     success = false
                 });
+            }
+            if (StrValues.Slopes == sacco)
+            {
+                if (string.IsNullOrEmpty(productIntake.Remarks))
+                {
+                    _notyf.Error("Sorry, Kindly provide invoice No.");
+                    return Json(new
+                    {
+                        success = false
+                    });
+                }
+                var productIntakes = _context.ProductIntake.Where(i => i.Remarks == productIntake.Remarks);
+                if (productIntakes.Any())
+                    _context.ProductIntake.RemoveRange(productIntakes);
             }
             var suppliers = await _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode == sacco).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));

@@ -266,50 +266,51 @@
             $('#save').on('click', function () {
                 checkifalreadyexist();
             });
+
             function getSelectedforsave() {
-            var print = $('#print').is(':checked');
-            var sms = $('#SMS').is(':checked');
-            var vehicleNo = $("#transporter").val();
-            vehicleNo = vehicleNo ? vehicleNo : "";
-            var intake = {
-                sno: $("#Sno").val(),
-                transDate: $("#transDate").val(),
-                supName: $("#Names").val(),
-                productType: $("#ProductType").val(),
-                ppu: $("#Ppu").val(),
-                qsupplied: $("#Qsupplied").val(),
-                cr: $("#CR").val(),
-                drAccNo: $("#DrAccNo").val(),
-                crAccNo: $("#CrAccNo").val(),
-                remarks: $("#Remarks").val(),
-                mornEvening: $("#mevng").val(),
-                print: print,
-                sms: sms,
-            };
-            $.ajax({
-                type: 'POST',
-                url: "save?vehicleNo=" + vehicleNo,
-                contentType: 'application/json',
-                data: JSON.stringify(intake),
-                success: function (response) {
-                    $("#Sno").val('');
-                    $("#Qsupplied").val('');
-                    document.getElementById('Sno').focus();
-                    response = response ? response : {};
-                    if(response.success){
-                        $("#Remarks").val(response.remarksValue);
-                        getkgsfortheday();
-                        if (print) {
-                            printReceipt(response);
+                var print = $('#print').is(':checked');
+                var sms = $('#SMS').is(':checked');
+                var vehicleNo = $("#transporter").val();
+                vehicleNo = vehicleNo ? vehicleNo : "";
+                var intake = {
+                    sno: $("#Sno").val(),
+                    transDate: $("#transDate").val(),
+                    supName: $("#Names").val(),
+                    productType: $("#ProductType").val(),
+                    ppu: $("#Ppu").val(),
+                    qsupplied: $("#Qsupplied").val(),
+                    cr: $("#CR").val(),
+                    drAccNo: $("#DrAccNo").val(),
+                    crAccNo: $("#CrAccNo").val(),
+                    remarks: $("#Remarks").val(),
+                    mornEvening: $("#mevng").val(),
+                    print: print,
+                    sms: sms,
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "save?vehicleNo=" + vehicleNo,
+                    contentType: 'application/json',
+                    data: JSON.stringify(intake),
+                    success: function (response) {
+                        $("#Sno").val('');
+                        $("#Qsupplied").val('');
+                        document.getElementById('Sno').focus();
+                        response = response ? response : {};
+                        if(response.success){
+                            $("#Remarks").val(response.remarksValue);
+                            getkgsfortheday();
+                            if (print) {
+                                printReceipt(response);
+                            }
                         }
+                    },
+                    failure: function (response) {
                     }
-                },
-                failure: function (response) {
-                }
-            }).then(function () {
-                // ...
-            });
-        }
+                }).then(function () {
+                    // ...
+                });
+            }
 
             function printReceipt(intake) {
                 var content = generateHTML(intake);
@@ -405,16 +406,21 @@
             function getSelectedDateIntakes() {
                 var sno = $('#Sno').val();
                 var mevng = $('#mevng').val();
+                //var date = $('#transDate').val() ? $('#transDate').val() : new Date();
+                var date = $('#transDate').val();
                 $.ajax(
                     {
                         type: 'GET',
-                        url: "selectedDateIntake?sno=" + sno,
+                        url: "selectedDateIntake?sno=" + sno + "&date=" + date,
                         contentType: 'application/json',
                         success: function (response) {
                             $("#Names").val(response.supplier.Names);
                             let transName = `${response.transporter.TransName}  ${response.transporter.TransCode}`;
                             transName = isSlopes ? $("#TransName").val() : transName;
                             $("#TransName").val(transName);
+                            if (response.invoiceNo && isSlopes){
+                                $("#Remarks").val(response.invoiceNo);
+                            }
                         },
                         failure: function (response) {
                         }
