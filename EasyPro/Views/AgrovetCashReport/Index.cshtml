@@ -32,107 +32,179 @@
         overflow: auto;
     }
 </style>
-<div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="form-element-list mg-t-30">
-            <form asp-action="Create">
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
 
-                    </div>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <h1 style="text-align-last:center">Cash Sales Report</h1>
+<div class="row">
+    <div class="tabs-info-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-xs-12">
+                    <div class="widget-tabs-int">
+                        <div class="tab-hd">
+                            <h3 class="text-danger fa-bold">Cash Sales Report</h3>
+                        </div>
+                        <div class="widget-tabs-list">
+                            <div class="row">
+                                <div class="col-sm-2 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">DateFrom</label>
+                                        <input id="firstdate" type="date" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-2 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">DateTo</label>
+                                        <input id="enddate" type="date" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-2 col-xs-12">
+                                    <label class="control-label">Product</label>
+                                    <select id="product" class="chzn-select form-control" asp-items="@ViewBag.products">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2 col-xs-12">
+                                    <label class="control-label">Sno</label>
+                                    <input id="Sno" class="form-control" />
+                                </div>
+                                <div class="col-sm-2 col-xs-12">
+                                </div>
+                                <div class="col-sm-2 col-xs-12">
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                        <label class="control-label">---</label>
+                                        <a asp-controller="AgrovetStockReceive" asp-action="DefaultIndex" class="btn btn-info">Back</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a data-toggle="tab" href="#cashReport">Report</a></li>
+                                <li><a data-toggle="tab" href="#cashSummary">Summary</a></li>
+                            </ul>
+                            <div class="tab-content tab-custom-st">
+                                <div id="cashReport" class="tab-pane fade in active">
+                                    <div class="tab-ctn">
+                                        <div class="normal-table-list mg-t-30">
+                                            <div class="row">
+                                                <div class="col-sm-5 col-xs-12">
+                                                    <a id="showtable" class="btn btn-warning">Show</a>
+                                                </div>
+                                                <div class="col-sm-7 col-xs-12">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="bsc-tbl-hvr table-border-style">
+                                                <div class="table-responsive">
+                                                    <div class="divScroll">
+                                                        <table class="table table-hover" id="tbl_rep_report">
+                                                            <tr>
+                                                                <th>Date</th>
+                                                                <th>Receipt No.</th>
+                                                                <th>Code</th>
+                                                                <th>Product</th>
+                                                                <th>SNo</th>
+                                                                <th>Quantity</th>
+                                                                <th>Amount</th>
+                                                                <th>TransBy</th>
+                                                                <th>User</th>
+                                                                <th>Branch</th>
+                                                                <th>Sales Type</th>
+                                                            </tr>
+                                                            <tbody id="tbl_rep_details">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-4 col-xs-12">
+                                                    </div>
+                                                    <div class="col-sm-4 col-xs-12">
+                                                        <label class="control-label">Total SPrice</label>
+                                                        <input value="0" id="Tselling" class="form-control" readonly />
+                                                    </div>
+                                                    <div class="col-sm-4 col-xs-12">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="cashSummary" class="tab-pane fade">
+                                    <div class="tab-ctn">
+                                        <div class="normal-table-list mg-t-30">
+                                            <div class="row">
+                                                <div class="col-sm-5 col-xs-12">
+                                                    <a id="showSummery" class="btn btn-warning">Show</a>
+                                                </div>
+                                                <div class="col-sm-7 col-xs-12">
+                                                </div>
+                                            </div>
+
+                                            <div class="bsc-tbl-hvr table-border-style">
+                                                <div class="table-responsive">
+                                                    <div class="divScroll">
+                                                        <table class="table table-hover" id="tbl_summary">
+                                                            <tr>
+                                                                <th>Date</th>
+                                                                <th>Code</th>
+                                                                <th>Product</th>
+                                                                <th>SNo</th>
+                                                                <th>Quantity</th>
+                                                                <th>Amount</th>
+                                                            </tr>
+                                                            <tbody id="tbl_sum_details">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-sm-4 col-xs-12">
+                                                    </div>
+                                                    <div class="col-sm-4 col-xs-12">
+                                                        <label class="control-label">Total SPrice</label>
+                                                        <input value="0" id="Tselling" class="form-control" readonly />
+                                                    </div>
+                                                    <div class="col-sm-4 col-xs-12">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-3 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">DateFrom</label>
-                            <input id="firstdate" type="date" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="col-sm-3 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">DateTo</label>
-                            <input id="enddate" type="date" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="col-sm-4 col-xs-12">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <label class="control-label">-------</label>
-                            <a id="showtable" class="btn btn-warning">Show</a>
-                        </div>
-                    </div>
-                    <div class="col-sm-2 col-xs-12">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <label class="control-label">---</label>
-                            <a asp-controller="AgrovetStockReceive" asp-action="DefaultIndex" class="btn btn-info">Back</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="bsc-tbl-hvr table-border-style">
-                    <div class="table-responsive">
-                        <div class="divScroll">
-                            <table class="table table-hover" id="customers">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Receipt No.</th>
-                                    <th>Code</th>
-                                    <th>Product</th>
-                                    <th>SNo</th>
-                                    <th>Quantity</th>
-                                    <th>Amount</th>
-                                    <th>TransBy</th>
-                                    <th>User</th>
-                                    <th>Branch</th>
-                                    <th>Sales Type</th>
-                                </tr>
-                                <tbody id="intakes">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4 col-xs-12">
-
-                        </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <label class="control-label">Total SPrice</label>
-                            <input value="0" id="Tselling" class="form-control" readonly />
-                        </div>
-                        <div class="col-sm-4 col-xs-12">
-                        </div>
-                    </div>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
 @section Scripts{
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script type="text/javascript">
         $(function () {
+            $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
+            
             $("#showtable").click(function () {
-                var date1 = $("#firstdate").val();
-                var date2 = $("#enddate").val();
-                var zone = $("#zone").val();
-                zone = zone ? zone : "";
+                var startDate = $("#firstdate").val();
+                var endDate = $("#enddate").val();
+                var zone = $("#zone").val() ? $("#zone").val() : "";
+                var product = $("#product").val() ? $("#product").val() : "";
+                var sno = $("#Sno").val() ? $("#Sno").val() : "";
                 $.ajax(
                     {
                         type: 'POST',
-                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2,
+                        url: `cashreport?startDate=${startDate}&endDate=${endDate}&product=${product}&sno=${sno}`,
                         contentType: 'application/json',
                         success: function (response) {
-                            populateIntake(response)
+                            populateReports(response)
                         },
                         failure: function (response) {
                         }
@@ -141,7 +213,29 @@
                     });
             });
 
-            function populateIntake(intakes) {
+            $("#showSummery").click(function () {
+                var startDate = $("#firstdate").val();
+                var endDate = $("#enddate").val();
+                var zone = $("#zone").val() ? $("#zone").val() : "";
+                var product = $("#product").val() ? $("#product").val() : "";
+                var sno = $("#Sno").val() ? $("#Sno").val() : "";
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: `cashSummary?startDate=${startDate}&endDate=${endDate}&product=${product}&sno=${sno}`,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            response = response ? response : []
+                            populateSummary(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+            });
+
+            function populateReports(intakes) {
                 let itemTableRows = new Array();
                 $('#Tbuying').val('0');
                 $('#Tselling').val('0');
@@ -149,27 +243,53 @@
                 let Tselling = 0;
                 intakes.forEach(i => {
                     Tselling += i.Amount;
-                    var ddate = i.TDate;
-                    var type = "Cash Sales";
-                    var dd1 = new Date(ddate).toLocaleDateString();
+                    let type = "Cash";
+                    let dd1 = new Date(i.TDate).toLocaleDateString();
+                    itemTableRows.push(`<tr>
+                                    <td>${dd1}</td>
+                                    <td>${i.RNo}</td>
+                                    <td>${i.PCode}</td>
+                                    <td>${i.Remarks}</td>
+                                    <td>${i.SNo}</td>
+                                    <td>${i.Qua}</td>
+                                    <td>${i.Amount}</td>
+                                    <td>${i.Transby}</td>
+                                    <td>${i.UserId}</td>
+                                    <td>${i.Branch}</td>
+                                    <td>${type}</td>
+                                </tr>`)
+
+                });
+
+                $('#Tselling').val(Tselling);
+                $('#tbl_rep_details').html(itemTableRows);
+            }
+
+            function populateSummary(summary) {
+                let itemTableRows = new Array();
+                $('#Tbuying').val('0');
+                $('#Tselling').val('0');
+                $('#TPL').val('0');
+                let Tselling = 0;
+                summary.forEach(i => {
+                    i.sno = i.sno ? i.sno : "";
+                    i.product = i.product ? i.product : "";
+                    Tselling += i.amount;
+                    let dd1 = new Date(i.date).toLocaleDateString();
                     itemTableRows.push(`<tr>
                         <td>${dd1}</td>
-                        <td>${i.RNo}</td>
-                        <td>${i.PCode}</td>
-                        <td>${i.Remarks}</td>
-                        <td>${i.SNo}</td>
-                        <td>${i.Qua}</td>
-                        <td>${i.Amount}</td>
-                        <td>${i.Transby}</td>
-                        <td>${i.UserId}</td>
-                        <td>${i.Branch}</td>
-                        <td>${type}</td>
+                        <td>${i.product}</td>
+                        <td>${i.productName}</td>
+                        <td>${i.sno}</td>
+                        <td>${i.quantity}</td>
+                        <td>${i.amount}</td>
                     </tr>`)
                 });
 
                 $('#Tselling').val(Tselling);
-                $('#intakes').html(itemTableRows);
+                $('#tbl_sum_details').html(itemTableRows);
             }
+
         });
     </script>
 }

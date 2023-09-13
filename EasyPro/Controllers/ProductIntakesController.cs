@@ -451,19 +451,10 @@ namespace EasyPro.Controllers
                     transporter = transporters.FirstOrDefault();
             }
 
-            var invoiceNo = "";
-            if(StrValues.Slopes == sacco)
-            {
-                var intake = await _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.TransDate == date && i.SaccoCode == sacco)
-                    .OrderByDescending(i => i.Id).FirstOrDefaultAsync();
-                if (intake != null)
-                    invoiceNo = intake?.Remarks ?? "";
-            }
             return Json(new
             {
                 supplier,
                 transporter,
-                invoiceNo
             });
         }
 
@@ -820,21 +811,7 @@ namespace EasyPro.Controllers
                     success = false
                 });
             }
-            if (StrValues.Slopes == sacco)
-            {
-                if (string.IsNullOrEmpty(productIntake.Remarks))
-                {
-                    _notyf.Error("Sorry, Kindly provide invoice No.");
-                    return Json(new
-                    {
-                        success = false
-                    });
-                }
-
-                var intakes = _context.ProductIntake.Where(i => i.Remarks == productIntake.Remarks);
-                if (intakes.Any())
-                    _context.ProductIntake.RemoveRange(intakes);
-            }
+            
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
              
@@ -1786,20 +1763,7 @@ namespace EasyPro.Controllers
                     success = false
                 });
             }
-            if (StrValues.Slopes == sacco)
-            {
-                if (string.IsNullOrEmpty(productIntake.Remarks))
-                {
-                    _notyf.Error("Sorry, Kindly provide invoice No.");
-                    return Json(new
-                    {
-                        success = false
-                    });
-                }
-                var productIntakes = _context.ProductIntake.Where(i => i.Remarks == productIntake.Remarks);
-                if (productIntakes.Any())
-                    _context.ProductIntake.RemoveRange(productIntakes);
-            }
+            
             var suppliers = await _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode == sacco).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)

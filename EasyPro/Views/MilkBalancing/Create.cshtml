@@ -71,8 +71,11 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="col-sm-4 col-xs-12">
                             <a id="show" class="btn btn-success">Show</a>
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                        <a id="excel" class="btn btn-success">Export Excel</a>
                         </div>
                     </div>
 
@@ -81,7 +84,7 @@
                             <div class="bsc-tbl-hvr table-border-style">
                                 <div class="divScroll">
                                     <div class="table-responsive">
-                                        <table class="table table-hover" id="customers">
+                                        <table class="table table-hover" id="tbl_journal">
                                             <thead>
                                                 <tr>
                                                     <th>
@@ -103,8 +106,6 @@
                                         </table>
                                     </div>
                                 </div>
-
-
                             </div>
                         </div>
                     </div>
@@ -228,6 +229,13 @@
                 }).then(function () {
                     // ...
                 });
+            });
+
+            $('#excel').on('click', function () {
+                let date = $("#date").val() ? $("#date").val() : "";
+                let transporter = $("#name").val() ? $("#name").val() : "";
+                let fileName = `${transporter} ${date}`;
+                $('#tbl_journal').table2excel({ filename: fileName, fileext: ".xls" });
             });
 
             $('#save').on('click', function () {
