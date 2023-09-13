@@ -57,7 +57,7 @@
                         <div class="col-sm-6 col-xs-12">
                             <div class="form-group">
                                 <label class="control-label">Select Transporter</label>
-                                <select id="name" class="form-control" asp-items="@ViewBag.Transporterslist">
+                                <select id="name" class="chzn-select form-control" asp-items="@ViewBag.Transporterslist">
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="Transporter" class="text-danger"></span>
@@ -179,7 +179,9 @@
         }
 <script type="text/javascript">
         $(function () {
+            $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
+            let isSlopes = '@ViewBag.slopes' === 'True';
             $("#date").val(today);
             let suppliedItems = new Array();
             let print = false;
@@ -187,6 +189,10 @@
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
                 var selectVal = $("#name").val();
                 var selectSupplier = suppliers.filter(p => p.TransName === selectVal);
+                if(isSlopes){
+                    selectSupplier = suppliers.filter(p => p.CertNo === selectVal);
+                }
+                
                 if (selectSupplier[0]) {
                     $("#tcode").val(selectSupplier[0].TransCode);
                 }

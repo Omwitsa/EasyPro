@@ -32,13 +32,20 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            return View(await _context.Dispatch
-                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper()) && i.Branch== "MAIN"
+            var dispatches = await _context.Dispatch
+                .Where(i => i.Dcode.ToUpper().Equals(sacco.ToUpper())
                 && i.Transdate >= startDate && i.Transdate <= endDate)
-                .OrderByDescending(s=>s.Transdate).ToListAsync());
+                .OrderByDescending(s => s.Transdate).ToListAsync();
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                dispatches = dispatches.Where(s => s.Branch.ToUpper().Equals(saccoBranch.ToUpper())).ToList();
+
+            return View(dispatches);
         }
 
         // GET: Dispatches Branch
@@ -188,45 +195,42 @@ namespace EasyPro.Controllers
                 if (string.IsNullOrEmpty(loggedInUser))
                     return Redirect("~/");
                 utilities.SetUpPrivileges(this);
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-                var locations = _context.Dispatch.Any(i => i.DName == dispatch.DName && i.Dcode == sacco &&i.Branch=="MAIN" && i.Transdate == dispatch.Transdate);
-                //if (locations)
-                //{
-                //    _notyf.Error("Sorry, The Dispatch to Debtor Name already exist");
-                //    GetInitialValues();
-                //    return View();
-                //}
-                //if(dispatch.TIntake < dispatch.Dispatchkgs)
-                //{
-                //    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
-                //    GetInitialValues();
-                //    return View();
-                //}
+                GetInitialValues();
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+                var locations = await _context.Dispatch.Where(i => i.DName == dispatch.DName && i.Dcode == sacco && i.Transdate == dispatch.Transdate).ToListAsync();
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    locations = locations.Where(s => s.Branch.ToUpper().Equals(saccoBranch.ToUpper())).ToList();
+
+                if (dispatch.TIntake < dispatch.Dispatchkgs)
+                {
+                    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
+                    return View();
+                }
 
                 if (ModelState.IsValid)
                 {
-                    var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
-                    dispatch.auditid = user;
+                    dispatch.auditid = loggedInUser;
                     dispatch.Dcode = sacco;
-                    dispatch.Branch = "MAIN";
+                    dispatch.Branch = saccoBranch;
                     _context.Add(dispatch);
                     _context.SaveChanges();
-                    var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                     var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.Trim().ToUpper().Equals(dispatch.DName.ToUpper()) && d.Dcode == sacco);
-
                     _context.Gltransactions.Add(new Gltransaction
                     {
-                        AuditId = auditId,
+                        AuditId = loggedInUser,
                         TransDate = DateTime.Today,
                         Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
                         AuditTime = DateTime.Now,
                         DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
-                        Source = dispatch.DName+ "MAIN",
+                        Source = dispatch.DName+ " " +saccoBranch,
                         TransDescript = "Sales",
-                        Transactionno = $"{auditId}{DateTime.Now}",
+                        Transactionno = $"{loggedInUser}{DateTime.Now}",
                         SaccoCode = sacco,
                         DrAccNo = debtor.AccDr,
                         CrAccNo = debtor.AccCr,
+                        Branch = saccoBranch
                     });
                     _context.SaveChanges();
                     _notyf.Success("Dispatch saved successfully");

@@ -39,7 +39,7 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             GetInitialValues();
             utilities.SetUpPrivileges(this);
-            PostTransporterIntake();
+            await PostTransporterIntake();
 
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
@@ -57,21 +57,26 @@ namespace EasyPro.Controllers
             return View(suppliers);
         }
 
-        public void PostTransporterIntake()
+        public async Task PostTransporterIntake()
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var transporterIntakes = _context.d_TransporterIntake.Where(i => i.Posted != "Posted"
-            && i.SaccoCode == sacco && i.Branch== saccobranch).ToList();
+            var transporterIntakes = await _context.d_TransporterIntake.Where(i => i.Posted != "Posted"
+            && i.SaccoCode == sacco).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporterIntakes = transporterIntakes.Where(s => s.Branch == saccobranch).ToList();
+
             var intakes = transporterIntakes.GroupBy(i => i.Date).ToList();
             intakes.ForEach(i =>
             {
                 var transGroups = i.GroupBy(t => t.TransCode).ToList();
-                transGroups.ForEach(t =>
+                transGroups.ForEach(async t =>
                 {
                     var intake = t.FirstOrDefault();
                     var qty = t.Sum(t => t.ActualKg);
-                    var savedIntakes = GetTransporterIntakes(intake.TransCode, intake.Date);
+                    var savedIntakes = await GetTransporterIntakes(intake.TransCode, intake.Date);
                     var supplies = savedIntakes.Sum(s => s.Qsupplied);
                     var variance = supplies - qty;
                     _context.TransportersBalancings.Add(new TransportersBalancing
@@ -100,11 +105,7 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            sacco = sacco ?? "";
             GetInitialValues();
-            
-
             return View(new TransportersBalancing
             {
                 Spillage = "0",
@@ -188,15 +189,19 @@ namespace EasyPro.Controllers
                 transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
            
             ViewBag.agproductsall = transporters;
-            ViewBag.Transporterslist = new SelectList(transporters, "TransName", "TransName");
-            if(sacco.ToUpper()== "MBURUGU DAIRY F.C.S")
+            var transporterNames = transporters.Select(t => t.TransName).ToList();
+            if(StrValues.Slopes == sacco)
+                transporterNames = transporters.Select(t => t.CertNo).ToList();
+            ViewBag.Transporterslist = new SelectList(transporterNames);
+            ViewBag.slopes = StrValues.Slopes == sacco;
+            if (sacco == StrValues.Mburugu)
                 ViewBag.checkiftoenable = 1;
             else
                 ViewBag.checkiftoenable = 0;
         }
 
         [HttpPost]
-        public JsonResult GetSuppliedItems([FromBody] ProductBalancingFilterVm filter)
+        public async Task<JsonResult> GetSuppliedItems([FromBody] ProductBalancingFilterVm filter)
         {
             try
             {
@@ -211,9 +216,15 @@ namespace EasyPro.Controllers
                     return Json("");
                 }
 
-                var suppliersdeliveries = _context.d_TransporterIntake.Where(i => i.Date == filter.Date && i.TransCode.ToUpper().Equals(filter.TCode.ToUpper())
-                && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).Sum(i => i.ActualKg);
-                var intakes = GetTransporterIntakes(filter.TCode, filter.Date);
+                var transporterIntakes = await _context.d_TransporterIntake.Where(i => i.Date == filter.Date 
+                && i.TransCode.ToUpper().Equals(filter.TCode.ToUpper())
+                && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    transporterIntakes = transporterIntakes.Where(s => s.Branch == saccobranch).ToList();
+
+                var suppliersdeliveries = transporterIntakes.Sum(i => i.ActualKg);
+                var intakes = await GetTransporterIntakes(filter.TCode, filter.Date);
                 return Json(new {
                     intakes,
                     suppliersdeliveries
@@ -226,21 +237,21 @@ namespace EasyPro.Controllers
             }
         }
 
-        private IEnumerable<ProductIntake> GetTransporterIntakes(string transCode, DateTime? date)
+        private async Task<IEnumerable<ProductIntake>> GetTransporterIntakes(string transCode, DateTime? date)
         {
             transCode = transCode ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
-            var transports = _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) 
-            && t.saccocode == sacco);
-            var intakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco);
+            var transports = await _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) 
+            && t.saccocode == sacco).ToListAsync();
+            var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
             {
-                transports = transports.Where(s => s.Branch == saccobranch);
-                intakes = intakes.Where(i => i.Branch == saccobranch);
+                transports = transports.Where(s => s.Branch == saccobranch).ToList();
+                intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
             }
             var transporterSuppliers = transports.Select(t => t.Sno);
 
@@ -249,14 +260,13 @@ namespace EasyPro.Controllers
                 .Select(t => t.Sno).Distinct().ToList();
 
             intakes = intakes.Where(s => s.TransDate == date && (s.Description == "Intake" || s.Description == "Correction")
-            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno))).OrderByDescending(h => h.Auditdatetime);
-
-            return intakes.ToList();
+            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno))).OrderByDescending(h => h.Auditdatetime).ToList();
+            return intakes;
         }
 
 
         [HttpPost]//editVariance
-        public JsonResult SaveVariance([FromBody] TransportersBalancing balancing ,bool print)
+        public async Task<JsonResult> SaveVariance([FromBody] TransportersBalancing balancing ,bool print)
         {
             try
             {
@@ -284,38 +294,40 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindy provide actuals");
                     return Json("");
                 }
-                var checkexist = _context.TransportersBalancings
-                    .FirstOrDefault(s => s.Date == balancing.Date && s.Code == sacco && s.Branch== saccoBranch && s.Transporter == balancing.Transporter);
-                if (checkexist!=null)
-                {
-                    var id = checkexist.Id;
-                    var transportersBalancing = _context.TransportersBalancings.Find(id);
-                    _context.TransportersBalancings.Remove(transportersBalancing);
-                }
 
-                var checkIfexist = _context.ProductIntake
-                    .Where(s => s.TransDate >= startDate && s.TransDate <= enDate && s.SaccoCode == sacco && s.Branch == saccoBranch
-                    && s.Sno == balancing.Transporter && s.ProductType == "variance").ToList();
-                checkIfexist.ForEach(g =>
-                {
-                    var id = g.Id;
-                    var intaketransportersBalancing = _context.ProductIntake.Find(id);
-                    _context.ProductIntake.RemoveRange(intaketransportersBalancing);
-                });
+                var balancings = await _context.TransportersBalancings.Where(s => s.Date == balancing.Date && s.Code == sacco && s.Transporter == balancing.Transporter).ToListAsync();
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    balancings = balancings.Where(s => s.Branch == saccoBranch).ToList();
+
+                var checkexist = balancings.FirstOrDefault();
+                if (checkexist!=null)
+                    _context.TransportersBalancings.Remove(checkexist);
+
+                var checkIfexist = await _context.ProductIntake
+                    .Where(s => s.TransDate >= startDate && s.TransDate <= enDate && s.SaccoCode == sacco
+                    && s.Sno == balancing.Transporter && s.ProductType == "variance").ToListAsync();
+                if (user.AccessLevel == AccessLevel.Branch)
+                    checkIfexist = checkIfexist.Where(s => s.Branch == saccoBranch).ToList();
+
+                if(checkIfexist.Any())
+                    _context.ProductIntake.RemoveRange(checkIfexist);
 
                 balancing.Code = sacco;
-                    balancing.Branch = saccoBranch;
-                    _context.TransportersBalancings.Add(balancing);
-               
+                balancing.Branch = saccoBranch;
+                _context.TransportersBalancings.Add(balancing);
                 _context.SaveChanges();
 
-                //calc variance kgs
+                var sumdeliveredkgs = await _context.TransportersBalancings
+                    .Where(s => s.Date >= startDate && s.Date <= enDate && s.Code == sacco
+                     && s.Transporter == balancing.Transporter).ToListAsync();
+                if (user.AccessLevel == AccessLevel.Branch)
+                    sumdeliveredkgs = sumdeliveredkgs.Where(s => s.Branch == saccoBranch).ToList();
+
                 decimal systemkgs = 0;
                 decimal kgsdelivered = 0;
                 decimal Vvariance = 0;
-                var sumdeliveredkgs = _context.TransportersBalancings
-                    .Where(s => s.Date >= startDate && s.Date <= enDate && s.Code == sacco
-                    && s.Branch == saccoBranch && s.Transporter == balancing.Transporter).ToList();
+
                 sumdeliveredkgs.ForEach(n =>
                 {
                     systemkgs = systemkgs + Convert.ToDecimal(n.Quantity);
