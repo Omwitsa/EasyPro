@@ -151,6 +151,9 @@
                         <a id="save" class="btn btn-success">Save</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a id="reprint" class="btn btn-success" hidden>Reprint Receipt</a>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a asp-action="Index" class="btn btn-primary">Back to List</a>
                     </div>
                 </div>
@@ -262,7 +265,35 @@
                     checkifalreadyexist();
                 }
             });
-
+        
+            $('#reprint').on('click', function () {
+                reprintreceipt();
+            });
+        function reprintreceipt() {
+            var intake = {
+                sno: $("#Sno").val(),
+                transDate: $("#transDate").val(),
+            };
+            $.ajax({
+                type: 'POST',
+                url: "reprintreceipt",
+                contentType: 'application/json',
+                data: JSON.stringify(intake),
+                success: function (response) {
+                    $("#Sno").val('');
+                    $("#Qsupplied").val('');
+                    document.getElementById('Sno').focus();
+                    response = response ? response : {};
+                    if (response.success) {
+                        printReceipt(response);
+                    }
+                },
+                failure: function (response) {
+                }
+            }).then(function () {
+                // ...
+            });
+        }
             $('#save').on('click', function () {
                 checkifalreadyexist();
             });
@@ -306,6 +337,7 @@
                         }
                     },
                     failure: function (response) {
+
                     }
                 }).then(function () {
                     // ...
@@ -546,9 +578,9 @@
                 printer.addText('* SALE RECEIPT *\n');
                 printer.addTextDouble(false, false);
 
-}
+            }
         }
   
-        });
+    });
 </script>
 }

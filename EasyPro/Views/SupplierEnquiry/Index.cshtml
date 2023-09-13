@@ -35,8 +35,6 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            
-            
             <hr />
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -360,13 +358,12 @@
             function populateIntake(intake) {
                 var selectVal = $("#sno").val();
                 var share = 0;
-                var transporter = 0;
+                var transporter = @Html.Raw(Json.Serialize(ViewBag.Transportert));
                 var checkiftoenable1 = @Html.Raw(Json.Serialize(ViewBag.shares));
                 $("#shar").val(checkiftoenable1);
                 let itemTableRows = new Array();
                 share = intake.entries.shares;
-                transporter = intake.entries.transporter;
-
+               
                 let Total = 0;
                 let Total2 = 0;
                 let netpay = 0;
@@ -374,6 +371,7 @@
                 intake.entries.forEach(i => {
                     share = i.shares;
                     transporter = i.Transporter;
+                    var chek = i.ProductType === null ? -1 : 1;
                     var dd1 = new Date(i.TransDate).toLocaleDateString();
                     if (i.ProductType && ((i.CR || i.DR) || (!i.CR && !i.DR && i.Description != "Transport"))) {
                         itemTableRows.push(`<tr>
@@ -393,7 +391,7 @@
                         netpay = Total - Total2;
                     }
                 });
-               
+
                 $('#netpay').val(netpay);
                 $('#totaldeductions').val(Total2);
                 $('#grosspay').val(Total);

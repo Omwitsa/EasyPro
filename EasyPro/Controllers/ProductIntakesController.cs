@@ -1058,6 +1058,76 @@ namespace EasyPro.Controllers
             });
         }
 
+        [HttpPost]
+        public async Task<JsonResult> reprintreceipt([FromBody] ProductIntakeVm productIntake, string transCode)
+        {
+            transCode = transCode ?? "";
+            utilities.SetUpPrivileges(this);
+            await SetIntakeInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            productIntake.Branch = saccoBranch;
+            productIntake.Sno = productIntake?.Sno ?? "";
+            productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
+            if (string.IsNullOrEmpty(productIntake.Sno))
+            {
+                _notyf.Error("Sorry, Kindly provide supplier No.");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
+            var suppliers = await dSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+
+            var supplier = suppliers.FirstOrDefault();
+            if (supplier == null)
+            {
+                _notyf.Error("Sorry, Supplier does not exist");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            if (!supplier.Active || !supplier.Approval)
+            {
+                _notyf.Error("Sorry, Supplier must be approved and active");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
+            var kgs = productIntakes.Where(n => n.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()) && n.SaccoCode == sacco && n.Branch == saccoBranch
+            && n.TransDate == productIntake.TransDate && (n.TransactionType == TransactionType.Intake || n.TransactionType == TransactionType.Correction)).Sum(c=>c.Qsupplied);
+            productIntake.SaccoCode = sacco;
+            var intake = new ProductIntake
+            {
+                Sno = productIntake.Sno,
+                Qsupplied = (decimal)kgs,
+                MornEvening = productIntake.MornEvening,
+                SaccoCode = productIntake.SaccoCode,
+                Branch = saccoBranch,
+            };
+            var receiptDetails = await GetReceiptDetails(intake, loggedInUser);
+
+            var remarksValue = "";
+
+            return Json(new
+            {
+                receiptDetails,
+                remarksValue,
+                success = true
+            });
+        }
+
         [HttpGet]
         public async Task<JsonResult> ReprintReceipt(long intakeId)
         {
