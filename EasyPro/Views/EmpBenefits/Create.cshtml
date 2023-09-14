@@ -1,55 +1,67 @@
 ﻿@model EasyPro.Models.EmpBenefit
 
-@{
-    ViewData["Title"] = "Create";
-}
-
-<h2>Create</h2>
-
-<h4>EmpBenefit</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="EmpNo" class="control-label"></label>
-                <input asp-for="EmpNo" class="form-control" />
-                <span asp-validation-for="EmpNo" class="text-danger"></span>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create</h2>
             </div>
-            <div class="form-group">
-                <label asp-for="EntType" class="control-label"></label>
-                <input asp-for="EntType" class="form-control" />
-                <span asp-validation-for="EntType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Amount" class="control-label"></label>
-                <input asp-for="Amount" class="form-control" />
-                <span asp-validation-for="Amount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Auditdate" class="control-label"></label>
-                <input asp-for="Auditdate" class="form-control" />
-                <span asp-validation-for="Auditdate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AuditId" class="control-label"></label>
-                <input asp-for="AuditId" class="form-control" />
-                <span asp-validation-for="AuditId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SaccoCode" class="control-label"></label>
-                <input asp-for="SaccoCode" class="form-control" />
-                <span asp-validation-for="SaccoCode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </form>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Employee</label>
+                            <select asp-for="EmpNo" class="chzn-select form-control" asp-items="@ViewBag.employees">
+                                <option value=""></option>
+                            </select>
+                            <span asp-validation-for="EmpNo" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="EntType" class="control-label"></label>
+                            <select asp-for="EntType" class="chzn-select form-control" asp-items="@ViewBag.entitlements">
+                                <option value=""></option>
+                            </select>
+                            <span asp-validation-for="EntType" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Amount" class="control-label"></label>
+                            <input asp-for="Amount" class="form-control" />
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            $(".chzn-select").chosen();
+        });
+    </script>
+}

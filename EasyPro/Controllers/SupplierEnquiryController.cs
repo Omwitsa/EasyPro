@@ -203,6 +203,7 @@ namespace EasyPro.Controllers
 
             var trancode = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(sno.ToUpper()) && t.saccocode == sacco && t.Branch == saccobranch)?.TransCode ?? "";
             var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco && t.Tbranch == saccobranch);
+
            ViewBag.Transportert = transporter.TransName;
         }
 

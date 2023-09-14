@@ -5,10 +5,12 @@ using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using static EasyPro.ViewModels.AccountingVm;
 
 namespace EasyPro.Controllers
@@ -25,21 +27,21 @@ namespace EasyPro.Controllers
             _notyf = notyf;
             utilities = new Utilities(context);
         }
-        public IActionResult JournalPosting()
+        public async Task<IActionResult> JournalPosting()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).ToList();
+            var glAccounts = await _context.Glsetups.Where(a => a.saccocode == sacco).ToListAsync();
             ViewBag.glAccounts = new SelectList(glAccounts, "AccNo", "GlAccName");
 
             return View();
         }
 
         [HttpPost]
-        public JsonResult JournalPosting([FromBody] List<Gltransaction> transactions)
+        public async Task<JsonResult> JournalPosting([FromBody] List<Gltransaction> transactions)
         {
             try
             {
@@ -55,8 +57,8 @@ namespace EasyPro.Controllers
                     t.Transactionno = $"{loggedInUser}{DateTime.Now}";
                     t.SaccoCode = sacco;
                 });
-                _context.Gltransactions.AddRange(transactions);
-                _context.SaveChanges();
+                await _context.Gltransactions.AddRangeAsync(transactions);
+                await _context.SaveChangesAsync();
                 _notyf.Success("Journal posted successfully");
                 return Json("");
             }
@@ -66,7 +68,7 @@ namespace EasyPro.Controllers
             }
         }
 
-        public IActionResult Budget()
+        public async Task<IActionResult> Budget()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -75,26 +77,28 @@ namespace EasyPro.Controllers
             var perMonth = new string[] { "Yes", "No" };
             ViewBag.perMonth = new SelectList(perMonth);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).ToList();
+            var glAccounts = await _context.Glsetups.Where(a => a.saccocode == sacco).ToListAsync();
             ViewBag.glAccounts = glAccounts;
             return View();
         }
 
         [HttpGet]
-        public JsonResult Comparison(DateTime period)
+        public async Task<JsonResult> Comparison(DateTime period)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var budgets = _context.Budgets.Where(b => b.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-            && b.Mmonth == period.Month && b.Yyear == period.Year).ToList();
+            var budgets = await _context.Budgets.Where(b => b.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && b.Mmonth == period.Month && b.Yyear == period.Year).ToListAsync();
+            var glsetups = await _context.Glsetups.Where(s => s.saccocode == sacco).ToListAsync();
+            var balances = await _context.CustomerBalances.Where(b => b.SCode== sacco
+            && b.TransDate.GetValueOrDefault().Month == period.Month 
+            && b.TransDate.GetValueOrDefault().Year == period.Year).ToListAsync();
             var comparisons = new List<ComparisonVm>();
             budgets.ForEach(b =>
             {
-                var glsetup = _context.Glsetups.FirstOrDefault(g => g.AccNo.ToUpper().Equals(b.Accno.ToUpper()));
+                var glsetup = glsetups.FirstOrDefault(g => g.AccNo.ToUpper().Equals(b.Accno.ToUpper()));
                 var accName = glsetup?.GlAccName ?? "";
-                var customerBalances = _context.CustomerBalances.Where(c => c.AccNo.ToUpper().Equals(b.Accno.ToUpper())
-                && c.TransDate.GetValueOrDefault().Month == period.Month
-                && c.TransDate.GetValueOrDefault().Year == period.Year);
+                var customerBalances = balances.Where(c => c.AccNo.ToUpper().Equals(b.Accno.ToUpper()));
                 var actualAmount = customerBalances.Sum(b => b.Amount);
                 var variance = b.Budgetted - actualAmount;
                 comparisons.Add(new ComparisonVm
@@ -111,13 +115,13 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public JsonResult Budget([FromBody] BudgetFilter filter)
+        public async Task<JsonResult> Budget([FromBody] BudgetFilter filter)
         {
             try
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                var budgets = _context.Budgets.Where(b => b.Accno.ToUpper().Equals(filter.AccNo.ToUpper())
-                && b.Yyear == filter.Period.Year && b.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+                var budgets = await _context.Budgets.Where(b => b.Accno.ToUpper().Equals(filter.AccNo.ToUpper())
+                && b.Yyear == filter.Period.Year && b.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
                 if (budgets.Any())
                 {
                     _context.Budgets.RemoveRange(budgets);
@@ -145,8 +149,8 @@ namespace EasyPro.Controllers
 
                 _context.SaveChanges();
                 _notyf.Success("Budget saved successfully");
-                budgets = _context.Budgets.Where(b => b.Accno.ToUpper().Equals(filter.AccNo.ToUpper())
-                && b.Yyear == filter.Period.Year && b.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+                budgets = await _context.Budgets.Where(b => b.Accno.ToUpper().Equals(filter.AccNo.ToUpper())
+                && b.Yyear == filter.Period.Year && b.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
 
                 DateTime lastDay = new DateTime(filter.Period.Year, filter.Period.Month, 1).AddMonths(1).AddDays(-1);
                 var budgetVms = new List<BudgetVm>();
@@ -167,33 +171,33 @@ namespace EasyPro.Controllers
             }
         }
 
-        public IActionResult GLInquiry()
+        public async Task<IActionResult> GLInquiry()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var glAccounts = _context.Glsetups.Where(a => a.saccocode == sacco).ToList();
+            var glAccounts = await _context.Glsetups.Where(a => a.saccocode == sacco).ToListAsync();
             ViewBag.glAccounts = glAccounts;
 
             return View();
         }
 
         [HttpPost]
-        public JsonResult GLInquiry([FromBody] JournalFilter filter)
+        public async Task<JsonResult> GLInquiry([FromBody] JournalFilter filter)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var gltransactions = _context.Gltransactions
+            var gltransactions = await _context.Gltransactions
                 .Where(t => t.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate
                 && (t.DrAccNo.ToUpper().Equals(filter.AccNo.ToUpper())
-                || t.CrAccNo.ToUpper().Equals(filter.AccNo.ToUpper())));
+                || t.CrAccNo.ToUpper().Equals(filter.AccNo.ToUpper()))).ToListAsync();
 
             var debit = gltransactions.Where(t => t.DrAccNo.ToUpper().Equals(filter.AccNo.ToUpper())).ToList();
             var credit = gltransactions.Where(t => t.CrAccNo.ToUpper().Equals(filter.AccNo.ToUpper())).ToList();
-            var glsetup = _context.Glsetups.FirstOrDefault(t => t.AccNo.Trim().ToUpper().Equals(filter.AccNo.ToUpper()) && t.saccocode == sacco);
+            var glsetup = await _context.Glsetups.FirstOrDefaultAsync(t => t.AccNo.Trim().ToUpper().Equals(filter.AccNo.ToUpper()) && t.saccocode == sacco);
             var journals = new List<JournalVm>();
             var bookBalance = 0M;
             if (glsetup != null)
@@ -259,13 +263,13 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public JsonResult JournalListing([FromBody] JournalFilter filter)
+        public async Task<JsonResult> JournalListing([FromBody] JournalFilter filter)
         {
             try
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var journalListings = new List<JournalVm>();
-                List<Glsetup> glsetups = _context.Glsetups.Where(g => g.saccocode == sacco).ToList();
+                List<Glsetup> glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco).ToListAsync();
                 glsetups.ForEach(g =>
                 {
                     g.NormalBal = g?.NormalBal ?? "";
@@ -291,9 +295,9 @@ namespace EasyPro.Controllers
                     }
                 });
 
-                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco 
+                var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco 
                 && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
-                    .ToList();
+                    .ToListAsync();
                 
                 gltransactions.ForEach(t =>
                 {
@@ -348,14 +352,14 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult IntakeEndOfDay()
+        public async Task<JsonResult> IntakeEndOfDay()
         {
             try
             {
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                var productIntakes = _context.ProductIntake
-                    .Where(i => i.TransDate == DateTime.Today && i.SaccoCode == sacco && (i.Posted == null || !(bool)i.Posted)).ToList();
+                var productIntakes = await _context.ProductIntake
+                    .Where(i => i.TransDate == DateTime.Today && i.SaccoCode == sacco && (i.Posted == null || !(bool)i.Posted)).ToListAsync();
 
                 var intakes = productIntakes.GroupBy(i => i.ProductType).ToList();
                 intakes.ForEach(i =>
@@ -387,11 +391,12 @@ namespace EasyPro.Controllers
                 });
 
                 var journalListings = new List<JournalVm>();
-                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
-                && t.TransDate >= DateTime.Today && t.TransDescript == "Intake").ToList();
+                var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                && t.TransDate >= DateTime.Today && t.TransDescript == "Intake").ToListAsync();
+                var glsetups = await _context.Glsetups.Where(s => s.saccocode == sacco).ToListAsync();
                 gltransactions.ForEach(t =>
                 {
-                    var debtorssAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo && a.saccocode == sacco);
+                    var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo);
                     if (debtorssAcc != null)
                     {
                         journalListings.Add(new JournalVm
@@ -407,7 +412,7 @@ namespace EasyPro.Controllers
                     }
                     
 
-                    var creditorsAcc = _context.Glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo && a.saccocode == sacco);
+                    var creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == t.CrAccNo);
                     if(creditorsAcc != null)
                     {
                         journalListings.Add(new JournalVm
@@ -453,13 +458,13 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public JsonResult TrialBalance([FromBody] JournalFilter filter)
+        public async Task<JsonResult> TrialBalance([FromBody] JournalFilter filter)
         {
             try
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var journalListings = new List<JournalVm>();
-                List<Glsetup> glsetups = _context.Glsetups.Where(g => g.saccocode == sacco).ToList();
+                List<Glsetup> glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco).ToListAsync();
                 glsetups.ForEach(g =>
                 {
                     g.NormalBal = g?.NormalBal ?? "";
@@ -485,9 +490,9 @@ namespace EasyPro.Controllers
                     }
                 });
 
-                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco
                 && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
-                    .ToList();
+                    .ToListAsync();
                 gltransactions.ForEach(t =>
                 {
                     var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo);
@@ -551,11 +556,11 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public JsonResult IncomeStatement([FromBody] JournalFilter filter)
+        public async Task<JsonResult> IncomeStatement([FromBody] JournalFilter filter)
         {
             try
             {
-                var journalListings = getIncomeStatement(filter);
+                var journalListings = await GetIncomeStatement(filter);
                 var income = journalListings.Where(a => a.Group == "INCOME").ToList();
                 var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
                 return Json(new
@@ -570,11 +575,11 @@ namespace EasyPro.Controllers
             }
         }
 
-        private List<JournalVm> getIncomeStatement(JournalFilter filter)
+        private async Task<List<JournalVm>> GetIncomeStatement(JournalFilter filter)
         {
             var journalListings = new List<JournalVm>();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            List<Glsetup> glsetups = _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement").ToList();
+            List<Glsetup> glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement").ToListAsync();
             glsetups.ForEach(g =>
             {
                 g.NormalBal = g?.NormalBal ?? "";
@@ -602,9 +607,9 @@ namespace EasyPro.Controllers
                 }
             });
 
-            var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+            var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco
             && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
-                .ToList();
+                .ToListAsync();
             gltransactions.ForEach(t =>
             {
                 var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo);
@@ -653,17 +658,17 @@ namespace EasyPro.Controllers
         }
 
         [HttpPost]
-        public JsonResult BalanceSheet([FromBody] JournalFilter filter)
+        public async Task<JsonResult> BalanceSheet([FromBody] JournalFilter filter)
         {
             try
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var journalListings = new List<JournalVm>();
-                var gltransactions = _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco
                 && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
-                    .ToList();
+                    .ToListAsync();
 
-                List<Glsetup> glsetups = _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Balance Sheet").ToList();
+                List<Glsetup> glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Balance Sheet").ToListAsync();
                 glsetups.ForEach(s =>
                 {
                     s.NormalBal = s?.NormalBal ?? "";
@@ -701,7 +706,7 @@ namespace EasyPro.Controllers
                 var liabilities = journalListings.Where(a => a.Group == "LIABILITIES").ToList();
                 var capitals = journalListings.Where(a => a.Group == "CAPITAL").ToList();
 
-                journalListings = getIncomeStatement(filter);
+                journalListings = await GetIncomeStatement(filter);
                 var income = journalListings.Where(a => a.Group == "INCOME").ToList();
                 var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
                 var totalIncome = income.Sum(i => i.Cr) - income.Sum(i => i.Dr);

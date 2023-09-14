@@ -11,6 +11,7 @@ using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
 using EasyPro.ViewModels;
+using Grpc.Core;
 
 namespace EasyPro.Controllers
 {
@@ -77,15 +78,25 @@ namespace EasyPro.Controllers
         }
 
         // GET: EmpBenefits/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            await SetInitialValues();
             return View();
+        }
+
+        private async Task SetInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var entitlements = await _context.EntitlementType.Where(e => e.SaccoCode == sacco)
+                .Select(e => e.Name).ToListAsync();
+            ViewBag.entitlements = new SelectList(entitlements);
+            var employees = await _context.Employees.Where(e => e.SaccoCode == sacco).ToListAsync();
+            ViewBag.employees = new SelectList(employees, "EmpNo", "Othernames");
         }
 
         // POST: EmpBenefits/Create
@@ -99,10 +110,30 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
+            await SetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            if (string.IsNullOrEmpty(empBenefit.EmpNo))
+            {
+                _notyf.Error("Sorry, Kindly provide employee");
+                return View(empBenefit);
+            }
+            if (string.IsNullOrEmpty(empBenefit.EntType))
+            {
+                _notyf.Error("Sorry, Kindly provide entintlement");
+                return View(empBenefit);
+            }
+            if(_context.EmpBenefits.Any(b => b.EmpNo == empBenefit.EmpNo 
+            && b.EntType == empBenefit.EntType && b.SaccoCode == sacco))
+            {
+                _notyf.Error("Sorry, Employee already entintled for the benefit");
+                return View(empBenefit);
+            }
+
             if (ModelState.IsValid)
             {
+                empBenefit.Auditdate = DateTime.Now;
+                empBenefit.AuditId = loggedInUser;
                 empBenefit.SaccoCode = sacco;
                 _context.Add(empBenefit);
                 await _context.SaveChangesAsync();
@@ -118,8 +149,7 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            await SetInitialValues();
             if (id == null)
             {
                 return NotFound();
@@ -144,11 +174,29 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
+            await SetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             if (id != empBenefit.Id)
             {
                 return NotFound();
+            }
+
+            if (string.IsNullOrEmpty(empBenefit.EmpNo))
+            {
+                _notyf.Error("Sorry, Kindly provide employee");
+                return View(empBenefit);
+            }
+            if (string.IsNullOrEmpty(empBenefit.EntType))
+            {
+                _notyf.Error("Sorry, Kindly provide entintlement");
+                return View(empBenefit);
+            }
+            if (_context.EmpBenefits.Any(b => b.EmpNo == empBenefit.EmpNo
+            && b.EntType == empBenefit.EntType && b.SaccoCode == sacco && b.Id != empBenefit.Id))
+            {
+                _notyf.Error("Sorry, Employee already entintled for the benefit");
+                return View(empBenefit);
             }
 
             if (ModelState.IsValid)

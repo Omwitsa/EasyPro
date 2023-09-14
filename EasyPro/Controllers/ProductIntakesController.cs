@@ -427,12 +427,21 @@ namespace EasyPro.Controllers
             sno = sno ?? "";
             utilities.SetUpPrivileges(this);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var branch = HttpContext.Session.GetString(StrValues.Branch);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var supplier = new DSupplier { Names = "" };
             var transporter = new DTransporter { TransName = "", TransCode = "" };
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+
+            var intakes = await _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) 
+            && i.TransDate >= startDate && i.TransDate <= DateTime.Today 
+            && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction) 
+            && i.SaccoCode == sacco).ToListAsync();
+            var user = await _context.UserAccounts.FirstOrDefaultAsync(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                intakes = intakes.Where(i => i.Branch == branch).ToList();
+
             var suppliers = await _context.DSuppliers.Where(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco).ToListAsync();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(s => s.Branch.ToUpper().Equals(branch.ToUpper())).ToList();
             if (suppliers.Any())
@@ -455,6 +464,7 @@ namespace EasyPro.Controllers
             {
                 supplier,
                 transporter,
+                supCum = intakes.Sum(i => i.Qsupplied)
             });
         }
 

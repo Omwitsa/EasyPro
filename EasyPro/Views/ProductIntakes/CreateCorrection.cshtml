@@ -30,6 +30,11 @@
                             </div>
                         </div>
                     }
+
+                    <div class="col-sm-3 col-xs-12">
+                        Farmer Cumlative Kgs
+                        <input id="supCum" class="form-control" readonly />
+                    </div>
                 </div>
                 <hr />
                 <div class="row">
@@ -369,6 +374,7 @@
                         let transName = `${response.transporter.TransName}  ${response.transporter.TransCode}`;
                         transName = isSlopes ? $("#TransName").val() : transName;
                         $("#TransName").val(transName);
+                        $("#supCum").val(response.supCum);
                     },
                     failure: function (response) {
                     }

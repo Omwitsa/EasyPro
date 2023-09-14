@@ -646,7 +646,7 @@
                 let isCash = $('#cash').prop("checked");
                 let isTransporter = $('#transporter').prop("checked");
                 let isStaff = $('#staff').prop("checked");
-                var transDate = new Date($("#TDate").val()).toLocaleDateString('en-GB');;
+                var transDate = new Date($("#TDate").val()).toLocaleDateString('en-GB');
                 let sno = isFarmer ? `SNo: ${response.receiptDetails.Sno}</br>` : "";
                 let supName = isFarmer ? `Name: ${response.receiptDetails.supName}</br>` : "";
                 let title = "Agrovet Sales Receipt";

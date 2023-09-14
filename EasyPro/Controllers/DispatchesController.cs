@@ -10,6 +10,8 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
+using DocumentFormat.OpenXml.Spreadsheet;
+using EasyPro.ViewModels;
 
 namespace EasyPro.Controllers
 {
@@ -331,10 +333,10 @@ namespace EasyPro.Controllers
         }
 
         [HttpGet]
-        public JsonResult SelectedDateIntake(DateTime date)
+        public async Task<JsonResult> SelectedDateIntake(DateTime date)
         {
             utilities.SetUpPrivileges(this);
-            var todaysIntake = GetTodaysIntake(date);
+            var todaysIntake = await GetTodaysIntake(date);
             return Json(todaysIntake);
         }
 
@@ -355,12 +357,22 @@ namespace EasyPro.Controllers
             todaysIntake -= dispatchKgs;
             return todaysIntake;
         }
-        private decimal GetTodaysIntake(DateTime date)
+        private async Task<decimal> GetTodaysIntake(DateTime date)
         {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var intakes = _context.ProductIntake.Where(i => i.TransDate == date && i.SaccoCode == sacco && i.Description == "Intake");
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var intakes = await _context.ProductIntake.Where(i => i.TransDate == date && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction) && i.SaccoCode == sacco).ToListAsync();
+            if (user.AccessLevel == AccessLevel.Branch)
+                intakes = intakes.Where(i => i.Branch == saccoBranch).ToList();
+            
+            var dispatches = await _context.Dispatch.Where(d => d.Transdate == date && d.Dcode == sacco).ToListAsync();
+            if (user.AccessLevel == AccessLevel.Branch)
+                dispatches = dispatches.Where(i => i.Branch == saccoBranch).ToList();
+            
             var todaysIntake = intakes.Sum(i => i.Qsupplied);
-            var dispatchKgs = _context.Dispatch.Where(d => d.Dcode == sacco && d.Branch=="MAIN" && d.Transdate == date).Sum(d => d.Dispatchkgs);
+            var dispatchKgs = dispatches.Sum(d => d.Dispatchkgs);
             todaysIntake -= dispatchKgs;
             return todaysIntake;
         }

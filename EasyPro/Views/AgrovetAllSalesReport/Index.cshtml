@@ -84,10 +84,11 @@
                                     <div class="tab-ctn">
                                         <div class="normal-table-list mg-t-30">
                                             <div class="row">
-                                                <div class="col-sm-5 col-xs-12">
+                                                <div class="col-sm-4 col-xs-12">
                                                     <a id="showtable" class="btn btn-warning">Show</a>
                                                 </div>
-                                                <div class="col-sm-7 col-xs-12">
+                                                <div class="col-sm-4 col-xs-12">
+                                                    <a id="excel_report" class="btn btn-success">Export Excel</a>
                                                 </div>
                                             </div>
 
@@ -132,10 +133,11 @@
                                     <div class="tab-ctn">
                                         <div class="normal-table-list mg-t-30">
                                             <div class="row">
-                                                <div class="col-sm-5 col-xs-12">
+                                                <div class="col-sm-4 col-xs-12">
                                                     <a id="showSummery" class="btn btn-warning">Show</a>
                                                 </div>
-                                                <div class="col-sm-7 col-xs-12">
+                                                <div class="col-sm-4 col-xs-12">
+                                                    <a id="excel_summery" class="btn btn-success">Export Excel</a>
                                                 </div>
                                             </div>
 
@@ -208,6 +210,18 @@
                     }).then(function () {
                         // ...
                     });
+            });
+
+            $('#excel_report').on('click', function () {
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `All Report ${date}`;
+                $('#tbl_rep_report').table2excel({ filename: fileName, fileext: ".xls" });
+            });
+
+            $('#excel_summery').on('click', function () {
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `All Summery ${date}`;
+                $('#tbl_summary').table2excel({ filename: fileName, fileext: ".xls" });
             });
 
             $("#showSummery").click(function () {
