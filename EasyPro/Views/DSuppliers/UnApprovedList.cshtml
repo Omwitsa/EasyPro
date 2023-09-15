@@ -129,7 +129,7 @@
                 var condition = $("#condition").val();
                 $.ajax({
                     type: 'POST',
-                    url: "getsuppliers?filter=" + filter + "&condition=" + condition,
+                    url: "getsuppliersunapprove?filter=" + filter + "&condition=" + condition,
                     contentType: 'application/json',
                     success: function (response) {
                         populateIntake(response)

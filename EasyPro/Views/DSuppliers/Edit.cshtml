@@ -224,6 +224,16 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">Value Chain</label>
+                                <select id="valuechain" asp-for="ValueChain" Value="Select value chain" class="form-control" asp-items="@ViewBag.valuechain">
+                                </select>
+                                <span asp-validation-for="ValueChain" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <b class="text-info">Bank Activities</b>
                 <hr />

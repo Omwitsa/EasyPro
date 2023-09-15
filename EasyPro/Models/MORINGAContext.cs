@@ -84,6 +84,7 @@ namespace EasyPro.Models
         public virtual DbSet<DApprove2> DApprove2s { get; set; }
         public virtual DbSet<DAssignmentVehicle> DAssignmentVehicles { get; set; }
         public virtual DbSet<DBank> DBanks { get; set; }
+        
         public virtual DbSet<DBonu> DBonus { get; set; }
         public virtual DbSet<DBonus2> DBonus2s { get; set; }
         public virtual DbSet<DBranch> DBranch { get; set; }
@@ -10624,7 +10625,7 @@ namespace EasyPro.Models
         public DbSet<EasyPro.Models.Coffee.Milling_Products> Milling_Products { get; set; }
 
         public DbSet<DeliveryNote> DeliveryNote { get; set; }
-
+        public DbSet<CIGs> CIGs { get; set; }
         public DbSet<EasyPro.Models.Coffee.Marketing> Marketing { get; set; }
 
         public DbSet<EasyPro.Models.Coffee.MarketingDeduct> MarketingDeduct { get; set; }

@@ -405,7 +405,9 @@ namespace EasyPro.Controllers
 
             var routes = _context.Routes.Where(a => a.scode == sacco ).OrderBy(m => m.Name).Select(b => b.Name).ToList();
             ViewBag.routes = new SelectList(routes);
-
+            
+            var valuechain = _context.DPrices.Where(a => a.SaccoCode == sacco).OrderBy(m => m.Products).Select(b => b.Products).ToList();
+            ViewBag.valuechain = new SelectList(valuechain);
 
             List<SelectListItem> gender = new()
             {
@@ -599,7 +601,7 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var companyTanykina = HttpContext.Session.GetString(StrValues.Tanykina);
 
-            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval).ToList();
             if(companyTanykina!="TANYKINA Dairy Plant Limited")
             {
                 var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
@@ -638,7 +640,52 @@ namespace EasyPro.Controllers
             return Json(suppliers);
         }
 
+        [HttpPost]
+        public JsonResult getsuppliersunapprove([FromBody] DSupplier supplier, string? filter, string? condition)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var companyTanykina = HttpContext.Session.GetString(StrValues.Tanykina);
 
+            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval).ToList();
+            if (companyTanykina != "TANYKINA Dairy Plant Limited")
+            {
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(filter))
+            {
+                if (!string.IsNullOrEmpty(condition))
+                {
+                    if (condition == "SNo")
+                    {
+                        suppliers = suppliers.Where(i => i.Sno.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "Name")
+                    {
+                        suppliers = suppliers.Where(i => i.Names.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "IdNo")
+                    {
+                        suppliers = suppliers.Where(i => i.IdNo.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "Phone")
+                    {
+                        suppliers = suppliers.Where(i => i.PhoneNo.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                    if (condition == "AccNo")
+                    {
+                        suppliers = suppliers.Where(i => i.AccNo.ToUpper().Contains(filter.ToUpper())).ToList();
+                    }
+                }
+            }
+
+            suppliers = suppliers.OrderByDescending(i => i.Sno).Take(15).ToList();
+            return Json(suppliers);
+        }
         private bool DSupplierExists(long id)
         {
             return _context.DSuppliers.Any(e => e.Id == id);
