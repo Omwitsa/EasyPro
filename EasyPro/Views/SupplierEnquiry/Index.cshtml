@@ -329,7 +329,8 @@
                     });
             });
 
-            $("#showtable").click(function () {
+        $("#showtable").click(function () {
+                getSelectedDateIntakes();
                 $("#netpay").val('');
                 $("#totaldeductions").val('');
                 $("#grosspay").val('');
@@ -342,7 +343,7 @@
                 $.ajax(
                     {
                         type: 'POST',
-                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2 ,
+                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2  ,
                         contentType: 'application/json',
                         data: JSON.stringify({ sno: sno }),
                         success: function (response) {

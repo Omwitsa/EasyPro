@@ -83,13 +83,13 @@
                     <div style="border-right:2px solid ;color:#009100;">
                         @*@if (!ViewBag.isElburgon)
                         {*@
-                            <ejs-accumulationchart id="container" title="Farmer's Statistics Based On Gender" enableSmartLabels="true" pointRender="pointRender"
-                                               textRender="textRender">
+                            <ejs-accumulationchart id="container" title="Farmer's Statistics Based On Gender" enableSmartLabels="true" pointRender="pointRender2"
+                                                   textRender="textRender">
                                 <e-accumulationchart-tooltipsettings enable="true"></e-accumulationchart-tooltipsettings>
                                 <e-accumulationchart-legendsettings visible="true">
                                 </e-accumulationchart-legendsettings>
                                 <e-accumulation-series-collection>
-                                    <e-accumulation-series explode="true" dataSource="ViewBag.dataSource" xName="xValue" yName="yValue" groupTo="2">
+                                    <e-accumulation-series explode="true" dataSource="ViewBag.dataSource" xName="xValue" yName="yValue" >
                                         <e-accumulationseries-datalabel name="text" visible="true" position="Outside">
                                             <e-connectorstyle type="Line" length="2%"></e-connectorstyle>
                                             <e-font size="16px"></e-font>
@@ -110,7 +110,7 @@
                                 <e-accumulationchart-legendsettings visible="true">
                                 </e-accumulationchart-legendsettings>
                                 <e-accumulation-series-collection>
-                                    <e-accumulation-series explode="true" dataSource="ViewBag.dataSource1" xName="xValue" yName="yValue" groupTo="2">
+                                    <e-accumulation-series explode="true" dataSource="ViewBag.dataSource1" xName="xValue" yName="yValue" >
                                         <e-accumulationseries-datalabel name="text1" visible="true" position="Outside">
                                             <e-connectorstyle type="Line" length="2%"></e-connectorstyle>
                                             <e-font size="16px"></e-font>
@@ -195,59 +195,8 @@
                 </div>
             </div>
         </div>
-    </div>
+        </div>
 </div>
-
-
-@*<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-            <div class="website-traffic-ctn">
-                <h2><span class="counter">@ViewBag.advance</span></h2>
-                <p>Advance</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-            <div class="website-traffic-ctn">
-                <h2><span class="counter">@ViewBag.transport</span></h2>
-                <p>Transport</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-            <div class="website-traffic-ctn">
-                <h2><span class="counter">@ViewBag.agrovet</span></h2>
-                <p>Agrovet</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-            <div class="website-traffic-ctn">
-                <h2><span class="counter">@ViewBag.bonus</span></h2>
-                <p>Bonus</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-            <div class="website-traffic-ctn">
-                <h2><span class="counter">@ViewBag.shares</span></h2>
-                <p>Shares</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-        <div class="wb-traffic-inner notika-shadow sm-res-mg-t-30 tb-res-mg-t-30">
-            <div class="website-traffic-ctn">
-                <h2><span class="counter">@ViewBag.grossItake</span></h2>
-                <p>Gross Collections</p>
-            </div>
-        </div>
-    </div>*@
-
 
 
 <!-- End Email Statistic area-->
@@ -263,16 +212,15 @@
             args.fill = '#09e1e8';
         }
     }
-
-    var pointRender = function (args) {
+    var pointRender2 = function (args) {
         if ((args.point.x).indexOf('Male') > -1) {
             args.fill = '#f4bc42';
         }
-        else {
+        else if ((args.point.x).indexOf('Female') > -1) {
             args.fill = '#597cf9';
         }
-    
-
+    }
+    var pointRender = function (args) {
         if ((args.point.x).indexOf('REGISTRATION') > -1) {
             args.fill = '#f4bc42';
         }
@@ -288,14 +236,12 @@
         else if ((args.point.x).indexOf('SHARE') > -1) {
             args.fill = '#09e1e8';
         }
-
     }
     var textRender = function (args) {
-        if (args.text.indexOf('Others') > -1) {
-            args.text = 'Grouped Slices';
-            args.color = 'red';
-            args.border.width = 2;
-        }
-    }
-      
+        //if (args.text.indexOf('Others') > -1) {
+        //    args.text = 'Grouped Slices';
+        //    args.color = 'red';
+        //    args.border.width = 1;
+        //}
+   }
 </script>

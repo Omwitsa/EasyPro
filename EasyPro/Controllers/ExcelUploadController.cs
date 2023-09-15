@@ -38,6 +38,13 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            return View();
+        }
+        private void GetInitialValues()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             sacco = sacco ?? "";
 
@@ -46,8 +53,6 @@ namespace EasyPro.Controllers
                 counties = _context.DCompanies.Where(i => i.Name.ToUpper().Equals(sacco.ToUpper())).ToList();
 
             ViewBag.scode = new SelectList(counties.OrderBy(n => n.Name).ToList().Select(b => b.Name).ToList());
-
-            return View();
         }
         public IActionResult Index()
         {
@@ -401,8 +406,22 @@ namespace EasyPro.Controllers
         public IActionResult RegApprove(string scodes)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            if (scodes == null)
+            {
+                _notyf.Error("Sorry, Please provide Society");
+                GetInitialValues();
+                return View();
+            }
+            if (string.IsNullOrEmpty(scodes))
+            {
+                _notyf.Error("Sorry, Please provide Society");
+                GetInitialValues();
+                return View();
+            }
+
             if (string.IsNullOrEmpty(loggedInUser))
-                return Redirect("~/");
+               return Redirect("~/");
             utilities.SetUpPrivileges(this);
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";

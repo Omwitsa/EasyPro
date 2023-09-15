@@ -916,15 +916,15 @@
                             <ul class="notika-main-menu-dropdown">
                                 @if (ViewBag.SetProducts)
                                 {
-                                <li>
-                                    <a asp-controller="DBranchProducts" asp-action="Index">Products</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DBranchProducts" asp-action="Index">Products</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetPrice)
                                 {
-                                <li>
-                                    <a asp-controller="DPrices" asp-action="Index">Pricing</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DPrices" asp-action="Index">Pricing</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetFarmersDif)
                                 {
@@ -935,99 +935,103 @@
 
                                 @if (ViewBag.SetOrganization)
                                 {
-                                <li>
-                                    <a asp-controller="DCompanies" asp-action="Index">Org Setup</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DCompanies" asp-action="Index">Org Setup</a>
+                                    </li>
+
                                 }
                                 @if (ViewBag.SetOrgBranch)
                                 {
-                                <li>
-                                    <a asp-controller="DBranches" asp-action="Index">Org Branch</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DBranches" asp-action="Index">Org Branch</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="CIGs" asp-action="Index">CIG Groups</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetUsers)
                                 {
-                                <li>
-                                    <a asp-controller="UserAccounts" asp-action="Index">Users</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="UserAccounts" asp-action="Index">Users</a>
+                                    </li>
                                 }
-                                 @if (ViewBag.SetUserGroups)
+                                @if (ViewBag.SetUserGroups)
                                 {
-                                <li>
-                                    <a asp-controller="Usergroups" asp-action="Index">UserGroups</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="Usergroups" asp-action="Index">UserGroups</a>
+                                    </li>
                                 }
-                                 @if (ViewBag.SetCounties)
+                                @if (ViewBag.SetCounties)
                                 {
-                                <li>
-                                    <a asp-controller="Counties" asp-action="Index">Counties</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="Counties" asp-action="Index">Counties</a>
+                                    </li>
                                 }
-                                 @if (ViewBag.SetSubCounties)
+                                @if (ViewBag.SetSubCounties)
                                 {
-                                <li>
-                                    <a asp-controller="SubCounties" asp-action="Index">SubCounties</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="SubCounties" asp-action="Index">SubCounties</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetWards)
                                 {
-                                <li>
-                                    <a asp-controller="Wards" asp-action="Index">Wards</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="Wards" asp-action="Index">Wards</a>
+                                    </li>
                                 }
-                                 @if (ViewBag.SetLocation)
+                                @if (ViewBag.SetLocation)
                                 {
-                                <li>
-                                    <a asp-controller="DLocations" asp-action="Index">Locations</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DLocations" asp-action="Index">Locations</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetDedTypes)
                                 {
-                                <li>
-                                    <a asp-controller="DDcodes" asp-action="Index">Ded Types</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DDcodes" asp-action="Index">Ded Types</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetBanks)
                                 {
-                                <li>
-                                    <a asp-controller="DBanks" asp-action="Index">Banks</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DBanks" asp-action="Index">Banks</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetBanksBranch)
                                 {
-                                <li>
-                                    <a asp-controller="DBankBranches" asp-action="Index">Bank Branch</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DBankBranches" asp-action="Index">Bank Branch</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetZones)
                                 {
-                                <li>
-                                    <a asp-controller="DBranches" asp-action="ZonesList">Zones</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DBranches" asp-action="ZonesList">Zones</a>
+                                    </li>
                                 }
-                                 @if (ViewBag.SetDebtors)
+                                @if (ViewBag.SetDebtors)
                                 {
-                                <li>
-                                    <a asp-controller="DDebtors" asp-action="Index">Debtor</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DDebtors" asp-action="Index">Debtor</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetTaxes)
                                 {
-                                <li>
-                                    <a asp-controller="Taxes" asp-action="Index">Taxes</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="Taxes" asp-action="Index">Taxes</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetResetPass)
                                 {
-                                <li>
-                                    <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="UserAccounts" asp-action="ResetPasswordList">Reset Password</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetSharesCat)
                                 {
-                                <li>
-                                    <a asp-controller="SharesCategories" asp-action="Index">Shares Cat</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="SharesCategories" asp-action="Index">Shares Cat</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetRoutes)
                                 {
@@ -1096,9 +1100,6 @@
                                 }
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTReport">Transporters</a>
-                                </li>
-                                <li>
-                                    <a asp-controller="Report" asp-action="FlmdData">FLMD Report</a>
                                 </li>
                                 <li>
                                     <a asp-controller="Report" asp-action="FlmdData">FLMD Report</a>

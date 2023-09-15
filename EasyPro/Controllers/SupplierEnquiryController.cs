@@ -202,8 +202,13 @@ namespace EasyPro.Controllers
             ViewBag.shares = shares;
 
             var trancode = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(sno.ToUpper()) && t.saccocode == sacco && t.Branch == saccobranch)?.TransCode ?? "";
-            var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco && t.Tbranch == saccobranch);
-           ViewBag.Transportert = transporter.TransName;
+            if (!string.IsNullOrEmpty(trancode)) { 
+                var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco && t.Tbranch == saccobranch).TransName;
+                 if(transporter!= null)
+                {
+                    ViewBag.Transportert = transporter;
+                }
+            }
         }
 
         [HttpPost]
@@ -212,15 +217,15 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
-            getshares(supplier.Sno.ToString());
+            //getshares(supplier.Sno.ToString());
+            getshares(supplier.Sno);
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
 
-            var getsumkgs = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
+            var getsumkgs = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(supplier.Sno.ToUpper())
                  && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
                  && i.TransDate >= date1 && i.TransDate <= date2).ToList().Sum(n => n.Qsupplied);
 
-            var intakes = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
-            && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
+            var intakes = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(supplier.Sno.ToUpper()) && i.SaccoCode == sacco && i.TransDate >= date1 && i.TransDate <= date2).ToList();
 
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
