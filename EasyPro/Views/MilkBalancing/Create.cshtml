@@ -99,6 +99,9 @@
                                                     <th>
                                                         Quantity
                                                     </th>
+                                                    <th>
+                                                        @ViewBag.remarks
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody id="balance">
@@ -279,6 +282,7 @@
                             <td>${dd1}</td>
                             <td>${j.ProductType}</td>
                             <td>${j.Qsupplied}</td>
+                            <td>${j.Remarks}</td>
 			            </tr>`);
 
                     totalQnty += j.Qsupplied;

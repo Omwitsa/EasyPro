@@ -104,8 +104,10 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             utilities.SetUpPrivileges(this);
             GetInitialValues();
+            ViewBag.remarks = StrValues.Slopes == sacco ? "Invoice No." : "Remarks";
             return View(new TransportersBalancing
             {
                 Spillage = "0",
@@ -260,7 +262,7 @@ namespace EasyPro.Controllers
                 .Select(t => t.Sno).Distinct().ToList();
 
             intakes = intakes.Where(s => s.TransDate == date && (s.Description == "Intake" || s.Description == "Correction")
-            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno))).OrderByDescending(h => h.Auditdatetime).ToList();
+            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno))).OrderBy(h => h.Auditdatetime).ToList();
             return intakes;
         }
 

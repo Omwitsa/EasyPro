@@ -192,38 +192,40 @@ namespace EasyPro.Controllers
             //    ViewBag.checkiftoenable = 0;
         }
 
-        private void getshares(string sno)
+        private async Task Getshares(string sno)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
-            decimal shares = _context.DShares.Where(m => m.SaccoCode == sacco && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(sno.ToUpper())).ToList().Sum(x=>x.Amount);
-            ViewBag.shares = shares;
+            var shares = await _context.DShares.Where(m => m.SaccoCode == sacco && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(sno.ToUpper()))
+                .ToListAsync();
+            var sharesAmount = shares.Sum(x=>x.Amount);
+            ViewBag.shares = sharesAmount;
 
-            var trancode = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(sno.ToUpper()) && t.saccocode == sacco && t.Branch == saccobranch)?.TransCode ?? "";
-            var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco && t.Tbranch == saccobranch);
-
+            var transport = await _context.DTransports.FirstOrDefaultAsync(t => t.Sno.ToUpper().Equals(sno.ToUpper()) && t.saccocode == sacco && t.Branch == saccobranch);
+            var trancode = transport?.TransCode ?? "";
+            var transporter = await _context.DTransporters.FirstOrDefaultAsync(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco && t.Tbranch == saccobranch);
+            if (transporter == null)
+                transporter = new DTransporter();
            ViewBag.Transportert = transporter.TransName;
         }
 
         [HttpPost]
-        public JsonResult SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype, string sno)
+        public async Task<JsonResult> SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype, string sno)
         {
+            supplier.Sno = supplier?.Sno ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
-            getshares(supplier.Sno.ToString());
-            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
+            await Getshares(supplier.Sno);
+            var intakes = await _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(supplier.Sno.ToUpper())
+            && i.SaccoCode == sacco && i.TransDate >= date1 && i.TransDate <= date2).ToListAsync();
 
-            var getsumkgs = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
-                 && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)
-                 && i.TransDate >= date1 && i.TransDate <= date2).ToList().Sum(n => n.Qsupplied);
+            var getsumkgs = intakes.Where(i => i.TransactionType == TransactionType.Intake 
+            || i.TransactionType == TransactionType.Correction).Sum(n => n.Qsupplied);
 
-            var intakes = productIntakeslist.Where(i => i.Sno == supplier.Sno.ToString()
-            && i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
-
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var user =await _context.UserAccounts.FirstOrDefaultAsync(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
             if (!string.IsNullOrEmpty(producttype))
@@ -261,27 +263,13 @@ namespace EasyPro.Controllers
 
             });
 
-            
-
             var shar = ViewBag.shares;
-
             if (shar > 0)
-            {
-                MilkEnquryVM.Add( new MilkEnqury
+                MilkEnquryVM.Add(new MilkEnqury
                 {
                     shares = ViewBag.shares,
                 });
-            }
-            //intakes.ForEach(i =>
-            //{
-            //    i.CR = i?.CR ?? 0;
-            //    i.DR = i?.DR ?? 0;
-            //    bal += i.CR - i.DR;
-            //    i.Balance = bal;
-            //    if (i.Remarks == null)
-            //        i.Remarks = i.ProductType;
-            //});
-            //var entries = MilkEnquryVM.Where(i => i.CR > 0 || i.DR > 0).ToList();
+
             var entries = MilkEnquryVM.OrderByDescending(n => n.Auditdatetime).ToList();
             return Json(new
             {

@@ -40,8 +40,8 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Account No</label>
-                            <select id="glAcc" asp-for="DrAccNo" class="form-control" asp-items="@ViewBag.glAccounts">
-                                <option value="" disabled selected hidden>Please select</option>
+                            <select id="glAcc" asp-for="DrAccNo" class="chzn-select form-control" asp-items="@ViewBag.glAccounts">
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="CrAccNo" class="text-danger"></span>
                         </div>
@@ -107,6 +107,7 @@
     }
     <script type="text/javascript">
         $(function () {
+            $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
             $("#transDate").val(today);
             $("#drAmt").val(0);

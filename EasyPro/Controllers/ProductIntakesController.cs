@@ -939,6 +939,8 @@ namespace EasyPro.Controllers
                     productIntake.CR = productIntake.Qsupplied * transport.Rate;
 
                 productIntake.DR = 0;
+                if (StrValues.Slopes != sacco)
+                    productIntake.Remarks = "Intake for " + productIntake.Sno;
                 _context.ProductIntake.Add(new ProductIntake
                 {
                     Sno = transport.TransCode.Trim().ToUpper(),
@@ -952,7 +954,7 @@ namespace EasyPro.Controllers
                     Balance = productIntake.Balance,
                     Description = "Transport",
                     TransactionType = TransactionType.Deduction,
-                    Remarks ="Intake for"+ productIntake.Sno ,
+                    Remarks = productIntake.Remarks,
                     AuditId = loggedInUser,
                     Auditdatetime = productIntake.Auditdatetime,
                     Branch = productIntake.Branch,
