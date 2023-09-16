@@ -266,7 +266,6 @@ namespace EasyPro.Controllers
             return intakes;
         }
 
-
         [HttpPost]//editVariance
         public async Task<JsonResult> SaveVariance([FromBody] TransportersBalancing balancing ,bool print)
         {

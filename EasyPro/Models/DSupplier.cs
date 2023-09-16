@@ -71,5 +71,6 @@ namespace EasyPro.Models
         public long? Run { get; set; }
         public string Zone { get; set; }
         public string ValueChain { get; set; }
+        public string CigName { get; set; }
     }
 }

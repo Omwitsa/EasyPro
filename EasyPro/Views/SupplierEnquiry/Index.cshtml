@@ -62,7 +62,7 @@
                                 <div class="nk-int-st">
                                     <label class="control-label">Transporter Name</label>
                                     <input id="maxloan" readonly autocomplete="off" disabled hidden class="form-control font-weight-bold w3-text-green" />
-                                    <input id="Transporter" readonly autocomplete="off" disabled class="form-control font-weight-bold w3-text-green" />
+                                    <input id="transporter" readonly autocomplete="off" disabled class="form-control font-weight-bold w3-text-green" />
                                 </div>
                             </div>
                         </div>
@@ -359,22 +359,25 @@
             function populateIntake(intake) {
                 var selectVal = $("#sno").val();
                 var share = 0;
-                var transporter = @Html.Raw(Json.Serialize(ViewBag.Transportert));
+                var transporter = null;
+                //var transporter = @Html.Raw(Json.Serialize(ViewBag.Transportert));
                 var checkiftoenable1 = @Html.Raw(Json.Serialize(ViewBag.shares));
                 $("#shar").val(checkiftoenable1);
                 let itemTableRows = new Array();
                 share = intake.entries.shares;
-               
+                transporter = intake.entries.Transportert;
                 let Total = 0;
                 let Total2 = 0;
                 let netpay = 0;
                 let totkgs = 0;
                 intake.entries.forEach(i => {
                     share = i.shares;
-                    transporter = i.Transporter;
+                    if (i.Transporter !== null) {
+                        transporter = i.Transporter;
+                    };
                     var chek = i.ProductType === null ? -1 : 1;
                     var dd1 = new Date(i.TransDate).toLocaleDateString();
-                    if (i.ProductType && ((i.CR || i.DR) || (!i.CR && !i.DR && i.Description != "Transport"))) {
+                    if (i.ProductType && ((i.CR || i.DR) || (!i.CR && !i.DR && i.Description != "Transport" && i.ProductType !== null))) {
                         itemTableRows.push(`<tr>
                             <td>${dd1}</td>
                             <td>${i.ProductType}</td>
@@ -398,7 +401,7 @@
                 $('#grosspay').val(Total);
                 $('#totkgs').val(intake.getsumkgs);
                 $('#shar').val(share);
-                $('#Transporter').val(transporter);
+                $('#transporter').val(transporter);
                 $('#intakes').html(itemTableRows);
             }
         });
