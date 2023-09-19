@@ -370,8 +370,10 @@ namespace EasyPro.Controllers
             var dispatches = await _context.Dispatch.Where(d => d.Transdate == date && d.Dcode == sacco).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
                 dispatches = dispatches.Where(i => i.Branch == saccoBranch).ToList();
-            
-            var todaysIntake = intakes.Sum(i => i.Qsupplied);
+
+            var balancing = await _context.DispatchBalancing.FirstOrDefaultAsync(d => d.Saccocode == sacco && d.Date == date);
+            balancing.BF = balancing?.BF ?? 0;
+            var todaysIntake = intakes.Sum(i => i.Qsupplied) + (decimal)balancing.BF;
             var dispatchKgs = dispatches.Sum(d => d.Dispatchkgs);
             todaysIntake -= dispatchKgs;
             return todaysIntake;

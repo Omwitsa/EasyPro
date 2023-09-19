@@ -248,24 +248,34 @@ namespace EasyPro.Controllers
 
             var transports = await _context.DTransports.Where(t => t.TransCode.ToUpper().Equals(transCode.ToUpper()) 
             && t.saccocode == sacco).ToListAsync();
-            var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco).ToListAsync();
+            var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate == date).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
             {
                 transports = transports.Where(s => s.Branch == saccobranch).ToList();
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
             }
+
             var transporterSuppliers = transports.Select(t => t.Sno);
 
-            var notTransporterSuppliers = intakes.Where(i => i.AuditId.ToUpper().Equals(transCode.ToUpper()) 
-                && !transporterSuppliers.Contains(i.Sno.ToUpper()) && i.TransDate == date)
+            var notTransporterSuppliers = intakes.Where(i => i.AuditId.ToUpper().Equals(transCode.ToUpper())
+                && !transporterSuppliers.Contains(i.Sno.ToUpper()))
                 .Select(t => t.Sno).Distinct().ToList();
 
-            intakes = intakes.Where(s => s.TransDate == date && (s.Description == "Intake" || s.Description == "Correction")
+            if (StrValues.Slopes == sacco) 
+            {
+                var auditDatetimes = intakes.Where(i => i.Sno.ToUpper().Equals(transCode.ToUpper()))
+                    .Select(i => i.Auditdatetime);
+
+                notTransporterSuppliers = intakes.Where(i => !transporterSuppliers.Contains(i.Sno.ToUpper()) 
+                && auditDatetimes.Contains(i.Auditdatetime) && (i.Description == "Intake" || i.Description == "Correction"))
+                .Select(t => t.Sno).Distinct().ToList();
+            }
+
+            intakes = intakes.Where(s => (s.Description == "Intake" || s.Description == "Correction")
             && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno))).OrderBy(h => h.Auditdatetime).ToList();
             return intakes;
         }
-
 
         [HttpPost]//editVariance
         public async Task<JsonResult> SaveVariance([FromBody] TransportersBalancing balancing ,bool print)

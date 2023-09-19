@@ -288,7 +288,7 @@ namespace EasyPro.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GlsetupExists(glsetup.AccNo))
+                    if (!GlsetupExists(glsetup.Glid))
                     {
                         return NotFound();
                     }
@@ -303,7 +303,7 @@ namespace EasyPro.Controllers
         }
 
         // GET: Glsetups/Delete/5
-        public async Task<IActionResult> Delete(string Glid)
+        public async Task<IActionResult> Delete(long? Glid)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -315,7 +315,7 @@ namespace EasyPro.Controllers
             }
 
             var glsetup = await _context.Glsetups
-                .FirstOrDefaultAsync(m => m.AccNo == Glid);
+                .FirstOrDefaultAsync(m => m.Glid == Glid);
             if (glsetup == null)
             {
                 return NotFound();
@@ -327,7 +327,7 @@ namespace EasyPro.Controllers
         // POST: Glsetups/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string Glid)
+        public async Task<IActionResult> DeleteConfirmed(long Glid)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -339,9 +339,9 @@ namespace EasyPro.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GlsetupExists(string Glid)
+        private bool GlsetupExists(long Glid)
         {
-            return _context.Glsetups.Any(e => e.AccNo == Glid);
+            return _context.Glsetups.Any(e => e.Glid == Glid);
         }
     }
 }

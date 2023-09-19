@@ -1,10 +1,12 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Spreadsheet;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -94,7 +96,7 @@ namespace EasyPro.Controllers
 
 
         [HttpGet]
-        public JsonResult GetSuppliedItems(DateTime? date)
+        public async Task<JsonResult> GetSuppliedItems(DateTime? date)
         {
             try
             {
@@ -102,12 +104,20 @@ namespace EasyPro.Controllers
                 utilities.SetUpPrivileges(this);
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                var supplierNos = _context.DSuppliers.Where(s => s.Scode == sacco)
-                    .Select(s => s.Sno.ToString()).Distinct().ToList();
-                var intakes = _context.ProductIntake
-                    .Where(s => s.TransDate== date && s.SaccoCode == sacco && supplierNos.Contains(s.Sno)).ToList();
-                var alredydispatch = _context.Dispatch.Where(s => s.Transdate== date && s.Dcode == sacco).ToList();
-                var dispatch = _context.DispatchBalancing.FirstOrDefault(d => d.Saccocode == sacco && d.Date == date);
+                var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+                var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
+                var user = await _context.UserAccounts.FirstOrDefaultAsync(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+
+                var supplierNos = suppliers.Select(s => s.Sno).Distinct().ToList();
+                var intakes = await _context.ProductIntake.Where(s => s.TransDate== date && s.SaccoCode == sacco && supplierNos.Contains(s.Sno) 
+                && (s.TransactionType == TransactionType.Intake || s.TransactionType == TransactionType.Correction)).ToListAsync();
+                if (user.AccessLevel == AccessLevel.Branch)
+                    intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
+
+                var alredydispatch = await _context.Dispatch.Where(s => s.Transdate== date && s.Dcode == sacco).ToListAsync();
+                var dispatch = await _context.DispatchBalancing.FirstOrDefaultAsync(d => d.Saccocode == sacco && d.Date == date);
                 double dispatched = 0;
                 if (dispatch == null)
                 {
@@ -128,7 +138,7 @@ namespace EasyPro.Controllers
                     Spillage = dispatch.Spillage,
                     Rejects = dispatch.Rejects,
                     Varriance = dispatch.Varriance,
-                    Saccocode = sacco
+                    Saccocode = sacco,
                 };
                 return Json(balancing);
             }

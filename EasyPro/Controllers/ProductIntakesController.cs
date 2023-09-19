@@ -775,6 +775,7 @@ namespace EasyPro.Controllers
             productIntake.DR = productIntake?.DR ?? 0;
             productIntake.Auditdatetime = DateTime.Now;
             productIntake.Description = productIntake?.Description ?? "";
+            productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
             if (string.IsNullOrEmpty(productIntake.Sno))
             {
                 _notyf.Error("Sorry, Kindly provide supplier No.");
@@ -845,7 +846,7 @@ namespace EasyPro.Controllers
             {
                 Sno = productIntake.Sno.Trim().ToUpper(),
                 TransDate = productIntake?.TransDate ?? DateTime.Today,
-                TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                TransTime = productIntake.TransTime,
                 ProductType = productIntake.ProductType,
                 Qsupplied = (decimal)productIntake.Qsupplied,
                 Ppu = prices,
@@ -909,7 +910,7 @@ namespace EasyPro.Controllers
                 {
                     Sno = productIntake.Sno.Trim().ToUpper(),
                     TransDate = productIntake?.TransDate ?? DateTime.Today,
-                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    TransTime = productIntake.TransTime,
                     ProductType = productIntake.ProductType,
                     Qsupplied = kgsToEnter,
                     Ppu = transport.Rate,
@@ -945,7 +946,7 @@ namespace EasyPro.Controllers
                 {
                     Sno = transport.TransCode.Trim().ToUpper(),
                     TransDate = productIntake?.TransDate ?? DateTime.Today,
-                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    TransTime = productIntake.TransTime,
                     ProductType = productIntake.ProductType,
                     Qsupplied = (decimal)productIntake.Qsupplied,
                     Ppu = transport.Rate,
@@ -1029,20 +1030,9 @@ namespace EasyPro.Controllers
             //var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
             //var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
 
-            var remarksValue = "";
-            if (StrValues.Slopes == sacco)
-            {
-                var recentIntake = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.TransactionType == TransactionType.Intake)
-                    .OrderByDescending(i => i.Id).FirstOrDefault();
-                long.TryParse(recentIntake?.Remarks ?? "", out long invoiceNo);
-                invoiceNo++;
-                remarksValue = "" + invoiceNo;
-            }
-
             return Json(new
             {
                 receiptDetails,
-                remarksValue,
                 success = true
             });
         }
@@ -1739,7 +1729,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             productIntake.SaccoCode = sacco;
             productIntake.Branch = saccoBranch;
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
@@ -1837,7 +1827,7 @@ namespace EasyPro.Controllers
             {
                 Sno = productIntake.Sno.Trim(),
                 TransDate = (DateTime)productIntake.TransDate,
-                TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                TransTime = productIntake.TransTime,
                 ProductType = productIntake.ProductType,
                 Qsupplied = (decimal)productIntake.Qsupplied,
                 Ppu = prices,
@@ -1904,7 +1894,7 @@ namespace EasyPro.Controllers
                 {
                     Sno = productIntake.Sno.Trim(),
                     TransDate = (DateTime)productIntake.TransDate,
-                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    TransTime = productIntake.TransTime,
                     ProductType = productIntake.ProductType,
                     Qsupplied = kgsToEnter,
                     Ppu = transport.Rate,
@@ -1947,7 +1937,7 @@ namespace EasyPro.Controllers
                 {
                     Sno = transport.TransCode.Trim(),
                     TransDate = (DateTime)productIntake.TransDate,
-                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    TransTime = productIntake.TransTime,
                     ProductType = productIntake.ProductType,
                     Qsupplied = (decimal)productIntake.Qsupplied,
                     Ppu = transport.Rate,
@@ -2038,20 +2028,9 @@ namespace EasyPro.Controllers
             _context.SaveChanges();
             _notyf.Success("Correction saved successfully");
            
-            var remarksValue = "";
-            if (StrValues.Slopes == sacco)
-            {
-                var recentIntake = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.TransactionType == TransactionType.Correction)
-                    .OrderByDescending(i => i.Id).FirstOrDefault();
-                long.TryParse(recentIntake?.Remarks ?? "", out long invoiceNo);
-                invoiceNo++;
-                remarksValue = "" + invoiceNo;
-            }
-
             return Json(new
             {
                 receiptDetails,
-                remarksValue,
                 success = true
             });
         }

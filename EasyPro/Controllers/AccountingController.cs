@@ -580,6 +580,8 @@ namespace EasyPro.Controllers
             var journalListings = new List<JournalVm>();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             List<Glsetup> glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement").ToListAsync();
+
+            glsetups = glsetups.Where(g => !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")).ToList();
             glsetups.ForEach(g =>
             {
                 g.NormalBal = g?.NormalBal ?? "";
