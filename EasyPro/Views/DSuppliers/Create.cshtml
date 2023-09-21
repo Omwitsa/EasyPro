@@ -221,6 +221,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <label class="control-label">CIG Name</label>
+                                <select id="cigname" asp-for="CigName" Value="Select CIG Name" class="form-control" asp-items="@ViewBag.cigname">
+                                    <option value=""></option>
+                                </select>
+                                <span asp-validation-for="CigName" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <b class="text-info">Bank Activities</b>
                 <hr />

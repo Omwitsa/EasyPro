@@ -140,8 +140,8 @@
     $(function () {
         $('#sno').val('');
         $('#dr').val('');
-        var today = new Date().toISOString().split('T')[0];
-        $("#transDate").val(today);
+        //var today = new Date().toISOString().split('T')[0];
+       // $("#transDate").val(today);
 
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {

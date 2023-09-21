@@ -192,7 +192,7 @@
             $('#name').on('change', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
                 var selectVal = $("#name").val();
-                var selectSupplier = suppliers.filter(p => p.TransName === selectVal);
+                var selectSupplier = suppliers.filter(p => (p.TransName.trimRight() === selectVal.trimRight()) || (p.TransName.trimLeft() === selectVal.trimLeft()));
                 if(isSlopes){
                     selectSupplier = suppliers.filter(p => p.CertNo === selectVal);
                 }

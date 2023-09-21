@@ -608,10 +608,10 @@ namespace EasyPro.Controllers
             Farmersobj = new FarmersVM()
             {
                 DSuppliers = suppliers,
-                ProductIntake = new ProductIntake
-                {
-                    TransDate = DateTime.Today
-                }
+                //ProductIntake = new ProductIntake
+                //{
+                //    TransDate = DateTime.Today
+                //}
             };
             return View(Farmersobj);
         }
@@ -628,10 +628,10 @@ namespace EasyPro.Controllers
             Farmersobj = new FarmersVM()
             {
                 DTransporters = _context.DTransporters.Where(t => t.ParentT == sacco && t.Tbranch == saccoBranch),
-                ProductIntake = new ProductIntake
-                {
-                    TransDate = DateTime.Today
-                }
+                //ProductIntake = new ProductIntake
+                //{
+                //    TransDate = DateTime.Today
+                //}
             };
             return View(Farmersobj);
         }
