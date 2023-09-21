@@ -75,6 +75,62 @@
     </div>
     <br />
     <hr />
+    @if (ViewBag.isSlopes)
+    {
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Zones Report</h3>
+                    </div>
+                    <div class="card-body register-card-body">
+                        <div class="form-row">
+                            <form asp-controller="Report" asp-antiforgery="true" asp-action="ZonesIntakeReport" method="post">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label asp-for="Zone" class="control-label"></label>
+                                            <select id="zone" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones">
+                                                <option value=""></option>
+                                            </select>
+                                            <span asp-validation-for="Zone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label asp-for="DateFrom" class="control-label"></label>
+                                            <input id="branch_sup_intake_from" asp-for="DateFrom" class="form-control" type="date" />
+                                            <span asp-validation-for="DateFrom" class="text-danger"></span>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-success">Export to Excel</button>
+                                    </div>
+
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label asp-for="DateTo" class="control-label"></label>
+                                            <input id="branch_sup_intake_to" asp-for="DateTo" class="form-control" type="date" />
+                                            <span asp-validation-for="DateTo" class="text-danger"></span>
+                                        </div>
+
+                                        <a id="branch_sup_intake_pdf" class="btn btn-info">Export to PDF</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+               
+            </div>
+        </div>
+        <br />
+        <hr />
+    }
     <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="card">

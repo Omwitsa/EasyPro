@@ -328,7 +328,9 @@ namespace EasyPro.Controllers
             if (user.AccessLevel == AccessLevel.Branch)
                 brances = brances.Where(i => i.Bname == saccoBranch).ToList();
             ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
-
+            ViewBag.isSlopes = StrValues.Slopes == sacco;
+            var zones = _context.Zones.Where(z => z.Code== sacco).Select(z => z.Name).ToList();
+            ViewBag.zones = new SelectList(zones);
             var Transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
             if (user.AccessLevel == AccessLevel.Branch)
                 Transporters = Transporters.Where(i => i.Tbranch == saccoBranch).ToList();
@@ -818,6 +820,61 @@ namespace EasyPro.Controllers
     }
 
     [HttpPost]
+    public async Task<IActionResult> ZonesIntakeReport([Bind("DateFrom,DateTo,Zone")] FilterVm filter)
+    {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+       
+        using (var workbook = new XLWorkbook())
+        {
+            var worksheet = workbook.Worksheets.Add(filter.Zone);
+            var currentRow = 1;
+            var company = _context.DCompanies.FirstOrDefault(u => u.Name == sacco);
+            worksheet.Cell(currentRow, 2).Value = company.Name;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Adress;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Town;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Email;
+            currentRow = 5;
+            worksheet.Cell(currentRow, 2).Value = $"{filter.Zone} Report";
+
+            currentRow = 6;
+            worksheet.Cell(currentRow, 1).Value = "Date";
+            worksheet.Cell(currentRow, 2).Value = "Quantity";
+
+            var productIntakes = await _context.ProductIntake.Where(i => i.Zone == filter.Zone && i.TransDate >= filter.DateFrom
+                && i.TransDate <= filter.DateTo && i.SaccoCode == sacco && i.Qsupplied != 0 && i.Description != "Transport")
+                .OrderBy(i => i.TransDate).ToListAsync();
+
+            var intakes = productIntakes.GroupBy(i=> i.TransDate).ToList();
+            foreach(var intake in intakes)
+            {
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = intake.Key;
+                worksheet.Cell(currentRow, 2).Value = intake.Sum(i => i.Qsupplied);
+            }
+           
+            currentRow++;
+            worksheet.Cell(currentRow, 1).Value = "Total Kgs";
+            worksheet.Cell(currentRow, 2).Value = productIntakes.Sum(i => i.Qsupplied);
+
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                return File(content,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"{filter.Zone} Report.xlsx");
+            }
+        }
+    }
+
+    [HttpPost]
     public IActionResult BranchIntakeAudit([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -843,6 +900,7 @@ namespace EasyPro.Controllers
             branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
         return BranchIntakeAuditExcel(filter.DateFrom, filter.DateTo, filter.Branch);
     }
+
     [HttpPost]
     public IActionResult correctionIntake([Bind("DateFrom,DateTo,Branch")] FilterVm filter)
     {

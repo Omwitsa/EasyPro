@@ -830,6 +830,7 @@ namespace EasyPro.Controllers
             var endDate = startDate.AddMonths(1).AddDays(-1);
              
             productIntake.SaccoCode = sacco;
+            productIntake.Zone = supplier?.Zone ?? "";
             productIntake.TransactionType = TransactionType.Intake;
             var prices = 0;
             decimal totalamount = 0;
@@ -1794,7 +1795,7 @@ namespace EasyPro.Controllers
            
             var prices = 0;
             decimal totalamount = 0;
-
+            productIntake.Zone = supplier?.Zone ?? "";
             var price = _context.DPrices
                 .FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));

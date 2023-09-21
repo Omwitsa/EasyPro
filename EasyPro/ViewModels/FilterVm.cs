@@ -21,6 +21,7 @@ namespace EasyPro.ViewModels
         [Display(Name = "Bank Name")]
         public string BankName { get; set; }
         public string County { get; set; }
+        public string Zone { get; set; }
 
 
     }
