@@ -406,7 +406,7 @@ namespace EasyPro.Controllers
             var routes = _context.Routes.Where(a => a.scode == sacco ).OrderBy(m => m.Name).Select(b => b.Name).ToList();
             ViewBag.routes = new SelectList(routes);
             
-            var valuechain = _context.DPrices.Where(a => a.SaccoCode == sacco).OrderBy(m => m.Products).Select(b => b.Products).ToList();
+            var valuechain = _context.ValueChain.Where(a => a.saccocode == sacco).OrderBy(m => m.Name).Select(b => b.Name).ToList();
             ViewBag.valuechain = new SelectList(valuechain);
 
             var cigname = _context.CIGs.Where(a => a.saccocode == sacco).OrderBy(m => m.Name).Select(b => b.Name).ToList();

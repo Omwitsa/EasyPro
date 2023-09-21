@@ -7,6 +7,8 @@ using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.ViewModels;
+using System.Collections.Generic;
 
 namespace EasyPro.Controllers
 {
@@ -34,7 +36,86 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             return View(await _context.SharesCategories.Where(c => c.SaccoCode == sacco).ToListAsync());
         }
+        [HttpPost]
+        public JsonResult SuppliedProducts()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            IQueryable<DShare> dShares = _context.DShares;
+            IQueryable<DSupplier> dsupplier = _context.DSuppliers;
+            var shares = new List<SharesReportVM>();
+            var getshares = dShares.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).Select(n => n.Branch).Distinct().ToList();
+            var getbranches = getshares;
+            getbranches.ForEach(k => {
+                var getsno = dShares.Where(n => n.Branch == k.ToUpper()).Select(v => v.Sno).Distinct().ToList();
+                getsno.ForEach(j => {
+                    //var sno = j.FirstOrDefault();
+                    var snodetails = dShares.Where(n => n.Branch == k.ToUpper() && n.Sno.ToUpper().Equals(j.ToUpper()) && n.Type.ToUpper().Contains("SHARE")).ToList();
+                    var getsnodetail = dsupplier.FirstOrDefault(n => n.Branch == k.ToUpper() && n.Scode == sacco && n.Sno.ToUpper().Equals(j.ToUpper()));
+                    //var totalshares = snodetails.Sum(b=>b.Amount);
+                    if (getsnodetail != null)
+                    {
+                        shares.Add(new SharesReportVM
+                        {
+                            Sno = j.ToUpper(),
+                            Name = getsnodetail.Names,
+                            Gender = getsnodetail.Type,
+                            IDNo = getsnodetail.IdNo,
+                            PhoneNo = getsnodetail.PhoneNo,
+                            Shares = snodetails.Sum(b => b.Amount),
+                            Branch = getsnodetail.Branch
+                        });
+                    }
+                });
+            });
+            return Json(shares);
+        }
 
+        public async Task<IActionResult> SharesIndex()
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                if (string.IsNullOrEmpty(loggedInUser))
+                    return Redirect("~/");
+            IQueryable<DShare> dShares = _context.DShares;
+            IQueryable<DSupplier> dsupplier = _context.DSuppliers;
+            var shares = new List<SharesReportVM>();
+            decimal totalshares = 0;
+            var getshares = dShares.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).Select(n => n.Branch).Distinct().ToList();
+            var getbranches = getshares;
+            getbranches.ForEach(k => {
+                var getsno = dShares.Where(n => n.Branch == k.ToUpper()).OrderBy(c=>c.Sno).ToList().Select(v => v.Sno).Distinct().ToList();
+                getsno.ForEach(j => {
+                    //var sno = j.FirstOrDefault();
+                    var snodetails = dShares.Where(n => n.Branch == k.ToUpper() && n.Sno.ToUpper().Equals(j.ToUpper()) && n.Type.ToUpper().Contains("SHARE")).ToList();
+                    var getsnodetail = dsupplier.FirstOrDefault(n => n.Branch == k.ToUpper() && n.Scode == sacco && n.Sno.ToUpper().Equals(j.ToUpper()));
+                    
+
+                    if (getsnodetail != null)
+                    {
+                        var Tshares = snodetails.Sum(b => b.Amount);
+                        totalshares += Tshares;
+                        shares.Add(new SharesReportVM
+                        {
+                            Sno = j.ToUpper(),
+                            Name = getsnodetail.Names,
+                            Gender = getsnodetail.Type,
+                            IDNo = getsnodetail.IdNo,
+                            PhoneNo = getsnodetail.PhoneNo,
+                            Shares = Tshares,
+                            Branch = getsnodetail.Branch
+                        });
+                    }
+                });
+            });
+
+            ViewBag.Totalshares = totalshares;
+            return View(shares);
+        }
         // GET: SharesCategories/Details/5
         public async Task<IActionResult> Details(long? id)
         {

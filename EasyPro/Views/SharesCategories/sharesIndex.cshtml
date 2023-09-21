@@ -1,0 +1,188 @@
+﻿@model IEnumerable<EasyPro.ViewModels.SharesReportVM>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #00ff21;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1050px;
+        height: 200px;
+        overflow: auto;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <form asp-action="SharesIndex">
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+
+                    </div>
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <h1 style="text-align-last:center">Shares Report</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bsc-tbl-hvr table-border-style">
+                    <div class="table-responsive">
+                        <div class="divScroll">
+                            <table class="table table-hover" id="customers">
+                                <tr>
+                                    <th>Sno</th>
+                                    <th>Name</th>
+                                    <th>Gender</th>
+                                    <th>IDNo</th>
+                                    <th>Phone</th>
+                                    <th>Shares</th>
+                                    <th>Branch</th>
+                                </tr>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    { 
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Sno)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Gender)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.IDNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PhoneNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Shares)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Branch)
+                                        </td>
+                                    </tr>
+                                       }
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="control-label">Total Shares</label>
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <div class="w3-text-blue e-bold">
+                                @ViewBag.Totalshares
+                            </div>
+                            @*<input id="amount" class="form-control" readonly />*@ 
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    @*<script type="text/javascript">
+        $(function () {
+            //var today = new Date().toISOString().split('T')[0];
+            //$("#firstdate").val(today);
+            //$("#enddate").val(today);
+            getshares();
+            $('#amount').val(0);
+            $("#showtable").click(function () {
+                //var date1 = $("#firstdate").val();
+                //var date2 = $("#enddate").val();
+                var zone = $("#zone").val();
+                zone = zone ? zone : "";
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: "suppliedProducts",
+                        contentType: 'application/json',
+                        success: function (response) {
+                            populateIntake(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+            });
+            function getshares() {
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: "suppliedProducts",
+                        contentType: 'application/json',
+                        success: function (response) {
+                            populateIntake(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+            }
+            function populateIntake(intakes) {
+                let itemTableRows = new Array();
+                var BPrice = 0;
+                intakes.forEach(i => {
+                    //var ddate = i.Date;
+                    BPrice +=  i.Shares;
+                    itemTableRows.push(`<tr>
+                                <td>${i.Sno}</td>
+                                <td>${i.Name}</td>
+                                <td>${i.Gender}</td>
+                                <td>${i.IDNo }</td>
+                                <td>${i.PhoneNo}</td>
+                                <td>${i.Shares}</td>
+                                <td>${i.Branch}</td>
+                            </tr>`)
+
+                    $('#amount').val(BPrice);
+                });
+
+                $('#intakes').html(itemTableRows);
+            }
+        });
+    </script>*@
+}
+
+
+

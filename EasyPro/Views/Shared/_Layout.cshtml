@@ -429,6 +429,12 @@
                                             <li>
                                                 <a asp-controller="AgrovetStockReceive" asp-action="DefaultIndex">Store Reports</a>
                                             </li>
+                                            <li>
+                                                <a asp-controller="SharesCategories" asp-action="SharesIndex">Shares Reports</a>
+                                            </li>
+                                            <li>
+                                                <a asp-controller="CIGs" asp-action="Index">CIG Groups</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 }
@@ -919,6 +925,9 @@
                                     <li>
                                         <a asp-controller="DBranchProducts" asp-action="Index">Products</a>
                                     </li>
+                                    <li>
+                                        <a asp-controller="ValueChain" asp-action="Index">Value Chain</a>
+                                    </li>
                                 }
                                 @if (ViewBag.SetPrice)
                                 {
@@ -990,6 +999,7 @@
                                     <li>
                                         <a asp-controller="DDcodes" asp-action="Index">Ded Types</a>
                                     </li>
+
                                 }
                                 @if (ViewBag.SetBanks)
                                 {
@@ -1108,8 +1118,8 @@
                                     <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
                                 </li>
                                 @*<li>
-                                    <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
-                                </li>*@
+            <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
+        </li>*@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTransportersBalReport">Transporters Balancing</a>
                                 </li>
@@ -1121,6 +1131,9 @@
                                 </li>
                                 <li>
                                     <a asp-controller="AgrovetStockReceive" asp-action="DefaultIndex">Store Reports</a>
+                                </li>
+                                <li>
+                                    <a asp-controller="SharesCategories" asp-action="SharesIndex">Shares Reports</a>
                                 </li>
                             </ul>
                         </div>
