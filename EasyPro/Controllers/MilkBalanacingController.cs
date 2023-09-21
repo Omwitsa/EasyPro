@@ -185,12 +185,12 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()) && s.Tbranch== saccobranch).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if(user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
+            //if(user.AccessLevel == AccessLevel.Branch)
+             var TransportersList =  transporters.OrderBy(b=>b.TransName).ToList();
            
-            ViewBag.agproductsall = transporters;
+            ViewBag.agproductsall = TransportersList;
             var transporterNames = transporters.Select(t => t.TransName).ToList();
             if(StrValues.Slopes == sacco)
                 transporterNames = transporters.Select(t => t.CertNo).ToList();
@@ -221,8 +221,8 @@ namespace EasyPro.Controllers
                 var transporterIntakes = await _context.d_TransporterIntake.Where(i => i.Date == filter.Date 
                 && i.TransCode.ToUpper().Equals(filter.TCode.ToUpper())
                 && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-                if (user.AccessLevel == AccessLevel.Branch)
+                //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                //if (user.AccessLevel == AccessLevel.Branch)
                     transporterIntakes = transporterIntakes.Where(s => s.Branch == saccobranch).ToList();
 
                 var suppliersdeliveries = transporterIntakes.Sum(i => i.ActualKg);
@@ -250,11 +250,11 @@ namespace EasyPro.Controllers
             && t.saccocode == sacco).ToListAsync();
             var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-            {
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //{
                 transports = transports.Where(s => s.Branch == saccobranch).ToList();
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
-            }
+            //}
             var transporterSuppliers = transports.Select(t => t.Sno);
 
             var notTransporterSuppliers = intakes.Where(i => i.AuditId.ToUpper().Equals(transCode.ToUpper()) 

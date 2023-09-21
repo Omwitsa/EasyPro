@@ -54,15 +54,24 @@
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Sno" class="control-label"></label>
                             <input id="sno" asp-for="Sno" class="form-control" />
                             <span asp-validation-for="Sno" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input id="name" asp-for="Name" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Total Shares</label>
+                            <input id="share"  class="form-control" disabled />
+                        </div>
                     </div>
                 </div>
 
@@ -77,6 +86,7 @@
                                     <th>Pmode</th>
                                     <th>Period</th>
                                     <th>Amount</th>
+                                    <th>Balance</th>
                                 </tr>
                                 <tbody id="shares">
                                 </tbody>
@@ -124,18 +134,26 @@
             }
 
             function populateDetailsTable() {
+                var BPrice = 0;
+                var name = 0;
                 let itemTableRows = new Array();
                 shares.forEach(j => {
+                    var ddate = j.TransDate;
+                    name = j.Name;
+                    BPrice += j.Amount;
+                    var dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
                         <td>${j.Sno}</td>
                         <td>${j.Type}</td>
-                        <td>${j.TransDate}</td>
+                        <td>${dd1}</td>
                         <td>${j.Pmode}</td>
                         <td>${j.Period}</td>
                         <td>${j.Amount}</td>
+                        <td>${BPrice.toFixed(2)}</td>
                     </tr>`);
                 });
-
+                $('#name').val(name);
+                $('#share').val(BPrice.toFixed(2));
                 $('#shares').html(itemTableRows);
             }
         });

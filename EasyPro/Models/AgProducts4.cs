@@ -10,7 +10,7 @@ namespace EasyPro.Models
         public long Id { get; set; }
         public string PCode { get; set; }
         public string PName { get; set; }
-        public double? SNo { get; set; }
+        public string? SNo { get; set; }
         public double? Qin { get; set; }
         public double? Qout { get; set; }
         public DateTime? DateEntered { get; set; }

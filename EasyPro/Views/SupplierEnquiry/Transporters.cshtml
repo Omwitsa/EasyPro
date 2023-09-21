@@ -303,10 +303,10 @@
                     itemTableRows.push(`<tr>
 				        <td>${dd1}</td>
                         <td>${i.ProductType}</td>
-                        <td>${i.Qsupplied}</td>
-                        <td>${i.CR}</td>
-                        <td>${i.DR}</td>
-                        <td>${i.Balance}</td>
+                        <td>${i.Qsupplied.toFixed(2)}</td>
+                        <td>${i.CR.toFixed(2)}</td>
+                        <td>${i.DR.toFixed(2)}</td>
+                        <td>${i.Balance.toFixed(2)}</td>
                         <td>${i.Description}</td>
                         <td>${i.Remarks}</td>
 			        </tr>`);
@@ -316,10 +316,10 @@
                     totalQty += i.Qsupplied;
                 });
                 let netpay = grossPay - deductions;
-                $('#totalQty').val(totalQty);
-                $('#netpay').val(netpay);
-                $('#totaldeductions').val(deductions)
-                $('#grosspay').val(grossPay)
+                $('#totalQty').val(totalQty.toFixed(2));
+                $('#netpay').val(netpay.toFixed(2));
+                $('#totaldeductions').val(deductions.toFixed(2))
+                $('#grosspay').val(grossPay.toFixed(2))
                 $('#intakes').html(itemTableRows);
             }
         });

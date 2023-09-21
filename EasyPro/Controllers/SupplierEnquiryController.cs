@@ -378,9 +378,10 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var shares = _context.DShares.Where(s => s.Sno == sno && s.SaccoCode == sacco).ToList();
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var shares = _context.DShares.Where(s => s.Sno.ToUpper().Equals(sno.ToUpper()) && s.SaccoCode == sacco && s.Branch == saccobranch).ToList();
 
-            shares = shares.OrderByDescending(s => s.TransDate).ToList();
+            shares = shares.OrderBy(s => s.TransDate).ToList();
 
             return Json(shares);
         }
