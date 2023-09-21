@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using static FastReport.Barcode.Iban;
 
 namespace EasyPro.Models.BosaModels
 {
@@ -15,5 +16,7 @@ namespace EasyPro.Models.BosaModels
 
         public virtual DbSet<Member> MEMBERS { get; set; }
         public virtual DbSet<SContrib> CONTRIB { get; set; }
+        public virtual DbSet<LoanTypes> LOANTYPE { get; set; }
+        public virtual DbSet<LoanBal> LOANBAL { get; set; }
     }
 }

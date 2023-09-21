@@ -226,7 +226,7 @@ namespace EasyPro.Controllers
                         Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
                         AuditTime = DateTime.Now,
                         DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
-                        Source = dispatch.DName+ " " +saccoBranch,
+                        Source = dispatch.DName,
                         TransDescript = "Sales",
                         Transactionno = $"{loggedInUser}{DateTime.Now}",
                         SaccoCode = sacco,
@@ -372,8 +372,8 @@ namespace EasyPro.Controllers
                 dispatches = dispatches.Where(i => i.Branch == saccoBranch).ToList();
 
             var balancing = await _context.DispatchBalancing.FirstOrDefaultAsync(d => d.Saccocode == sacco && d.Date == date);
-            balancing.BF = balancing?.BF ?? 0;
-            var todaysIntake = intakes.Sum(i => i.Qsupplied) + (decimal)balancing.BF;
+            decimal broughtForward = balancing?.BF ?? 0;
+            var todaysIntake = intakes.Sum(i => i.Qsupplied) + broughtForward;
             var dispatchKgs = dispatches.Sum(d => d.Dispatchkgs);
             todaysIntake -= dispatchKgs;
             return todaysIntake;

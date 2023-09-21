@@ -262,19 +262,17 @@ namespace EasyPro.Controllers
                 && !transporterSuppliers.Contains(i.Sno.ToUpper()))
                 .Select(t => t.Sno).Distinct().ToList();
 
-            if (StrValues.Slopes == sacco) 
+            var transIntakes = intakes.Where(s => (s.Description == "Intake" || s.Description == "Correction")
+            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno)));
+            if (StrValues.Slopes == sacco)
             {
                 var auditDatetimes = intakes.Where(i => i.Sno.ToUpper().Equals(transCode.ToUpper()))
                     .Select(i => i.Auditdatetime);
 
-                notTransporterSuppliers = intakes.Where(i => !transporterSuppliers.Contains(i.Sno.ToUpper()) 
-                && auditDatetimes.Contains(i.Auditdatetime) && (i.Description == "Intake" || i.Description == "Correction"))
-                .Select(t => t.Sno).Distinct().ToList();
+                transIntakes = intakes.Where(s => (s.Description == "Intake" || s.Description == "Correction")
+                && auditDatetimes.Contains(s.Auditdatetime));
             }
-
-            intakes = intakes.Where(s => (s.Description == "Intake" || s.Description == "Correction")
-            && (transporterSuppliers.Contains(s.Sno) || notTransporterSuppliers.Contains(s.Sno))).OrderBy(h => h.Auditdatetime).ToList();
-            return intakes;
+            return transIntakes.OrderBy(h => h.Auditdatetime).ToList();
         }
 
         [HttpPost]//editVariance

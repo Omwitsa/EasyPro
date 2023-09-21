@@ -157,6 +157,7 @@
                                         <td>${s.payable}</td>
                                     </tr>`;
                 });
+
                 var strSupplierSummery = supplierSummery.join('');
                 var htmlSupplierSummery = `<table>
                             <thead>
@@ -193,6 +194,34 @@
                                     <tbody>${strDeductionSummery}</tbody>
                                    </table>`;
 
+                let htmlSaccoLoans = "";
+                if (isSlopes){
+                    let saccoLoans = response.saccoLoans.map(s => {
+                        let transDate = new Date(s.date).toLocaleDateString();
+                        return `<tr>
+                                    <td>${s.LoanType}</td>
+                                    <td>${s.Installments}</td>
+                                    <td>(${s.Balance})</td>
+                                </tr>`;
+                    });
+
+                    let strSaccoLoans = saccoLoans.join('');
+                    htmlSaccoLoans = `
+                            SACCO LOANS</br>
+                            *************************</br>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th> Loan Type </th>
+                                        <th> AMOUNT </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>${strSaccoLoans}</tbody>
+                            </table>`;
+                }
+
                 let bankDetails = "";
                 if (!isSlopes){
                     bankDetails = `*************************</br>
@@ -202,6 +231,7 @@
                                     Bank Branch: ${response.supplier.Bbranch}</br>
                                     Acc No.: ${response.supplier.AccNo}</br>`;
                 }
+
                 var content = `<div class="row" id="printMe">
                                         <div class="col-xs-12 text-center">
                                              <h4>
@@ -227,6 +257,8 @@
                                                 DEDUCTIONS</br>
                                                 *************************</br>
                                                 ${htmlDeductionSummery}</br>
+                                                *************************</br>
+                                                ${htmlSaccoLoans}</br>
                                                 *************************</br>
                                                 Total Deductions Kshs: ${response.totalDeductions}</br>
                                                 *************************</br>

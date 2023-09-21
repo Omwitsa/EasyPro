@@ -866,14 +866,7 @@ namespace EasyPro.Controllers
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
             return Redirect("~/");
-        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-        var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-        var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-
-        //if (string.IsNullOrEmpty(filter.Branch))
-        //    branchobj = _context.DBranch.Where(u => u.Bcode == sacco);
-        //else
-        //    branchobj = _context.DBranch.Where(u => u.Bcode == sacco && u.Bname == filter.Branch);
+        
         return SalesReportExcel(filter);
     }
 

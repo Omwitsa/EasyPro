@@ -32,6 +32,7 @@ using static EasyPro.ViewModels.AccountingVm;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Syncfusion.EJ2.Linq;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using EasyPro.Models.BosaModels;
 
 namespace EasyPro.Controllers
 {
@@ -39,6 +40,7 @@ namespace EasyPro.Controllers
     {
         PrintDocument pdoc = null;
         private readonly MORINGAContext _context;
+        private readonly BosaDbContext _bosaDbContext;
         private readonly INotyfService _notyf;
         private Utilities utilities;
         private static object clientSock;
@@ -46,10 +48,11 @@ namespace EasyPro.Controllers
         public FarmersVM Farmersobj { get; private set; }
 
 
-        public ProductIntakesController(MORINGAContext context, INotyfService notyf)
+        public ProductIntakesController(MORINGAContext context, INotyfService notyf, BosaDbContext bosaDbContext)
         {
             _context = context;
             _notyf = notyf;
+            _bosaDbContext = bosaDbContext;
             utilities = new Utilities(context);
         }
         // GET: ProductIntakes
@@ -381,7 +384,7 @@ namespace EasyPro.Controllers
 
             }
 
-            var statement = new SupplierStatement(_context);
+            var statement = new SupplierStatement(_context, _bosaDbContext);
             var statementResp = await statement.GenerateStatement(filter);
             return Json(statementResp);
         }

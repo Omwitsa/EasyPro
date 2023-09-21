@@ -14,15 +14,18 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Stripe;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using EasyPro.Models.BosaModels;
 
 namespace EasyPro.Provider
 {
     public class SupplierStatement : IStatement
     {
         private readonly MORINGAContext _context;
-        public SupplierStatement(MORINGAContext context)
+        private readonly BosaDbContext _bosaDbContext;
+        public SupplierStatement(MORINGAContext context, BosaDbContext bosaDbContext)
         {
             _context = context;
+            _bosaDbContext = bosaDbContext;
         }
         public async Task<dynamic> GenerateStatement(StatementFilter filter)
         {
@@ -47,14 +50,12 @@ namespace EasyPro.Provider
             {
                 var intake = i.FirstOrDefault();
                 var price = intake.Ppu;
-                //var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco && p.Products.ToUpper().Equals(intake.ProductType.ToUpper()));
                 var qty = i.Sum(p => p.Qsupplied);
                 supplies.Add(new
                 {
                     date = i.Key,
                     qnty = qty,
-                    price = price,
-                   //price.Price,
+                    price,
                     payable = qty * price
                 });
                 totalKgs += qty;
@@ -88,6 +89,26 @@ namespace EasyPro.Provider
                 });
             });
 
+            var saccoLoans = new List<dynamic>();
+            if (filter.Sacco == StrValues.Slopes)
+            {
+                var loans = await _bosaDbContext.LOANBAL.Where(l => l.MemberNo.ToUpper().Equals(filter.Code.ToUpper())
+                && l.Balance > 0 && l.Companycode == StrValues.SlopesCode).ToListAsync();
+                var types = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
+                loans.ForEach(l =>
+                {
+                    var type = types.FirstOrDefault(t => t.LoanCode.ToUpper().Equals(l.LoanCode.ToUpper()));
+                    saccoLoans.Add(new
+                    {
+                        l.Balance,
+                        l.Installments,
+                        l.LoanCode,
+                        l.LoanNo,
+                        type.LoanType
+                    });
+                });
+            }
+
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == filter.Code && s.Scode == filter.Sacco && s.Branch == filter.Branch);
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
@@ -106,6 +127,7 @@ namespace EasyPro.Provider
                 totalKgs,
                 grossPay,
                 deductions,
+                saccoLoans,
                 totalDeductions,
                 netPay = grossPay - totalDeductions,
                 supplier,
