@@ -1,5 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using EasyPro.Constants;
 using EasyPro.IProvider;
@@ -872,6 +873,34 @@ namespace EasyPro.Controllers
                     $"{filter.Zone} Report.xlsx");
             }
         }
+    }
+
+    [HttpPost]
+    public JsonResult ZoneIntakePdf([FromBody] FilterVm filter)
+    {
+        return Json(new
+        {
+            redirectUrl = Url.Action("ZoneIntakePdf", new { dateFrom = filter.DateFrom, dateTo = filter.DateTo, zone = filter .Zone}),
+            isRedirect = true
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ZoneIntakePdf(DateTime? dateFrom, DateTime? dateTo, string zone)
+    {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
+        var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var productIntakes = await _context.ProductIntake.Where(i => i.Zone == zone && i.TransDate >= dateFrom
+                && i.TransDate <= dateTo && i.SaccoCode == sacco && i.Qsupplied != 0 && i.Description != "Transport")
+                .OrderBy(i => i.TransDate).ToListAsync();
+            
+        var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+        var title = zone + " Report";
+        var pdfFile =  _reportProvider.GetZonesIntakePdf(productIntakes, company, title);
+        return File(pdfFile, "application/pdf");
     }
 
     [HttpPost]

@@ -102,21 +102,21 @@
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
                                             <label asp-for="DateFrom" class="control-label"></label>
-                                            <input id="branch_sup_intake_from" asp-for="DateFrom" class="form-control" type="date" />
+                                            <input id="zone_intake_from" asp-for="DateFrom" class="form-control" type="date" />
                                             <span asp-validation-for="DateFrom" class="text-danger"></span>
                                         </div>
 
                                         <button type="submit" class="btn btn-success">Export to Excel</button>
                                     </div>
-
+                                    
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
                                             <label asp-for="DateTo" class="control-label"></label>
-                                            <input id="branch_sup_intake_to" asp-for="DateTo" class="form-control" type="date" />
+                                            <input id="zone_intake_to" asp-for="DateTo" class="form-control" type="date" />
                                             <span asp-validation-for="DateTo" class="text-danger"></span>
                                         </div>
 
-                                        <a id="branch_sup_intake_pdf" class="btn btn-info">Export to PDF</a>
+                                        <a id="zone_intake_pdf" class="btn btn-info">Export to PDF</a>
                                     </div>
                                 </div>
                             </form>
@@ -311,6 +311,9 @@
             $("#daily_summary_from").val(today);
             $("#supplier_intake_from").val(today);
             $("#supplier_intake_to").val(today);
+            $("#zone_intake_from").val(today);
+            $("#zone_intake_to").val(today);
+            
             $('#daily_summary_pdf').on('click', function () {
                 let from = $("#daily_summary_from").val();
                 let to = $("#daily_summary_to").val();
@@ -345,6 +348,32 @@
                 $.ajax({
                     type: 'POST',
                     url: "IntakePdf",
+                    contentType: 'application/json',
+                    data: JSON.stringify(filter),
+                    success: function (response) {
+                        if (response.isRedirect) {
+                            window.open(response.redirectUrl);
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+            
+            $('#zone_intake_pdf').on('click', function () {
+                let from = $("#zone_intake_from").val();
+                let to = $("#zone_intake_to").val();
+                let zone = $("#zone").val();
+                var filter = {
+                    dateFrom: from,
+                    dateTo: to,
+                    zone: zone
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "ZoneIntakePdf",
                     contentType: 'application/json',
                     data: JSON.stringify(filter),
                     success: function (response) {

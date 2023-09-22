@@ -299,5 +299,28 @@ namespace EasyPro.Provider
 
             return _converter.Convert(htmlToPdfDocument);
         }
+
+        public byte[] GetZonesIntakePdf(List<ProductIntake> productIntakes, DCompany company, string title)
+        {
+            title = title ?? "";
+            var content = HtmlGenerator.GenerateZoneIntakesHtml(productIntakes, company, title);
+            var objectSettings = new ObjectSettings
+            {
+                PagesCount = true,
+                HtmlContent = content,
+                WebSettings = { DefaultEncoding = "utf-8" },
+                HeaderSettings = { FontSize = 10, Right = "Page [page] of [toPage]", Line = true },
+                FooterSettings = { FontSize = 8, Center = title, Line = true },
+            };
+
+            recieptGlobalSettings.DocumentTitle = $"{title}";
+            HtmlToPdfDocument htmlToPdfDocument = new HtmlToPdfDocument()
+            {
+                GlobalSettings = pdfGlobalSettings,
+                Objects = { objectSettings },
+            };
+
+            return _converter.Convert(htmlToPdfDocument);
+        }
     }
 }

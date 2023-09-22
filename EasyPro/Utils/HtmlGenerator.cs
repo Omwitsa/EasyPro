@@ -948,5 +948,73 @@ namespace EasyPro.Utils
                         </html>");
             return sb.ToString();
         }
+
+        public static string GenerateZoneIntakesHtml(List<ProductIntake> productIntakes, DCompany company, string title)
+        {
+            var intakes = productIntakes.GroupBy(i => i.TransDate).ToList();
+            var sb = new StringBuilder();
+            sb.Append(@"
+                        <html>
+                            <head>
+                            </head>
+                            <body>");
+
+            sb.AppendFormat(@"<table>
+                                <tr>
+                                    <td>{0}</td>
+                                </tr>
+                                <tr>
+                                   <td>{1}</td>
+                                </tr>
+                                <tr>
+                                   <td>{2}</td>
+                                </tr>
+                                <tr>
+                                   <td>{3}</td>
+                                </tr>
+                              </table>",
+                              company.Name, company.Adress, company.Town, company.Email);
+
+            sb.AppendFormat(@"
+                                <div class='header'><h3>{0}</h3></div><hr/>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th></th>
+                                                <th>Quantity</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+            ", title);
+
+            foreach (var intake in intakes)
+            {
+                sb.AppendFormat(@"
+                            <tr>
+                                <td>{0}</td>
+                                <td></td>
+                                <td>{1}</td>
+                            </tr>
+                            ",
+                                  intake.Key.Date, intake.Sum(i => i.Qsupplied));
+            }
+
+            sb.AppendFormat(@"
+                            <tr>
+                                <td>Total Kgs</td>
+                                <td></td>
+                                <td>{0}</td>
+                            </tr>
+                            ",
+                             productIntakes.Sum(i => i.Qsupplied));
+
+            sb.Append(@"
+                                    </tbody>
+                                </table>
+                            </body>
+                        </html>");
+            return sb.ToString();
+        }
     }
 }

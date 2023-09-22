@@ -21,5 +21,6 @@ namespace EasyPro.IProvider
         public byte[] GetAgSalesReport(List<AgReceipt> receipts, DSupplier supplier);
         public byte[] GetDailySummary(List<IGrouping<DateTime, ProductIntake>> intakes, DCompany company, string title);
         public byte[] GetBankPayroll(IEnumerable<DPayroll> dpayrollobj, DCompany company, string title, string loggedInUser, string saccoBranch);
+        public byte[] GetZonesIntakePdf(List<ProductIntake> productIntakes, DCompany company, string title);
     }
 }
