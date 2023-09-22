@@ -997,7 +997,7 @@ namespace EasyPro.Utils
                                 <td>{1}</td>
                             </tr>
                             ",
-                                  intake.Key.Date, intake.Sum(i => i.Qsupplied));
+                                  intake.Key.Date.ToString("dd/MM/yyyy"), intake.Sum(i => i.Qsupplied));
             }
 
             sb.AppendFormat(@"

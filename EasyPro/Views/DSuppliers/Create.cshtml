@@ -202,8 +202,8 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Route</label>
-                                <select id="zone" asp-for="Zone" Value="Select Bank" class="form-control" asp-items="@ViewBag.routes">
+                                <label class="control-label">zone</label>
+                                <select id="zone" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones">
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="Zone" class="text-danger"></span>
