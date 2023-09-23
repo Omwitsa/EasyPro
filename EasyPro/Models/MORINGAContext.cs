@@ -6505,6 +6505,11 @@ namespace EasyPro.Models
                 entity.Property(e => e.Village)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+                entity.Property(e => e.Shares)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("Shares")
+                    .IsFixedLength(true);
             });
 
             modelBuilder.Entity<DSupplierDeduc>(entity =>

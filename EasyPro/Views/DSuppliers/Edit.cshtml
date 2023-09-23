@@ -214,7 +214,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="zone1">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Route</label>
@@ -224,7 +224,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Value Chain</label>
@@ -234,7 +234,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">CIG Name</label>
@@ -244,7 +244,20 @@
                             </div>
                         </div>
                     </div>
-
+                    @if (ViewBag.isElburgon) { 
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <div class="form-group">
+                                        <label asp-for="Shares" class="control-label">
+                                            <input asp-for="Shares" type="checkbox" />@Html.DisplayNameFor(model => model.Shares)
+                                            <span asp-validation-for="Shares" class="text-danger"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
                 <b class="text-info">Bank Activities</b>
                 <hr />
