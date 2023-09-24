@@ -58,7 +58,7 @@ namespace EasyPro.Controllers
             //if(StrValues.Elburgon != sacco)
            // {
                 IQueryable<DSupplier> suppliers = _context.DSuppliers;
-                var supplierList = await suppliers.Where(m => m.Scode == sacco && m.Type.Contains("male")).ToListAsync();
+                var supplierList = await suppliers.Where(m => m.Scode == sacco && m.Type.ToLower().Contains("male")).ToListAsync();
                 double totalSuppliers = supplierList.Count();
                 double totalMale = supplierList.Where(k => k.Type.ToLower().Equals("male")).Count();
                 ViewBag.malePercentage = Math.Round(((totalMale / totalSuppliers) * 100), 0);

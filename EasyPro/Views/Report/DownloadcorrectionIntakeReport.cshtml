@@ -87,18 +87,6 @@
                         <div class="form-row">
                             <form asp-controller="Report" asp-antiforgery="true" asp-action="ZonesIntakeReport" method="post">
                                 <div class="row">
-                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                        <div class="form-group">
-                                            <label asp-for="Zone" class="control-label"></label>
-                                            <select id="zone" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones">
-                                                <option value=""></option>
-                                            </select>
-                                            <span asp-validation-for="Zone" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
                                             <label asp-for="DateFrom" class="control-label"></label>
@@ -365,11 +353,9 @@
             $('#zone_intake_pdf').on('click', function () {
                 let from = $("#zone_intake_from").val();
                 let to = $("#zone_intake_to").val();
-                let zone = $("#zone").val();
                 var filter = {
                     dateFrom: from,
                     dateTo: to,
-                    zone: zone
                 };
                 $.ajax({
                     type: 'POST',

@@ -110,7 +110,7 @@ namespace EasyPro.Controllers
                         sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook   
                     }
 
-                    str_excel_grid = utilities.GenerateExcelGridSupReg(sheet, sacco, loggedInUser, branch);
+                    str_excel_grid = utilities.GenerateExcelGridSupReg(sheet, scodes, loggedInUser, branch);
                 }
             }
             return this.Content(str_excel_grid);
@@ -189,8 +189,9 @@ namespace EasyPro.Controllers
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
+
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            var excelDumps = _context.ExcelDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();   
+            var excelDumps = _context.ExcelDump.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
             excelDumps.ForEach(e =>
             {
                 e.TransCode = e?.TransCode ?? "";
@@ -238,7 +239,7 @@ namespace EasyPro.Controllers
                 decimal? rate = 1;
                 if (transport != null)
                     rate = transport.Rate;
-                
+
                 var isMburugu = sacco == StrValues.Mburugu;
                 if (!string.IsNullOrEmpty(e.TransCode) || isMburugu)
                 {
@@ -403,109 +404,159 @@ namespace EasyPro.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult RegApprove(string scodes)
+        public ActionResult RegApprove(string scodes)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-
-            if (scodes == null)
-            {
-                _notyf.Error("Sorry, Please provide Society");
-                GetInitialValues();
-                return View();
-            }
-            if (string.IsNullOrEmpty(scodes))
-            {
-                _notyf.Error("Sorry, Please provide Society");
-                GetInitialValues();
-                return View();
-            }
-
-            if (string.IsNullOrEmpty(loggedInUser))
-               return Redirect("~/");
-            utilities.SetUpPrivileges(this);
+            int ch = 0;
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var scodess = scodes;
+            string Checkyear = "0";
 
-            if (loggedInUser.ToLower().Equals("psigei"))
+
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            if (ch <= 0)
             {
-                var getbranch = _context.DBranch.FirstOrDefault(n => n.Bcode == scodes);
-                sacco = scodes;
-                saccoBranch = getbranch?.Bname ?? "MAIN";
-            }
+                var ValueChain = _context.ValueChain.FirstOrDefault(b => b.saccocode == scodess).Name;
+                var CigName = _context.CIGs.FirstOrDefault(b => b.saccocode == scodess).Name;
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                var excelDumps = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == scodess).ToList();
+                var checkifcorrectdatefeeded = excelDumps.GroupBy(p => p.DOB).ToList();
 
-
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            var excelDumps = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
-            var datatoupload = excelDumps.GroupBy(p => p.SNo.ToUpper()).ToList();
-            datatoupload.ForEach(e =>
-            {
-                var getsno = e.FirstOrDefault();
-                var productIntake = new DSupplier
+                checkifcorrectdatefeeded.ForEach(v =>
                 {
-                    Sno = getsno.SNo,
-                    Regdate = getsno.Reg_date,
-                    Names = getsno.Names,
-                    PhoneNo = getsno.PhoneNo,
-                    IdNo = getsno.IdNo,
-                    Dob = getsno.DOB,
-                    AccNo = getsno.Acc_Number,
-                    Bcode = getsno.Bank_code,
-                    Bbranch = getsno.Bank_Branch,
-                    Type = getsno.Gender,
-                    TransCode = getsno.PaymentMode,
-                    Village = getsno.Village,
-                    Location = getsno.LOCATION,
-                    Division = getsno.WARD,
-                    District = getsno.SUB_COUNTY,
-                    County = getsno.COUNTY,
-                    Trader =false,
-                    Active =true,
-                    Approval= true,
-                    Address="0",
-                    Town="",
-                    Email = "",
-                    AuditId = loggedInUser,
-                    Auditdatetime = DateTime.Now,
-                    Branch = saccoBranch,
-                    Scode = sacco,
-                    Loan= false,
-                    Compare="0",
-                    Isfrate = "0",
-                    Frate="0",
-                    Rate ="0",
-                    Hast= 0,
-                    Br= "0",
-                    Mno = "0",
-                    Branchcode =0,
-                    HasNursery ="0", 
-                    Notrees =0, 
-                    Aarno = "0",
-                    Tmd = DateTime.Now,
-                    Landsize = 0,
-                    Thcpactive = 0,
-                    Thcppremium = 0,
-                    Status = "0",
-                    Status2 = 0,
-                    Status3 =0,
-                    Status4 = 0,
-                    Status5 = 0,
-                    Status6 = "0",
-                    Types = "0",
-                    Freezed = "0",
-                    Mass = "0",
-                    Status1= 0,
-                    Run =0,
-                    Zone ="",
-                };
-                _context.DSuppliers.Add(productIntake);
-            });
-            
-            if (excelDumps.Any())
-            {
-                _context.ExcelDumpSupReg.RemoveRange(excelDumps);
-            }
+                    int checkifyearisabove18 = DateTime.Today.Year - (v.Key.Year);
+                    if (checkifyearisabove18 < 18)
+                    {
+                        Checkyear = "null";
+                    }
+                });
 
-            _context.SaveChanges();
+
+                if (CigName == null)
+                {
+                    _notyf.Error("Sorry, Please provide CIG Name For the Society");
+                    GetInitialValues();
+                    return RedirectToAction(nameof(SuppliersImportIndex));
+                }
+
+                if (Checkyear == "null")
+                {
+                    _notyf.Error("Sorry, Please provide Check DOB Should be Above 18 Years");
+                    GetInitialValues();
+                    return RedirectToAction(nameof(SuppliersImportIndex));
+                }
+
+                if (ValueChain == null)
+                {
+                    _notyf.Error("Sorry, Please provide Value Chain For the Society");
+                    GetInitialValues();
+                    return RedirectToAction(nameof(SuppliersImportIndex));
+                }
+
+                if (scodess == null)
+                {
+                    _notyf.Error("Sorry, Please provide Society");
+                    GetInitialValues();
+                    return RedirectToAction(nameof(SuppliersImportIndex));
+                }
+                if (string.IsNullOrEmpty(scodess))
+                {
+                    _notyf.Error("Sorry, Please provide Society");
+                    GetInitialValues();
+                    return RedirectToAction(nameof(SuppliersImportIndex));
+                }
+
+                if (ModelState.IsValid)
+                {
+
+                    if (loggedInUser.ToLower().Equals("psigei"))
+                    {
+                        var getbranch = _context.DBranch.FirstOrDefault(n => n.Bcode == scodess);
+                        sacco = scodess;
+                        saccoBranch = getbranch?.Bname ?? "MAIN";
+                    }
+
+
+
+                    var datatoupload = excelDumps.GroupBy(p => p.SNo.ToUpper()).ToList();
+                    datatoupload.ForEach(e =>
+                    {
+                        var getsno = e.FirstOrDefault();
+                        var productIntake = new DSupplier
+                        {
+                            Sno = getsno.SNo,
+                            Regdate = getsno.Reg_date,
+                            Names = getsno.Names,
+                            PhoneNo = getsno.PhoneNo,
+                            IdNo = getsno.IdNo,
+                            Dob = getsno.DOB,
+                            AccNo = getsno.Acc_Number,
+                            Bcode = getsno.Bank_code,
+                            Bbranch = getsno.Bank_Branch,
+                            Type = getsno.Gender,
+                            TransCode = getsno.PaymentMode,
+                            Village = getsno.Village,
+                            Location = getsno.LOCATION,
+                            Division = getsno.WARD,
+                            District = getsno.SUB_COUNTY,
+                            County = getsno.COUNTY,
+                            Trader = false,
+                            Active = true,
+                            Approval = true,
+                            Address = "0",
+                            Town = "",
+                            Email = "",
+                            AuditId = loggedInUser,
+                            Auditdatetime = DateTime.Now,
+                            Branch = saccoBranch,
+                            Scode = scodess,
+                            Loan = false,
+                            Compare = "0",
+                            Isfrate = "0",
+                            Frate = "0",
+                            Rate = "0",
+                            Hast = 0,
+                            Br = "0",
+                            Mno = "0",
+                            Branchcode = 0,
+                            HasNursery = "0",
+                            Notrees = 0,
+                            Aarno = "0",
+                            Tmd = DateTime.Now,
+                            Landsize = 0,
+                            Thcpactive = 0,
+                            Thcppremium = 0,
+                            Status = "0",
+                            Status2 = 0,
+                            Status3 = 0,
+                            Status4 = 0,
+                            Status5 = 0,
+                            Status6 = "0",
+                            Types = "0",
+                            Freezed = "0",
+                            Mass = "0",
+                            Status1 = 0,
+                            Run = 0,
+                            Zone = "",
+                            CigName = CigName,
+                            ValueChain = ValueChain,
+                            Shares = false
+                        };
+                        _context.DSuppliers.Add(productIntake);
+                    });
+
+                    if (excelDumps.Any())
+                    {
+                        _context.ExcelDumpSupReg.RemoveRange(excelDumps);
+                    }
+                    _context.SaveChanges();
+
+                }
+                ch = 1;
+            }
             return RedirectToAction(nameof(SuppliersImportIndex));
         }
     }

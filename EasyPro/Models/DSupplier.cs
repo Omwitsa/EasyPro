@@ -72,5 +72,6 @@ namespace EasyPro.Models
         public string Zone { get; set; }
         public string ValueChain { get; set; }
         public string CigName { get; set; }
+        public bool Shares { get; set; }
     }
 }

@@ -215,7 +215,7 @@ namespace EasyPro.Utils
             controller.ViewBag.CustomerProductsRole = usergroup.CustomerProducts;
         }
 
-        public string GenerateExcelGridSupReg(ISheet sheet, string sacco, string loggedInUser, string branch)
+        public string GenerateExcelGridSupReg(ISheet sheet, string scodes, string loggedInUser, string branch)
         {
             StringBuilder sb = new StringBuilder();
             IRow headerRow = sheet.GetRow(0); //Get Header Row
@@ -229,7 +229,7 @@ namespace EasyPro.Utils
             }
             sb.AppendLine("</tr>");
             sb.Append("<tr>");
-            var existingData = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == sacco).ToList();
+            var existingData = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == scodes).ToList();
             if(existingData.Any())
                 _context.ExcelDumpSupReg.RemoveRange(existingData);
 
@@ -258,7 +258,7 @@ namespace EasyPro.Utils
                 excelDumps.Add(new ExcelDumpSupReg
                 {
                     LoggedInUser = loggedInUser,
-                    SaccoCode = sacco,
+                    SaccoCode = scodes,
                     Branch = branch,
                     Reg_date = transDate,
                     SNo = row.GetCell(1)?.ToString() ?? "",

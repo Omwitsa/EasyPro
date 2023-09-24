@@ -821,7 +821,7 @@ namespace EasyPro.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> ZonesIntakeReport([Bind("DateFrom,DateTo,Zone")] FilterVm filter)
+    public async Task<IActionResult> ZonesIntakeReport([Bind("DateFrom,DateTo")] FilterVm filter)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
@@ -831,7 +831,7 @@ namespace EasyPro.Controllers
        
         using (var workbook = new XLWorkbook())
         {
-            var worksheet = workbook.Worksheets.Add(filter.Zone);
+            var worksheet = workbook.Worksheets.Add("Zones");
             var currentRow = 1;
             var company = _context.DCompanies.FirstOrDefault(u => u.Name == sacco);
             worksheet.Cell(currentRow, 2).Value = company.Name;
@@ -842,13 +842,19 @@ namespace EasyPro.Controllers
             currentRow++;
             worksheet.Cell(currentRow, 2).Value = company.Email;
             currentRow = 5;
-            worksheet.Cell(currentRow, 2).Value = $"{filter.Zone} Report";
+            worksheet.Cell(currentRow, 2).Value = "Zones Report";
 
             currentRow = 6;
-            worksheet.Cell(currentRow, 1).Value = "Date";
-            worksheet.Cell(currentRow, 2).Value = "Quantity";
+            var zones = await _context.Zones.Where(z => z.Code == sacco).OrderBy(z => z.Name).ToListAsync();
+            var currentColumn = 1;
+            worksheet.Cell(currentRow, currentColumn).Value = "Date";
+            foreach(var zone in zones)
+            {
+                currentColumn++;
+                worksheet.Cell(currentRow, currentColumn).Value = zone.Name;
+            }
 
-            var productIntakes = await _context.ProductIntake.Where(i => i.Zone == filter.Zone && i.TransDate >= filter.DateFrom
+            var productIntakes = await _context.ProductIntake.Where(i => i.TransDate >= filter.DateFrom
                 && i.TransDate <= filter.DateTo && i.SaccoCode == sacco && i.Qsupplied != 0 && i.Description != "Transport")
                 .OrderBy(i => i.TransDate).ToListAsync();
 
@@ -856,13 +862,23 @@ namespace EasyPro.Controllers
             foreach(var intake in intakes)
             {
                 currentRow++;
-                worksheet.Cell(currentRow, 1).Value = intake.Key;
-                worksheet.Cell(currentRow, 2).Value = intake.Sum(i => i.Qsupplied);
+                currentColumn = 1;
+                worksheet.Cell(currentRow, currentColumn).Value = intake.Key;
+                foreach (var zone in zones)
+                {
+                    currentColumn++;
+                    worksheet.Cell(currentRow, currentColumn).Value = intake.Where(i => i.Zone == zone.Name).Sum(i => i.Qsupplied);
+                }
             }
            
             currentRow++;
-            worksheet.Cell(currentRow, 1).Value = "Total Kgs";
-            worksheet.Cell(currentRow, 2).Value = productIntakes.Sum(i => i.Qsupplied);
+            currentColumn = 1;
+            worksheet.Cell(currentRow, currentColumn).Value = "Total Kgs";
+            foreach (var zone in zones)
+            {
+                currentColumn++;
+                worksheet.Cell(currentRow, currentColumn).Value = productIntakes.Where(i => i.Zone == zone.Name).Sum(i => i.Qsupplied);
+            }
 
             using (var stream = new MemoryStream())
             {
@@ -870,7 +886,7 @@ namespace EasyPro.Controllers
                 var content = stream.ToArray();
                 return File(content,
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    $"{filter.Zone} Report.xlsx");
+                    "Zones Report.xlsx");
             }
         }
     }
@@ -880,25 +896,25 @@ namespace EasyPro.Controllers
     {
         return Json(new
         {
-            redirectUrl = Url.Action("ZoneIntakePdf", new { dateFrom = filter.DateFrom, dateTo = filter.DateTo, zone = filter .Zone}),
+            redirectUrl = Url.Action("ZoneIntakePdf", new { dateFrom = filter.DateFrom, dateTo = filter.DateTo}),
             isRedirect = true
         });
     }
 
     [HttpGet]
-    public async Task<IActionResult> ZoneIntakePdf(DateTime? dateFrom, DateTime? dateTo, string zone)
+    public async Task<IActionResult> ZoneIntakePdf(DateTime? dateFrom, DateTime? dateTo)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
             return Redirect("~/");
         var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-        var productIntakes = await _context.ProductIntake.Where(i => i.Zone == zone && i.TransDate >= dateFrom
+        var productIntakes = await _context.ProductIntake.Where(i => i.TransDate >= dateFrom
                 && i.TransDate <= dateTo && i.SaccoCode == sacco && i.Qsupplied != 0 && i.Description != "Transport")
                 .OrderBy(i => i.TransDate).ToListAsync();
             
         var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
-        var title = zone + " Report";
+        var title = "Zones Report";
         var pdfFile =  _reportProvider.GetZonesIntakePdf(productIntakes, company, title);
         return File(pdfFile, "application/pdf");
     }

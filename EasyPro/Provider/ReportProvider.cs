@@ -303,7 +303,8 @@ namespace EasyPro.Provider
         public byte[] GetZonesIntakePdf(List<ProductIntake> productIntakes, DCompany company, string title)
         {
             title = title ?? "";
-            var content = HtmlGenerator.GenerateZoneIntakesHtml(productIntakes, company, title);
+            var zones = _context.Zones.Where(z => z.Code == company.Name).OrderBy(z => z.Name).ToList();
+            var content = HtmlGenerator.GenerateZoneIntakesHtml(productIntakes, company, title, zones);
             var objectSettings = new ObjectSettings
             {
                 PagesCount = true,

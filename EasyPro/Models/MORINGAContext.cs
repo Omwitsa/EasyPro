@@ -6505,6 +6505,11 @@ namespace EasyPro.Models
                 entity.Property(e => e.Village)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+                entity.Property(e => e.Shares)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("Shares")
+                    .IsFixedLength(true);
             });
 
             modelBuilder.Entity<DSupplierDeduc>(entity =>
@@ -10626,6 +10631,7 @@ namespace EasyPro.Models
 
         public DbSet<DeliveryNote> DeliveryNote { get; set; }
         public DbSet<CIGs> CIGs { get; set; }
+        public DbSet<ValueChain> ValueChain { get; set; }
         public DbSet<EasyPro.Models.Coffee.Marketing> Marketing { get; set; }
 
         public DbSet<EasyPro.Models.Coffee.MarketingDeduct> MarketingDeduct { get; set; }

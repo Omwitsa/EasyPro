@@ -949,7 +949,7 @@ namespace EasyPro.Utils
             return sb.ToString();
         }
 
-        public static string GenerateZoneIntakesHtml(List<ProductIntake> productIntakes, DCompany company, string title)
+        public static string GenerateZoneIntakesHtml(List<ProductIntake> productIntakes, DCompany company, string title, List<Zone> zones)
         {
             var intakes = productIntakes.GroupBy(i => i.TransDate).ToList();
             var sb = new StringBuilder();
@@ -975,39 +975,41 @@ namespace EasyPro.Utils
                               </table>",
                               company.Name, company.Adress, company.Town, company.Email);
 
+            var tblHeader = new StringBuilder();
+            zones.ForEach(z => tblHeader.AppendFormat(@"<th>{0}</th>", z.Name));
             sb.AppendFormat(@"
                                 <div class='header'><h3>{0}</h3></div><hr/>
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th>Date</th>
-                                                <th></th>
-                                                <th>Quantity</th>
+                                                <th>Date</th> {1}
                                             </tr>
                                         </thead>
                                         <tbody>
-            ", title);
+            ", title, tblHeader.ToString());
 
+            
             foreach (var intake in intakes)
             {
+                var tblContent = new StringBuilder();
+                zones.ForEach(z => tblContent.AppendFormat(@"<td>{0}</td>", intake.Where(i => i.Zone == z.Name).Sum(i => i.Qsupplied)));
                 sb.AppendFormat(@"
                             <tr>
-                                <td>{0}</td>
-                                <td></td>
-                                <td>{1}</td>
+                                <td>{0}</td> {1}
                             </tr>
                             ",
-                                  intake.Key.Date.ToString("dd/MM/yyyy"), intake.Sum(i => i.Qsupplied));
+                                  intake.Key.Date.ToString("dd/MM/yyyy"), tblContent.ToString());
             }
+
+            var tblTotal = new StringBuilder();
+            zones.ForEach(z => tblTotal.AppendFormat(@"<td>{0}</td>", productIntakes.Where(i => i.Zone == z.Name).Sum(i => i.Qsupplied)));
 
             sb.AppendFormat(@"
                             <tr>
-                                <td>Total Kgs</td>
-                                <td></td>
-                                <td>{0}</td>
+                                <td>Total Kgs</td> {0}
                             </tr>
                             ",
-                             productIntakes.Sum(i => i.Qsupplied));
+                             tblTotal.ToString());
 
             sb.Append(@"
                                     </tbody>
