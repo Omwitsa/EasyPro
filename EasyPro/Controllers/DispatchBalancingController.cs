@@ -117,27 +117,27 @@ namespace EasyPro.Controllers
                     intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
 
                 var alredydispatch = await _context.Dispatch.Where(s => s.Transdate== date && s.Dcode == sacco).ToListAsync();
-                var dispatch = await _context.DispatchBalancing.FirstOrDefaultAsync(d => d.Saccocode == sacco && d.Date == date);
+                var balancings = await _context.DispatchBalancing.Where(d => d.Saccocode == sacco).ToListAsync();
+                var dispatchBalancing = balancings.FirstOrDefault(d => d.Date == date);
+                var yesturday = date.GetValueOrDefault().AddDays(-1);
+                var yesturdayBalancing = balancings.FirstOrDefault(d => d.Date == yesturday);
                 double dispatched = 0;
-                if (dispatch == null)
-                {
+                if (dispatchBalancing == null)
                     dispatched = (double)alredydispatch.Sum(c => c.Dispatchkgs);
-                }
                 else
-                {
-                    dispatched = (double)dispatch.Dispatch;
-                }
-                dispatch = dispatch == null ? new DispatchBalancing() : dispatch;
+                    dispatched = (double)dispatchBalancing.Dispatch;
+
+                dispatchBalancing = dispatchBalancing == null ? new DispatchBalancing() : dispatchBalancing;
                 var balancing = new DispatchBalancing
                 {
                     Intake = intakes.Sum(i => i.Qsupplied),
                     Dispatch = (decimal?)dispatched,
-                    CF = dispatch.CF,
-                    BF = dispatch.BF,
-                    Actuals = dispatch.Actuals,
-                    Spillage = dispatch.Spillage,
-                    Rejects = dispatch.Rejects,
-                    Varriance = dispatch.Varriance,
+                    CF = dispatchBalancing?.CF ?? 0,
+                    BF = yesturdayBalancing?.CF ?? 0,
+                    Actuals = dispatchBalancing?.Actuals ?? 0,
+                    Spillage = dispatchBalancing?.Spillage ?? 0,
+                    Rejects = dispatchBalancing?.Rejects ?? 0,
+                    Varriance = dispatchBalancing?.Varriance ?? 0,
                     Saccocode = sacco,
                 };
                 return Json(balancing);

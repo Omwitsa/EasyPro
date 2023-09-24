@@ -371,12 +371,13 @@ namespace EasyPro.Controllers
             if (user.AccessLevel == AccessLevel.Branch)
                 dispatches = dispatches.Where(i => i.Branch == saccoBranch).ToList();
 
-            var balancing = await _context.DispatchBalancing.FirstOrDefaultAsync(d => d.Saccocode == sacco && d.Date == date);
-            decimal broughtForward = balancing?.BF ?? 0;
-            var todaysIntake = intakes.Sum(i => i.Qsupplied) + broughtForward;
+            var yesturday = date.AddDays(-1);
+            var yesturdayBalancing = await _context.DispatchBalancing.FirstOrDefaultAsync(d => d.Saccocode == sacco && d.Date == yesturday);
+            decimal broughtForward = yesturdayBalancing?.CF ?? 0;
+            var todaysIntake = intakes.Sum(i => i.Qsupplied);
             var dispatchKgs = dispatches.Sum(d => d.Dispatchkgs);
             todaysIntake -= dispatchKgs;
-            return todaysIntake;
+            return todaysIntake + broughtForward;
         }
 
         // POST: Dispatches/Delete/5
