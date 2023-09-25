@@ -23,19 +23,28 @@ namespace EasyPro.Provider
         {
             filter.Code = filter.Code ?? "";
             filter.Branch = filter.Branch ?? "";
+            filter.LoggedInUser = filter.LoggedInUser ?? "";
 
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var transporterFarmers = await _context.DTransports.Where(t =>t.Active && t.TransCode.ToUpper().Equals(filter.Code.ToUpper()) 
-                && t.saccocode == filter.Sacco && t.Branch.ToUpper().Equals(filter.Branch.ToUpper()) )
-                .Select(t => t.Sno).ToListAsync();
+            var transports = await _context.DTransports.Where(t =>t.Active && t.TransCode.ToUpper().Equals(filter.Code.ToUpper()) 
+                && t.saccocode == filter.Sacco && t.Branch.ToUpper().Equals(filter.Branch.ToUpper())).ToListAsync();
 
+            var transporterFarmers = transports.Select(t => t.Sno).ToList();
             var productIntakes = await _context.ProductIntake.Where(i => i.SaccoCode == filter.Sacco
             && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate)
                 .ToListAsync();
 
-            var intakes = productIntakes.Where(i => transporterFarmers.Contains(i.Sno) && i.CR > 0)
-                .OrderBy(i => i.TransDate).ToList();
+            var intakes = productIntakes.Where(i => transporterFarmers.Contains(i.Sno) && i.CR > 0);
+            if (StrValues.Slopes == filter.Sacco)
+            {
+                var auditDatetimes = productIntakes.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()))
+                    .Select(i => i.Auditdatetime).Distinct().ToList();
+                intakes = productIntakes.Where(s => (s.Description == "Intake" || s.Description == "Correction")
+                && auditDatetimes.Contains(s.Auditdatetime));
+            }
+
+            intakes = intakes.OrderBy(i => i.TransDate).ToList();
             var supplierGroupedIntakes = intakes.GroupBy(i => i.Sno).ToList();
             var transporters = new List<dynamic>();
             decimal totalKgs = 0;
@@ -44,17 +53,20 @@ namespace EasyPro.Provider
             supplierGroupedIntakes.ForEach(i =>
             {
                 var intake = i.FirstOrDefault();
-                var transport = _context.DTransports.FirstOrDefault(t => t.Sno == intake.Sno
-                && t.saccocode == filter.Sacco && t.Branch.ToUpper().Equals(filter.Branch.ToUpper()));
+                var transport = transports.FirstOrDefault(t => t.Sno == intake.Sno);
+                decimal? rate = 0;
+                if (transport != null)
+                    rate = transport.Rate;
+
                 var qty = i.Sum(p => p.Qsupplied);
                 transporters.Add(new
                 {
                     intake.Sno,
                     qnty = qty,
-                    payable = qty * transport.Rate
+                    payable = qty * rate
                 });
                 totalKgs += qty;
-                grossPay += (qty * transport.Rate);
+                grossPay += (qty * rate);
             });
 
             var deductionIntakes = productIntakes.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) 

@@ -221,8 +221,8 @@ namespace EasyPro.Controllers
                 var transporterIntakes = await _context.d_TransporterIntake.Where(i => i.Date == filter.Date 
                 && i.TransCode.ToUpper().Equals(filter.TCode.ToUpper())
                 && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-                //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-                //if (user.AccessLevel == AccessLevel.Branch)
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
                     transporterIntakes = transporterIntakes.Where(s => s.Branch == saccobranch).ToList();
 
                 var suppliersdeliveries = transporterIntakes.Sum(i => i.ActualKg);

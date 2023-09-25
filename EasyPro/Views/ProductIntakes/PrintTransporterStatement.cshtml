@@ -49,8 +49,10 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label class="control-label">Transporter Code</label>
-                                    <input id="transCode" class="form-control" required />
+                                    <label class="control-label">Transporter</label>
+                                    <select id="transCode" class="chzn-select form-control" asp-items="@ViewBag.codes">
+                                        <option value=""></option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -83,14 +85,20 @@
     }
     <script type="text/javascript">
         $(function () {
+            $(".chzn-select").chosen();
+            let isSlopes = '@ViewBag.slopes' === 'True';
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
-            $('#transCode').on('keyup', function () {
+           
+            $('#transCode').on('change', function (){
                 var transCode = $("#transCode").val();
                 var transporters = @Html.Raw(Json.Serialize(ViewBag.transporters));
-                var transporters = transporters.filter(p => p.TransCode === transCode);
-                if (transporters[0]) {
-                    $("#name").val(transporters[0].TransName);
+                var selectTransporters = transporters.filter(p => p.TransCode === transCode);
+                if (isSlopes) {
+                    selectTransporters = transporters.filter(p => p.CertNo === transCode);
+                }
+                if (selectTransporters[0]) {
+                    $("#name").val(selectTransporters[0].TransName);
                 }
             });
 
@@ -190,7 +198,7 @@
                                                      <h5>
                                                         *************************</br>
                                                         TransCode: ${filter.code}</br>
-                                                        Name: ${filter.name}</br>
+                                                        Name: ${filter.name} (${response.transporter.CertNo})</br>
                                                         *************************</br>
                                                         ${htmlTransporterSummery}</br>
                                                         *************************</br>

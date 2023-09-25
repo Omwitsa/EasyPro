@@ -389,23 +389,34 @@ namespace EasyPro.Controllers
             return Json(statementResp);
         }
 
-        public IActionResult PrintTransporterStatement()
+        public async Task<IActionResult> PrintTransporterStatement()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var branches = _context.DBranch.Where(s => s.Bcode == sacco)
                 .Select(s => s.Bname).ToList();
 
             ViewBag.branches = new SelectList(branches);
+            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
 
-            var transporters = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()));
+            var codes = transporters.Select(t => t.TransCode).ToList();
+            if (StrValues.Slopes == sacco)
+                codes = transporters.OrderBy(t => t.CertNo).Select(t => t.CertNo).ToList();
+
+            ViewBag.codes = new SelectList(codes);
+            ViewBag.slopes = StrValues.Slopes == sacco;
             ViewBag.transporters = transporters.Select(s => new DTransporter
             {
                 TransName = s.TransName,
                 TransCode = s.TransCode,
+                CertNo = s.CertNo
             }).ToList();
 
             return View();
@@ -414,11 +425,14 @@ namespace EasyPro.Controllers
         [HttpPost]
         public async Task<JsonResult> PrintTransporterStatement([FromBody] StatementFilter filter)
         {
+            filter.Code = filter?.Code ?? "";
             utilities.SetUpPrivileges(this);
             await SetIntakeInitialValues();
             filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             filter.Branch = filter?.Branch ?? HttpContext.Session.GetString(StrValues.Branch) ?? "";
             filter.LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (StrValues.Slopes == filter.Sacco)
+                filter.Code = _context.DTransporters.FirstOrDefault(t => t.CertNo == filter.Code)?.TransCode ?? "";
             var statement = new TransporterStatement(_context);
             var statementResp = await statement.GenerateStatement(filter);
             return Json(statementResp);
