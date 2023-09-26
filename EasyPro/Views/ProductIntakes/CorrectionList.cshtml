@@ -40,12 +40,20 @@
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-2">
                     <h3 class="text-danger fa-bold">Today's Corrections</h3>
                 </div>
-                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-7">
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
                     <div class="form-group">
                         <input id="transDate" class="form-control" type="date" />
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                <div class="col-lg-1 col-md-1 col-sm-1 col-xs-12">
+                    <label>Intakes:</label>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <div class="form-group">
+                        <input id="sn" value="@ViewBag.intakes" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-3">
                     <a asp-action="CreateCorrection" class="btn btn-primary">Create New</a>
                 </div>
             </div>
@@ -171,8 +179,9 @@
                     });
                 function populateIntake(intakes) {
                     let itemTableRows = new Array();
-
-                    intakes.forEach(i => {
+                    let kg = intakes.TodaysBranchkg;
+                    $('#sn').val(kg);
+                    intakes.intakes.forEach(i => {
                         var remarks = 'Correction Intake';
                         if (i.Remarks != '') {
                             remarks = i.Remarks;

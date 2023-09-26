@@ -330,7 +330,7 @@
                                             <li>
                                                 <a asp-controller="Usergroups" asp-action="Index">UserGroups</a>
                                             </li>
-                                            <li>
+                                            @*<li>
                                                 <a asp-controller="Counties" asp-action="Index">Counties</a>
                                             </li>
                                             <li>
@@ -338,7 +338,7 @@
                                             </li>
                                             <li>
                                                 <a asp-controller="Wards" asp-action="Index">Wards</a>
-                                            </li>
+                                            </li>*@
                                             <li>
                                                 <a asp-controller="DLocations" asp-action="Index">Locations</a>
                                             </li>
@@ -970,7 +970,7 @@
                                         <a asp-controller="Usergroups" asp-action="Index">UserGroups</a>
                                     </li>
                                 }
-                                @if (ViewBag.SetCounties)
+                                @*@if (ViewBag.SetCounties)
                                 {
                                     <li>
                                         <a asp-controller="Counties" asp-action="Index">Counties</a>
@@ -987,7 +987,7 @@
                                     <li>
                                         <a asp-controller="Wards" asp-action="Index">Wards</a>
                                     </li>
-                                }
+                                }*@
                                 @if (ViewBag.SetLocation)
                                 {
                                     <li>
@@ -1124,7 +1124,7 @@
                                     <a asp-controller="Report" asp-action="DownloadTransportersBalReport">Transporters Balancing</a>
                                 </li>
                                 <li>
-                                    <a asp-controller="Report" asp-action="DownloadcorrectionIntakeReport">Milk Intake Reports</a>
+                                    <a asp-controller="Report" asp-action="DownloadcorrectionIntakeReport">Intake Reports</a>
                                 </li>
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadSalesReport">Sales</a>
