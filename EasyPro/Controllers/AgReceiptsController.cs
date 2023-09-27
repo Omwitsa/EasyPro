@@ -117,7 +117,6 @@ namespace EasyPro.Controllers
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-
                 if(sacco == "USWET UMOJA DAIRIES FCS")
                 {
                     var checkamount = intakes.Sum(b => b.DR);
@@ -128,7 +127,7 @@ namespace EasyPro.Controllers
                     }
                 }
 
-                var products = _context.AgProducts.Where(p => p.saccocode == sacco);
+                var products = await _context.AgProducts.Where(p => p.saccocode == sacco).ToListAsync();
                 foreach(var intake in intakes)
                 {
                     intake.Sno = intake?.Sno ?? "";

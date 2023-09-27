@@ -297,28 +297,44 @@ namespace EasyPro.Controllers
             });
         }
 
-        public IActionResult PrintSupplierStatement()
+        public async Task<IActionResult> PrintSupplierStatement()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var branches = _context.DBranch.Where(s => s.Bcode == sacco)
-            .Select(s => s.Bname).ToList();
+            var branches = await _context.DBranch.Where(s => s.Bcode == sacco)
+            .Select(s => s.Bname).ToListAsync();
 
             ViewBag.slopes = StrValues.Slopes == sacco;
             ViewBag.branches = new SelectList(branches);
-            var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
+            var suppliers = await _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+            {
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
+            }
 
             ViewBag.suppliers = suppliers.Select(s => new DSupplier
             {
                 Sno = s.Sno,
                 Names = s.Names,
+            }).ToList();
+
+            var transCodes = new SelectList(transporters.Select(t => t.TransCode).ToList());
+            if(StrValues.Slopes == sacco)
+                transCodes = new SelectList(transporters.Select(t => t.CertNo).ToList());
+
+            ViewBag.transCodes = transCodes;
+            ViewBag.transporters = transporters.Select(s => new DTransporter
+            {
+                TransCode = s.TransCode,
+                TransName = s.TransName,
+                CertNo = s.CertNo
             }).ToList();
 
             return View();
@@ -386,6 +402,21 @@ namespace EasyPro.Controllers
 
             var statement = new SupplierStatement(_context, _bosaDbContext);
             var statementResp = await statement.GenerateStatement(filter);
+            return Json(statementResp);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> GetTransporterFarmersStat([FromBody] StatementFilter filter)
+        {
+            utilities.SetUpPrivileges(this);
+            await SetIntakeInitialValues();
+            filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            filter.Branch = filter?.Branch ?? HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            filter.LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            ViewBag.slopes = StrValues.Slopes == filter.Sacco;
+            
+            var statement = new SupplierStatement(_context, _bosaDbContext);
+            var statementResp = await statement.GetTransporterFarmersStat(filter);
             return Json(statementResp);
         }
 

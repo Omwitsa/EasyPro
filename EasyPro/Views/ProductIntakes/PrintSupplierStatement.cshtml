@@ -8,7 +8,7 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
-                        <h2>Print Supplier Statement</h2>
+                        <h2>Print Farmer Statement</h2>
                     </div>
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
@@ -18,6 +18,17 @@
                 </div>
                 <hr />
                 <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <input name="statement" type="radio" id="individual_farmers" />
+                            <label class="control-label" for="individual_farmers">Individual Farmer</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input name="statement" type="radio" id="transporter_farmers" />
+                            <label class="control-label" for="transporter_farmers">Transporter Farmers</label>
+                        </div>
+                    </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
@@ -31,9 +42,6 @@
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
@@ -44,12 +52,12 @@
                         </div>
                     </div>
                 </div> 
-                <div class="row">
+                <div class="row" id="farmer_section">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
-                                    <label class="control-label">Suppler Number</label>
+                                    <label class="control-label">Farmer Number</label>
                                     <input id="sno" class="form-control" required />
                                 </div>
                             </div>
@@ -66,6 +74,31 @@
                         </div>
                     </div>
                 </div> 
+                
+                <div class="row" id="transporter_section">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transporter</label>
+                                    <select id="transcode" class="chzn-select form-control" asp-items="@ViewBag.transCodes" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transpoter Name</label>
+                                    <input id="transName" readonly class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <hr />
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -83,17 +116,61 @@
     }
     <script type="text/javascript">
         $(function () {
+            $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
             $('#sno').on('keyup', function () {
                 getSupplier();
             });
+            $("#individual_farmers").prop("checked", true);
+            $("#transporter_farmers").prop("checked", false);
+            if ($('#individual_farmers').is(':checked')){
+                $('#farmer_section').show();
+                $('#transporter_section').hide();
+            }
+            if ($('#transporter_farmers').is(':checked')) {
+                $('#transporter_section').show();
+                $('#farmer_section').hide();
+            }
+
+            $('input[type=radio]').change(function () {
+                if ($('#individual_farmers').is(':checked')){
+                    $('#farmer_section').show();
+                    $('#transporter_section').hide();
+                }
+                if ($('#transporter_farmers').is(':checked')) {
+                    $('#transporter_section').show();
+                    $('#farmer_section').hide();
+                }
+            });
+
             let isSlopes = '@ViewBag.slopes' === 'True';
+            var transporters = @Html.Raw(Json.Serialize(ViewBag.transporters));
+            $('#transcode').on('change', function (){
+                var selectVal = $("#transcode").val();
+                var selectTransporters = transporters.filter(p => p.TransCode === selectVal);
+                if (isSlopes) {
+                    selectTransporters = transporters.filter(p => p.CertNo === selectVal);
+                }
+
+                $("#transName").val(selectTransporters[0].TransName);
+            });
+            
             $('#print').on('click', function () {
                 var branch = $("#branch").val();
                 var date = $("#date").val();
-                var sno = $("#sno").val();
                 var name = $("#name").val();
+                var sno = $("#sno").val();
+                var operation = "printSupplierStatement";
+
+                if ($('#individual_farmers').is(':checked')){
+                    sno = $("#sno").val();
+                    operation = "printSupplierStatement";
+                }
+                if ($('#transporter_farmers').is(':checked')) {
+                    sno = $("#transcode").val();
+                    operation = "getTransporterFarmersStat";
+                }
 
                 var filter = {
                     branch: branch,
@@ -105,14 +182,20 @@
                 if (sno && branch && date) {
                     $.ajax({
                         type: 'POST',
-                        url: "printSupplierStatement",
+                        url: operation,
                         contentType: 'application/json',
                         data: JSON.stringify(filter),
                         success: function (response) {
                             $("#branch").val('');
                             $("#date").val('');
                             $("#sno").val('');
-                            var content = generateHTML(response, filter);
+                            var content = '';
+                            if ($('#individual_farmers').is(':checked')) {
+                                content = generateHTML(response, filter);
+                            }
+                            if ($('#transporter_farmers').is(':checked')) {
+                               content = generateTransHTML(response, filter);
+                            }
                             printJS({
                                 printable: content,
                                 type: 'raw-html',
@@ -273,6 +356,74 @@
                                         </div>
                                    </div>`;
 
+                return content;
+            }
+
+            function generateTransHTML(response, filter) {
+                response.company = response.company ? response.company : {};
+                response.transporter = response.transporter ? response.transporter : {};
+                var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                let content = "";
+                response.transpoterIntakes.forEach(i => {
+                    i.supplier = i.supplier ? i.supplier : {};
+                    var supplierSummery = i.supplies.map(s => {
+                        let transDate = new Date(s.TransDate).toLocaleDateString();
+                        return `<tr>
+                                    <td>${transDate}</td>
+                                    <td></td>
+                                    <td>${s.Id}</td>
+                                    <td></td>
+                                    <td>${s.Qsupplied}</td>
+                                </tr>`;
+                        });
+
+                    let strSupplierSummery = supplierSummery.join('');
+                    let htmlSupplierSummery = `<table>
+                    <thead>
+                        <tr>
+                            <th> DATE </th>
+                            <th></th>
+                            <th> RCPT </th>
+                            <th></th>
+                            <th> KGS </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>${strSupplierSummery}</tbody>
+                    </table>`;
+                  
+                    let transCode = isSlopes ? response.transporter.CertNo : response.transporter.TransCode;
+                    let currentContent = `<div class="row" id="printMe">
+                        <div class="col-xs-12 text-center">
+                                <h5>
+                                ${response.company.Name}</br>
+                                Adress: ${response.company.Adress}</br>
+                                Tell: ${response.company.PhoneNo}</br>
+                                Town: ${response.company.Town}</br>
+                                Branch: ${filter.branch}</br>
+                                Detailed statement for ${date}
+                                </h5>
+                                <h6>
+                                *************************</br>
+                                Transporter: ${response.transporter.TransName} (${transCode})</br>
+                                *************************</br>
+                                Name: ${i.supplier.Names} (${i.supplier.Sno})</br>
+                                *************************</br>
+                                ${htmlSupplierSummery}</br>
+                                *************************</br>
+                                Total Kgs: ${i.qnty}</br>
+                                *************************</br>
+                            </h6>
+                            <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                            **************************
+                            <hr>
+                            **************************
+                        </div>
+                    </div>`;
+
+                    content = `${content}${currentContent}`;
+                });
+               
                 return content;
             }
         });

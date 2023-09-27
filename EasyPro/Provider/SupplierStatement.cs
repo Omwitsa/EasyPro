@@ -135,5 +135,57 @@ namespace EasyPro.Provider
                 transporterName
             };
         }
+
+        public async Task<dynamic> GetTransporterFarmersStat(StatementFilter filter)
+        {
+            filter.Code = filter.Code ?? "";
+            filter.Branch = filter.Branch ?? "";
+
+            var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            var suppliers = await _context.DSuppliers.Where(s => s.Scode == filter.Sacco && s.Branch == filter.Branch).ToListAsync();
+            var transporter = await _context.DTransporters.FirstOrDefaultAsync(t => t.TransCode == filter.Code && t.ParentT == filter.Sacco && t.Tbranch == filter.Branch);
+            if (StrValues.Slopes == filter.Sacco)
+            {
+                transporter = await _context.DTransporters.FirstOrDefaultAsync(t => t.CertNo == filter.Code && t.ParentT == filter.Sacco && t.Tbranch == filter.Branch);
+                filter.Code = transporter?.TransCode ?? "";
+            }
+
+            var transporterSuppliers = await _context.DTransports.Where(s => s.TransCode == filter.Code && s.saccocode == filter.Sacco && s.Branch == filter.Branch)
+                .Select(s => s.Sno.ToUpper()).ToListAsync();
+
+            var productIntakeslist = await _context.ProductIntake.Where(i => transporterSuppliers.Contains(i.Sno.ToUpper()) && i.SaccoCode == filter.Sacco
+            && i.TransDate >= startDate && i.TransDate <= endDate && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()))
+                .ToListAsync();
+
+            var intakes = productIntakeslist.Where(i => (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
+                .OrderBy(i => i.TransDate).ToList();
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
+            company.SupStatementNote = company?.SupStatementNote ?? "";
+
+            var supplierGroupedIntakes = intakes.GroupBy(i => i.Sno).ToList();
+            var transpoterIntakes = new List<dynamic>();
+            supplierGroupedIntakes.ForEach(s =>
+            {
+                var intake = s.FirstOrDefault();
+                var price = intake.Ppu;
+                var qty = s.Sum(p => p.Qsupplied);
+                transpoterIntakes.Add(new
+                {
+                    supplier = suppliers.FirstOrDefault(o => o.Sno == s.Key),
+                    supplies = s.ToList(),
+                    qnty = qty,
+                });
+            });
+
+            return new
+            {
+                transpoterIntakes,
+                company,
+                transporter
+            };
+        }
     }
 }
