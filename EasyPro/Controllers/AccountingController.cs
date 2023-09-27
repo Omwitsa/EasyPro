@@ -560,13 +560,20 @@ namespace EasyPro.Controllers
         {
             try
             {
-                var journalListings = await GetIncomeStatement(filter);
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement"
+                && !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")).ToListAsync();
+                var journalListings = await GetIncomeStatement(filter, glsetups);
                 var income = journalListings.Where(a => a.Group == "INCOME").ToList();
                 var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
+                var totalKgs = await _context.ProductIntake.Where(i => ((i.Description == "Intake" || i.Description == "Correction")) 
+                && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate && i.SaccoCode == sacco)
+                    .SumAsync(i => i.Qsupplied);
                 return Json(new
                 {
                     income,
-                    expenses
+                    expenses,
+                    totalKgs
                 });
             }
             catch (Exception ex)
@@ -575,13 +582,13 @@ namespace EasyPro.Controllers
             }
         }
 
-        private async Task<List<JournalVm>> GetIncomeStatement(JournalFilter filter)
+        private async Task<List<JournalVm>> GetIncomeStatement(JournalFilter filter, List<Glsetup> glsetups)
         {
             var journalListings = new List<JournalVm>();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            List<Glsetup> glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement").ToListAsync();
-
-            glsetups = glsetups.Where(g => !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")).ToList();
+            var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco
+            && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                .ToListAsync();
             glsetups.ForEach(g =>
             {
                 g.NormalBal = g?.NormalBal ?? "";
@@ -609,11 +616,9 @@ namespace EasyPro.Controllers
                 }
             });
 
-            var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco
-            && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
-                .ToListAsync();
             gltransactions.ForEach(t =>
             {
+                t.TransDescript = t.TransDescript == "Sales" ? t.Source : t.TransDescript;
                 var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == t.DrAccNo);
                 if (debtorssAcc != null)
                 {
@@ -670,8 +675,9 @@ namespace EasyPro.Controllers
                 && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
                     .ToListAsync();
 
-                List<Glsetup> glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Balance Sheet").ToListAsync();
-                glsetups.ForEach(s =>
+                var glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco).ToListAsync();
+                var balanceSheetAccs = glsetups.Where(g => g.GlAccType == "Balance Sheet").ToList();
+                balanceSheetAccs.ForEach(s =>
                 {
                     s.NormalBal = s?.NormalBal ?? "";
                     s.OpeningBal = s?.OpeningBal ?? 0;
@@ -708,7 +714,9 @@ namespace EasyPro.Controllers
                 var liabilities = journalListings.Where(a => a.Group == "LIABILITIES").ToList();
                 var capitals = journalListings.Where(a => a.Group == "CAPITAL").ToList();
 
-                journalListings = await GetIncomeStatement(filter);
+                var incomeStatementAccs = glsetups.Where(g => g.GlAccType == "Income Statement"
+                && !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")).ToList();
+                journalListings = await GetIncomeStatement(filter, incomeStatementAccs);
                 var income = journalListings.Where(a => a.Group == "INCOME").ToList();
                 var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
                 var totalIncome = income.Sum(i => i.Cr) - income.Sum(i => i.Dr);

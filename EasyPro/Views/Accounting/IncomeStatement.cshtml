@@ -283,6 +283,7 @@
             $(".chzn-select").chosen();
             let incomes = new Array();
             let expenses = new Array();
+            let totalKgs = 0;
 
             $('#btn_general_tatement').on('click', function () {
                 buildIncomeStatement();
@@ -319,6 +320,7 @@
                         success: function (response) {
                             incomes = response.income ? response.income : new Array();
                             expenses = response.expenses ? response.expenses : new Array();
+                            totalKgs = response.totalKgs ? response.totalKgs : 0;
                             populateDetailsTable();
                         },
                         failure: function (response) {
@@ -340,6 +342,7 @@
                 </tr>`);
 
                 incomes.forEach(j => {
+                    debugger
                     j.TransDate = j.TransDate ? j.TransDate : "";
                     itemTableRows.push(`<tr>
                         <td>${j.TransDate}</td>
@@ -401,6 +404,17 @@
                 itemTableRows.push(`<tr>
                     <td colspan="5"><h3>Profit/Loss</h3></td>
                     <td>${profit}</td>
+                </tr>`);
+
+                itemTableRows.push(`<tr>
+                    <td colspan="5"><h3>TOTAL LITRES</h3></td>
+                    <td>${totalKgs}</td>
+                </tr>`);
+
+                var rate = profit / totalKgs;
+                itemTableRows.push(`<tr>
+                    <td colspan="5"><h3>MAXIMUM POSSIBLE RATE</h3></td>
+                    <td>${rate.toFixed(2)}</td>
                 </tr>`);
 
                 $('#details').html(itemTableRows);
