@@ -77,7 +77,7 @@ namespace EasyPro.Controllers
                 var endDate1 = startDate1.AddMonths(1).AddDays(-1);
 
                 IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
-                var activesuppliers = await productIntakes.Where(m => m.SaccoCode == sacco && m.Description == "Intake" && m.TransDate >= startDate1
+                var activesuppliers = await productIntakes.Where(m => m.SaccoCode == sacco && m.TransactionType != TransactionType.Deduction && m.TransDate >= startDate1
                 && m.TransDate <= endDate1).ToListAsync();
                 double totalActivesuppliers = activesuppliers.Select(b => b.Sno).Distinct().Count();
                 double inActiveSuppliers = totalSuppliers - totalActivesuppliers;
@@ -170,16 +170,22 @@ namespace EasyPro.Controllers
 
                 var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
                 ViewBag.transporters = transporters.Count();
-                //ViewBag.transporters = 0;
 
-                //ViewBag.grossItake = intakes.Sum(i => i.CR);
-                //ViewBag.advance = intakes.Where(i => i.ProductType.ToLower().Contains("advance")).Sum(i => i.DR);
-                //ViewBag.transport = intakes.Where(i => i.ProductType.ToLower().Contains("transport")).Sum(i => i.DR);
-                //ViewBag.agrovet = intakes.Where(i => i.ProductType.ToLower().Contains("agrovet")).Sum(i => i.DR);
-                //ViewBag.bonus = intakes.Where(i => i.ProductType.ToLower().Contains("bonus")).Sum(i => i.DR);
-                //ViewBag.shares = intakes.Where(i => i.ProductType.ToLower().Contains("shares")).Sum(i => i.DR);
+                var totalsales = _context.DShares.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+                ViewBag.totalsales = 0;
 
-                ViewBag.grossItake = 0;
+                var totalproduce = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.TransactionType != TransactionType.Deduction && s.TransDate>= startDate1 && s.TransDate<= endDate1).Sum(n => n.Qsupplied);
+                ViewBag.totalproduce = totalproduce;
+            //ViewBag.transporters = 0;
+
+            //ViewBag.grossItake = intakes.Sum(i => i.CR);
+            //ViewBag.advance = intakes.Where(i => i.ProductType.ToLower().Contains("advance")).Sum(i => i.DR);
+            //ViewBag.transport = intakes.Where(i => i.ProductType.ToLower().Contains("transport")).Sum(i => i.DR);
+            //ViewBag.agrovet = intakes.Where(i => i.ProductType.ToLower().Contains("agrovet")).Sum(i => i.DR);
+            //ViewBag.bonus = intakes.Where(i => i.ProductType.ToLower().Contains("bonus")).Sum(i => i.DR);
+            //ViewBag.shares = intakes.Where(i => i.ProductType.ToLower().Contains("shares")).Sum(i => i.DR);
+
+            ViewBag.grossItake = 0;
                 ViewBag.advance = 0;
                 ViewBag.transport = 0;
                 ViewBag.agrovet = 0;

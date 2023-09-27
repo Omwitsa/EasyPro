@@ -88,28 +88,49 @@ namespace EasyPro.Controllers
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
             var intakes = _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Correction && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                && i.TransDate == date);
+                && i.TransDate == date).OrderByDescending(l => l.Auditdatetime).ToList();
+
+            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+
             if (user.AccessLevel == AccessLevel.Branch)
-                intakes = intakes.Where(i => i.Branch == saccoBranch);
+                intakes = intakes.Where(i => i.Branch == saccoBranch).ToList();
             //intakes=intakes.OrderByDescending(l => l.Auditdatetime).ToList();
-            return Json(intakes.OrderByDescending(l => l.Auditdatetime).ToList());
+            ViewBag.intakes = TodaysBranchkg;
+            return Json(new {
+                intakes,
+                TodaysBranchkg
+            });
         }
         [HttpGet]
         public JsonResult listIntake(DateTime date)
         {
             utilities.SetUpPrivileges(this);
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var intakes = _context.ProductIntake
                 .Where(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-                && i.TransDate == date);
+                && i.TransDate == date).OrderByDescending(l => l.Auditdatetime).ToList();
+            //NewMethod(date);
             if (user.AccessLevel == AccessLevel.Branch)
-                intakes = intakes.Where(i => i.Branch == saccoBranch);
+                intakes = intakes.Where(i => i.Branch == saccoBranch).ToList();
             //intakes=intakes.OrderByDescending(l => l.Auditdatetime).ToList();
-            return Json(intakes.OrderByDescending(l => l.Auditdatetime).ToList());
+            //return Json(intakes.OrderByDescending(l => l.Auditdatetime).ToList());
+
+            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+            ViewBag.intakes = TodaysBranchkg;
+
+            return Json(new
+            {
+                intakes,
+                TodaysBranchkg
+            });
         }
+
+      
+
         public async Task<IActionResult> TDeductionList()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
