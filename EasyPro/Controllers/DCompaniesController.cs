@@ -112,6 +112,75 @@ namespace EasyPro.Controllers
             }
         }
 
+        public IActionResult SocietyStandingOrder()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            utilities.SetUpPrivileges(this);
+            return View(_context.SocietyStandingOrder.Where(o => o.SaccoCode == sacco).ToList());
+        }
+
+        public IActionResult CreateSctyStandingOrder()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            utilities.SetUpPrivileges(this);
+            var glsetups = _context.Glsetups.Where(g => g.saccocode == sacco).ToList();
+            ViewBag.glsetups = new SelectList(glsetups, "AccNo", "GlAccName");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateSctyStandingOrder([Bind("Id,Date,Name,GlAcc,ContraAcc,HasRate,Amount,SaccoCode,AuditId")] SocietyStandingOrder standingOrder)
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            utilities.SetUpPrivileges(this);
+            if (ModelState.IsValid)
+            {
+                if (string.IsNullOrEmpty(standingOrder.Name))
+                {
+                    _notyf.Error("Sorry, Kindly provide name");
+                    return View(standingOrder);
+                }
+                if (string.IsNullOrEmpty(standingOrder.GlAcc))
+                {
+                    _notyf.Error("Sorry, Kindly provide Gl Account");
+                    return View(standingOrder);
+                }
+                if (string.IsNullOrEmpty(standingOrder.ContraAcc))
+                {
+                    _notyf.Error("Sorry, Kindly provide Contra Account");
+                    return View(standingOrder);
+                }
+                if (standingOrder.Amount < 0.01M)
+                {
+                    _notyf.Error("Sorry, Kindly provide amount");
+                    return View(standingOrder);
+                }
+                if (_context.SocietyStandingOrder.Any(o => o.Name.ToUpper().Equals(standingOrder.Name.ToUpper())))
+                {
+                    _notyf.Error("Sorry, Standing order already exist");
+                    return View(standingOrder);
+                }
+
+                standingOrder.AuditId = loggedInUser;
+                standingOrder.SaccoCode = sacco;
+                standingOrder.Date = DateTime.Today;
+                _context.Add(standingOrder);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(SocietyStandingOrder));
+            }
+            return View(standingOrder);
+        }
+
         // GET: DCompanies/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {

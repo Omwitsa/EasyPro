@@ -1,0 +1,87 @@
+﻿@model EasyPro.Models.SocietyStandingOrder
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="cmp-tb-hd">
+                <h2>Create</h2>
+            </div>
+            <hr />
+            <form asp-action="CreateSctyStandingOrder">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" autocomplete="off" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                         <div class="form-group">
+                            <label asp-for="Amount" class="control-label"></label>
+                            <input asp-for="Amount" autocomplete="off" class="form-control" />
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                       <div class="form-group">
+                            <label asp-for="GlAcc" class="control-label"></label>
+                            <select class="chzn-select form-control" asp-for="GlAcc" asp-items="@ViewBag.glsetups">
+                                <option value=""></option>
+                            </select>
+                            <span asp-validation-for="GlAcc" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="ContraAcc" class="control-label"></label>
+                            <select class="chzn-select form-control" asp-for="ContraAcc" asp-items="@ViewBag.glsetups">
+                                <option value=""></option>
+                            </select>
+                            <span asp-validation-for="ContraAcc" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="HasRate" class="control-label">
+                                <input asp-for="HasRate" type="checkbox" />@Html.DisplayNameFor(model => model.HasRate)
+                                <span asp-validation-for="HasRate" class="text-danger"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="SocietyStandingOrder" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+<script type="text/javascript">
+    $(function (){
+        $(".chzn-select").chosen();
+    });
+</script>
+}

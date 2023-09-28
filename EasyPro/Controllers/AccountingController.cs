@@ -1,12 +1,16 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Wordprocessing;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
+using EasyPro.ViewModels.TransportersVM;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
+using Stripe;
+using Stripe.FinancialConnections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -562,7 +566,8 @@ namespace EasyPro.Controllers
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement"
-                && !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")).ToListAsync();
+                && !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")
+                && !g.GlAccName.ToUpper().Equals("STORE")).ToListAsync();
                 var journalListings = await GetIncomeStatement(filter, glsetups);
                 var income = journalListings.Where(a => a.Group == "INCOME").ToList();
                 var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
@@ -651,6 +656,109 @@ namespace EasyPro.Controllers
                     });
                 }
             });
+
+            var balancings = await _context.DispatchBalancing.Where(d => d.Saccocode == sacco && d.Date >= filter.FromDate && d.Date <= filter.ToDate).ToListAsync();
+
+            var standingOrders = await _context.SocietyStandingOrder.Where(o => o.SaccoCode == sacco).ToListAsync();
+            standingOrders.ForEach(t =>
+            {
+                 
+                if (t.HasRate)
+                {
+                    var balancing = balancings.Where(b => b.Date == filter.FromDate).FirstOrDefault();
+                    var totalKgs = balancings.Sum(b => b.Intake) + balancing.BF;
+                    t.Amount = (decimal)(t.Amount * totalKgs);
+                }
+                var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == t.GlAcc);
+                if (debtorssAcc != null)
+                {
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = t.GlAcc,
+                        TransDate = filter.ToDate,
+                        AccName = debtorssAcc.GlAccName,
+                        Dr = t.Amount,
+                        DocumentNo = "",
+                        Cr = 0,
+                        TransDescript = t.Name,
+                        Group = debtorssAcc.GlAccMainGroup,
+                    });
+                }
+
+                var creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == t.ContraAcc);
+                if (creditorsAcc != null)
+                {
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = t.ContraAcc,
+                        TransDate = filter.ToDate,
+                        AccName = creditorsAcc.GlAccName,
+                        Cr = t.Amount,
+                        DocumentNo = "",
+                        Dr = 0,
+                        TransDescript = t.Name,
+                        Group = creditorsAcc.GlAccMainGroup,
+                    });
+                }
+            });
+
+            if(StrValues.Slopes == sacco)
+            {
+                var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == sacco);
+                var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate).ToListAsync();
+                var transporters = await _context.DTransporters.Where(t => t.ParentT == sacco).ToListAsync();
+                var days = (filter.ToDate - filter.FromDate).TotalDays + 1;
+                decimal totalAmount = 0;
+                foreach (var transporter in transporters)
+                {
+                    var totalSupplied = intakes.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper())).Sum(s => s.Qsupplied);
+                    var averageSupplied = totalSupplied / (decimal)days;
+                    transporter.TraderRate = transporter?.TraderRate ?? 0;
+                    decimal amount = totalSupplied * (decimal)transporter.Rate;
+                    decimal subsidy = 0;
+                    // Assigning trader rate means the transporter is a trader
+                    if (transporter.TraderRate > 0)
+                    {
+                        amount = totalSupplied * (decimal)transporter.TraderRate;
+                        if (price != null && averageSupplied >= price.SubsidyQty)
+                            subsidy += totalSupplied * (decimal)transporter.Rate;
+                    }
+                    amount += subsidy;
+                    totalAmount += amount;
+                }
+
+                var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == price.DrAccNo);
+                if (debtorssAcc != null)
+                {
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = debtorssAcc.AccNo,
+                        TransDate = filter.ToDate,
+                        AccName = debtorssAcc.GlAccName,
+                        Dr = totalAmount,
+                        DocumentNo = "",
+                        Cr = 0,
+                        TransDescript = "Transport",
+                        Group = debtorssAcc.GlAccMainGroup,
+                    });
+                }
+
+                var creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == price.CrAccNo);
+                if (creditorsAcc != null)
+                {
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = debtorssAcc.AccNo,
+                        TransDate = filter.ToDate,
+                        AccName = creditorsAcc.GlAccName,
+                        Cr = totalAmount,
+                        DocumentNo = "",
+                        Dr = 0,
+                        TransDescript = "Transport",
+                        Group = creditorsAcc.GlAccMainGroup,
+                    });
+                }
+            }
 
             return journalListings;
         }

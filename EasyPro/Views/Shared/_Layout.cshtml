@@ -970,6 +970,12 @@
                                         <a asp-controller="Usergroups" asp-action="Index">UserGroups</a>
                                     </li>
                                 }
+                                @if (ViewBag.SetOrganization)
+                                {
+                                    <li>
+                                        <a asp-controller="DCompanies" asp-action="SocietyStandingOrder">Society Standing Order</a>
+                                    </li>
+                                }
                                 @*@if (ViewBag.SetCounties)
                                 {
                                     <li>
@@ -1158,8 +1164,8 @@
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="footer-copy-right">
                         <p>
-                            Copyright © 2022
-                            . All rights reserved by <a href="https://amtechafrica.com/">Amtech Softwares</a>.
+                            &copy; @DateTime.Now.Year
+                            . All rights reserved by <a href="https://amtechafrica.com/">AmTech Technologies Ltd</a>.
                         </p>
                     </div>
                 </div>
