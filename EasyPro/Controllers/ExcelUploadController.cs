@@ -435,26 +435,26 @@ namespace EasyPro.Controllers
                 });
 
 
-                if (CigName == null)
-                {
-                    _notyf.Error("Sorry, Please provide CIG Name For the Society");
-                    GetInitialValues();
-                    return RedirectToAction(nameof(SuppliersImportIndex));
-                }
+                //if (CigName == null)
+                //{
+                //    _notyf.Error("Sorry, Please provide CIG Name For the Society");
+                //    GetInitialValues();
+                //    return RedirectToAction(nameof(SuppliersImportIndex));
+                //}
 
-                if (Checkyear == "null")
-                {
-                    _notyf.Error("Sorry, Please provide Check DOB Should be Above 18 Years");
-                    GetInitialValues();
-                    return RedirectToAction(nameof(SuppliersImportIndex));
-                }
+                //if (Checkyear == "null")
+                //{
+                //    _notyf.Error("Sorry, Please provide Check DOB Should be Above 18 Years");
+                //    GetInitialValues();
+                //    return RedirectToAction(nameof(SuppliersImportIndex));
+                //}
 
-                if (ValueChain == null)
-                {
-                    _notyf.Error("Sorry, Please provide Value Chain For the Society");
-                    GetInitialValues();
-                    return RedirectToAction(nameof(SuppliersImportIndex));
-                }
+                //if (ValueChain == null)
+                //{
+                //    _notyf.Error("Sorry, Please provide Value Chain For the Society");
+                //    GetInitialValues();
+                //    return RedirectToAction(nameof(SuppliersImportIndex));
+                //}
 
                 if (scodess == null)
                 {

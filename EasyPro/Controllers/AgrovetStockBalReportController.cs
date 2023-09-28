@@ -54,12 +54,13 @@ namespace EasyPro.Controllers
 
             var products = new List<AgProductVM>();
 
-            var agProductsReceive = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1 && i.TDate <= date2).ToList();
+            //var agProductsReceive = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1 && i.TDate <= date2).ToList();
+            var agProductsReceive = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 agProductsReceive = agProductsReceive.Where(i => i.Branch == saccobranch).ToList();
 
-            agProductsReceive = agProductsReceive.OrderByDescending(i => i.TDate).ToList();
+            agProductsReceive = agProductsReceive.OrderByDescending(i => i.PCode).ToList();
 
             var Branchlist = agProductsReceive.GroupBy(m => m.Branch).ToList();
             Branchlist.ForEach(b => {
@@ -83,11 +84,11 @@ namespace EasyPro.Controllers
                 decimal correctbal = (decimal)receiptthatmonth + open;
 
                 decimal bal =(correctbal - (decimal)agProductsales);
-                decimal BPrice = (decimal)productNow.Bprice;
+                decimal BPrice = (decimal)productNow.Pprice;
                 decimal SPrice = (decimal)productNow.Sprice;
 
-                if ((decimal)productNow.Bprice < 0)
-                    BPrice = (decimal)productNow.Bprice * -1;
+                if ((decimal)productNow.Pprice < 0)
+                    BPrice = (decimal)productNow.Pprice * -1;
 
                 if ((decimal)productNow.Sprice < 0)
                     SPrice = (decimal)productNow.Sprice * -1;
@@ -95,7 +96,7 @@ namespace EasyPro.Controllers
                 products.Add(new AgProductVM
                 {
                     Code= productNow.PCode,
-                    Name= productNow.Remarks,
+                    Name= productNow.PName,
                     Openning = open,
                     StoreBal= correctbal,
                     Sales = (decimal)agProductsales,

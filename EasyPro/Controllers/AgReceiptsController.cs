@@ -49,6 +49,22 @@ namespace EasyPro.Controllers
 
             return View(await receipts.OrderByDescending(s => s.AuditDate).ToListAsync());
         }
+        public async Task<IActionResult> PartialIndex()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            var receipts = _context.ProductIntake
+                .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.TransDate == DateTime.Today && i.Remarks.Contains("Partial Payment"));
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                receipts = receipts.Where(r => r.Branch == saccobranch);
+
+            return View(await receipts.OrderByDescending(s => s.TransDate).ToListAsync());
+        }
         private async Task GetInitialValuesAsync()
         {
             DateTime startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -252,9 +268,71 @@ namespace EasyPro.Controllers
 
                 var receipts = _context.AgReceipts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
-                .OrderByDescending(u => u.RNo);
+                .OrderByDescending(u => u.RNo).ToList();
+
+                if (StrValues.Slopes == sacco)
+                    receipts = receipts.OrderByDescending(m => m.RId).ToList();
+
                 var receipt1 = receipts.FirstOrDefault();
                 double rno = Convert.ToInt32(receipt1.RNo);
+                return Json(new
+                {
+                    rno = (rno + 1),
+                    receiptDetails
+                });
+            }
+            catch (Exception e)
+            {
+                return Json("");
+            }
+        }
+
+        //PRODUCT SALES
+        [HttpPost]
+        public async Task<JsonResult> SavePartial([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool isCash, bool sms, bool print, decimal net)
+        {
+            try
+            {
+                DateTime Now = DateTime.Today;
+                DateTime startD = new DateTime(Now.Year, Now.Month, 1);
+                DateTime enDate = startD.AddMonths(1).AddDays(-1);
+
+                var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+
+                var receiptDetails = await GetReceiptDetails(intakes);
+                //PrintP(intakes, RNo);
+                var agReceipt = _context.AgProducts.FirstOrDefault(n => n.PCode == RNo && n.saccocode == sacco && n.Branch == saccobranch);
+                _context.ProductIntake.Add(new ProductIntake {
+                    Sno = RNo,
+                    TransDate = DateTime.Today,
+                    TransTime = DateTime.Now.TimeOfDay,
+                    ProductType = "AGROVET",
+                    Qsupplied = 0,
+                    Ppu = 0,
+                    CR= 1,
+                    DR=0,
+                    Balance=0,
+                    Paid =true,
+                    Description = RNo,
+                    Remarks = "Partial Payment of :" +  RNo +"ksh" ,
+                    TransactionType = TransactionType.Deduction,
+                    AuditId = loggedInUser,
+                    Auditdatetime = DateTime.Now,
+                    Branch = saccobranch,
+                    SaccoCode = sacco,
+                    DrAccNo = agReceipt.Draccno,
+                    CrAccNo = agReceipt.Craccno,
+                    Zone = ""                    
+                });
+
+                _context.SaveChanges();
+                _notyf.Success("Saved successfully");
+
+
+                var receipt1 = RNo;
+                double rno = Convert.ToInt32(receipt1);
                 return Json(new
                 {
                     rno = (rno + 1),
@@ -618,7 +696,38 @@ namespace EasyPro.Controllers
 
             return Json(todaysIntake);
         }
+        
+        public async Task<IActionResult> CreatePartialPayAsync()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            await GetInitialValuesAsync();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            //var receipts = await _context.AgReceipts
+            //    .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+            //    .OrderByDescending(u => u.RNo).ToListAsync();
 
+            //if (StrValues.Slopes == sacco)
+            //    receipts = receipts.OrderByDescending(m => m.RId).ToList();
+
+            //var receiptNo = receipts.FirstOrDefault()?.RNo ?? "0";
+            //double num = Convert.ToInt32(receiptNo);
+            //var receipt = new AgReceipt
+            //{
+            //    RNo = "" + (num + 1),
+            //    Qua = 0,
+            //    Amount = 0,
+            //    Sprice = 0,
+            //    Bprice = 0,
+            //    SBal = 0,
+            //    TDate = DateTime.Today,
+            //};
+
+            return View();
+        }
         // GET: AgReceipts/Create
         public async Task<IActionResult> CreateAsync()
         {
@@ -632,6 +741,10 @@ namespace EasyPro.Controllers
             var receipts = await _context.AgReceipts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
                 .OrderByDescending(u => u.RNo).ToListAsync();
+
+            if (StrValues.Slopes == sacco)
+                receipts = receipts.OrderByDescending(m => m.RId).ToList();
+
             var receiptNo = receipts.FirstOrDefault()?.RNo ?? "0";
             double num = Convert.ToInt32(receiptNo);
             var receipt = new AgReceipt
@@ -706,6 +819,7 @@ namespace EasyPro.Controllers
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
                 .OrderByDescending(u => u.RNo)
                 .Select(b => b.RNo);
+
             var selectedno = count.FirstOrDefault();
             double num = Convert.ToInt32(selectedno);
 

@@ -80,11 +80,8 @@
                         <div class="table-responsive">
                             <table class="table table-hover" id="customers">
                                 <tr>
-                                    <th>Sno</th>
-                                    <th>Type</th>
                                     <th>TransDate</th>
                                     <th>Pmode</th>
-                                    <th>Period</th>
                                     <th>Amount</th>
                                     <th>Balance</th>
                                 </tr>
@@ -143,11 +140,8 @@
                     BPrice += j.Amount;
                     var dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
-                        <td>${j.Sno}</td>
-                        <td>${j.Type}</td>
                         <td>${dd1}</td>
                         <td>${j.Pmode}</td>
-                        <td>${j.Period}</td>
                         <td>${j.Amount}</td>
                         <td>${BPrice.toFixed(2)}</td>
                     </tr>`);

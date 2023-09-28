@@ -263,6 +263,8 @@ namespace EasyPro.Controllers
             {
                 product.Qin = agProduct.Qin;
                 product.OBal = agProduct.Qin + product.OBal;
+                product.Pprice = agProduct.Pprice;
+                product.Sprice = agProduct.Sprice;
             }
 
             agProduct.Approved = true;

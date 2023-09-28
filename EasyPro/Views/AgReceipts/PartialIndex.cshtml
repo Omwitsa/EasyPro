@@ -1,0 +1,119 @@
+﻿@model IEnumerable<EasyPro.Models.ProductIntake>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #4cff00;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1110px;
+        height: 200px;
+        overflow: auto;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                    <h3 class="text-danger fa-bold">Partial Store Payment</h3>
+                </div>
+                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <a asp-action="Create" class="btn btn-primary">Add New</a>
+                </div>
+            </div>
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="divScroll">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="customers">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Name
+                                    </th>
+                                    
+                                    <th>
+                                        Deduction Type
+                                    </th>
+
+                                    <th>
+                                        Date
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.CR)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Remarks)
+                                    </th>
+
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Description)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ProductType)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TransDate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.CR)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Remarks)
+                                        </td>
+                                        <td>
+                                            @*<a asp-action="Edit" asp-route-id="@item.RId">Edit</a> |
+                                                <a asp-action="Details" asp-route-id="@item.RId">Details</a> |
+                                                <a asp-action="Delete" asp-route-id="@item.RId">Delete</a>*@
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
