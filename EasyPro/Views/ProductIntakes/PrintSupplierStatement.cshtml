@@ -395,15 +395,10 @@
                     let transCode = isSlopes ? response.transporter.CertNo : response.transporter.TransCode;
                     let currentContent = `<div class="row" id="printMe">
                         <div class="col-xs-12 text-center">
-                                <h5>
-                                ${response.company.Name}</br>
-                                Adress: ${response.company.Adress}</br>
-                                Tell: ${response.company.PhoneNo}</br>
-                                Town: ${response.company.Town}</br>
-                                Branch: ${filter.branch}</br>
-                                Detailed statement for ${date}
-                                </h5>
                                 <h6>
+                                ${response.company.Name}</br>
+                                Detailed statement for ${date}
+                                </h6>
                                 *************************</br>
                                 Transporter: ${response.transporter.TransName} (${transCode})</br>
                                 *************************</br>
@@ -413,7 +408,6 @@
                                 *************************</br>
                                 Total Kgs: ${i.qnty}</br>
                                 *************************</br>
-                            </h6>
                             <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
                             **************************
                             <hr>

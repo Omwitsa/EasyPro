@@ -222,7 +222,7 @@ namespace EasyPro.Controllers
                     _context.Gltransactions.Add(new Gltransaction
                     {
                         AuditId = loggedInUser,
-                        TransDate = DateTime.Today,
+                        TransDate = dispatch.Transdate,
                         Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
                         AuditTime = DateTime.Now,
                         DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),

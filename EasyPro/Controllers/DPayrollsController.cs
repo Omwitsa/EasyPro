@@ -154,11 +154,11 @@ namespace EasyPro.Controllers
                 _context.DTransportersPayRolls.RemoveRange(transportersPayRolls);
                 _context.SaveChanges();
             }
-            IQueryable<ProductIntake> productIntakes1 = _context.ProductIntake;
-            var productIntakeslist = productIntakes1.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= period.EndDate).ToList();
+
+            var productIntakeslist = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= period.EndDate).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
                 productIntakeslist = productIntakeslist.Where(p => p.Branch == saccoBranch).ToList();
-            if (sacco != "MBURUGU DAIRY F.C.S")
+            if (sacco != StrValues.Mburugu && sacco != StrValues.Slopes)
             {
                 var transpoterIntakes = productIntakeslist.Where(i => i.Description.ToLower().Equals("transport")).ToList();
                 if (transpoterIntakes.Any())
@@ -222,23 +222,9 @@ namespace EasyPro.Controllers
                 await CalcDefaultdeductions(startDate, period.EndDate, productIntakeslist);
             }
 
-            if (sacco != "MBURUGU DAIRY F.C.S")
+            if (sacco != StrValues.Mburugu && sacco != StrValues.Slopes)
                 await ConsolidateTranspoterIntakes(startDate, period.EndDate, productIntakeslist);
 
-
-
-            //var branchNames = await _context.DBranch.Where(b => b.Bcode == sacco)
-            //    .Select(b => b.Bname.ToUpper()).ToListAsync();
-            //foreach (var branchName in branchNames)
-            //{
-            //    //update default deductions if any like bonus
-            //    if (preSet != null)
-            //        await calcDefaultdeductions(startDate, period.EndDate, sacco, branchName, loggedInUser, productIntakeslist);
-
-            //    if (sacco != "MBURUGU DAIRY F.C.S")
-            //        await ConsolidateTranspoterIntakes(startDate, period.EndDate, sacco, branchName, loggedInUser, productIntakeslist);
-
-            //}
             _context.SaveChanges();
             var dcodes = await _context.DDcodes.Where(c => c.Description.ToLower().Equals("advance") || c.Description.ToLower().Equals("transport")
                || c.Description.ToLower().Equals("agrovet") || c.Description.ToLower().Equals("bonus") || c.Description.ToLower().Equals("shares")
