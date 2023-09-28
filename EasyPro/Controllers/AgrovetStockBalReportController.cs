@@ -75,7 +75,7 @@ namespace EasyPro.Controllers
                  i.TDate <= endDate && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(d=>d.Qua);
                 decimal open = (decimal)((pro_buyy) - (pro_sell));
 
-                var receiptthatmonth = _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch
+                var receiptthatmonth = _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch && i.DateEntered >= date1
                && i.DateEntered <= date2 && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(g => g.Qin);
 
                 var agProductsales = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1 
