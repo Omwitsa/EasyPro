@@ -49,5 +49,12 @@ namespace EasyPro.ViewModels
             public decimal? Variance { get; set; }
             public decimal? Percentage { get; set; }
         }
+
+        public class StatementSummaryVm
+        {
+            public string Name { get; set; }
+            public decimal? Dr { get; set; }
+            public decimal? Cr { get; set; }
+        }
     }
 }

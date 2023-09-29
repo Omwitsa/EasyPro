@@ -41,45 +41,105 @@
                             </ul>
                             <div class="tab-content tab-custom-st">
                                 <div id="generalStatement" class="tab-pane fade in active">
-                                    <div class="tab-ctn">
-                                        <div class="normal-table-list mg-t-30">
-                                            <div class="row">
-                                                <div class="col-sm-4 col-xs-12">
-                                                    <a id="btn_general_tatement" class="btn btn-warning">Show</a>
-                                                </div>
-                                                <div class="col-sm-4 col-xs-12">
-                                                    <a id="excel_report" class="btn btn-success">Export Excel</a>
-                                                </div>
-                                            </div>
+                                    <div class="widget-tabs-int">
+                                        <div class="widget-tabs-list">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active"><a data-toggle="tab" href="#generalStatSummary">Summary</a></li>
+                                                <li><a data-toggle="tab" href="#generalStatDetailed">Detailed</a></li>
+                                            </ul>
 
-                                            <div class="bsc-tbl-hvr table-border-style">
-                                                <div class="table-responsive">
-                                                    <table class="table table-hover">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>
-                                                                    Date
-                                                                </th>
-                                                                <th>
-                                                                    Gl Acc
-                                                                </th>
-                                                                <th>
-                                                                    Acc Name
-                                                                </th>
-                                                                <th>
-                                                                    Description
-                                                                </th>
-                                                                <th>
-                                                                    Dr
-                                                                </th>
-                                                                <th>
-                                                                    Cr
-                                                                </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="details">
-                                                        </tbody>
-                                                    </table>
+                                            <div class="tab-content tab-custom-st">
+                                                <div id="generalStatSummary" class="tab-pane fade in active">
+                                                    <div class="tab-ctn">
+                                                        <div class="normal-table-list mg-t-30">
+                                                            <div class="row">
+                                                                <div class="col-sm-4 col-xs-12">
+                                                                    <a id="btn_gen_stat_summary" class="btn btn-warning">Show</a>
+                                                                </div>
+                                                                <div class="col-sm-4 col-xs-12">
+                                                                    <a id="excel_rep_gen_summary" class="btn btn-success">Export Excel</a>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="bsc-tbl-hvr table-border-style">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-hover">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>
+                                                                                    Name
+                                                                                </th>
+                                                                                <th>
+                                                                                    Dr
+                                                                                </th>
+                                                                                <th>
+                                                                                    Cr
+                                                                                </th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody id="gen_rep_summary">
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="generalStatDetailed" class="tab-pane fade">
+                                                    <div class="tab-ctn">
+                                                        <div class="normal-table-list mg-t-30">
+                                                            <div class="row">
+                                                                <div class="col-sm-4 col-xs-12">
+                                                                    <a id="btn_general_detailed" class="btn btn-warning">Show</a>
+                                                                </div>
+                                                                <div class="col-sm-4 col-xs-12">
+                                                                    <a id="excel_general_detailed" class="btn btn-success">Export Excel</a>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="bsc-tbl-hvr table-border-style">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-hover">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>
+                                                                                    Date
+                                                                                </th>
+                                                                                <th>
+                                                                                    Gl Acc
+                                                                                </th>
+                                                                                <th>
+                                                                                    Acc Name
+                                                                                </th>
+                                                                                <th>
+                                                                                    Description
+                                                                                </th>
+                                                                                <th>
+                                                                                    Dr
+                                                                                </th>
+                                                                                <th>
+                                                                                    Cr
+                                                                                </th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody id="general_detailed">
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                                
+                                                                <div class="row">
+                                                                    <div class="col-sm-4 col-xs-12">
+                                                                    </div>
+                                                                    <div class="col-sm-4 col-xs-12">
+                                                                        <label class="control-label">Total SPrice</label>
+                                                                        <input value="0" id="Tselling" class="form-control" readonly />
+                                                                    </div>
+                                                                    <div class="col-sm-4 col-xs-12">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -285,8 +345,11 @@
             let expenses = new Array();
             let totalKgs = 0;
 
-            $('#btn_general_tatement').on('click', function () {
-                buildIncomeStatement();
+            $('#btn_general_detailed').on('click', function () {
+                buildGeneralDetailedStat();
+            });
+            $('#btn_gen_stat_summary').on('click', function () {
+                buildGeneralSummaryStat();
             });
 
             //$('#excel_summery').on('click', function () {
@@ -302,8 +365,8 @@
             //$('#toDate').on('change', function () {
             //    buildIncomeStatement();
             //});
-            
-            function buildIncomeStatement() {
+
+            function buildGeneralDetailedStat() {
                 var fromDate = $("#fromDate").val();
                 var toDate = $("#toDate").val();
                 var filter = {
@@ -321,7 +384,7 @@
                             incomes = response.income ? response.income : new Array();
                             expenses = response.expenses ? response.expenses : new Array();
                             totalKgs = response.totalKgs ? response.totalKgs : 0;
-                            populateDetailsTable();
+                            populateGeneralDetailsTable();
                         },
                         failure: function (response) {
                         }
@@ -331,7 +394,37 @@
                 }
             }
 
-            function populateDetailsTable() {
+            function buildGeneralSummaryStat() {
+                var fromDate = $("#fromDate").val();
+                var toDate = $("#toDate").val();
+                var filter = {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+
+                if (fromDate && toDate) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "incomeStatementSummary",
+                        contentType: 'application/json',
+                        data: JSON.stringify(filter),
+                        success: function (response) {
+                            incomes = response.income ? response.income : new Array();
+                            expenses = response.expenses ? response.expenses : new Array();
+                            totalKgs = response.totalKgs ? response.totalKgs : 0;
+                            populateGenaralSummaryTable();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            }
+
+            //btn_gen_stat_summary, excel_rep_gen_summary, gen_rep_summary
+            // btn_general_detailed, excel_general_detailed, general_detailed
+            function populateGeneralDetailsTable() {
                 let itemTableRows = new Array();
                 var income = 0;
                 var expense = 0;
@@ -417,7 +510,87 @@
                     <td>${rate.toFixed(2)}</td>
                 </tr>`);
 
-                $('#details').html(itemTableRows);
+                $('#general_detailed').html(itemTableRows);
+            }
+
+            function populateGenaralSummaryTable() {
+                let itemTableRows = new Array();
+                var income = 0;
+                var expense = 0;
+                var dr = 0;
+                var cr = 0;
+                itemTableRows.push(`<tr>
+                    <td colspan="6"><h3>Income</h3></td>
+                </tr>`);
+                incomes.forEach(j => {
+                    itemTableRows.push(`<tr>
+                        <td>${j.Name}</td>
+                        <td>${j.Dr}</td>
+                        <td>${j.Cr}</td>
+                    </tr>`);
+                    dr += j.Dr;
+                    cr += j.Cr;
+                });
+
+                itemTableRows.push(`<tr>
+                    <td colspan="4"><h3></h3></td>
+                    <td>${dr}</td>
+                    <td>${cr}</td>
+                </tr>`);
+
+                income = income + (cr - dr);
+                itemTableRows.push(`<tr>
+                    <td colspan="5"><h3>Total Income</h3></td>
+                    <td>${income}</td>
+                </tr>`);
+
+                dr = 0;
+                cr = 0;
+                itemTableRows.push(`<tr>
+                    <td colspan="6"><h3>Expense</h3></td>
+                </tr>`);
+                debugger
+                expenses.forEach(j => {
+                    debugger
+                    itemTableRows.push(`<tr>
+                        <td>${j.Name}</td>
+                        <td>${j.Dr}</td>
+                        <td>${j.Cr}</td>
+                    </tr>`);
+                    dr += j.Dr;
+                    cr += j.Cr;
+                });
+
+                itemTableRows.push(`<tr>
+                    <td colspan="4"><h3></h3></td>
+                    <td>${dr}</td>
+                    <td>${cr}</td>
+                </tr>`);
+
+                expense = expense + (dr - cr);
+                itemTableRows.push(`<tr>
+                    <td colspan="5"><h3>Total Expenses</h3></td>
+                    <td>${expense}</td>
+                </tr>`);
+
+                var profit = income - expense;
+                itemTableRows.push(`<tr>
+                    <td colspan="5"><h3>Profit/Loss</h3></td>
+                    <td>${profit}</td>
+                </tr>`);
+
+                itemTableRows.push(`<tr>
+                    <td colspan="5"><h3>TOTAL LITRES</h3></td>
+                    <td>${totalKgs}</td>
+                </tr>`);
+
+                var rate = profit / totalKgs;
+                itemTableRows.push(`<tr>
+                    <td colspan="5"><h3>MAXIMUM POSSIBLE RATE</h3></td>
+                    <td>${rate.toFixed(2)}</td>
+                </tr>`);
+
+                $('#gen_rep_summary').html(itemTableRows);
             }
         });
     </script>

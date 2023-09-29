@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
+using NPOI.SS.UserModel;
 using Stripe;
 using Stripe.FinancialConnections;
 using System;
@@ -572,6 +573,56 @@ namespace EasyPro.Controllers
                 var income = journalListings.Where(a => a.Group == "INCOME").ToList();
                 var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
                 var totalKgs = await _context.ProductIntake.Where(i => ((i.Description == "Intake" || i.Description == "Correction")) 
+                && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate && i.SaccoCode == sacco)
+                    .SumAsync(i => i.Qsupplied);
+                return Json(new
+                {
+                    income,
+                    expenses,
+                    totalKgs
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json("");
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> IncomeStatementSummary([FromBody] JournalFilter filter)
+        {
+            try
+            {
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement"
+                && !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")
+                && !g.GlAccName.ToUpper().Equals("STORE")).ToListAsync();
+                var journalListings = await GetIncomeStatement(filter, glsetups);
+                var incomes = journalListings.Where(a => a.Group == "INCOME").ToList().GroupBy(a => a.TransDescript).ToList();
+                var income = new List<StatementSummaryVm>();
+                incomes.ForEach(i =>
+                {
+                    income.Add(new StatementSummaryVm
+                    {
+                        Name = i.Key,
+                        Dr = i.Sum(o => o.Dr),
+                        Cr = i.Sum(o => o.Cr),
+                    });
+                });
+
+
+                var expense = journalListings.Where(a => a.Group == "EXPENSES").ToList().GroupBy(a => a.AccName).ToList();
+                var expenses = new List<StatementSummaryVm>();
+                expense.ForEach(e =>
+                {
+                    expenses.Add(new StatementSummaryVm
+                    {
+                        Name = e.Key,
+                        Dr = e.Sum(o => o.Dr),
+                        Cr = e.Sum(o => o.Cr),
+                    });
+                });
+                var totalKgs = await _context.ProductIntake.Where(i => ((i.Description == "Intake" || i.Description == "Correction"))
                 && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate && i.SaccoCode == sacco)
                     .SumAsync(i => i.Qsupplied);
                 return Json(new
