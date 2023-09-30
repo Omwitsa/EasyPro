@@ -445,8 +445,8 @@
                         <td>${j.GlAcc}</td>
                         <td>${j.AccName}</td>
                         <td>${j.TransDescript}</td>
-                        <td>${j.Dr}</td>
-                        <td>${j.Cr}</td>
+                        <td>${j.Dr.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                        <td>${j.Cr.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                     </tr>`);
                     dr += j.Dr;
                     cr += j.Cr;
@@ -454,14 +454,14 @@
 
                 itemTableRows.push(`<tr>
                     <td colspan="4"><h3></h3></td>
-                    <td>${dr}</td>
-                    <td>${cr}</td>
+                    <td>${dr.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                    <td>${cr.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 income = income + (cr - dr);
                 itemTableRows.push(`<tr>
                     <td colspan="5"><h3>Total Income</h3></td>
-                    <td>${income}</td>
+                    <td>${income.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 dr = 0;
@@ -478,8 +478,8 @@
                         <td>${j.GlAcc}</td>
                         <td>${j.AccName}</td>
                         <td>${j.TransDescript}</td>
-                        <td>${j.Dr}</td>
-                        <td>${j.Cr}</td>
+                        <td>${j.Dr.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                        <td>${j.Cr.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                     </tr>`);
                     dr += j.Dr;
                     cr += j.Cr;
@@ -487,31 +487,31 @@
 
                 itemTableRows.push(`<tr>
                     <td colspan="4"><h3></h3></td>
-                    <td>${dr}</td>
-                    <td>${cr}</td>
+                    <td>${dr.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                    <td>${cr.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 expense = expense + (dr - cr);
                 itemTableRows.push(`<tr>
                     <td colspan="5"><h3>Total Expenses</h3></td>
-                    <td>${expense}</td>
+                    <td>${expense.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 var profit = income - expense;
                 itemTableRows.push(`<tr>
                     <td colspan="5"><h3>Profit/Loss</h3></td>
-                    <td>${profit}</td>
+                    <td>${profit.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 itemTableRows.push(`<tr>
                     <td colspan="5"><h3>TOTAL LITRES</h3></td>
-                    <td>${totalKgs}</td>
+                    <td>${totalKgs.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 var rate = profit / totalKgs;
                 itemTableRows.push(`<tr>
                     <td colspan="5"><h3>MAXIMUM POSSIBLE RATE</h3></td>
-                    <td>${rate.toFixed(2)}</td>
+                    <td>${rate.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 $('#general_detailed').html(itemTableRows);
@@ -521,23 +521,22 @@
                 let itemTableRows = new Array();
                 var income = 0;
                 var expense = 0;
-                var amount = 0;
                 itemTableRows.push(`<tr>
                     <td colspan="4"><h3>Income</h3></td>
                 </tr>`);
                 incomes.forEach(j => {
                     itemTableRows.push(`<tr>
                         <td>${j.Name}</td>
-                        <td>${j.Quantity}</td>
-                        <td>${j.Price}</td>
-                        <td>${j.Amount}</td>
+                        <td>${j.Quantity.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                        <td>${j.Price.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                        <td>${j.Amount.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                     </tr>`);
-                    amount += j.Amount;
+                    income += j.Amount;
                 });
 
                 itemTableRows.push(`<tr>
                     <td colspan="3"><h3></h3></td>
-                    <td>${amount}</td>
+                    <td>${income.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 itemTableRows.push(`<tr>
@@ -552,36 +551,36 @@
                         itemTableRows.push(`<tr>
                             <td>${v.AccNo}</td>
                             <td colspan="2">${v.Name}</td>
-                            <td>${v.Amount}</td>
+                            <td>${v.Amount.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                         </tr>`);
                     });
                     itemTableRows.push(`<tr>
                         <td colspan="3"><h3></h3></td>
-                        <td>${j.Total}</td>
+                        <td>${j.Total.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                     </tr>`);
                     expense += j.Total;
                 });
 
                 itemTableRows.push(`<tr>
                     <td colspan="3"><h3>Total Expenses</h3></td>
-                    <td>${expense}</td>
+                    <td>${expense.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 var profit = income - expense;
                 itemTableRows.push(`<tr>
                     <td colspan="3"><h3>Profit/Loss</h3></td>
-                    <td>${profit}</td>
+                    <td>${profit.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 itemTableRows.push(`<tr>
                     <td colspan="3"><h3>TOTAL LITRES</h3></td>
-                    <td>${totalKgs}</td>
+                    <td>${totalKgs.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 var rate = profit / totalKgs;
                 itemTableRows.push(`<tr>
                     <td colspan="3"><h3>MAXIMUM POSSIBLE RATE</h3></td>
-                    <td>${rate.toFixed(2)}</td>
+                    <td>${rate.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
                 $('#gen_rep_summary').html(itemTableRows);
