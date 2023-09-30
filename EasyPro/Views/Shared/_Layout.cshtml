@@ -241,14 +241,14 @@
                                                 </li>
 
                                                 <li>
-                                                    <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
+                                                    <a asp-controller="MilkBalancing" asp-action="Index">Transporter Product Balancing</a>
                                                 </li>
 
                                                 <li>
-                                                    <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Milk Transfer</a>
+                                                    <a asp-controller="DMilkQualities" asp-action="MilktransferIndex">Product Transfer</a>
                                                 </li>
                                                 <li>
-                                                    <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Milk Control</a>
+                                                    <a asp-controller="DMilkQualities" asp-action="RejectsIndex">Branch Product Control</a>
                                                 </li>
                                             }
 
@@ -266,16 +266,16 @@
                                             @if (ViewBag.setupRole)
                                             {
                                                 <li>
-                                                    <a asp-controller="Dispatches" asp-action="Index">Dispatch</a>
+                                                    <a asp-controller="Dispatches" asp-action="Index">Product Dispatch</a>
                                                 </li>
                                                 <li>
                                                     <a asp-controller="Message" asp-action="Index">Send SMS</a>
                                                 </li>
                                                 <li>
-                                                    <a asp-controller="DMilkQualities" asp-action="MilkControll">Main Milk Control</a>
+                                                    <a asp-controller="DMilkQualities" asp-action="MilkControll">Main Product Control</a>
                                                 </li>
                                                 <li>
-                                                    <a asp-controller="DMilkQualities" asp-action="MilkBranchBalancingEnquiry">Branch Milk Enquiry</a>
+                                                    <a asp-controller="DMilkQualities" asp-action="MilkBranchBalancingEnquiry">Branch Product Enquiry</a>
                                                 </li>
                                             }
 
@@ -319,10 +319,10 @@
                                                 <a asp-controller="DPrice2" asp-action="Index">Farmers With Dif Prices</a>
                                             </li>
                                             <li>
-                                                <a asp-controller="DCompanies" asp-action="Index">Org Setup</a>
+                                                <a asp-controller="DCompanies" asp-action="Index">Organization Setup</a>
                                             </li>
                                             <li>
-                                                <a asp-controller="DBranches" asp-action="Index">Org Branch</a>
+                                                <a asp-controller="DBranches" asp-action="Index">Organization Branch</a>
                                             </li>
                                             <li>
                                                 <a asp-controller="UserAccounts" asp-action="Index">Users</a>
@@ -931,9 +931,9 @@
                                     <li>
                                         <a asp-controller="DBranchProducts" asp-action="Index">Products</a>
                                     </li>
-                                    <li>
+                                    @*<li>
                                         <a asp-controller="ValueChain" asp-action="Index">Value Chain</a>
-                                    </li>
+                                    </li>*@
                                 }
                                 @if (ViewBag.SetPrice)
                                 {
@@ -951,14 +951,14 @@
                                 @if (ViewBag.SetOrganization)
                                 {
                                     <li>
-                                        <a asp-controller="DCompanies" asp-action="Index">Org Setup</a>
+                                        <a asp-controller="DCompanies" asp-action="Index">Organization Setup</a>
                                     </li>
 
                                 }
                                 @if (ViewBag.SetOrgBranch)
                                 {
                                     <li>
-                                        <a asp-controller="DBranches" asp-action="Index">Org Branch</a>
+                                        <a asp-controller="DBranches" asp-action="Index">Organization Branch</a>
                                     </li>
                                     <li>
                                         <a asp-controller="CIGs" asp-action="Index">CIG Groups</a>
@@ -1009,7 +1009,7 @@
                                 @if (ViewBag.SetDedTypes)
                                 {
                                     <li>
-                                        <a asp-controller="DDcodes" asp-action="Index">Ded Types</a>
+                                        <a asp-controller="DDcodes" asp-action="Index">Deduction Types</a>
                                     </li>
 
                                 }
@@ -1052,7 +1052,7 @@
                                 @if (ViewBag.SetSharesCat)
                                 {
                                     <li>
-                                        <a asp-controller="SharesCategories" asp-action="Index">Shares Cat</a>
+                                        <a asp-controller="SharesCategories" asp-action="Index">Shares Category</a>
                                     </li>
                                 }
                                 @if (ViewBag.SetRoutes)
@@ -1130,8 +1130,8 @@
                                     <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
                                 </li>
                                 @*<li>
-            <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
-        </li>*@
+                                    <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
+                                </li>*@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTransportersBalReport">Transporters Balancing</a>
                                 </li>

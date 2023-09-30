@@ -61,10 +61,16 @@
                             <input id="enddate" type="date" class="form-control" />
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xs-12">
+                    <div class="col-sm-2 col-xs-12">
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <label class="control-label">-------</label>
+                            <label class="control-label">---</label>
                             <a id="showtable" class="btn btn-warning">Show</a>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <label class="control-label">--</label>
+                            <a id="excel_report" class="btn btn-success">Export Excel</a>
                         </div>
                     </div>
                     <div class="col-sm-2 col-xs-12">
@@ -78,6 +84,10 @@
                     <div class="table-responsive">
                         <div class="divScroll">
                             <table class="table table-hover" id="customers">
+                                <tr hidden><th></th><th hidden id="company"></th></tr>
+                                <tr hidden> <th></th><th><strong>STORE STOCK ANALYSIS REPORT</strong></th></tr>
+                                <tr hidden><th></th><th hidden id="sema"></th>  </tr>
+                                <tr hidden><th></th><th hidden id="user"></th>  </tr>
                                 <tr>
                                     <th>Date</th>
                                     <th>Receipt No.</th>
@@ -117,11 +127,34 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
+             $('#excel_report').on('click', function () {
+                var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = $("#firstdate").val();
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#enddate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
+                var usa = "Printed By  :" + user ;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array();
+                let itemTableRows2 = new Array();
+                itemTableRow.push(`${company}`);
+                $('#company').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema').html(itemTableRows1);
+                itemTableRows2.push(`${usa}`);
+                $('#user').html(itemTableRows2);
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `Stock Analysis Report ${date}`;
+                $('#customers').table2excel({ filename: fileName, fileext: ".xls" });
+            });
             $("#showtable").click(function () {
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
@@ -178,5 +211,5 @@
                 $('#intakes').html(itemTableRows);
             }
         });
-    </script>
+</script>
 }

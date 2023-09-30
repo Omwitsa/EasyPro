@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EasyPro.Models.AgProduct>
+﻿@model IEnumerable<EasyPro.Models.ProductIntake>
 
 @{
     ViewData["Title"] = "Index";
@@ -32,7 +32,7 @@
         }
 
     .divScroll {
-        width: 1050px;
+        width: 1110px;
         height: 200px;
         overflow: auto;
     }
@@ -42,13 +42,13 @@
         <div class="normal-table-list mg-t-30">
             <div class="row">
                 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-                    <h3 class="text-danger fa-bold">Products</h3>
+                    <h3 class="text-danger fa-bold">Partial Store Payment</h3>
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
-                    <a asp-action="UnApprovedProducts" class="btn btn-primary">UnApproved Products</a>
+
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                    <a asp-action="Create" class="btn btn-primary">Add New</a>
+                    <a asp-action="CreatePartialPayAsync" class="btn btn-primary">Add New</a>
                 </div>
             </div>
             <div class="bsc-tbl-hvr table-border-style">
@@ -58,23 +58,23 @@
                             <thead>
                                 <tr>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.PName)
+                                        Name
+                                    </th>
+                                    
+                                    <th>
+                                        Deduction Type
+                                    </th>
+
+                                    <th>
+                                        Date
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Qin)
+                                        @Html.DisplayNameFor(model => model.CR)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.DateEntered)
+                                        @Html.DisplayNameFor(model => model.Remarks)
                                     </th>
-                                    <th>
-                                        @Html.DisplayNameFor(model => model.OBal)
-                                    </th>
-                                    <th>
-                                        @Html.DisplayNameFor(model => model.Pprice)
-                                    </th>
-                                    <th>
-                                        @Html.DisplayNameFor(model => model.Sprice)
-                                    </th>
+
                                     <th></th>
                                 </tr>
                             </thead>
@@ -83,26 +83,24 @@
                                 {
                                     <tr>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.PName)
+                                            @Html.DisplayFor(modelItem => item.Description)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Qin)
+                                            @Html.DisplayFor(modelItem => item.ProductType)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.DateEntered)
+                                            @Html.DisplayFor(modelItem => item.TransDate)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.OBal)
+                                            @Html.DisplayFor(modelItem => item.CR)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Pprice)
+                                            @Html.DisplayFor(modelItem => item.Remarks)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Sprice)
-                                        </td>
-                                        <td>
-                                            <a class="btn-warning btn-success" asp-action="Edit" asp-route-id="@item.Id">TopUp Stock</a> |
-                                            @*<a class="btn-danger btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
+                                            @*<a asp-action="Edit" asp-route-id="@item.RId">Edit</a> |
+                                                <a asp-action="Details" asp-route-id="@item.RId">Details</a> |
+                                                <a asp-action="Delete" asp-route-id="@item.RId">Delete</a>*@
                                         </td>
                                     </tr>
                                 }
@@ -110,9 +108,12 @@
                         </table>
                     </div>
                 </div>
-               
+
             </div>
-            </div>
+        </div>
     </div>
 </div>
+
+
+
 

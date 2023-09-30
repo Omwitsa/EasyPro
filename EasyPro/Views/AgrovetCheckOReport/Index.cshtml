@@ -98,6 +98,10 @@
                                                 <div class="table-responsive">
                                                     <div class="divScroll">
                                                         <table class="table table-hover" id="tb_check_off_report">
+                                                            <tr hidden><th></th><th hidden id="company"></th></tr>
+                                                            <tr hidden> <th></th><th><strong>STORE CHECKOFF SALES REPORT</strong></th></tr>
+                                                            <tr hidden><th></th><th hidden id="sema"></th>  </tr>
+                                                            <tr hidden><th></th><th hidden id="user"></th>  </tr>
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Receipt No.</th>
@@ -147,6 +151,7 @@
                                                 <div class="table-responsive">
                                                     <div class="divScroll">
                                                         <table class="table table-hover" id="tb_check_off_summary">
+                                                            <tr hidden> <th></th><th><strong>STORE CHECKOFF SALES REPORT</strong></th></tr>
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Code</th>
@@ -166,7 +171,7 @@
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                         <label class="control-label">Total SPrice</label>
-                                                        <input value="0" id="Tselling" class="form-control" readonly />
+                                                        <input value="0" id="Tsell" class="form-control" readonly />
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                     </div>
@@ -188,7 +193,7 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
             $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
@@ -216,6 +221,25 @@
             });
 
             $('#excel_report').on('click', function () {
+                 var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = $("#firstdate").val();
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#enddate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
+                var usa = "Printed By  :" + user ;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array();
+                let itemTableRows2 = new Array();
+                itemTableRow.push(`${company}`);
+                $('#company').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema').html(itemTableRows1);
+                itemTableRows2.push(`${usa}`);
+                $('#user').html(itemTableRows2);
+
                 let date = new Date().toLocaleDateString('en-GB');
                 let fileName = `Checkoff Report ${date}`;
                 $('#tb_check_off_report').table2excel({ filename: fileName, fileext: ".xls" });
@@ -282,7 +306,7 @@
             function populateSummary(summary) {
                 let itemTableRows = new Array();
                 $('#Tbuying').val('0');
-                $('#Tselling').val('0');
+                $('#Tsell').val('0');
                 $('#TPL').val('0');
                 let Tselling = 0;
                 summary.forEach(i => {
@@ -300,11 +324,11 @@
                     </tr>`)
                 });
 
-                $('#Tselling').val(Tselling);
+                $('#Tsell').val(Tselling);
                 $('#check_off_sum_details').html(itemTableRows);
             }
         });
-    </script>
+</script>
 }
 
 

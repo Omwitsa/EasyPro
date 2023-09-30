@@ -37,9 +37,12 @@ namespace EasyPro.Controllers
             DateTime Now = DateTime.Today;
             DateTime startDate = new DateTime(Now.Year, Now.Month, 1);
             DateTime enDate = startDate.AddMonths(1).AddDays(-1);
-
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+
+            ViewBag.User = loggedInUser;
+            ViewBag.Sacco = sacco;
+            
             return View(await _context.Drawnstocks
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.auditdatetime >= startDate && i.auditdatetime <= enDate)
                 .OrderByDescending(s => s.auditdatetime).ToListAsync());

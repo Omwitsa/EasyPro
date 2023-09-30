@@ -96,6 +96,7 @@
                                                 <div class="table-responsive">
                                                     <div class="divScroll">
                                                         <table class="table table-hover" id="tbl_rep_report">
+                                                            <tr hidden><th> <strong>All Sales Report</strong></th><tr />
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Receipt No.</th>
@@ -145,6 +146,7 @@
                                                 <div class="table-responsive">
                                                     <div class="divScroll">
                                                         <table class="table table-hover" id="tbl_summary">
+                                                            <tr hidden><th> <strong>All Sales Report</strong></th><tr/>
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Code</th>
@@ -163,7 +165,7 @@
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                         <label class="control-label">Total SPrice</label>
-                                                        <input value="0" id="Tselling" class="form-control" readonly />
+                                                        <input  id="Tsell" class="form-control" readonly />
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                     </div>
@@ -294,7 +296,7 @@
                             </tr>`)
                 });
 
-                $('#Tselling').val(Tselling);
+                $('#Tsell').val(Tselling);
                 $('#tbl_sum_details').html(itemTableRows);
             }
 

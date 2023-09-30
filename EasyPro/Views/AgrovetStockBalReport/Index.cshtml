@@ -54,27 +54,34 @@
                     </div>
                 </div>
                     <div class="row">
-                        <div class="col-sm-3 col-xs-12">
+                        <div class="col-sm-2 col-xs-12">
                             <div class="form-group">
                                 <label class="control-label">DateFrom</label>
                                 <input id="firstdate" type="date" class="form-control" />
                             </div>
                         </div>
-                        <div class="col-sm-3 col-xs-12">
+                        <div class="col-sm-2 col-xs-12">
                             <div class="form-group">
                                 <label class="control-label">DateTo</label>
                                 <input id="enddate" type="date" class="form-control" />
                             </div>
                         </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                <label class="control-label">-------</label>
+                        <div class="col-sm-3 col-xs-12">
+                            <div class="col-sm-3 col-xs-12">
+                                <label class="control-label">---</label>
                                 <a id="showtable" class="btn btn-warning">Show</a>
                             </div>
                         </div>
+                        <div class="col-sm-3 col-xs-12">
+                            <div class="col-sm-3 col-xs-12">
+                                    <label class="control-label">---</label>
+                                      <a id="excel_report" class="btn btn-success">Export Excel</a>
+                             </div>
+                        </div>
+
                         <div class="col-sm-2 col-xs-12">
-                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                <label class="control-label">---</label>
+                            <div class="col-sm-2 col-xs-12">
+                                <label class="control-label">-</label>
                                 <a asp-controller="AgrovetStockReceive" asp-action="DefaultIndex" class="btn btn-info">Back</a>
                             </div>
                         </div>
@@ -83,16 +90,23 @@
                         <div class="table-responsive">
                             <div class="divScroll">
                                 <table class="table table-hover" id="customers">
+                                    <tr hidden><th></th><th hidden id="company"></th></tr>
+                                    <tr hidden> <th></th><th><strong>STORE BALANCE REPORT</strong></th></tr>
+                                    <tr hidden><th></th><th hidden id="sema"></th>  </tr>
+                                    <tr hidden><th></th><th hidden id="user"></th>  </tr>
                                     <tr>
                                         <th>Date</th>
                                         <th>Code</th>
                                         <th>Product</th>
-                                        <th>Openning Last Month</th>
+                                        <th>Openning this Month</th>
+                                        <th>Added Stock</th>
                                         <th>Stock Bal</th>
                                         <th>Sales</th>
                                         <th>Bal</th>
                                         <th>Buying Price</th>
                                         <th>Selling Price</th>
+                                        <th>Stock Value</th>
+                                        <th>Sales Value</th>
                                         <th>Branch</th>
                                     </tr>
                                     <tbody id="intakes">
@@ -102,7 +116,7 @@
                         </div>
                         <div class="row">
                             <div class="col-sm-4 col-xs-12">
-                                <label class="control-label">Total Amount</label>
+                                <label class="control-label">Total Stock Bal Amount</label>
                             </div>
                             <div class="col-sm-4 col-xs-12">
                                 <input id="amount" class="form-control" readonly />
@@ -117,12 +131,35 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
             $('#amount').val(0);
+            $('#excel_report').on('click', function () {
+                var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = $("#firstdate").val();
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#enddate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
+                var usa = "Printed By  :" + user ;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array(); 
+                let itemTableRows2 = new Array(); 
+                itemTableRow.push(`${company}`);
+                $('#company').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema').html(itemTableRows1);
+                itemTableRows2.push(`${usa}`);
+                $('#user').html(itemTableRows2);
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `Stock Balance Report ${date}`;
+                $('#customers').table2excel({ filename: fileName, fileext: ".xls" });
+            });
             $("#showtable").click(function () {
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
@@ -145,38 +182,51 @@
 
             function populateIntake(intakes) {
                 let itemTableRows = new Array();
+                    var netpay = 0;
+                    var salesamount = 0;
+                    var costofsales = 0;
+                var stockvalue = 0;
                 intakes.forEach(i => {
-                    
+
                     var ddate = i.Date;
-                    var BPrice =  i.BPrice;
+                    var BPrice = i.BPrice;
+                    costofsales = i.SPrice * i.Sales;
+                    stockvalue = i.BPrice * i.Bal;
+                    netpay += stockvalue;
+                    salesamount += costofsales;
                     var dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
                                 <td>${dd1}</td>
                                 <td>${i.Code}</td>
                                 <td>${i.Name}</td>
                                 <td>${i.Openning}</td>
+                                <td>${i.AddedStock}</td>
                                 <td>${i.StoreBal}</td>
                                 <td>${i.Sales }</td>
                                 <td>${i.Bal}</td>
                                 <td>${BPrice}</td>
                                 <td>${i.SPrice}</td>
+                                <td>${stockvalue}</td>
+                                <td>${costofsales}</td>
                                 <td>${i.Branch}</td>
                             </tr>`)
 
-                    var netpay = 0;
-                    
-                    intakes.forEach(i => {
-                        var ddr = 0;
-                        ddr = i.Bal * i.SPrice;
-                        netpay = netpay + ddr;
-                    });
-                    $('#amount').val(netpay);
+
+
                 });
+                    itemTableRows.push(`<tr>
+                              <td colspan="4"><h3>Total Stock Bal Amount</h3></td>
+                               <td>${netpay}</td>
+                          </tr>`);
+                    itemTableRows.push(`<tr>
+                               <td colspan="4"><h3>Total Stock Sales Amount</h3></td>
+                               <td>${salesamount}</td>
+                               </tr>`);
 
                 $('#intakes').html(itemTableRows);
             }
         });
-    </script>
+</script>
 }
 
 
