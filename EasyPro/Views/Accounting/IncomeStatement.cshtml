@@ -438,8 +438,8 @@
                 </tr>`);
 
                 incomes.forEach(j => {
-                    debugger
-                    j.TransDate = j.TransDate ? j.TransDate : "";
+                    //j.TransDate = j.TransDate ? j.TransDate : "";
+                    j.TransDate = new Date(j.TransDate).toLocaleDateString('en-GB');
                     itemTableRows.push(`<tr>
                         <td>${j.TransDate}</td>
                         <td>${j.GlAcc}</td>
@@ -471,7 +471,8 @@
                 </tr>`);
 
                 expenses.forEach(j => {
-                    j.TransDate = j.TransDate ? j.TransDate : "";
+                    //j.TransDate = j.TransDate ? j.TransDate : "";
+                    j.TransDate = new Date(j.TransDate).toLocaleDateString('en-GB');
                     itemTableRows.push(`<tr>
                         <td>${j.TransDate}</td>
                         <td>${j.GlAcc}</td>

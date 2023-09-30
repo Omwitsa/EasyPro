@@ -232,7 +232,7 @@
                 var mevng = $('#mevng').val();
                 var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
                 var supplierSummery = response.supplies.map(s => {
-                    let transDate = new Date(s.date).toLocaleDateString();
+                    let transDate = new Date(s.date).toLocaleDateString('en-GB');
                     return `<tr>
                                         <td>${transDate}</td>
                                         <td>${s.qnty}</td>
@@ -367,7 +367,7 @@
                 response.transpoterIntakes.forEach(i => {
                     i.supplier = i.supplier ? i.supplier : {};
                     var supplierSummery = i.supplies.map(s => {
-                        let transDate = new Date(s.TransDate).toLocaleDateString();
+                        let transDate = new Date(s.TransDate).toLocaleDateString('en-GB');
                         return `<tr>
                                     <td>${transDate}</td>
                                     <td></td>
