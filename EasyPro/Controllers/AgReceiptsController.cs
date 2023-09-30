@@ -697,7 +697,7 @@ namespace EasyPro.Controllers
             return Json(todaysIntake);
         }
         
-        public async Task<IActionResult> CreatePartialPayAsync()
+        public async Task<IActionResult> CreatePartialPay()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))

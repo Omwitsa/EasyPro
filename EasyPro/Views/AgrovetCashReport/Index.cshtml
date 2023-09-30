@@ -97,6 +97,7 @@
                                                 <div class="table-responsive">
                                                     <div class="divScroll">
                                                         <table class="table table-hover" id="tbl_rep_report">
+                                                            <tr hidden> <th></th><th><strong>STORE CASH SALES REPORT</strong></th></tr>
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Receipt No.</th>
@@ -146,6 +147,7 @@
                                                 <div class="table-responsive">
                                                     <div class="divScroll">
                                                         <table class="table table-hover" id="tbl_summary">
+                                                            <tr hidden> <th></th><th><strong>STORE CASH SALES REPORT</strong></th></tr>
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Code</th>
@@ -165,7 +167,7 @@
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                         <label class="control-label">Total SPrice</label>
-                                                        <input value="0" id="Tselling" class="form-control" readonly />
+                                                        <input value="0" id="Tsell" class="form-control" readonly />
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                     </div>
@@ -282,7 +284,7 @@
             function populateSummary(summary) {
                 let itemTableRows = new Array();
                 $('#Tbuying').val('0');
-                $('#Tselling').val('0');
+                $('#Tsell').val('0');
                 $('#TPL').val('0');
                 let Tselling = 0;
                 summary.forEach(i => {
@@ -300,7 +302,7 @@
                     </tr>`)
                 });
 
-                $('#Tselling').val(Tselling);
+                $('#Tsell').val(Tselling);
                 $('#tbl_sum_details').html(itemTableRows);
             }
 

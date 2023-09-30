@@ -1187,7 +1187,7 @@ namespace EasyPro.Controllers
         var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
         productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
 
-        return DeductionsExcel();
+        return DeductionsExcel(DateFrom, DateTo);
     }
         [HttpPost]
         public IActionResult SharesDeductions([Bind("County")] FilterVm filter)
@@ -2932,7 +2932,7 @@ namespace EasyPro.Controllers
             }
         }
     }
-    public IActionResult DeductionsExcel()
+    public IActionResult DeductionsExcel(DateTime dateFrom, DateTime dateTo)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
@@ -2953,9 +2953,10 @@ namespace EasyPro.Controllers
                 currentRow++;
                 worksheet.Cell(currentRow, 2).Value = emp.Email;
             }
+                IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
             currentRow = 5;
-            var enddate = productIntakeobj.FirstOrDefault();
-            worksheet.Cell(currentRow, 2).Value = "Suppliers Deductions Report For: " + enddate.TransDate.ToString("dd/MM/yyy");
+           // var enddate = productIntakeobj.FirstOrDefault();
+            worksheet.Cell(currentRow, 2).Value = "Suppliers Deductions Report For: " + dateTo.ToString("dd/MM/yyy");
 
             currentRow = 6;
             worksheet.Cell(currentRow, 1).Value = "SNo";
@@ -2966,8 +2967,9 @@ namespace EasyPro.Controllers
             worksheet.Cell(currentRow, 6).Value = "Remarks";
             worksheet.Cell(currentRow, 7).Value = "Station";
             decimal? sum2 = 0;
-            productIntakeobj = productIntakeobj.OrderBy(p => p.Branch).ToList();
-            var branches = productIntakeobj.GroupBy(b => b.Branch).ToList();
+            var getlistofintakes = productIntakes.Where(n => n.SaccoCode == sacco && n.TransactionType == TransactionType.Deduction && n.TransDate >= dateFrom && n.TransDate <= dateTo).ToList().OrderBy(p => p.Branch).ToList();
+                //productIntakeobj = productIntakeobj.Where(n=>n.SaccoCode == sacco && n.).OrderBy(p => p.Branch).ToList();
+            var branches = getlistofintakes.GroupBy(b => b.Branch).ToList();
             branches.ForEach(s =>
             {
 
@@ -2975,19 +2977,20 @@ namespace EasyPro.Controllers
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = branchname.Branch;
 
-                var supplierslist = productIntakeobj.Where(k => k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
+                var supplierslist = getlistofintakes.Where(k => k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
                 .OrderBy(h => h.Sno).ToList();
                 var dedutciontype = supplierslist.GroupBy(d => d.ProductType).ToList();
                 dedutciontype.ForEach(w =>
                 {
                     var deduction = w.FirstOrDefault();
                     decimal? sum = 0;
+                    IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
                     currentRow++;
                     worksheet.Cell(currentRow, 2).Value = deduction.ProductType;
-                    var suppliers = supplierslist.Where(r => r.ProductType.ToUpper().Equals(deduction.ProductType.ToUpper()));
+                    var suppliers = supplierslist.Where(r => r.ProductType.ToUpper().Equals(deduction.ProductType.ToUpper())).ToList().OrderBy(m=>m.Sno).ToList();
                     foreach (var emp in suppliers)
                     {
-                        var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
+                        var TransporterExist = dSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco && u.Branch.ToUpper().Equals(branchname.Branch.ToUpper())).Count();
                         if (TransporterExist > 0)
                         {
                             currentRow++;

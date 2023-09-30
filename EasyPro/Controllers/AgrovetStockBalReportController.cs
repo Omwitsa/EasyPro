@@ -36,9 +36,13 @@ namespace EasyPro.Controllers
 
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+
+            ViewBag.Sacco = sacco;
+            ViewBag.User = loggedInUser;
             var SalesAnalysis = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
             && i.TDate >= startDate && i.TDate <= enDate)
             .OrderByDescending(s => s.RId).ToList();
+
             return View(SalesAnalysis);
         }
 
@@ -63,27 +67,37 @@ namespace EasyPro.Controllers
             agProductsReceive = agProductsReceive.OrderByDescending(i => i.PCode).ToList();
 
             var Branchlist = agProductsReceive.GroupBy(m => m.Branch).ToList();
-            Branchlist.ForEach(b => {
+            IQueryable<AgReceipt> agReceipts = _context.AgReceipts;
+            Branchlist.ForEach(b =>
+            {
                 var listPerBranch = agProductsReceive.Where(z => z.Branch == b.Key).ToList();
                 var listofproducts = listPerBranch.GroupBy(m => m.PCode).ToList();
                 listofproducts.ForEach(e =>
             {
                 var productNow = e.FirstOrDefault();
                 var pro_buyy = _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch
-                && i.DateEntered <= endDate && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(g=>g.Qin);
-                var pro_sell = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
-                 i.TDate <= endDate && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(d=>d.Qua);
-                decimal open = (decimal)((pro_buyy) - (pro_sell));
+                && i.DateEntered <= endDate && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(g => g.Qin);
+
+                var positive_pro_sell = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
+                 i.TDate <= endDate && i.Amount >= 0 && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(d => d.Qua);
+
+                var negatives_pro_sell = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
+                 i.TDate <= endDate && i.Amount < 0 && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(d => d.Qua);
+
+                decimal open = (decimal)((pro_buyy) - (positive_pro_sell - negatives_pro_sell));
 
                 var receiptthatmonth = _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch && i.DateEntered >= date1
                && i.DateEntered <= date2 && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(g => g.Qin);
 
-                var agProductsales = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1 
-                && i.TDate <= date2 && i.Branch == saccobranch && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(n=>n.Qua);
+                var positive_agProductsales = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1
+                && i.TDate <= date2 && i.Amount >= 0 && i.Branch == saccobranch && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(n => n.Qua);
+
+                var negative_agProductsales = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1
+                && i.TDate <= date2 && i.Amount < 0 && i.Branch == saccobranch && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(n => n.Qua);
 
                 decimal correctbal = (decimal)receiptthatmonth + open;
-
-                decimal bal =(correctbal - (decimal)agProductsales);
+                decimal saleskgs = (decimal)(positive_agProductsales - negative_agProductsales);
+                decimal bal = (correctbal - saleskgs);
                 decimal BPrice = (decimal)productNow.Pprice;
                 decimal SPrice = (decimal)productNow.Sprice;
 
@@ -95,17 +109,17 @@ namespace EasyPro.Controllers
 
                 products.Add(new AgProductVM
                 {
-                    Code= productNow.PCode,
-                    Name= productNow.PName,
+                    Code = productNow.PCode,
+                    Name = productNow.PName,
                     Openning = open,
                     AddedStock = (decimal)receiptthatmonth,
                     StoreBal = correctbal,
-                    Sales = (decimal)agProductsales,
+                    Sales = (decimal)saleskgs,
                     Bal = bal,
                     BPrice = BPrice,
                     SPrice = SPrice,
                     Branch = productNow.Branch,
-                    Date= DateTime.Today
+                    Date = DateTime.Today
                 });
             });
             });

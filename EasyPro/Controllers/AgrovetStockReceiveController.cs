@@ -40,6 +40,9 @@ namespace EasyPro.Controllers
             && i.AuditDate >= startDate && i.AuditDate <= enDate)
             .OrderByDescending(s => s.AuditDate).ToListAsync();
 
+            ViewBag.User = loggedInUser;
+            ViewBag.Sacco = sacco;
+
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 agProducts = agProducts.Where(s => s.Branch == saccobranch).ToList();
