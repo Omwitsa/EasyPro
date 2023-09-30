@@ -198,6 +198,7 @@ namespace EasyPro.Models
         public virtual DbSet<Journalslisting> Journalslistings { get; set; }
         public virtual DbSet<Kin> Kins { get; set; }
         public virtual DbSet<Location> Locations { get; set; }
+        public virtual DbSet<SpecialPrice> SpecialPrice { get; set; }
         public virtual DbSet<Login> Logins { get; set; }
         public virtual DbSet<Login1> Logins1 { get; set; }
         public virtual DbSet<Matchedreport> Matchedreports { get; set; }

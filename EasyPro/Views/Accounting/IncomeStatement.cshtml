@@ -70,10 +70,13 @@
                                                                                     Name
                                                                                 </th>
                                                                                 <th>
-                                                                                    Dr
+                                                                                    Quantity
                                                                                 </th>
                                                                                 <th>
-                                                                                    Cr
+                                                                                    Price
+                                                                                </th>
+                                                                                <th>
+                                                                                    Amount
                                                                                 </th>
                                                                             </tr>
                                                                         </thead>
@@ -344,7 +347,9 @@
             let incomes = new Array();
             let expenses = new Array();
             let totalKgs = 0;
-
+            var today = new Date().toISOString().split('T')[0];
+            $("#fromDate").val(today);
+            $("#toDate").val(today);
             $('#btn_general_detailed').on('click', function () {
                 buildGeneralDetailedStat();
             });
@@ -422,8 +427,6 @@
                 }
             }
 
-            //btn_gen_stat_summary, excel_rep_gen_summary, gen_rep_summary
-            // btn_general_detailed, excel_general_detailed, general_detailed
             function populateGeneralDetailsTable() {
                 let itemTableRows = new Array();
                 var income = 0;
@@ -517,76 +520,66 @@
                 let itemTableRows = new Array();
                 var income = 0;
                 var expense = 0;
-                var dr = 0;
-                var cr = 0;
+                var amount = 0;
                 itemTableRows.push(`<tr>
-                    <td colspan="6"><h3>Income</h3></td>
+                    <td colspan="4"><h3>Income</h3></td>
                 </tr>`);
                 incomes.forEach(j => {
                     itemTableRows.push(`<tr>
                         <td>${j.Name}</td>
-                        <td>${j.Dr}</td>
-                        <td>${j.Cr}</td>
+                        <td>${j.Quantity}</td>
+                        <td>${j.Price}</td>
+                        <td>${j.Amount}</td>
                     </tr>`);
-                    dr += j.Dr;
-                    cr += j.Cr;
+                    amount += j.Amount;
                 });
 
                 itemTableRows.push(`<tr>
-                    <td colspan="4"><h3></h3></td>
-                    <td>${dr}</td>
-                    <td>${cr}</td>
+                    <td colspan="3"><h3></h3></td>
+                    <td>${amount}</td>
                 </tr>`);
 
-                income = income + (cr - dr);
                 itemTableRows.push(`<tr>
-                    <td colspan="5"><h3>Total Income</h3></td>
-                    <td>${income}</td>
+                    <td colspan="4"><h3>Expense</h3></td>
                 </tr>`);
 
-                dr = 0;
-                cr = 0;
-                itemTableRows.push(`<tr>
-                    <td colspan="6"><h3>Expense</h3></td>
-                </tr>`);
-                debugger
                 expenses.forEach(j => {
-                    debugger
                     itemTableRows.push(`<tr>
-                        <td>${j.Name}</td>
-                        <td>${j.Dr}</td>
-                        <td>${j.Cr}</td>
+                        <td colspan="4">${j.Categoy}</td>
                     </tr>`);
-                    dr += j.Dr;
-                    cr += j.Cr;
+                    j.voteheads.forEach(v => {
+                        itemTableRows.push(`<tr>
+                            <td>${v.AccNo}</td>
+                            <td colspan="2">${v.Name}</td>
+                            <td>${v.Amount}</td>
+                        </tr>`);
+                    });
+                    itemTableRows.push(`<tr>
+                        <td colspan="3"><h3></h3></td>
+                        <td>${j.Total}</td>
+                    </tr>`);
+                    expense += j.Total;
                 });
 
                 itemTableRows.push(`<tr>
-                    <td colspan="4"><h3></h3></td>
-                    <td>${dr}</td>
-                    <td>${cr}</td>
-                </tr>`);
-
-                expense = expense + (dr - cr);
-                itemTableRows.push(`<tr>
-                    <td colspan="5"><h3>Total Expenses</h3></td>
+                    <td colspan="3"><h3>Total Expenses</h3></td>
                     <td>${expense}</td>
                 </tr>`);
 
                 var profit = income - expense;
                 itemTableRows.push(`<tr>
-                    <td colspan="5"><h3>Profit/Loss</h3></td>
+                    <td colspan="3"><h3>Profit/Loss</h3></td>
                     <td>${profit}</td>
                 </tr>`);
 
                 itemTableRows.push(`<tr>
-                    <td colspan="5"><h3>TOTAL LITRES</h3></td>
+                    <td colspan="3"><h3>TOTAL LITRES</h3></td>
                     <td>${totalKgs}</td>
                 </tr>`);
 
                 var rate = profit / totalKgs;
                 itemTableRows.push(`<tr>
-                    <td colspan="5"><h3>MAXIMUM POSSIBLE RATE</h3></td>
+                    <td colspan="3"><h3>MAXIMUM POSSIBLE RATE</h3></td>
                     <td>${rate.toFixed(2)}</td>
                 </tr>`);
 

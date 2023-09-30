@@ -916,6 +916,12 @@
                                     <a asp-controller="CProducts" asp-action="Index">Customer Products</a>
                                 </li>
                                 }
+                                @if (ViewBag.JournalListingRole)
+                                {
+                                    <li>
+                                        <a asp-controller="Accounting" asp-action="SpecialPrice">Special Price</a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                         <div id="setup" class="tab-pane notika-tab-menu-bg animated flipInX">

@@ -1,4 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using EasyPro.Constants;
 using EasyPro.Models;
@@ -12,6 +14,7 @@ using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using Stripe;
 using Stripe.FinancialConnections;
+using Syncfusion.EJ2.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -292,6 +295,7 @@ namespace EasyPro.Controllers
                             GlAcc = g.AccNo,
                             TransDate = filter.ToDate,
                             AccName = g.GlAccName,
+                            AccCategory = g.AccCategory,
                             Dr = dr,
                             DocumentNo = "",
                             Cr = cr,
@@ -314,6 +318,7 @@ namespace EasyPro.Controllers
                             GlAcc = t.DrAccNo,
                             TransDate = t.TransDate,
                             AccName = debtorsAcc.GlAccName,
+                            AccCategory = debtorsAcc.AccCategory,
                             Dr = t.Amount,
                             DocumentNo = t.DocumentNo,
                             Cr = 0,
@@ -328,6 +333,7 @@ namespace EasyPro.Controllers
                             GlAcc = t.CrAccNo,
                             TransDate = t.TransDate,
                             AccName = creditorsAcc.GlAccName,
+                            AccCategory = creditorsAcc.AccCategory,
                             Cr = t.Amount,
                             DocumentNo = t.DocumentNo,
                             Dr = 0,
@@ -342,6 +348,7 @@ namespace EasyPro.Controllers
                 {
                     GlAcc = "",
                     TransDate = null,
+                    AccCategory = "",
                     Cr = totalCr,
                     DocumentNo = "",
                     Dr = totalDr,
@@ -409,6 +416,7 @@ namespace EasyPro.Controllers
                             GlAcc = t.DrAccNo,
                             TransDate = t.TransDate,
                             AccName = debtorssAcc.GlAccName,
+                            AccCategory = debtorssAcc.AccCategory,
                             Dr = t.Amount,
                             DocumentNo = t.DocumentNo,
                             Cr = 0,
@@ -426,6 +434,7 @@ namespace EasyPro.Controllers
                             TransDate = t.TransDate,
                             Cr = t.Amount,
                             AccName = creditorsAcc.GlAccName,
+                            AccCategory = creditorsAcc.AccCategory,
                             DocumentNo = t.DocumentNo,
                             Dr = 0,
                             TransDescript = t.TransDescript
@@ -438,6 +447,7 @@ namespace EasyPro.Controllers
                 journalListings.Add(new JournalVm
                 {
                     GlAcc = "",
+                    AccCategory = "",
                     TransDate = null,
                     Cr = totalCr,
                     DocumentNo = "",
@@ -487,6 +497,7 @@ namespace EasyPro.Controllers
                             GlAcc = g.AccNo,
                             TransDate = filter.ToDate,
                             AccName = g.GlAccName,
+                            AccCategory = g.AccCategory,
                             Dr = dr,
                             DocumentNo = "",
                             Cr = cr,
@@ -508,6 +519,7 @@ namespace EasyPro.Controllers
                             GlAcc = t.DrAccNo,
                             TransDate = t.TransDate,
                             AccName = debtorssAcc.GlAccName,
+                            AccCategory = debtorssAcc.AccCategory,
                             Dr = t.Amount,
                             DocumentNo = t.DocumentNo,
                             Cr = 0,
@@ -523,6 +535,7 @@ namespace EasyPro.Controllers
                             GlAcc = t.CrAccNo,
                             TransDate = t.TransDate,
                             AccName = creditorsAcc.GlAccName,
+                            AccCategory = creditorsAcc.AccCategory,
                             Cr = t.Amount,
                             DocumentNo = t.DocumentNo,
                             Dr = 0,
@@ -536,6 +549,7 @@ namespace EasyPro.Controllers
                 journalListings.Add(new JournalVm
                 {
                     GlAcc = "",
+                    AccCategory = "",
                     TransDate = null,
                     Cr = totalCr,
                     DocumentNo = "",
@@ -572,7 +586,7 @@ namespace EasyPro.Controllers
                 var journalListings = await GetIncomeStatement(filter, glsetups);
                 var income = journalListings.Where(a => a.Group == "INCOME").ToList();
                 var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();
-                var totalKgs = await _context.ProductIntake.Where(i => ((i.Description == "Intake" || i.Description == "Correction")) 
+                var totalKgs = await _context.ProductIntake.Where(i => (i.Description == "Intake" || i.Description == "Correction") 
                 && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate && i.SaccoCode == sacco)
                     .SumAsync(i => i.Qsupplied);
                 return Json(new
@@ -597,29 +611,47 @@ namespace EasyPro.Controllers
                 var glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement"
                 && !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")
                 && !g.GlAccName.ToUpper().Equals("STORE")).ToListAsync();
+                var debtors = await _context.DDebtors.Where(p => p.Dcode == sacco).ToListAsync();
+                var dispatches = await _context.Dispatch.Where(p => p.Dcode == sacco).ToListAsync();
                 var journalListings = await GetIncomeStatement(filter, glsetups);
                 var incomes = journalListings.Where(a => a.Group == "INCOME").ToList().GroupBy(a => a.TransDescript).ToList();
-                var income = new List<StatementSummaryVm>();
+                var income = new List<Votehead>();
                 incomes.ForEach(i =>
                 {
-                    income.Add(new StatementSummaryVm
-                    {
-                        Name = i.Key,
-                        Dr = i.Sum(o => o.Dr),
-                        Cr = i.Sum(o => o.Cr),
-                    });
+                    var kgs = dispatches.Where(d => d.DName == i.Key).Sum(d => d.Dispatchkgs);
+                    var debtor = debtors.FirstOrDefault(d => d.Dname == i.Key);
+                    if(debtor != null)
+                        income.Add(new Votehead
+                        {
+                            Name = i.Key,
+                            Quantity = kgs,
+                            Price = debtor.Price,
+                            Amount = i.Sum(o => o.Cr)
+                        });
                 });
 
-
-                var expense = journalListings.Where(a => a.Group == "EXPENSES").ToList().GroupBy(a => a.AccName).ToList();
+                var expense = journalListings.Where(a => a.Group == "EXPENSES").ToList().GroupBy(a => a.AccCategory).ToList();
                 var expenses = new List<StatementSummaryVm>();
                 expense.ForEach(e =>
                 {
+                    var voteheads = new List<Votehead>();
+                    var accounts = e.ToList().GroupBy(a => a.AccName);
+                    accounts.ForEach(a =>
+                    {
+                        var accNo = a.FirstOrDefault()?.GlAcc ?? "";
+                        voteheads.Add(new Votehead
+                        {
+                            Name = a.Key,
+                            AccNo = accNo,
+                            Amount = a.Sum(o => o.Dr),
+                        });
+                    });
+
                     expenses.Add(new StatementSummaryVm
                     {
-                        Name = e.Key,
-                        Dr = e.Sum(o => o.Dr),
-                        Cr = e.Sum(o => o.Cr),
+                        Categoy = e.Key,
+                        voteheads = voteheads,
+                        Total = voteheads.Sum(c => c.Amount)
                     });
                 });
                 var totalKgs = await _context.ProductIntake.Where(i => ((i.Description == "Intake" || i.Description == "Correction"))
@@ -663,6 +695,7 @@ namespace EasyPro.Controllers
                         GlAcc = g.AccNo,
                         TransDate = filter.ToDate,
                         AccName = g.GlAccName,
+                        AccCategory = g.AccCategory,
                         Cr = cr,
                         DocumentNo = "",
                         Dr = dr,
@@ -683,6 +716,7 @@ namespace EasyPro.Controllers
                         GlAcc = t.DrAccNo,
                         TransDate = t.TransDate,
                         AccName = debtorssAcc.GlAccName,
+                        AccCategory = debtorssAcc.AccCategory,
                         Dr = t.Amount,
                         DocumentNo = t.DocumentNo,
                         Cr = 0,
@@ -699,6 +733,7 @@ namespace EasyPro.Controllers
                         GlAcc = t.CrAccNo,
                         TransDate = t.TransDate,
                         AccName = creditorsAcc.GlAccName,
+                        AccCategory = creditorsAcc.AccCategory,
                         Cr = t.Amount,
                         DocumentNo = t.DocumentNo,
                         Dr = 0,
@@ -728,6 +763,7 @@ namespace EasyPro.Controllers
                         GlAcc = t.GlAcc,
                         TransDate = filter.ToDate,
                         AccName = debtorssAcc.GlAccName,
+                        AccCategory = debtorssAcc.AccCategory,
                         Dr = t.Amount,
                         DocumentNo = "",
                         Cr = 0,
@@ -744,6 +780,7 @@ namespace EasyPro.Controllers
                         GlAcc = t.ContraAcc,
                         TransDate = filter.ToDate,
                         AccName = creditorsAcc.GlAccName,
+                        AccCategory = creditorsAcc.AccCategory,
                         Cr = t.Amount,
                         DocumentNo = "",
                         Dr = 0,
@@ -786,6 +823,7 @@ namespace EasyPro.Controllers
                         GlAcc = debtorssAcc.AccNo,
                         TransDate = filter.ToDate,
                         AccName = debtorssAcc.GlAccName,
+                        AccCategory = debtorssAcc.AccCategory,
                         Dr = totalAmount,
                         DocumentNo = "",
                         Cr = 0,
@@ -802,6 +840,7 @@ namespace EasyPro.Controllers
                         GlAcc = debtorssAcc.AccNo,
                         TransDate = filter.ToDate,
                         AccName = creditorsAcc.GlAccName,
+                        AccCategory = creditorsAcc.AccCategory,
                         Cr = totalAmount,
                         DocumentNo = "",
                         Dr = 0,
@@ -828,6 +867,8 @@ namespace EasyPro.Controllers
         {
             try
             {
+                var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var journalListings = new List<JournalVm>();
                 var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco
@@ -860,6 +901,7 @@ namespace EasyPro.Controllers
                             GlAcc = s.AccNo,
                             TransDate = transaction?.TransDate ?? filter.ToDate,
                             AccName = s.GlAccName,
+                            AccCategory = s.AccCategory,
                             Dr = debitAmount,
                             DocumentNo = transaction?.DocumentNo ?? "",
                             Cr = creditAmount,
@@ -893,6 +935,110 @@ namespace EasyPro.Controllers
             {
                 return Json("");
             }
+        }
+
+        public IActionResult SpecialPrice()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> SpecialPrice([FromBody] JournalFilter filter)
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            utilities.SetUpPrivileges(this);
+
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var prices = await _context.SpecialPrice.Where(p => p.saccocode == sacco && p.IsFarmer == filter.IsFarmer).ToListAsync();
+            if (prices.Any())
+                _context.SpecialPrice.RemoveRange(prices);
+            var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate).ToListAsync();
+            var farmersIntake = intakes.Where(i => (i.Description == "Intake" || i.Description == "Correction"));
+            var activeFarmersNos = farmersIntake.Select(s => s.Sno.ToUpper()).Distinct();
+            var days = (filter.ToDate - filter.FromDate).TotalDays + 1;
+            var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == sacco);
+            var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco && activeFarmersNos.Contains(s.Sno.ToUpper())).ToListAsync();
+            var transporters = await _context.DTransporters.Where(s => s.ParentT == sacco).ToListAsync();
+            var specialPrices = new List<SpecialPrice>();
+            if (filter.IsFarmer)
+            {
+                suppliers.ForEach(s =>
+                {
+                    var totalSupplied = farmersIntake.Where(i => i.Sno == s.Sno).Sum(i => i.Qsupplied);
+                    var averageSupplied = totalSupplied / (decimal)days;
+                    if (averageSupplied >= price.SubsidyQty)
+                    {
+                        specialPrices.Add(new SpecialPrice
+                        {
+                            Date = DateTime.Today,
+                            Code = s.Sno,
+                            Month = DateTime.Today.Month,
+                            IsFarmer = true,
+                            Quantity = totalSupplied,
+                            Rate = price.SubsidyPrice,
+                            Amount = totalSupplied * price.SubsidyPrice,
+                            Branch = saccoBranch,
+                            saccocode = sacco
+                        });
+                    }
+                });
+            }
+            else
+            {
+                transporters.ForEach(t =>
+                {
+                    var totalSupplied = intakes.Where(i => i.Sno == t.TransCode).Sum(i => i.Qsupplied);
+                    var averageSupplied = totalSupplied / (decimal)days;
+                    if (price != null && t.TraderRate > 0 && averageSupplied >= price.SubsidyQty)
+                    {
+                        specialPrices.Add(new SpecialPrice
+                        {
+                            Date = DateTime.Today,
+                            Code = t.TransCode,
+                            Month = DateTime.Today.Month,
+                            IsFarmer = false,
+                            Quantity = totalSupplied,
+                            Rate = (decimal?)t.Rate,
+                            Amount = totalSupplied * (decimal?)t.Rate,
+                            Branch = saccoBranch,
+                            saccocode = sacco
+                        });
+                    }
+                });
+
+            }
+
+            await _context.SpecialPrice.AddRangeAsync(specialPrices);
+            await _context.SaveChangesAsync();
+
+            if (filter.IsFarmer)
+            {
+                specialPrices.ForEach(p =>
+                {
+                    var supplier = suppliers.FirstOrDefault(s => s.Sno == p.Code);
+                    p.Code = $"{supplier.Names} ({p.Code})";
+                });
+            }
+            else
+            {
+                specialPrices.ForEach(p =>
+                {
+                    var transporter = transporters.FirstOrDefault(t => t.TransCode == p.Code);
+                    p.Code = transporter.CertNo;
+                    p.Code = $"{transporter.TransName} ({p.Code})";
+                });
+                
+            }
+
+            return Json(new
+            {
+                specialPrices,
+            });
         }
     }
 }
