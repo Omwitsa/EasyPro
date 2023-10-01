@@ -36,7 +36,9 @@
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label class="control-label"></label>
-                            <a id="showtable" class="btn btn-warning">Show</a>
+                            <a id="showtable" class="btn btn-warning">Show
+                                <img id="special_price_loading" src="~/Images/Loading.gif" alt="Loading" width="50" height="30">
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -47,18 +49,11 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>
-                                    Code
-                                </th>
-                                <th>
-                                    Quantity
-                                </th>
-                                <th>
-                                    Rate
-                                </th>
-                                <th>
-                                    Amount
-                                </th>
+                                <th> Name </th>
+                                <th> Code </th>
+                                <th> Quantity </th>
+                                <th> Rate </th>
+                                <th> Amount </th>
                             </tr>
                         </thead>
                         <tbody id="details">
@@ -77,10 +72,12 @@
     <script type="text/javascript">
         $(function () {
             $("#isFarmer").prop("checked", true);
+            $('#special_price_loading').hide();
             var today = new Date().toISOString().split('T')[0];
             $("#fromDate").val(today);
             $("#toDate").val(today);
             $("#showtable").click(function (){
+                $('#special_price_loading').show();
                 var fromDate = $("#fromDate").val();
                 var toDate = $("#toDate").val();
                 var isFarmer = $('#isFarmer').is(':checked');
@@ -97,9 +94,11 @@
                         contentType: 'application/json',
                         data: JSON.stringify(filter),
                         success: function (response) {
-                            populateDetailsTable(response.specialPrices);
+                            $('#special_price_loading').hide();
+                            populateDetailsTable(response.specials);
                         },
                         failure: function (response) {
+                            $('#special_price_loading').hide();
                         }
                     }).then(function () {
                         // ...
@@ -109,14 +108,26 @@
 
             function populateDetailsTable(specialPrices) {
                 let itemTableRows = new Array();
+                let totalKgs = 0;
+                let totalAmount = 0;
                 specialPrices.forEach(j => {
                     itemTableRows.push(`<tr>
-                                <td>${j.Code}</td>
-                                <td>${j.Quantity}</td>
-                                <td>${j.Rate}</td>
-                                <td>${j.Amount}</td>
-                            </tr>`);
+                        <td>${j.Name}</td>
+                        <td>${j.Code}</td>
+                        <td>${j.Quantity.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                        <td>${j.Rate.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                        <td>${j.Amount.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                    </tr>`);
+
+                    totalKgs += j.Quantity;
+                    totalAmount += j.Amount;
                 });
+
+                itemTableRows.push(`<tr>
+                    <td colspan="2">Totals</td>
+                    <td colspan="2">${totalKgs.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                    <td>${totalAmount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                </tr>`);
 
                 $('#details').html(itemTableRows);
             }

@@ -54,7 +54,9 @@
                                                         <div class="normal-table-list mg-t-30">
                                                             <div class="row">
                                                                 <div class="col-sm-4 col-xs-12">
-                                                                    <a id="btn_gen_stat_summary" class="btn btn-warning">Show</a>
+                                                                    <a id="btn_gen_stat_summary" class="btn btn-warning">Show
+                                                                        <img id="general_summary_loading" src="~/Images/Loading.gif" alt="Loading" width="50" height="30">
+                                                                    </a>
                                                                 </div>
                                                                 <div class="col-sm-4 col-xs-12">
                                                                     <a id="excel_rep_gen_summary" class="btn btn-success">Export Excel</a>
@@ -62,6 +64,7 @@
                                                             </div>
                                                             
                                                             <div class="bsc-tbl-hvr table-border-style">
+                                                                <div id="gen_summary_Collection"></div>
                                                                 <div class="table-responsive">
                                                                     <table class="table table-hover">
                                                                         <thead>
@@ -93,14 +96,17 @@
                                                         <div class="normal-table-list mg-t-30">
                                                             <div class="row">
                                                                 <div class="col-sm-4 col-xs-12">
-                                                                    <a id="btn_general_detailed" class="btn btn-warning">Show</a>
+                                                                    <a id="btn_general_detailed" class="btn btn-warning">Show
+                                                                        <img id="general_detailed_loading" src="~/Images/Loading.gif" alt="Loading" width="50" height="30">
+                                                                    </a>
                                                                 </div>
                                                                 <div class="col-sm-4 col-xs-12">
                                                                     <a id="excel_general_detailed" class="btn btn-success">Export Excel</a>
                                                                 </div>
                                                             </div>
-
+                                                                
                                                             <div class="bsc-tbl-hvr table-border-style">
+                                                                <div id="gen_detailed_Collection"></div>
                                                                 <div class="table-responsive">
                                                                     <table class="table table-hover">
                                                                         <thead>
@@ -154,7 +160,7 @@
                                         <div class="normal-table-list mg-t-30">
                                             <div class="row">
                                                 <div class="col-sm-4 col-xs-12">
-                                                    <a id="showSummery" class="btn btn-warning">Show</a>
+                                                    <a id="showSummery" class="btn btn-warning"> Show</a>
                                                 </div>
                                                 <div class="col-sm-4 col-xs-12">
                                                     <a id="excel_summery" class="btn btn-success">Export Excel</a>
@@ -347,13 +353,17 @@
             let incomes = new Array();
             let expenses = new Array();
             let totalKgs = 0;
+            $('#general_summary_loading').hide();
+            $('#general_detailed_loading').hide();
             var today = new Date().toISOString().split('T')[0];
             $("#fromDate").val(today);
             $("#toDate").val(today);
             $('#btn_general_detailed').on('click', function () {
+                $('#general_detailed_loading').show();
                 buildGeneralDetailedStat();
             });
             $('#btn_gen_stat_summary').on('click', function () {
+                $('#general_summary_loading').show();
                 buildGeneralSummaryStat();
             });
 
@@ -386,12 +396,14 @@
                         contentType: 'application/json',
                         data: JSON.stringify(filter),
                         success: function (response) {
+                            $('#general_detailed_loading').hide();
                             incomes = response.income ? response.income : new Array();
                             expenses = response.expenses ? response.expenses : new Array();
                             totalKgs = response.totalKgs ? response.totalKgs : 0;
                             populateGeneralDetailsTable();
                         },
                         failure: function (response) {
+                            $('#general_detailed_loading').hide();
                         }
                     }).then(function () {
                         // ...
@@ -414,12 +426,14 @@
                         contentType: 'application/json',
                         data: JSON.stringify(filter),
                         success: function (response) {
+                            $('#general_summary_loading').hide();
                             incomes = response.income ? response.income : new Array();
                             expenses = response.expenses ? response.expenses : new Array();
                             totalKgs = response.totalKgs ? response.totalKgs : 0;
                             populateGenaralSummaryTable();
                         },
                         failure: function (response) {
+                            $('#general_summary_loading').hide();
                         }
                     }).then(function () {
                         // ...
@@ -508,6 +522,7 @@
                     <td>${totalKgs.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
+                $("#gen_detailed_Collection").val(`Collection: ${totalKgs.toLocaleString('en-US', { maximumFractionDigits: 2 })}`);
                 var rate = profit / totalKgs;
                 itemTableRows.push(`<tr>
                     <td colspan="5"><h3>MAXIMUM POSSIBLE RATE</h3></td>
@@ -577,6 +592,7 @@
                     <td>${totalKgs.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
+                $("#gen_summary_Collection").val(`Collection: ${totalKgs.toLocaleString('en-US', {maximumFractionDigits:2})}`);
                 var rate = profit / totalKgs;
                 itemTableRows.push(`<tr>
                     <td colspan="3"><h3>MAXIMUM POSSIBLE RATE</h3></td>

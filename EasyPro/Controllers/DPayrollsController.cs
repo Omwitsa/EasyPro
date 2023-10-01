@@ -268,12 +268,13 @@ namespace EasyPro.Controllers
                     var debits = corrections.Sum(s => s.DR);
                     var credited = p.Sum(s => s.CR);
                     var framersTotal = p.Sum(s => s.Qsupplied);
+                    decimal? subsidy = 0;
                     if (StrValues.Slopes == sacco)
                     {
                         var daysInMonth = DateTime.DaysInMonth(period.EndDate.Year, period.EndDate.Month);
                         var averageSupplied = framersTotal / daysInMonth;
                         if (price != null && averageSupplied >= price.SubsidyQty)
-                            credited += framersTotal * price.SubsidyPrice;
+                            subsidy += framersTotal * price.SubsidyPrice;
                     }
 
                     var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + bonus.Sum(s => s.DR) + shares.Sum(s => s.DR)
@@ -281,12 +282,14 @@ namespace EasyPro.Controllers
                     + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR)
                     + registration.Sum(s => s.DR) + MIDPAY.Sum(s => s.DR);
 
+                    var grossPay = credited + subsidy;
                     if (supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate))
                     {
                         _context.DPayrolls.Add(new DPayroll
                         {
                             Sno = supplier.Sno,
-                            Gpay = credited,
+                            Subsidy = subsidy,
+                            Gpay = grossPay,
                             KgsSupplied = (double?)milk.Sum(s => s.Qsupplied),
                             Advance = advance.Sum(s => s.DR),
                             CurryForward = carryforward.Sum(s => s.DR),
@@ -304,7 +307,7 @@ namespace EasyPro.Controllers
                             Hshares = shares.Sum(s => s.DR),
                             MIDPAY = MIDPAY.Sum(s => s.DR),
                             Tdeductions = Tot,
-                            Npay = credited - (debits + Tot),
+                            Npay = grossPay - (debits + Tot),
                             Yyear = period.EndDate.Year,
                             Mmonth = period.EndDate.Month,
                             Bank = supplier.Bcode,
@@ -397,12 +400,13 @@ namespace EasyPro.Controllers
                     + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) + MIDPAY.Sum(s => s.DR)
                     + tractor.Sum(s => s.DR) + variance.Sum(s => s.DR) + carryforward.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR);
 
+                    var grossPay = amount + subsidy;
                     _context.DTransportersPayRolls.Add(new DTransportersPayRoll
                     {
                         Code = transporter.TransCode,
                         Amnt = amount,
                         Subsidy = subsidy,
-                        GrossPay = amount + subsidy,
+                        GrossPay = grossPay,
                         QntySup = (double?)p.Sum(s => s.Qsupplied),
                         Advance = advance.Sum(s => s.DR),
                         extension = extension.Sum(s => s.DR),
@@ -417,7 +421,7 @@ namespace EasyPro.Controllers
                         Agrovet = agrovet.Sum(s => s.DR),
                         Hshares = shares.Sum(s => s.DR),
                         Totaldeductions = Tot,
-                        NetPay = (amount + subsidy) - debits - Tot,
+                        NetPay = grossPay - debits - Tot,
                         BankName = transporter.Bcode,
                         Yyear = period.EndDate.Year,
                         Mmonth = period.EndDate.Month,

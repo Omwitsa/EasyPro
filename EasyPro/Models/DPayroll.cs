@@ -27,6 +27,7 @@ namespace EasyPro.Models
         public decimal? Registration { get; set; }
         public decimal? Gpay { get; set; }
         public decimal? Npay { get; set; }
+        public decimal? Subsidy { get; set; }
         public int? Yyear { get; set; }
         public int? Mmonth { get; set; }
         public string Bank { get; set; }
@@ -48,7 +49,6 @@ namespace EasyPro.Models
         public string Advanceaccno { get; set; }
         public string Otheraccno { get; set; }
         public string Netaccno { get; set; }
-        public decimal? Subsidy { get; set; }
         public decimal? Cbo { get; set; }
         public string IdNo { get; set; }
         public decimal Tchp { get; set; }

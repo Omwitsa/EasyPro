@@ -5,6 +5,7 @@
         <div class="form-element-list mg-t-30">
             <div class="cmp-tb-hd">
                 <h2>Create</h2>
+                <img id="payroll_loading" src="~/Images/Loading.gif" alt="Loading" width="50" height="30">
             </div>
             <hr />
             <form asp-action="Create">
@@ -40,5 +41,15 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            $('#payroll_loading').hide();
+            $('#payroll_loading').on('click', function () {
+                $('#payroll_loading').show();
+            });
+        });
+    </script>
 }

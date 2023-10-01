@@ -794,16 +794,19 @@ namespace EasyPro.Controllers
             {
                 var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == sacco);
                 var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate).ToListAsync();
+                var farmersIntake = intakes.Where(i => (i.Description == "Intake" || i.Description == "Correction"));
+                var activeFarmersNos = farmersIntake.Select(s => s.Sno.ToUpper()).Distinct();
+                var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco && activeFarmersNos.Contains(s.Sno.ToUpper())).ToListAsync();
                 var transporters = await _context.DTransporters.Where(t => t.ParentT == sacco).ToListAsync();
                 var days = (filter.ToDate - filter.FromDate).TotalDays + 1;
-                decimal totalAmount = 0;
+                decimal transportationAmount = 0;
+                decimal subsidy = 0;
                 foreach (var transporter in transporters)
                 {
                     var totalSupplied = intakes.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper())).Sum(s => s.Qsupplied);
                     var averageSupplied = totalSupplied / (decimal)days;
                     transporter.TraderRate = transporter?.TraderRate ?? 0;
-                    decimal amount = totalSupplied * (decimal)transporter.Rate;
-                    decimal subsidy = 0;
+                    var amount = totalSupplied * (decimal)transporter.Rate;
                     // Assigning trader rate means the transporter is a trader
                     if (transporter.TraderRate > 0)
                     {
@@ -811,11 +814,10 @@ namespace EasyPro.Controllers
                         if (price != null && averageSupplied >= price.SubsidyQty)
                             subsidy += totalSupplied * (decimal)transporter.Rate;
                     }
-                    amount += subsidy;
-                    totalAmount += amount;
+                    transportationAmount += amount;
                 }
 
-                var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == price.DrAccNo);
+                var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == price.TransportDrAccNo);
                 if (debtorssAcc != null)
                 {
                     journalListings.Add(new JournalVm
@@ -824,29 +826,103 @@ namespace EasyPro.Controllers
                         TransDate = filter.ToDate,
                         AccName = debtorssAcc.GlAccName,
                         AccCategory = debtorssAcc.AccCategory,
-                        Dr = totalAmount,
+                        Dr = transportationAmount,
                         DocumentNo = "",
                         Cr = 0,
-                        TransDescript = "Transport",
+                        TransDescript = "Milk Transport",
                         Group = debtorssAcc.GlAccMainGroup,
                     });
+                    if(subsidy > 0)
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = debtorssAcc.AccNo,
+                            TransDate = filter.ToDate,
+                            AccName = debtorssAcc.GlAccName,
+                            AccCategory = debtorssAcc.AccCategory,
+                            Dr = subsidy,
+                            DocumentNo = "",
+                            Cr = 0,
+                            TransDescript = "Special Milk Transport",
+                            Group = debtorssAcc.GlAccMainGroup,
+                        });
                 }
 
-                var creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == price.CrAccNo);
+                var creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == price.TransportCrAccNo);
                 if (creditorsAcc != null)
                 {
                     journalListings.Add(new JournalVm
                     {
-                        GlAcc = debtorssAcc.AccNo,
+                        GlAcc = creditorsAcc.AccNo,
                         TransDate = filter.ToDate,
                         AccName = creditorsAcc.GlAccName,
                         AccCategory = creditorsAcc.AccCategory,
-                        Cr = totalAmount,
+                        Cr = transportationAmount,
                         DocumentNo = "",
                         Dr = 0,
-                        TransDescript = "Transport",
+                        TransDescript = "Milk Transport",
                         Group = creditorsAcc.GlAccMainGroup,
                     });
+                    if (subsidy > 0)
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = creditorsAcc.AccNo,
+                            TransDate = filter.ToDate,
+                            AccName = creditorsAcc.GlAccName,
+                            AccCategory = creditorsAcc.AccCategory,
+                            Cr = subsidy,
+                            DocumentNo = "",
+                            Dr = 0,
+                            TransDescript = "Special Milk Transport",
+                            Group = creditorsAcc.GlAccMainGroup,
+                        });
+                }
+
+                decimal farmersSpecialPrice = 0;
+                suppliers.ForEach(s =>
+                {
+                    var totalSupplied = farmersIntake.Where(i => i.Sno == s.Sno).Sum(i => i.Qsupplied);
+                    var averageSupplied = totalSupplied / (decimal)days;
+                    if (averageSupplied >= price.SubsidyQty)
+                    {
+                        farmersSpecialPrice += (decimal)(totalSupplied * price.SubsidyPrice);
+                    }
+                });
+
+                if(farmersSpecialPrice > 0)
+                {
+                    debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == price.DrAccNo);
+                    if (debtorssAcc != null)
+                    {
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = debtorssAcc.AccNo,
+                            TransDate = filter.ToDate,
+                            AccName = debtorssAcc.GlAccName,
+                            AccCategory = debtorssAcc.AccCategory,
+                            Dr = farmersSpecialPrice,
+                            DocumentNo = "",
+                            Cr = 0,
+                            TransDescript = "Farmers Special Price",
+                            Group = debtorssAcc.GlAccMainGroup,
+                        });
+                    }
+
+                    creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == price.CrAccNo);
+                    if (creditorsAcc != null)
+                    {
+                        journalListings.Add(new JournalVm
+                        {
+                            GlAcc = creditorsAcc.AccNo,
+                            TransDate = filter.ToDate,
+                            AccName = creditorsAcc.GlAccName,
+                            AccCategory = creditorsAcc.AccCategory,
+                            Cr = farmersSpecialPrice,
+                            DocumentNo = "",
+                            Dr = 0,
+                            TransDescript = "Farmers Special Price",
+                            Group = creditorsAcc.GlAccMainGroup,
+                        });
+                    }
                 }
             }
 
@@ -1016,12 +1092,20 @@ namespace EasyPro.Controllers
             await _context.SpecialPrice.AddRangeAsync(specialPrices);
             await _context.SaveChangesAsync();
 
+            var specials = new List<dynamic>();
             if (filter.IsFarmer)
             {
                 specialPrices.ForEach(p =>
                 {
                     var supplier = suppliers.FirstOrDefault(s => s.Sno == p.Code);
-                    p.Code = $"{supplier.Names} ({p.Code})";
+                    specials.Add(new
+                    {
+                        Name = supplier.Names,
+                        Code = supplier.Sno,
+                        p.Quantity,
+                        p.Rate,
+                        p.Amount
+                    });
                 });
             }
             else
@@ -1029,15 +1113,20 @@ namespace EasyPro.Controllers
                 specialPrices.ForEach(p =>
                 {
                     var transporter = transporters.FirstOrDefault(t => t.TransCode == p.Code);
-                    p.Code = transporter.CertNo;
-                    p.Code = $"{transporter.TransName} ({p.Code})";
+                    specials.Add(new
+                    {
+                        Name = transporter.TransName,
+                        Code = transporter.CertNo,
+                        p.Quantity,
+                        p.Rate,
+                        p.Amount
+                    });
                 });
-                
             }
 
             return Json(new
             {
-                specialPrices,
+                specials,
             });
         }
     }
