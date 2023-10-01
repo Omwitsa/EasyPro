@@ -1,25 +1,195 @@
-﻿@model EasyPro.ViewModels.TranssupplyVM.Agrovetsales
+﻿@model EasyPro.ViewModels.ProductIntakeVm
 @{
     ViewData["Title"] = "Create";
 }
 <div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="form-element-list mg-t-30">
-            <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
-                    <h2>Product Sale</h2>
-                </div>
-                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
-                    <div class="form-group ic-cmp-int float-lb floating-lb">
-                        <div class="nk-int-st">
-                            <label class="control-label">Zone</label>
-                            <select id="zone" asp-for="AgReceipt.Zone" class="form-control" asp-items="@ViewBag.zones"></select>
-                        </div>
-                    </div>
+    <div class="form-element-list mg-t-30">
+        <div class="row">
+            <div class="col-sm-6 col-xs-12 cmp-tb-hd">
+                <h2>Product Partial Payement Form</h2>
+            </div>
+
+            <div class="col-sm-3 col-xs-12">
+                <div class="form-group">
+                    <label class="control-label">Member No</label>
+                    <input id="transDate" asp-for="TransDate" class="form-control" type="date" required />
+                    <span asp-validation-for="TransDate" class="text-danger"></span>
                 </div>
             </div>
-            <hr />
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-sm-3 col-xs-12">
+                <div class="form-group">
+                    <label class="control-label">Member No</label>
+                    <input id="sno" asp-for="Sno" class="form-control" required />
+                    <span asp-validation-for="Sno" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">IDNo</label>
+                    <input id="idno" class="form-control"  disabled />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Store Amount(This Month)</label>
+                    <input id="amt" class="form-control" disabled />
+                </div>
+                
+                    <div class="form-group">
+                        <input asp-for="Print" type="checkbox" id="print" />
+                        <label asp-for="Print" for="print" class="control-label"></label>
+                        <span asp-validation-for="Print" class="text-danger"></span>
+                    </div>
+            </div>
+            
+            <div class="col-sm-3 col-xs-12">
+                <div class="form-group">
+                    <label class="control-label">Name</label>
+                    <input id="name" class="form-control" disabled />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Phone No</label>
+                    <input id="phno" class="form-control" disabled />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Amount To Pay</label>
+                    <input asp-for="CR" class="form-control" required />
+                    <span asp-validation-for="CR" class="text-danger"></span>
+                </div>
+            </div>
 
+        </div>
+        <div class="row">
+            <div class="col-sm-4 col-xs-12">
+                <a id="save" class="btn btn-success">Save</a>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+            </div>
+            <div class="col-sm-4 col-xs-12">
+                <a asp-action="PartialIndex" class="btn btn-primary">Back to List</a>
+            </div>
         </div>
     </div>
 </div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#transDate").val(today);
+            $('#Sno').keydown(function (event) {
+                if (event.which == 13) {
+                    getSelectedDateIntakes();
+                }
+            });
+            function getSelectedDateIntakes() {
+                var sno = $("#sno").val();
+                var date = $("#transDate").val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "SelectedName2?sno=" + sno + "&date=" + date ,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            var selectsuppliers = response.todaysIntake;
+                            if (selectsuppliers) {
+                                $("#name").val(selectsuppliers.Names);
+                                $("#idno").val(selectsuppliers.IdNo);
+                                $("#phno").val(selectsuppliers.PhoneNo);
+                            }
+                            var val = response.storeamount;
+                            $("#amt").val(val);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
+            $('#sno').on('keyup', function () {
+                getSelectedDateIntakes();
+            });
+            $('#transDate').change(function () {
+                getSelectedDateIntakes();
+            });
+            $('#transDate').on('keyup', function () {
+                getSelectedDateIntakes();
+            });
+            $('#transDate').on('click', function () {
+                getSelectedDateIntakes();
+            });
+            $('#save').on('click', function () {
+                var print = $('#print').is(':checked');
+                var intake = {
+                    sno: $("#sno").val(),
+                    transDate: $("#transDate").val(),
+                    dr: $("#amt").val(),
+                    cr: $("#CR").val(),
+                    print: print,
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "Savepartial",
+                    contentType: 'application/json',
+                    data: JSON.stringify(intake),
+                    success: function (response) {
+                        $("#Sno").val('');
+                        $("#amt").val('');
+                        $("#name").val('');
+                        $("#idno").val('');
+                        $("#phno").val('');
+                        document.getElementById('Sno').focus();
+                        response = response ? response : {};
+                        if (response.success) {
+                            if (print) {
+                                printReceipt(response);
+                            }
+                        }
+                    },
+                    failure: function (response) {
+
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+            function printReceipt(intake) {
+                var content = generateHTML(intake);
+                printJS({
+                    printable: content,
+                    type: 'raw-html',
+                    style: '#printMe { font-size: 12px; }'
+                });
+            }
+
+            function generateHTML(response) {
+                var mevng = $('#mevng').val();
+                var date = new Date().toLocaleDateString("en-US")
+                var content = `<div class="row" id="printMe">
+                                    <div class="col-xs-12 text-center">
+                                        ${response.receiptDetails.Name}</br>
+                                        Adress: ${response.receiptDetails.Adress}</br>
+                                        Tell: ${response.receiptDetails.PhoneNo}</br>
+                                        Town: ${response.receiptDetails.Town}</br>
+                                        Branch: ${response.receiptDetails.saccoBranch}</br>
+                                        *************************</br>
+                                        Partial Payement Receipt For: ${date}</br>
+                                        SNo: ${response.receiptDetails.Sno}</br>
+                                        Name: ${response.receiptDetails.supName}</br>
+                                        Total Amount : ${response.receiptDetails.cummkgs} ksh</br>
+                                        *************************</br>
+                                        Paid Amount: ${response.receiptDetails.Qsupplied} ksh</br>
+                                        Balance : ${response.receiptDetails.MornEvening}</br>
+                                        Received By: ${response.receiptDetails.loggedInUser}</br>
+                                        DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</br>
+                                        *************************
+                                        <hr>
+                                    </div>
+                                </div>`;
+
+                return content;
+            }
+        });
+    </script>
+  }

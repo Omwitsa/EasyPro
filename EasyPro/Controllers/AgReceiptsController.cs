@@ -285,65 +285,169 @@ namespace EasyPro.Controllers
                 return Json("");
             }
         }
-
-        //PRODUCT SALES
         [HttpPost]
-        public async Task<JsonResult> SavePartial([FromBody] List<ProductIntake> intakes, string RNo, bool isStaff, bool isCash, bool sms, bool print, decimal net)
+        public async Task<JsonResult> Savepartial([FromBody] ProductIntakeVm productIntake)
         {
-            try
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            if (string.IsNullOrEmpty(productIntake.Sno))
             {
-                DateTime Now = DateTime.Today;
-                DateTime startD = new DateTime(Now.Year, Now.Month, 1);
-                DateTime enDate = startD.AddMonths(1).AddDays(-1);
-
-                var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-
-                var receiptDetails = await GetReceiptDetails(intakes);
-                //PrintP(intakes, RNo);
-                var agReceipt = _context.AgProducts.FirstOrDefault(n => n.PCode == RNo && n.saccocode == sacco && n.Branch == saccobranch);
-                _context.ProductIntake.Add(new ProductIntake {
-                    Sno = RNo,
-                    TransDate = DateTime.Today,
-                    TransTime = DateTime.Now.TimeOfDay,
-                    ProductType = "AGROVET",
-                    Qsupplied = 0,
-                    Ppu = 0,
-                    CR= 1,
-                    DR=0,
-                    Balance=0,
-                    Paid =true,
-                    Description = RNo,
-                    Remarks = "Partial Payment of :" +  RNo +"ksh" ,
-                    TransactionType = TransactionType.Deduction,
-                    AuditId = loggedInUser,
-                    Auditdatetime = DateTime.Now,
-                    Branch = saccobranch,
-                    SaccoCode = sacco,
-                    DrAccNo = agReceipt.Draccno,
-                    CrAccNo = agReceipt.Craccno,
-                    Zone = ""                    
-                });
-
-                _context.SaveChanges();
-                _notyf.Success("Saved successfully");
-
-
-                var receipt1 = RNo;
-                double rno = Convert.ToInt32(receipt1);
+                _notyf.Error("Sorry, Kindly provide supplier No.");
                 return Json(new
                 {
-                    rno = (rno + 1),
-                    receiptDetails
+                    success = false
                 });
             }
-            catch (Exception e)
+            if (productIntake.CR == 0)
             {
-                return Json("");
+                _notyf.Error("Sorry, Kindly provide amount to Pay.");
+                return Json(new
+                {
+                    success = false
+                });
             }
-        }
+            if (productIntake.CR > productIntake.DR)
+            {
+                _notyf.Error("Sorry, Kindly provide amount less than what you have in store.");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
+            var suppliers = dSuppliers.Where(s => s.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()) && s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
 
+            var supplier = suppliers.FirstOrDefault();
+            if (supplier == null)
+            {
+                _notyf.Error("Sorry, Supplier does not exist");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            if (!supplier.Active || !supplier.Approval)
+            {
+                _notyf.Error("Sorry, Supplier must be approved and active");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+
+            productIntake.Branch = saccoBranch;
+            productIntake.Sno = productIntake?.Sno ?? "";
+            productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
+            productIntake.CR = productIntake?.CR ?? 0;
+            productIntake.Auditdatetime = DateTime.Now;
+            productIntake.TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
+            productIntake.SaccoCode = sacco;
+            productIntake.Zone = supplier?.Zone ?? "";
+            productIntake.TransactionType = TransactionType.Deduction;
+
+            var collection = new ProductIntake
+            {
+                Sno = productIntake.Sno.Trim().ToUpper(),
+                TransDate = productIntake?.TransDate ?? DateTime.Today,
+                TransTime = productIntake.TransTime,
+                ProductType = "Store",
+                Qsupplied = 0,
+                Ppu = 0,
+                CR = productIntake.CR,
+                DR = 0,
+                Balance = 0,
+                Description = "Store Cash Partial Payment",
+                TransactionType = productIntake.TransactionType,
+                Remarks = "Store Cash Partial Payment",
+                AuditId = loggedInUser,
+                Auditdatetime = productIntake.Auditdatetime,
+                Branch = productIntake.Branch,
+                SaccoCode = productIntake.SaccoCode,
+                DrAccNo = productIntake.DrAccNo,
+                CrAccNo = productIntake.CrAccNo,
+                Zone = productIntake.Zone,
+                MornEvening = productIntake.MornEvening
+            };
+            _context.ProductIntake.Add(collection);
+
+            _context.SaveChanges();
+            _notyf.Success("Intake saved successfully");
+
+            var intake = new ProductIntake
+            {
+                Sno = productIntake.Sno,
+                Qsupplied = (decimal)productIntake.CR,
+                MornEvening = productIntake.MornEvening,
+                SaccoCode = productIntake.SaccoCode,
+                Branch = saccoBranch,
+                
+            };
+            string cummkgs = string.Format("{0:.###}", productIntake.DR);
+            decimal MornEvening = (decimal)(productIntake.DR - productIntake.CR);
+            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(intake.SaccoCode.ToUpper()));
+            var receiptDetails = new {
+                         companies.Name,
+                         companies.Adress,
+                         companies.Town,
+                         companies.PhoneNo,
+                         saccoBranch = intake.Branch,
+                         intake.Sno,
+                         supName = supplier.Names,
+                         intake.Qsupplied,
+                         cummkgs,
+                         loggedInUser,
+                         MornEvening,
+                };    //= await GetReceiptDetails(intake, loggedInUser);
+
+            return Json(new
+            {
+                receiptDetails,
+                success = true
+            });
+        }
+        //PRODUCT SALES
+        private async Task<dynamic> GetReceiptDetails(ProductIntake intake, string loggedInUser)
+        {
+            intake.Sno = intake?.Sno ?? "";
+            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(intake.SaccoCode.ToUpper()));
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            // cummulative kgs calc
+            var intakes = await _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(intake.SaccoCode.ToUpper()) &&
+            o.Sno == intake.Sno && o.Branch.ToUpper().Equals(intake.Branch.ToUpper()) &&
+            o.TransDate >= startDate && o.TransDate <= endDate
+            && (o.Description == "Intake" || o.Description == "Correction")).ToListAsync();
+
+            var cumkg = intakes.Sum(d => d.Qsupplied);
+            string cummkgs = string.Format("{0:.###}", cumkg);
+            var suppliers = await _context.DSuppliers.Where(s => s.Sno.ToUpper().Equals(intake.Sno)
+            && s.Scode == intake.SaccoCode).ToListAsync();
+
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                suppliers = suppliers.Where(s => s.Branch == intake.Branch).ToList();
+
+            var supplier = suppliers.FirstOrDefault();
+            return new
+            {
+                companies.Name,
+                companies.Adress,
+                companies.Town,
+                companies.PhoneNo,
+                saccoBranch = intake.Branch,
+                intake.Sno,
+                supName = supplier.Names,
+                intake.CR,
+                cummkgs,
+                loggedInUser,
+                MornEvening = intake.MornEvening ?? "Mornnig",
+            };
+        }
         private async Task<dynamic> GetReceiptDetails(List<ProductIntake> intakes)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -695,14 +799,40 @@ namespace EasyPro.Controllers
 
             return Json(todaysIntake);
         }
-        
+
+        [HttpGet]
+        public JsonResult SelectedName2(string sno, DateTime date)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var startDate = new DateTime(date.Year, date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            if (string.IsNullOrEmpty(sno))
+            {
+                _notyf.Error("Sorry, Kindly provide supplier No.");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
+            IQueryable<AgReceipt> agReceipts = _context.AgReceipts;
+            var todaysIntake = dSuppliers.FirstOrDefault(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco && L.Branch == saccoBranch);
+            var storeamount = agReceipts.Where(n => n.saccocode == sacco && n.Branch == saccoBranch && n.SNo.ToUpper().Equals(sno.ToUpper()) 
+            && n.TDate >= startDate && n.TDate <= endDate).Sum(s=>s.Amount);
+            return Json(new { todaysIntake, storeamount });
+        }
+
         public async Task<IActionResult> CreatePartialPay()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            await GetInitialValuesAsync();
+            //await GetInitialValuesAsync();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             //var receipts = await _context.AgReceipts

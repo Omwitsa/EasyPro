@@ -49,13 +49,13 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-3 col-xs-12">
+                    <div class="col-sm-2 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">DateFrom</label>
                             <input id="firstdate" type="date" class="form-control" />
                         </div>
                     </div>
-                    <div class="col-sm-3 col-xs-12">
+                    <div class="col-sm-2 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">DateTo</label>
                             <input id="enddate" type="date" class="form-control" />
@@ -67,10 +67,17 @@
                             <a id="showtable" class="btn btn-warning">Show</a>
                         </div>
                     </div>
-                    <div class="col-sm-2 col-xs-12">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="col-sm-3 col-xs-12">
+                        <div class="col-sm-4 col-xs-12">
                             <label class="control-label">--</label>
-                            <a id="excel_report" class="btn btn-success">Export Excel</a>
+                            <a id="excel_report" class="btn btn-success w3-circle">Export Excel</a>
+                        </div>
+                        <div class="col-sm-2 col-xs-12">
+
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="control-label">--</label>
+                            <a id="print_report" class="btn btn-success w3-circle">Print Report</a>
                         </div>
                     </div>
                     <div class="col-sm-2 col-xs-12">
@@ -84,10 +91,11 @@
                     <div class="table-responsive">
                         <div class="divScroll">
                             <table class="table table-hover" id="customers">
-                                <tr hidden><th></th><th hidden id="company"></th></tr>
-                                <tr hidden> <th></th><th><strong>STORE STOCK ANALYSIS REPORT</strong></th></tr>
-                                <tr hidden><th></th><th hidden id="sema"></th>  </tr>
-                                <tr hidden><th></th><th hidden id="user"></th>  </tr>
+                                <tr id="com"><th></th><th colspan="4" id="company"></th></tr>
+                                <tr id="htitl"><th></th> <th colspan="4"> <strong>STORE STOCK ANALYSIS REPORT</strong></th></tr>
+                                <tr id="hstartd"><th></th><th colspan="4" id="sema"></th>  </tr>
+                                <tr id="huser"><th></th><th colspan="4" hidden id="user"></th>  </tr>
+                                <tr id="her"><th colspan="7"><hr /></th></tr>
                                 <tr>
                                     <th>Date</th>
                                     <th>Receipt No.</th>
@@ -132,7 +140,19 @@
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
+            $("#com").hide();
+            $("#htitl").hide();
+            $("#hstartd").hide();
+            $("#huser").hide();
+            $("#her").hide();
              $('#excel_report').on('click', function () {
+                 heading();
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `Stock Analysis Report ${date}`;
+                $('#customers').table2excel({ filename: fileName, fileext: ".xls" });
+             });
+            function heading()
+            {
                 var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
                 var  user = @Html.Raw(Json.Serialize(ViewBag.User));
                 var date1 = $("#firstdate").val();
@@ -151,10 +171,26 @@
                 $('#sema').html(itemTableRows1);
                 itemTableRows2.push(`${usa}`);
                 $('#user').html(itemTableRows2);
-                let date = new Date().toLocaleDateString('en-GB');
-                let fileName = `Stock Analysis Report ${date}`;
-                $('#customers').table2excel({ filename: fileName, fileext: ".xls" });
+                }
+            $('#print_report').on('click', function () {
+                $("#com").show();
+                $("#htitl").show();
+                $("#hstartd").show();
+                $("#huser").show();
+                $("#her").show();
+                heading();
+                var divToPrint = document.getElementById("customers");
+                newWin = window.open("");
+                newWin.document.write(divToPrint.outerHTML);
+                newWin.print();
+                newWin.close();
+                $("#com").hide();
+                $("#htitl").hide();
+                $("#hstartd").hide();
+                $("#huser").hide();
+                $("#her").hide();
             });
+
             $("#showtable").click(function () {
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();

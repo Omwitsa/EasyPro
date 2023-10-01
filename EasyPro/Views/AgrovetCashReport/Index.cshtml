@@ -89,7 +89,14 @@
                                                     <a id="showtable" class="btn btn-warning">Show</a>
                                                 </div>
                                                 <div class="col-sm-4 col-xs-12">
-                                                    <a id="excel_report" class="btn btn-success">Export Excel</a>
+                                                    <a id="excel_report" class="btn btn-success w3-circle">Export Excel</a>
+                                                </div>
+                                                <div class="col-sm-4 col-xs-12">
+
+                                                </div>
+                                                <div class="col-sm-4 col-xs-12">
+                                                    <label class="control-label">--</label>
+                                                    <a id="print_report" class="btn btn-success w3-circle">Print Report</a>
                                                 </div>
                                             </div>
                                             
@@ -97,7 +104,11 @@
                                                 <div class="table-responsive">
                                                     <div class="divScroll">
                                                         <table class="table table-hover" id="tbl_rep_report">
-                                                            <tr hidden> <th></th><th><strong>STORE CASH SALES REPORT</strong></th></tr>
+                                                            <tr id="com"><th></th><th colspan="4" id="company"></th></tr>
+                                                            <tr id="htitl"><th></th> <th colspan="4"> <strong>STORE CASH SALES REPORT</strong></th></tr>
+                                                            <tr id="hstartd"><th></th><th colspan="4" id="sema"></th>  </tr>
+                                                            <tr id="huser"><th></th><th colspan="4" hidden id="user"></th>  </tr>
+                                                            <tr id="her"><th colspan="7"><hr /></th></tr>
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Receipt No.</th>
@@ -135,11 +146,18 @@
                                     <div class="tab-ctn">
                                         <div class="normal-table-list mg-t-30">
                                             <div class="row">
-                                                <div class="col-sm-4 col-xs-12">
+                                                <div class="col-sm-3 col-xs-12">
                                                     <a id="showSummery" class="btn btn-warning">Show</a>
                                                 </div>
-                                                <div class="col-sm-4 col-xs-12">
+                                                <div class="col-sm-3 col-xs-12">
                                                     <a id="excel_summery" class="btn btn-success">Export Excel</a>
+                                                </div>
+                                                <div class="col-sm-2 col-xs-12">
+
+                                                </div>
+                                                <div class="col-sm-3 col-xs-12">
+                                                    <label class="control-label">--</label>
+                                                    <a id="print_report1" class="btn btn-success w3-circle">Print Report</a>
                                                 </div>
                                             </div>
                                             
@@ -147,7 +165,11 @@
                                                 <div class="table-responsive">
                                                     <div class="divScroll">
                                                         <table class="table table-hover" id="tbl_summary">
-                                                            <tr hidden> <th></th><th><strong>STORE CASH SALES REPORT</strong></th></tr>
+                                                            <tr id="com1"><th></th><th colspan="4" id="company1"></th></tr>
+                                                            <tr id="htitl1"><th></th> <th colspan="4"> <strong>STORE CASH SUMMARY SALES REPORT</strong></th></tr>
+                                                            <tr id="hstartd1"><th></th><th colspan="4" id="sema1"></th>  </tr>
+                                                            <tr id="huser1"><th></th><th colspan="4" hidden id="user1"></th>  </tr>
+                                                            <tr id="her1"><th colspan="7"><hr /></th></tr>
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Code</th>
@@ -189,25 +211,115 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         $(function () {
             $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
+            $("#com").hide();
+            $("#htitl").hide();
+            $("#hstartd").hide();
+            $("#huser").hide();
+            $("#her").hide();
+            $("#com1").hide();
+            $("#htitl1").hide();
+            $("#hstartd1").hide();
+            $("#huser1").hide();
+            $("#her1").hide();
 
             $('#excel_report').on('click', function () {
+                heading();
                 let date = new Date().toLocaleDateString('en-GB');
                 let fileName = `Cash Report ${date}`;
                 $('#tbl_rep_report').table2excel({ filename: fileName, fileext: ".xls" });
             });
 
+             function heading()
+            {
+                var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = $("#firstdate").val();
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#enddate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
+                var usa = "Printed By  :" + user ;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array();
+                let itemTableRows2 = new Array();
+                itemTableRow.push(`${company}`);
+                $('#company').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema').html(itemTableRows1);
+                itemTableRows2.push(`${usa}`);
+                $('#user').html(itemTableRows2);
+            }
+             function heading1()
+            {
+                var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = $("#firstdate").val();
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#enddate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
+                var usa = "Printed By  :" + user ;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array();
+                let itemTableRows2 = new Array();
+                itemTableRow.push(`${company}`);
+                $('#company1').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema1').html(itemTableRows1);
+                itemTableRows2.push(`${usa}`);
+                $('#user1').html(itemTableRows2);
+            }
+
+            $('#print_report').on('click', function () {
+                $("#com").show();
+                $("#htitl").show();
+                $("#hstartd").show();
+                $("#huser").show();
+                $("#her").show();
+                heading();
+                var divToPrint = document.getElementById("tbl_rep_report");
+                newWin = window.open("");
+                newWin.document.write(divToPrint.outerHTML);
+                newWin.print();
+                newWin.close();
+                $("#com").hide();
+                $("#htitl").hide();
+                $("#hstartd").hide();
+                $("#huser").hide();
+                $("#her").hide();
+            });
+            $('#print_report1').on('click', function () {
+                $("#com1").show();
+                $("#htitl1").show();
+                $("#hstartd1").show();
+                $("#huser1").show();
+                $("#her1").show();
+                heading1();
+                var divToPrint = document.getElementById("tbl_summary");
+                newWin = window.open("");
+                newWin.document.write(divToPrint.outerHTML);
+                newWin.print();
+                newWin.close();
+                $("#com1").hide();
+                $("#htitl1").hide();
+                $("#hstartd1").hide();
+                $("#huser1").hide();
+                $("#her1").hide();
+            });
             $('#excel_summery').on('click', function () {
                 let date = new Date().toLocaleDateString('en-GB');
                 let fileName = `Cash Summery ${date}`;
                 $('#tbl_summary').table2excel({ filename: fileName, fileext: ".xls" });
             });
-            
+
             $("#showtable").click(function () {
                 var startDate = $("#firstdate").val();
                 var endDate = $("#enddate").val();
@@ -307,5 +419,5 @@
             }
 
         });
-    </script>
+</script>
 }

@@ -1,0 +1,158 @@
+﻿@model EasyPro.Models.ag_Products45
+
+@{
+    ViewData["Title"] = "Create";
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <div class="row">
+                <div class="col-sm-6 col-xs-12 cmp-tb-hd">
+                    <h2>Change Product Form</h2>
+                </div>
+
+                <div class="col-sm-3 col-xs-12">
+                    <div class="form-group">
+                        <label asp-for="Date_Entered" class="control-label">Date</label>
+                        <input id="date" type="date" asp-for="Date_Entered" class="form-control" />
+                        <span asp-validation-for="Date_Entered" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+
+                    <div class="col-sm-5 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="p_name" class="control-label">Product Name</label>
+                            <select asp-for="p_name" id="pname" class="chzn-select form-control" asp-items="@ViewBag.productslist" required></select>
+                            <input hidden id="pcode" asp-for="p_code" class="form-control" disabled />
+                            <span asp-validation-for="p_name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group ">
+                            <label asp-for="Initbal" class="control-label">Initial Bal</label>
+                            <input id="initbal" asp-for="Initbal" class="form-control" disabled />
+                            <span asp-validation-for="Initbal" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-5 col-xs-12">
+                        <div class="form-group ">
+                            <label asp-for="Initpprice" class="control-label">Buying Price</label>
+                            <input id="initbuy" asp-for="Initpprice" class="form-control" disabled />
+                            <span asp-validation-for="Initpprice" class="text-danger"></span>
+                        </div>
+                        <div class="form-group ">
+                            <label asp-for="Initsprice" class="control-label">Selling Price</label>
+                            <input id="initsel" asp-for="Initsprice" class="form-control" disabled />
+                            <span asp-validation-for="Initsprice" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                &boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&nbsp;New Records&nbsp;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;
+                <div class="row">
+                    <div class="col-sm-5 col-xs-12">
+                        <div class="form-group ">
+                            <label asp-for="Newsprice" class="control-label">New Buying Price</label>
+                            <input id="newbuy" asp-for="Newsprice" class="form-control" required />
+                            <span asp-validation-for="Newsprice" class="text-danger"></span>
+                        </div>
+                        <div class="form-group ">
+                            <label asp-for="Newsprice" class="control-label">New Selling Price</label>
+                            <input id="newsell" asp-for="Newsprice" class="form-control" required />
+                            <span asp-validation-for="Newsprice" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                &boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&nbsp;&nbsp;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                        <a id="save" class="btn btn-success">Save</a>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <a asp-action="ChangeIndex" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            $("#pname").val("");
+            $("#initsel").val("");
+            $("#initbuy").val("");
+            $("#initbal").val("");
+            $("#newbuy").val("0");
+            $("#newsell").val("0");
+            $(".chzn-select").chosen();
+
+            $('#pname').on('change', function () {
+                var selectVal = $("#pname").val().toUpperCase();
+                populateFields(selectVal);
+            });
+
+            $('#pname').on('click', function () {
+                var selectVal = $("#pname").val().toUpperCase();
+                populateFields(selectVal);
+            });
+
+            function populateFields(product) {
+                var products = @Html.Raw(Json.Serialize(ViewBag.agsuppliers));
+                var selectProducts = products.filter(p => p.PCode.toUpperCase() === product.toUpperCase());
+                if (selectProducts[0]) {
+                    $("#pcode").val(selectProducts[0].PCode);
+                    $("#initsel").val(selectProducts[0].Sprice);
+                    $("#initbuy").val(selectProducts[0].Pprice);
+                    $("#initbal").val(selectProducts[0].OBal);
+                }
+            } 
+
+            $('#save').on('click', function () {
+                //var print = $('#print').is(':checked');
+                var intake = {
+                    Date_Entered: $("#date").val(),
+                    p_code: $("#pcode").val(),
+                    p_name: $("#pname").val(),
+                    Initsprice: $("#initsel").val(),
+                    Initpprice: $("#initbuy").val(),
+                    Initbal: $("#initbal").val(),
+                    Newpprice: $("#newbuy").val(),
+                    Newsprice: $("#newsell").val(),
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "Savepartial",
+                    contentType: 'application/json',
+                    data: JSON.stringify(intake),
+                    success: function (response) {
+                        $("#pcode").val('');
+                        $("#pname").val('');
+                        $("#initsel").val('');
+                        $("#initbuy").val('');
+                        $("#initbal").val('');
+                        $("#newbuy").val('');
+                        $("#newsell").val('');
+                    },
+                    failure: function (response) {
+
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+
+        });
+    </script>
+}

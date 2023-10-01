@@ -30,7 +30,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="UserGroup" class="control-label"></label>
-                            <select asp-for="UserGroup" class="form-control" asp-items="@ViewBag.userGroups"></select>
+                            <select asp-for="UserGroup" class="chzn-select form-control" asp-items="@ViewBag.userGroups"></select>
                             <span asp-validation-for="UserGroup" class="text-danger"></span>
                         </div>
                     </div>
@@ -64,14 +64,14 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Branch" class="control-label"></label>
-                            <select asp-for="Branch" id="Branch" class="form-control" asp-items="@ViewBag.branches"></select>
+                            <select asp-for="Branch" id="Branch" class="chzn-select form-control" asp-items="@ViewBag.branches"></select>
                             <span asp-validation-for="Branch" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label"> Organization Code</label>
-                            <select asp-for="Branchcode" class="form-control" asp-items="@ViewBag.saccos"></select>
+                            <select asp-for="Branchcode" class="chzn-select form-control" asp-items="@ViewBag.saccos"></select>
                             <span asp-validation-for="Branchcode" class="text-danger"></span>
                         </div>
                     </div>
@@ -109,7 +109,8 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 <script type="text/javascript">
-        $(function () {
+    $(function () {
+        $(".chzn-select").chosen();
             $('#Branch').on('change', function () {
                 var selectVal = $("#Branch").val();
                 var branches = @Html.Raw(Json.Serialize(ViewBag.dBranches));

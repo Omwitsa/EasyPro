@@ -43,7 +43,7 @@ namespace EasyPro.Controllers
             if (user.AccessLevel == AccessLevel.Branch)
                 Salescheckoff = Salescheckoff.Where(s => s.Branch == saccobranch).ToList();
 
-            Salescheckoff = Salescheckoff.OrderByDescending(s => s.RId).ToList();
+            Salescheckoff = Salescheckoff.OrderByDescending(s => s.TDate).ToList();
             return View(Salescheckoff);
         }
 
@@ -86,6 +86,7 @@ namespace EasyPro.Controllers
                 if (user.AccessLevel == AccessLevel.Branch)
                     products = products.Where(i => i.Branch == saccobranch).ToList();
                 productName = products.FirstOrDefault()?.PName ?? "";
+                sno = products.FirstOrDefault()?.SNo ?? "";
             }
 
             var summary = new List<dynamic>();
