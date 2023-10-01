@@ -271,6 +271,7 @@ namespace EasyPro.Controllers
                     decimal? subsidy = 0;
                     if (StrValues.Slopes == sacco)
                     {
+                        credited = framersTotal * price.Price;
                         var daysInMonth = DateTime.DaysInMonth(period.EndDate.Year, period.EndDate.Month);
                         var averageSupplied = framersTotal / daysInMonth;
                         if (price != null && averageSupplied >= price.SubsidyQty)
