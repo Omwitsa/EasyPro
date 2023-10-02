@@ -801,18 +801,25 @@ namespace EasyPro.Controllers
                 var days = (filter.ToDate - filter.FromDate).TotalDays + 1;
                 decimal transportationAmount = 0;
                 decimal subsidy = 0;
+                decimal tanker = 0;
                 foreach (var transporter in transporters)
                 {
                     var totalSupplied = intakes.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper())).Sum(s => s.Qsupplied);
                     var averageSupplied = totalSupplied / (decimal)days;
                     transporter.TraderRate = transporter?.TraderRate ?? 0;
-                    var amount = totalSupplied * (decimal)transporter.Rate;
-                    // Assigning trader rate means the transporter is a trader
-                    if (transporter.TraderRate > 0)
+                    decimal amount = 0;
+                    if (transporter.CertNo.ToUpper().Equals("KDK 015D"))
+                        tanker = totalSupplied * (decimal)transporter.Rate;
+                    else
                     {
-                        amount = totalSupplied * (decimal)transporter.TraderRate;
-                        if (price != null && averageSupplied >= price.SubsidyQty)
-                            subsidy += totalSupplied * (decimal)transporter.Rate;
+                        amount = totalSupplied * (decimal)transporter.Rate;
+                        // Assigning trader rate means the transporter is a trader
+                        if (transporter.TraderRate > 0)
+                        {
+                            amount = totalSupplied * (decimal)transporter.TraderRate;
+                            if (price != null && averageSupplied >= price.SubsidyQty)
+                                subsidy += totalSupplied * (decimal)transporter.Rate;
+                        }
                     }
                     transportationAmount += amount;
                 }
@@ -832,7 +839,19 @@ namespace EasyPro.Controllers
                         TransDescript = "Milk Transport",
                         Group = debtorssAcc.GlAccMainGroup,
                     });
-                    if(subsidy > 0)
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = debtorssAcc.AccNo,
+                        TransDate = filter.ToDate,
+                        AccName = debtorssAcc.GlAccName,
+                        AccCategory = debtorssAcc.AccCategory,
+                        Dr = tanker,
+                        DocumentNo = "",
+                        Cr = 0,
+                        TransDescript = "Tanker",
+                        Group = debtorssAcc.GlAccMainGroup,
+                    });
+                    if (subsidy > 0)
                         journalListings.Add(new JournalVm
                         {
                             GlAcc = debtorssAcc.AccNo,
@@ -860,6 +879,18 @@ namespace EasyPro.Controllers
                         DocumentNo = "",
                         Dr = 0,
                         TransDescript = "Milk Transport",
+                        Group = creditorsAcc.GlAccMainGroup,
+                    });
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = creditorsAcc.AccNo,
+                        TransDate = filter.ToDate,
+                        AccName = creditorsAcc.GlAccName,
+                        AccCategory = creditorsAcc.AccCategory,
+                        Cr = tanker,
+                        DocumentNo = "",
+                        Dr = 0,
+                        TransDescript = "Tanker",
                         Group = creditorsAcc.GlAccMainGroup,
                     });
                     if (subsidy > 0)
