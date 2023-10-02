@@ -420,19 +420,19 @@ namespace EasyPro.Controllers
             if (ch <= 0)
             {
                 var ValueChain = _context.ValueChain.FirstOrDefault();
-                var CigName = _context.CIGs.FirstOrDefault(b => b.saccocode == scodess).Name;
+                var CigName = _context.CIGs.FirstOrDefault(b => b.saccocode == scodess);
                 var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
                 var excelDumps = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == scodess).ToList();
-                var checkifcorrectdatefeeded = excelDumps.GroupBy(p => p.DOB).ToList();
+                //var checkifcorrectdatefeeded = excelDumps.GroupBy(p => p.DOB).ToList();
 
-                checkifcorrectdatefeeded.ForEach(v =>
-                {
-                    int checkifyearisabove18 = DateTime.Today.Year - (v.Key.Year);
-                    if (checkifyearisabove18 < 18)
-                    {
-                        Checkyear = "null";
-                    }
-                });
+                //checkifcorrectdatefeeded.ForEach(v =>
+                //{
+                //    int checkifyearisabove18 = DateTime.Today.Year - (v.Key.Year);
+                //    if (checkifyearisabove18 < 18)
+                //    {
+                //        Checkyear = "null";
+                //    }
+                //});
 
 
                 //if (CigName == null)
@@ -456,13 +456,13 @@ namespace EasyPro.Controllers
                 //    return RedirectToAction(nameof(SuppliersImportIndex));
                 //}
 
-                if (scodess == null)
-                {
-                    _notyf.Error("Sorry, Please provide Society");
-                    GetInitialValues();
-                    return RedirectToAction(nameof(SuppliersImportIndex));
-                }
-                if (string.IsNullOrEmpty(scodess))
+                //if (scodes == null)
+                //{
+                //    _notyf.Error("Sorry, Please provide Society");
+                //    GetInitialValues();
+                //    return RedirectToAction(nameof(SuppliersImportIndex));
+                //}
+                if (string.IsNullOrEmpty(scodes))
                 {
                     _notyf.Error("Sorry, Please provide Society");
                     GetInitialValues();
@@ -474,7 +474,7 @@ namespace EasyPro.Controllers
 
                     if (loggedInUser.ToLower().Equals("psigei"))
                     {
-                        var getbranch = _context.DBranch.FirstOrDefault(n => n.Bcode == scodess);
+                        var getbranch = _context.DBranch.FirstOrDefault(n => n.Bcode == scodes);
                         sacco = scodess;
                         saccoBranch = getbranch?.Bname ?? "MAIN";
                     }
@@ -541,7 +541,7 @@ namespace EasyPro.Controllers
                             Status1 = 0,
                             Run = 0,
                             Zone = "",
-                            CigName = CigName,
+                            CigName = CigName.Name,
                             ValueChain = ValueChain.Name,
                             Shares = false
                         };
