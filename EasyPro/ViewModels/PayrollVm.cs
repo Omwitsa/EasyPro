@@ -40,4 +40,12 @@ namespace EasyPro.ViewModels
     {
         public DateTime EndDate { get; set; }
     }
+
+    public class CombinedSummary
+    {
+        public string Name { get; set; }
+        public decimal? Amount { get; set; }
+        public decimal? Rate { get; set; }
+        public decimal? Total { get; set; }
+    }
 }

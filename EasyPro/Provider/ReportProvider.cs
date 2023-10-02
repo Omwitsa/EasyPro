@@ -323,5 +323,64 @@ namespace EasyPro.Provider
 
             return _converter.Convert(htmlToPdfDocument);
         }
+
+        public byte[] PayCombinedSummary(DCompany company, string title, string loggedInUser, string saccoBranch, DateTime? dateTo)
+        {
+            title = title ?? "";
+            var startDate = new DateTime(dateTo.GetValueOrDefault().Year, dateTo.GetValueOrDefault().Month, 1);
+            var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var payrolls =  _context.DPayrolls.Where(p => p.EndofPeriod >= startDate && p.EndofPeriod <= monthsLastDate
+                && p.SaccoCode == company.Name).ToList();
+            var EndofPeriod = payrolls.FirstOrDefault();
+            var dTransportersPayRolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == company.Name && p.NetPay > 0 && p.EndPeriod == EndofPeriod.EndofPeriod)
+               .OrderBy(p => p.Code).ToList();
+
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                payrolls = payrolls.Where(i => i.Branch == saccoBranch).ToList();
+                dTransportersPayRolls = dTransportersPayRolls.Where(i => i.Branch == saccoBranch).ToList();
+            }
+
+            var bankGroupedPayroll = payrolls.GroupBy(p => p.Bank).ToList();
+            var combinedSummaries = new List<CombinedSummary>();
+            bankGroupedPayroll.ForEach(p =>
+            {
+                combinedSummaries.Add(new CombinedSummary
+                {
+                    Name = p.Key,
+                    Amount = p.Sum(b => b.Npay)
+                });
+            });
+
+            var bankGroupedTransporterPayroll = dTransportersPayRolls.GroupBy(p => p.BankName).ToList();
+            bankGroupedTransporterPayroll.ForEach(p =>
+            {
+                combinedSummaries.Add(new CombinedSummary
+                {
+                    Name = p.Key,
+                    Amount = p.Sum(b => b.NetPay)
+                });
+            });
+
+            var content = HtmlGenerator.GeneratePayCombinedSummarysHtml(combinedSummaries, company, title);
+            var objectSettings = new ObjectSettings
+            {
+                PagesCount = true,
+                HtmlContent = content,
+                WebSettings = { DefaultEncoding = "utf-8" },
+                HeaderSettings = { FontSize = 10, Right = "Page [page] of [toPage]", Line = true },
+                FooterSettings = { FontSize = 8, Center = title, Line = true },
+            };
+
+            recieptGlobalSettings.DocumentTitle = $"{title}";
+            HtmlToPdfDocument htmlToPdfDocument = new HtmlToPdfDocument()
+            {
+                GlobalSettings = pdfGlobalSettings,
+                Objects = { objectSettings },
+            };
+
+            return _converter.Convert(htmlToPdfDocument);
+        }
     }
 }

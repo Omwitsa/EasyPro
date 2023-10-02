@@ -1018,5 +1018,65 @@ namespace EasyPro.Utils
                         </html>");
             return sb.ToString();
         }
+
+        public static string GeneratePayCombinedSummarysHtml(List<CombinedSummary> combinedSummaries, DCompany company, string title)
+        {
+            var sb = new StringBuilder();
+            sb.Append(@"
+                        <html>
+                            <head>
+                            </head>
+                            <body>");
+
+            sb.AppendFormat(@"<table>
+                                <tr>
+                                    <td>{0}</td>
+                                </tr>
+                                <tr>
+                                   <td>{1}</td>
+                                </tr>
+                                <tr>
+                                   <td>{2}</td>
+                                </tr>
+                                <tr>
+                                   <td>{3}</td>
+                                </tr>
+                              </table>",
+                              company.Name, company.Adress, company.Town, company.Email);
+
+            sb.AppendFormat(@"
+                                <div class='header'><h3>{0} List</h3></div><hr/>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Description</th>
+                                                <th>Amount</th>
+                                                <th>Rate</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+            ", title);
+
+            foreach (var summary in combinedSummaries)
+            {
+                sb.AppendFormat(@"
+                        <tr>
+                            <td>{0}</td>
+                            <td>{1}</td>
+                            <td>{2}</td>
+                            <td>{3}</td>
+                        </tr>
+                        ",
+                            summary.Name, summary.Amount, summary.Rate, summary.Total);
+            }
+
+            sb.Append(@"
+                                    </tbody>
+                                </table>
+                            </body>
+                        </html>");
+            return sb.ToString();
+        }
     }
 }

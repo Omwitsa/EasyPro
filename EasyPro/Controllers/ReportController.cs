@@ -1,5 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using EasyPro.Constants;
@@ -512,6 +513,114 @@ namespace EasyPro.Controllers
                 }
             }
         }
+
+        [HttpPost]
+        public IActionResult PayCombinedSummaryExcel([Bind("DateTo")] FilterVm filter)
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var startDate = new DateTime(filter.DateTo.GetValueOrDefault().Year, filter.DateTo.GetValueOrDefault().Month, 1);
+            var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var payrolls = _context.DPayrolls.Where(p => p.EndofPeriod >= startDate && p.EndofPeriod <= monthsLastDate
+                && p.SaccoCode == sacco).ToList();
+            var EndofPeriod = payrolls.FirstOrDefault();
+            var dTransportersPayRolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == sacco && p.NetPay > 0 && p.EndPeriod == EndofPeriod.EndofPeriod)
+               .OrderBy(p => p.Code).ToList();
+
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                payrolls = payrolls.Where(i => i.Branch == saccoBranch).ToList();
+                dTransportersPayRolls = dTransportersPayRolls.Where(i => i.Branch == saccoBranch).ToList();
+            }
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("dpayrollobj");
+                var currentRow = 1;
+                var company = _context.DCompanies.FirstOrDefault(u => u.Name == sacco);
+                worksheet.Cell(currentRow, 2).Value = company.Name;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = company.Adress;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = company.Town;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = company.Email;
+                currentRow = 5;
+
+                worksheet.Cell(currentRow, 2).Value = "Combined Summary Payroll List For:";
+                worksheet.Cell(currentRow, 4).Value = EndofPeriod.EndofPeriod;
+
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "Description";
+                worksheet.Cell(currentRow, 2).Value = "Amount";
+                worksheet.Cell(currentRow, 3).Value = "Rate";
+                worksheet.Cell(currentRow, 4).Value = "Total";
+
+                var bankGroupedPayroll = payrolls.GroupBy(p => p.Bank).ToList();
+                bankGroupedPayroll.ForEach(p =>
+                {
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = p.Key;
+                    worksheet.Cell(currentRow, 2).Value =  p.Sum(b => b.Npay);
+                });
+
+                var bankGroupedTransporterPayroll = dTransportersPayRolls.GroupBy(p => p.BankName).ToList();
+                bankGroupedTransporterPayroll.ForEach(p =>
+                {
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = p.Key;
+                    worksheet.Cell(currentRow, 2).Value = p.Sum(b => b.NetPay);
+                });
+
+                currentRow++;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = "Created By:";
+                worksheet.Cell(currentRow, 4).Value = "______________________";
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = "Approved By:";
+                worksheet.Cell(currentRow, 4).Value = "______________________";
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = "Signed By:";
+                worksheet.Cell(currentRow, 4).Value = "______________________";
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Combined Summary.xlsx");
+                }
+            }
+        }
+
+        [HttpPost]
+        public JsonResult PayCombinedSummaryPdf([FromBody] FilterVm filter)
+        {
+            return Json(new
+            {
+                redirectUrl = Url.Action("PayCombinedSummaryPdf", new { dateTo = filter.DateTo }),
+                isRedirect = true
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PayCombinedSummaryPdf(DateTime? dateTo)
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == sacco);
+            var title = "Combined Summary";
+            var pdfFile = _reportProvider.PayCombinedSummary(company, title, loggedInUser, saccoBranch, dateTo);
+            return File(pdfFile, "application/pdf");
+        }
+
 
         [HttpPost]
         public JsonResult BankPayrollPdf([FromBody] FilterVm filter)

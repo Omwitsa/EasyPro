@@ -22,5 +22,6 @@ namespace EasyPro.IProvider
         public byte[] GetDailySummary(List<IGrouping<DateTime, ProductIntake>> intakes, DCompany company, string title);
         public byte[] GetBankPayroll(IEnumerable<DPayroll> dpayrollobj, DCompany company, string title, string loggedInUser, string saccoBranch);
         public byte[] GetZonesIntakePdf(List<ProductIntake> productIntakes, DCompany company, string title);
+        public byte[] PayCombinedSummary(DCompany company, string title, string loggedInUser, string saccoBranch, DateTime? dateTo);
     }
 }

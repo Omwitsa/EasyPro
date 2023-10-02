@@ -4,7 +4,7 @@
 }
 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
     <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Farmers Genaral Payroll Report</h3>
@@ -14,10 +14,7 @@
                     <div class="form-row">
                         <form asp-controller="Report" asp-antiforgery="true" asp-action="SuppliersPayrollExcel" method="post">
                             <div class="row">
-                                <div class="col-sm-4 col-xs-12">
-
-                                </div>
-                                <div class="col-sm-4 col-xs-12">
+                                <div class="col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateFrom" class="control-label"></label>
                                         <input id="sup_payroll_from" asp-for="DateFrom" class="form-control" type="date" />
@@ -26,7 +23,7 @@
                                     <button type="submit" class="btn btn-success">Export to Excel</button>
                                 </div>
 
-                                <div class="col-sm-4 col-xs-12">
+                                <div class="col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateTo" class="control-label"></label>
                                         <input id="sup_payroll_to" asp-for="DateTo" class="form-control" type="date" />
@@ -40,7 +37,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-xs-6">
+        <div class="col-sm-6 col-xs-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Transporters Payroll Report</h3>
@@ -50,12 +47,7 @@
                     <div class="form-row">
                         <form asp-controller="Report" asp-antiforgery="true" asp-action="TransportersPayrollExcel" method="post">
                             <div class="row">
-                                <div class="col-sm-4 col-xs-12">
-                                    <div class="form-group">
-
-                                    </div>
-                                </div>
-                                <div class="col-sm-4 col-xs-12">
+                                <div class="col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateFrom" class="control-label"></label>
                                         <input id="trans_payrol_from" asp-for="DateFrom" class="form-control" type="date" />
@@ -65,7 +57,7 @@
                                     <button type="submit" class="btn btn-success">Export to Excel</button>
                                 </div>
 
-                                <div class="col-sm-4 col-xs-12">
+                                <div class="col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label asp-for="DateTo" class="control-label"></label>
                                         <input id="trans_payrol_to" asp-for="DateTo" class="form-control" type="date" />
@@ -84,7 +76,7 @@
     <br />
     <hr />
     <div class="row">
-        <div class="col-sm-6 col-xs-6">
+        <div class="col-sm-6 col-xs-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Payroll Report Per Banks</h3>
@@ -125,6 +117,40 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-sm-6 col-xs-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Combined summary</h3>
+                </div>
+
+                <div class="card-body register-card-body">
+                    <div class="form-row">
+                        <form asp-controller="Report" asp-antiforgery="true" asp-action="PayCombinedSummaryExcel" method="post">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">End Date</label>
+                                        <input id="combined_summary_date" asp-for="DateTo" class="form-control" type="date" />
+                                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success">Export to Excel</button>
+                                </div>
+                                
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label"> </label>
+                                        <input class="form-control" disabled/>
+                                    </div>
+                                    <a id="combined_summary_pdf" class="btn btn-info">Export to PDF</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -141,6 +167,30 @@
                 $("#trans_payrol_to").val(today);
                 $("#bank_pay_from").val(today);
                 $("#bank_pay_to").val(today);
+                $("#combined_summary_date").val(today);
+
+                $('#combined_summary_pdf').on('click', function () {
+                    let to = $("#combined_summary_date").val();
+
+                    var filter = {
+                        dateTo: to,
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: "PayCombinedSummaryPdf",
+                        contentType: 'application/json',
+                        data: JSON.stringify(filter),
+                        success: function (response) {
+                            if (response.isRedirect) {
+                                window.open(response.redirectUrl);
+                            }
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                });
 
                 $('#sup_payroll_pdf').on('click', function () {
                     let from = $("#sup_payroll_from").val();
@@ -191,6 +241,7 @@
                         // ...
                     });
                 });
+
                 $('#bank_payroll_pdf').on('click', function () {
                     let from = $("#bank_pay_from").val();
                     let to = $("#bank_pay_to").val();
