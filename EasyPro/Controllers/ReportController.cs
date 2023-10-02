@@ -560,6 +560,39 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 3).Value = "Rate";
                 worksheet.Cell(currentRow, 4).Value = "Total";
 
+                var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == sacco);
+                decimal totalKgs = (decimal)payrolls.Sum(p => p.KgsSupplied);
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "TOTAL KGS";
+                worksheet.Cell(currentRow, 2).Value = totalKgs;
+                worksheet.Cell(currentRow, 3).Value = price.Price;
+                worksheet.Cell(currentRow, 4).Value = totalKgs * price.Price;
+
+                // Transport section
+                var transporters = _context.DTransporters.Where(t => t.ParentT == sacco).ToList();
+                var transNos = transporters.Where(t => t.TraderRate < 1)
+                    .Select(t => t.TransCode.ToUpper()).ToList();
+                var transporterPayroll = dTransportersPayRolls.Where(t => transNos.Contains(t.Code.ToUpper()));
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "TRANSPORTERS";
+                worksheet.Cell(currentRow, 2).Value = transporterPayroll.Sum(t => t.NetPay);
+
+                var tradersNos = transporters.Where(t => t.TraderRate > 0)
+                    .Select(t => t.TransCode.ToUpper()).ToList();
+                var traderPayroll = dTransportersPayRolls.Where(t => tradersNos.Contains(t.Code.ToUpper()));
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "TRADERS";
+                worksheet.Cell(currentRow, 2).Value = traderPayroll.Sum(t => t.NetPay);
+
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "STORES";
+                worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.Agrovet) + dTransportersPayRolls.Sum(t => t.Agrovet);
+
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "ADVANCE";
+                worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.Advance) + dTransportersPayRolls.Sum(t => t.Advance);
+
+                // Payment Section
                 var bankGroupedPayroll = payrolls.GroupBy(p => p.Bank).ToList();
                 bankGroupedPayroll.ForEach(p =>
                 {

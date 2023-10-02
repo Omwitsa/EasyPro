@@ -227,7 +227,8 @@ namespace EasyPro.Controllers
 
             _context.SaveChanges();
             var dcodes = await _context.DDcodes.Where(c => c.Description.ToLower().Equals("advance") || c.Description.ToLower().Equals("transport")
-               || c.Description.ToLower().Equals("agrovet") || c.Description.ToLower().Equals("bonus") || c.Description.ToLower().Equals("shares")
+               || c.Description.ToLower().Equals("agrovet") || c.Description.ToLower().Equals("store")
+               || c.Description.ToLower().Equals("bonus") || c.Description.ToLower().Equals("shares")
                || c.Description.ToLower().Equals("loan") || c.Description.ToLower().Equals("carry forward") || c.Description.ToLower().Equals("clinical")
                || c.Description.ToLower().Equals("a.i") || c.Description.ToLower().Equals("ai") || c.Description.ToLower().Equals("tractor")
                || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work")
@@ -245,7 +246,7 @@ namespace EasyPro.Controllers
             {
                 var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
                 var transport = p.Where(k => k.Description.ToLower().Contains("transport"));
-                var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
+                var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet") || k.ProductType.ToLower().Contains("store"));
                 var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
                 var shares = p.Where(k => k.ProductType.ToLower().Contains("shares"));
                 var loan = p.Where(k => k.ProductType.ToLower().Contains("loan"));
@@ -360,7 +361,7 @@ namespace EasyPro.Controllers
             {
                 var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
                 var transport = p.Where(k => k.ProductType.ToLower().Contains("transport"));
-                var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet"));
+                var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet") || k.ProductType.ToLower().Contains("store"));
                 var variance = p.Where(k => k.ProductType.ToLower().Contains("variance"));
                 var Others = p.Where(k => k.ProductType.ToLower().Contains("others"));
                 var MIDPAY = p.Where(k => k.ProductType.ToLower().Contains("midpay"));
