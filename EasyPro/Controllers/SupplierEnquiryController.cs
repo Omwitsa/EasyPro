@@ -229,7 +229,7 @@ namespace EasyPro.Controllers
             && i.SaccoCode == sacco && ( i.TransDate >= date1 && i.TransDate <= date2)).ToList();
 
             var getsumkgs = intakes.Where(i => i.TransactionType == TransactionType.Intake 
-            || i.TransactionType == TransactionType.Correction).Sum(n => n.Qsupplied);
+            || i.TransactionType == TransactionType.Correction && i.Branch == saccobranch).Sum(n => n.Qsupplied);
 
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)

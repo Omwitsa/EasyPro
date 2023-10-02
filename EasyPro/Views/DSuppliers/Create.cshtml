@@ -113,7 +113,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="District" class="control-label">Sub County</label>
-                                <select asp-for="District" id="sub-county" class="chzn-select form-control" required disabled>
+                                <select asp-for="District" id="sub-county" class="form-control" required disabled>
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="District" class="text-danger"></span>
@@ -128,7 +128,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Division" class="control-label">Ward</label>
-                                    <select asp-for="Division" id="ward" class="chzn-select form-control" disabled required>
+                                    <select asp-for="Division" id="ward" class=" form-control" disabled required>
                                         <option value=""></option>
                                     </select>
                                     
@@ -327,10 +327,12 @@
                     $('#ward').prop('disabled', true);
                     let county = $("#county").val();
                     let sub_counties = subcounties.filter(p => p.County.trim() === county.trim());
-
                     $.each(sub_counties, function() {
                         $('#sub-county').append($("<option />").val(this.Name).text(this.Name));
+                        
                     });
+                    $('#sub-county').chosen();
+                    $("#sub-county").trigger("chosen:updated");
                 });
 
                 $('#sub-county').on('change', function () {
@@ -342,6 +344,8 @@
                     $.each(curr_wards, function() {
                         $('#ward').append($("<option />").val(this.Name).text(this.Name));
                     });
+                    $('#ward').chosen();
+                    $("#ward").trigger("chosen:updated");
                 });
             });
 </script>

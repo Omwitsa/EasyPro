@@ -416,7 +416,7 @@ namespace EasyPro.Controllers
             var zones = _context.Zones.Where(a => a.Code == sacco).OrderBy(m => m.Name).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
-            var valuechain = _context.ValueChain.Where(a => a.saccocode == sacco).OrderBy(m => m.Name).Select(b => b.Name).ToList();
+            var valuechain = _context.ValueChain.OrderBy(m => m.Name).Select(b => b.Name).ToList();
             ViewBag.valuechain = new SelectList(valuechain);
 
             var cigname = _context.CIGs.Where(a => a.saccocode == sacco).OrderBy(m => m.Name).Select(b => b.Name).ToList();

@@ -419,7 +419,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             if (ch <= 0)
             {
-                var ValueChain = _context.ValueChain.FirstOrDefault(b => b.saccocode == scodess).Name;
+                var ValueChain = _context.ValueChain.FirstOrDefault();
                 var CigName = _context.CIGs.FirstOrDefault(b => b.saccocode == scodess).Name;
                 var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
                 var excelDumps = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == scodess).ToList();
@@ -542,7 +542,7 @@ namespace EasyPro.Controllers
                             Run = 0,
                             Zone = "",
                             CigName = CigName,
-                            ValueChain = ValueChain,
+                            ValueChain = ValueChain.Name,
                             Shares = false
                         };
                         _context.DSuppliers.Add(productIntake);
