@@ -3056,7 +3056,7 @@ namespace EasyPro.Controllers
             worksheet.Cell(currentRow, 6).Value = "Remarks";
             worksheet.Cell(currentRow, 7).Value = "Station";
             decimal? sum2 = 0;
-            var getlistofintakes = productIntakes.Where(n => n.SaccoCode == sacco && n.TransactionType == TransactionType.Deduction && n.TransDate >= dateFrom && n.TransDate <= dateTo).ToList().OrderBy(p => p.Branch).ToList();
+            var getlistofintakes = productIntakes.Where(n => n.SaccoCode == sacco && n.Description != "Transport" && n.TransactionType == TransactionType.Deduction && n.TransDate >= dateFrom && n.TransDate <= dateTo).ToList().OrderBy(p => p.Branch).ToList();
                 //productIntakeobj = productIntakeobj.Where(n=>n.SaccoCode == sacco && n.).OrderBy(p => p.Branch).ToList();
             var branches = getlistofintakes.GroupBy(b => b.Branch).ToList();
             branches.ForEach(s =>
@@ -3079,12 +3079,12 @@ namespace EasyPro.Controllers
                     var suppliers = supplierslist.Where(r => r.ProductType.ToUpper().Equals(deduction.ProductType.ToUpper())).ToList().OrderBy(m=>m.Sno).ToList();
                     foreach (var emp in suppliers)
                     {
-                        var TransporterExist = dSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco && u.Branch.ToUpper().Equals(branchname.Branch.ToUpper())).Count();
-                        if (TransporterExist > 0)
+                        var TransporterExist = dSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco && u.Branch.ToUpper().Equals(branchname.Branch.ToUpper())).ToList();
+                        if (TransporterExist != null)
                         {
                             currentRow++;
                             worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                            var TName = _context.DSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == sacco);
+                            var TName = dSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == sacco);
                             worksheet.Cell(currentRow, 2).Value = TName.Names;
                             worksheet.Cell(currentRow, 3).Value = emp.TransDate;
                             worksheet.Cell(currentRow, 4).Value = emp.ProductType;

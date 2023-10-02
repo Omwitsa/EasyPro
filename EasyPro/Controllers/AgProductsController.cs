@@ -43,6 +43,23 @@ namespace EasyPro.Controllers
                 products = products.Where(p => p.Branch == saccobranch).ToList();
             return View(products);
         }
+        // GET: AgProducts
+        public async Task<IActionResult> ChangeIndex()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            //GetInitialValues();
+            var products = await _context.ag_Products45.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+                .OrderBy(p => p.p_name).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                products = products.Where(p => p.Branch == saccobranch).ToList();
+            return View(products);
+        }
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
@@ -56,6 +73,8 @@ namespace EasyPro.Controllers
 
             var agsuppliers = _context.AgSupplier1s.Where(L => L.saccocode == sacco).ToList();
             ViewBag.agsuppliers = agsuppliers;
+
+            
 
 
         }
@@ -83,7 +102,7 @@ namespace EasyPro.Controllers
         }
 
         // GET: AgProducts/Create
-        public IActionResult Create()
+        public IActionResult Create()//Changeproduct
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -108,6 +127,130 @@ namespace EasyPro.Controllers
                 Pprice=0,
                 DateEntered=DateTime.Today,
                 Expirydate = DateTime.Today
+            });
+        }
+        // GET: AgProducts/Create
+        public IActionResult Changeproduct()//
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+
+            IQueryable<AgProduct> agProducts = _context.AgProducts;
+            var products = agProducts.Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            products = products.Where(s => s.Branch == saccobranch).ToList();
+            ViewBag.productslist = new SelectList(products, "PCode", "PName");
+
+            var agsuppliers = agProducts.Where(L => L.saccocode == sacco && L.Branch == saccobranch).ToList();
+            ViewBag.agsuppliers = agsuppliers;
+
+            return View();
+        }
+        [HttpPost]
+        public async Task<JsonResult> Savepartial([FromBody] ag_Products45 productIntake)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            if (string.IsNullOrEmpty(productIntake.p_name))
+            {
+                _notyf.Error("Sorry, Kindly provide Product Name.");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            if (productIntake.Initsprice == 0)
+            {
+                _notyf.Error("Sorry, Kindly provide Product Name.");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            if (productIntake.Newpprice == 0)
+            {
+                _notyf.Error("Sorry, Kindly provide Buying Price.");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            if (productIntake.Newpprice > productIntake.Newsprice)
+            {
+                _notyf.Error("Sorry, Buying Price cannot be morethan Selling Price.");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            IQueryable<AgProduct> agProducts = _context.AgProducts;
+            var checktheproducttoupdate = agProducts.FirstOrDefault(K => K.saccocode == sacco && K.Branch == saccoBranch && K.PCode == productIntake.p_code);
+            if (string.IsNullOrEmpty(checktheproducttoupdate.PName))
+            {
+                _notyf.Error("Sorry, Product does not Exist.");
+                return Json(new
+                {
+                    success = false
+                });
+            }
+            if(checktheproducttoupdate!= null)
+            {
+                //p_code, p_name, S_No, Qin, Qout, Date_Entered, Last_D_Updated, user_id, audit_date, o_bal,
+                //SupplierID, Serialized, unserialized, seria, pprice, sprice, Branch, DRACCNO, CRACCNO, AI, Expirydate, Run, 
+                //process1, process2, Remarks, saccocode
+
+                checktheproducttoupdate.PCode = productIntake.p_code;
+                checktheproducttoupdate.PName = checktheproducttoupdate.PName;
+                checktheproducttoupdate.Qin = checktheproducttoupdate.Qin;
+                checktheproducttoupdate.Qout = checktheproducttoupdate.Qout;
+                checktheproducttoupdate.DateEntered = productIntake.Date_Entered;
+                checktheproducttoupdate.LastDUpdated = productIntake.Date_Entered;
+                checktheproducttoupdate.UserId = loggedInUser;
+                checktheproducttoupdate.AuditDate = DateTime.Now;
+                checktheproducttoupdate.OBal = checktheproducttoupdate.OBal;
+                checktheproducttoupdate.SupplierId = checktheproducttoupdate.SupplierId;
+                checktheproducttoupdate.Pprice = productIntake.Newpprice;
+                checktheproducttoupdate.Sprice = productIntake.Newsprice;
+                checktheproducttoupdate.Branch = saccoBranch;
+                checktheproducttoupdate.Draccno = checktheproducttoupdate.Draccno;
+                checktheproducttoupdate.Craccno = checktheproducttoupdate.Craccno;
+                checktheproducttoupdate.saccocode = sacco;
+                _context.Update(checktheproducttoupdate);
+            }
+
+            var collection = new ag_Products45
+            {
+                p_code = productIntake.p_code.Trim().ToUpper(),
+                Date_Entered = productIntake?.Date_Entered ?? DateTime.Today,
+                p_name = productIntake.p_name,
+                Initpprice = productIntake.Initpprice,
+                Initsprice = productIntake.Initsprice,
+                Initbal = productIntake.Initbal,
+                Newpprice = productIntake.Newpprice,
+                Newsprice = productIntake.Newsprice,
+                Newbal = 0,
+                saccocode = sacco,
+                Branch = saccoBranch,
+                User = loggedInUser,
+                audit_date = DateTime.Now,
+            };
+            _context.ag_Products45.Add(collection);
+            
+
+            _context.SaveChanges();
+            _notyf.Success("Intake saved successfully");
+
+
+            return Json(new
+            {
+                success = true
             });
         }
 

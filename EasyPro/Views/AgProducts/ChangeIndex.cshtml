@@ -1,0 +1,144 @@
+﻿@model IEnumerable<EasyPro.Models.ag_Products45>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #4cff00;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1050px;
+        height: 200px;
+        overflow: auto;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-sm-7 col-xs-2">
+                    <h3 class="text-danger fa-bold">Changed Products List</h3>
+                </div>
+                <div class="col-sm-2 col-xs-7">
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <a asp-action="Changeproduct" class="btn btn-primary">Change Product</a>
+                </div>
+            </div>
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="divScroll">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="customers">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Date_Entered)
+                                    </th>
+                                    <th>
+                                        Code
+                                    </th>
+                                    <th>
+                                        Name
+                                    </th>
+                                    <th>
+                                        Init Buying price
+                                    </th>
+                                    <th>
+                                        Init Selling price
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Initbal)
+                                    </th>
+                                    <th>
+                                        New Buying price
+                                    </th>
+                                    <th>
+                                        New Selling price
+                                    </th>
+                                    <th>
+                                        Added Stock
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.User)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Branch)
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Date_Entered)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.p_code)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.p_name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Initpprice)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Initsprice)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Initbal)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Newpprice)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Newsprice)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Newbal)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.User)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Branch)
+                                    </td>
+
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+               
+            </div>
+            </div>
+    </div>
+</div>
+

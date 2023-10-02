@@ -290,9 +290,10 @@ namespace EasyPro.Controllers
             await SetIntakeInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var productIntakes = await _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-            && (s.TransactionType == TransactionType.Intake || s.TransactionType == TransactionType.Correction)).ToListAsync();
-            var intakes = productIntakes.Where(s => s.TransDate == DateTime.Today);
+            IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
+            var intakes = await productIntakes.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            && (s.TransactionType == TransactionType.Intake || s.TransactionType == TransactionType.Correction) && s.TransDate == DateTime.Today).ToListAsync();
+            //var intakes = productIntakes.Where(s => s.TransDate == DateTime.Today);
             var Todayskg = intakes.Sum(p => p.Qsupplied);
             var TodaysBranchkg = intakes.Where(s => s.Branch == saccoBranch).Sum(p => p.Qsupplied);
 
@@ -1037,18 +1038,14 @@ namespace EasyPro.Controllers
                 });
             }
 
-            _context.SaveChanges();
-            _notyf.Success("Intake saved successfully");
-            var intake = new ProductIntake
-            {
-                Sno = productIntake.Sno,
-                Qsupplied = (decimal)productIntake.Qsupplied,
-                MornEvening = productIntake.MornEvening,
-                SaccoCode = productIntake.SaccoCode,
-                Branch = saccoBranch,
-            };
-            var receiptDetails = await GetReceiptDetails(intake, loggedInUser);
+            var intakes = await _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
+                            && s.TransDate >= startDate && s.TransDate <= endDate
+                            && (s.TransactionType == TransactionType.Intake || s.TransactionType == TransactionType.Correction)).ToListAsync();
 
+            if (user.AccessLevel == AccessLevel.Branch)
+                intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
+
+            var commulated = intakes.Sum(s => s.Qsupplied);
             if (productIntake.SMS)
             {
                 if (supplier.PhoneNo != "0")
@@ -1073,12 +1070,14 @@ namespace EasyPro.Controllers
                             supplier.PhoneNo = supplier.PhoneNo.Substring(4);
 
                         supplier.PhoneNo = "254" + supplier.PhoneNo;
+
+                        var totalkgs = string.Format("{0:.0###}", commulated + productIntake.Qsupplied);
                         String[] GetFirstName = supplier.Names.Split(' ');
                         _context.Messages.Add(new Message
                         {
                             Telephone = supplier.PhoneNo,
 
-                            Content = $"{DateTime.Now} Dear {GetFirstName[0].Trim()}, You have supplied {productIntake.Qsupplied} kgs to {sacco}. Total for {DateTime.Today.ToString("MMMM/yyyy")} is {receiptDetails.cummkgs} kgs.\n {note}",
+                            Content = $"{DateTime.Now} Dear {GetFirstName[0].Trim()}, You have supplied {productIntake.Qsupplied} kgs to {sacco}. Total for {DateTime.Today.ToString("MMMM/yyyy")} is {totalkgs} kgs.\n {note}",
                             ProcessTime = DateTime.Now.ToString(),
                             MsgType = "Outbox",
                             Replied = false,
@@ -1090,6 +1089,20 @@ namespace EasyPro.Controllers
                     }
                 }
             }
+            _context.SaveChanges();
+            _notyf.Success("Intake saved successfully");
+
+            var intake = new ProductIntake
+            {
+                Sno = productIntake.Sno,
+                Qsupplied = (decimal)productIntake.Qsupplied,
+                MornEvening = productIntake.MornEvening,
+                SaccoCode = productIntake.SaccoCode,
+                Branch = saccoBranch,
+            };
+            var receiptDetails = await GetReceiptDetails(intake, loggedInUser);
+
+            
 
             //    var intakes = _context.ProductIntake
             //.FirstOrDefault(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
@@ -1099,7 +1112,7 @@ namespace EasyPro.Controllers
 
             //var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
             //var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
-
+            
             return Json(new
             {
                 receiptDetails,

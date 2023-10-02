@@ -377,7 +377,6 @@
                     };
                     var chek = i.ProductType === null ? -1 : 1;
                     var dd1 = new Date(i.TransDate).toLocaleDateString();
-                    debugger
                     if (i.ProductType && ((i.CR || i.DR) || (!i.CR && !i.DR && i.Description != "Transport" && i.ProductType !== null))) {
                         itemTableRows.push(`<tr>
                             <td>${dd1}</td>

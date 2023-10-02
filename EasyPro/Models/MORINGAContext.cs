@@ -10633,6 +10633,7 @@ namespace EasyPro.Models
 
         public DbSet<DeliveryNote> DeliveryNote { get; set; }
         public DbSet<CIGs> CIGs { get; set; }
+        public DbSet<ag_Products45> ag_Products45 { get; set; }
         public DbSet<ValueChain> ValueChain { get; set; }
         public DbSet<EasyPro.Models.Coffee.Marketing> Marketing { get; set; }
 

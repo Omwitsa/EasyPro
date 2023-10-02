@@ -87,7 +87,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Branch" class="control-label"></label>
-                                    <select asp-for="Branch" class="form-control" asp-items="@ViewBag.brances" required>
+                                    <select asp-for="Branch" class="chzn-select form-control" asp-items="@ViewBag.brances" required>
                                         <option value=""></option>
                                     </select>
                                     
@@ -101,7 +101,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="County" class="control-label">County</label>
-                                    <select asp-for="County" id="county" class="form-control" asp-items="@ViewBag.counties" required>
+                                    <select asp-for="County" id="county" class="chzn-select form-control" asp-items="@ViewBag.counties" required>
                                         <option value=""></option>
                                     </select>
                                     <span asp-validation-for="County" class="text-danger"></span>
@@ -113,7 +113,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="District" class="control-label">Sub County</label>
-                                <select asp-for="District" id="sub-county" class="form-control" required disabled>
+                                <select asp-for="District" id="sub-county" class="chzn-select form-control" required disabled>
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="District" class="text-danger"></span>
@@ -128,7 +128,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Division" class="control-label">Ward</label>
-                                    <select asp-for="Division" id="ward" class="form-control" disabled required>
+                                    <select asp-for="Division" id="ward" class="chzn-select form-control" disabled required>
                                         <option value=""></option>
                                     </select>
                                     
@@ -142,7 +142,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Location" class="control-label"></label>
-                                    <select asp-for="Location" id="location" class="form-control" asp-items="@ViewBag.locations">
+                                    <select asp-for="Location" id="location" class="chzn-select form-control" asp-items="@ViewBag.locations">
                                         <option value=""></option>
                                     </select>
                                     <span asp-validation-for="Location" class="text-danger"></span>
@@ -168,7 +168,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="TransCode" class="control-label">Payment Mode</label>
-                                <select asp-for="TransCode" class="form-control" asp-items="@ViewBag.payment" required>
+                                <select asp-for="TransCode" class="chzn-select form-control" asp-items="@ViewBag.payment" required>
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="TransCode" class="text-danger"></span>
@@ -180,7 +180,7 @@
                             <div class="nk-int-st">
                                 <label class="control-label">Gender</label>
                                 <div class="form-group">
-                                    <select asp-for="Type" class="form-control" asp-items="@ViewBag.gender" required>
+                                    <select asp-for="Type" class="chzn-select form-control" asp-items="@ViewBag.gender" required>
                                         <option value=""></option>
                                     </select>
                                     <span asp-validation-for="Type" class="text-danger"></span>
@@ -203,7 +203,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">zone</label>
-                                <select id="zone" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones">
+                                <select id="zone" asp-for="Zone" class="chzn-select form-control" asp-items="@ViewBag.zones">
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="Zone" class="text-danger"></span>
@@ -214,7 +214,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Value Chain</label>
-                                <select id="valuechain" asp-for="ValueChain" Value="Select value chain" class="form-control" asp-items="@ViewBag.valuechain">
+                                <select id="valuechain" asp-for="ValueChain" Value="Select value chain" class="chzn-select form-control" asp-items="@ViewBag.valuechain">
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="ValueChain" class="text-danger"></span>
@@ -225,7 +225,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">CIG Name</label>
-                                <select id="cigname" asp-for="CigName" Value="Select CIG Name" class="form-control" asp-items="@ViewBag.cigname">
+                                <select id="cigname" asp-for="CigName" Value="Select CIG Name" class="chzn-select form-control" asp-items="@ViewBag.cigname">
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="CigName" class="text-danger"></span>
@@ -256,7 +256,7 @@
                                 <div class="nk-int-st">
                                     <div class="form-group">
                                         <label class="control-label">Bank</label>
-                                        <select asp-for="Bcode" Value="Select Bank" class="form-control" asp-items="@ViewBag.banksname">
+                                        <select asp-for="Bcode" Value="Select Bank" class="chzn-select form-control" asp-items="@ViewBag.banksname">
                                             <option value=""></option>
                                         </select>
                                         <span asp-validation-for="Bcode" class="text-danger"></span>
@@ -279,7 +279,7 @@
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
                                     <label asp-for="Bbranch" class="control-label">Bank Branch</label>
-                                    <select asp-for="Bbranch" class="form-control" asp-items="@ViewBag.bankbrances">
+                                    <select asp-for="Bbranch" class="chzn-select form-control" asp-items="@ViewBag.bankbrances">
                                         <option value=""></option>
                                     </select>
                                     <span asp-validation-for="Bbranch" class="text-danger"></span>
@@ -311,7 +311,7 @@
                 let wards = @Html.Raw(Json.Serialize(ViewBag.WardSubCounty));
                 let locations = @Html.Raw(Json.Serialize(ViewBag.locations));
                 $("#zone").val(''); 
-
+                $(".chzn-select").chosen();
                 var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
                 if (checkiftoenable === 0) {
                     $('#zone1').hide();

@@ -47,7 +47,7 @@ namespace EasyPro.Controllers
             if (user.AccessLevel == AccessLevel.Branch)
                 SalesAnalysis = SalesAnalysis.Where(s => s.Branch == saccobranch).ToList();
 
-            SalesAnalysis = SalesAnalysis.OrderByDescending(s => s.RId).ToList();
+            SalesAnalysis = SalesAnalysis.OrderBy(s => s.Remarks).ToList();
             return View(SalesAnalysis);
         }
 

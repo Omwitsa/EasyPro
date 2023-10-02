@@ -600,21 +600,21 @@
                             <ul class="notika-main-menu-dropdown">
                                 @if (ViewBag.StoreProducts)
                                 {
-                                <li>
-                                    <a asp-controller="AgProducts" asp-action="Index">Products</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="AgProducts" asp-action="Index">Products</a>
+                                    </li>
                                 }
                                 @if (ViewBag.productSupplierRole)
                                 {
-                                <li>
-                                    <a asp-controller="AgSupplier1" asp-action="Index">Add Products Suppliers </a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="AgSupplier1" asp-action="Index">Add Products Suppliers </a>
+                                    </li>
                                 }
                                 @if (ViewBag.productSalesRole)
                                 {
-                                <li>
-                                    <a asp-controller="AgReceipts" asp-action="Index">Product Sales</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="AgReceipts" asp-action="Index">Product Sales</a>
+                                    </li>
                                 }
                                 @if (ViewBag.salesReturnRole)
                                 {
@@ -626,6 +626,12 @@
                                 {
                                     <li>
                                         <a asp-controller="Drawnstocks" asp-action="Index">Product Dispatch</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="AgReceipts" asp-action="PartialIndex">Partial Payment</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="AgProducts" asp-action="ChangeIndex">Change Product Prices</a>
                                     </li>
                                 }
                             </ul>

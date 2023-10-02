@@ -38,7 +38,7 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var agProducts = await _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
             && i.AuditDate >= startDate && i.AuditDate <= enDate)
-            .OrderByDescending(s => s.AuditDate).ToListAsync();
+            .OrderByDescending(s => s.DateEntered).ToListAsync();
 
             ViewBag.User = loggedInUser;
             ViewBag.Sacco = sacco;

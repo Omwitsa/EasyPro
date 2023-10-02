@@ -5,6 +5,8 @@ using EasyPro.Utils;
 using EasyPro.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,23 +38,36 @@ namespace EasyPro.Controllers
 
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-
             ViewBag.Sacco = sacco;
             ViewBag.User = loggedInUser;
-            var SalesAnalysis = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
-            && i.TDate >= startDate && i.TDate <= enDate)
-            .OrderByDescending(s => s.RId).ToList();
-
-            return View(SalesAnalysis);
+            SetIntakeInitialValues();
+            IQueryable<AgReceipt> agReceipts = _context.AgReceipts;
+            var SalesAnalysis = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
+            && i.TDate >= startDate && i.TDate <= enDate).ToList();
+            var SalesAnaly = SalesAnalysis.OrderByDescending(s => s.RId).ToList();
+            return View(SalesAnaly);
+        }
+        private void SetIntakeInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            IQueryable<AgProduct> agProducts = _context.AgProducts;
+            var products = agProducts.Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                products = products.Where(s => s.Branch == saccoBranch).ToList();
+            ViewBag.products = new SelectList(products, "PCode", "PName");
         }
 
         [HttpPost]
-        public JsonResult SuppliedProducts(DateTime date1, DateTime date2)
+        public JsonResult SuppliedProducts(DateTime date1, DateTime date2, string product)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
+            var startingdate = date2;
             var startDate = new DateTime(date1.Year, date1.Month, 1);
             var endDate = startDate.AddDays(-1);
 
@@ -64,66 +79,111 @@ namespace EasyPro.Controllers
             if (user.AccessLevel == AccessLevel.Branch)
                 agProductsReceive = agProductsReceive.Where(i => i.Branch == saccobranch).ToList();
 
-            agProductsReceive = agProductsReceive.OrderByDescending(i => i.PCode).ToList();
+            agProductsReceive = agProductsReceive.OrderBy(i => i.PName).ToList();
+
+            if (!string.IsNullOrEmpty(product))
+            {
+                agProductsReceive = agProductsReceive.Where(k => k.Branch == saccobranch).ToList();
+            }
 
             var Branchlist = agProductsReceive.GroupBy(m => m.Branch).ToList();
-            IQueryable<AgReceipt> agReceipts = _context.AgReceipts;
+
+
             Branchlist.ForEach(b =>
             {
                 var listPerBranch = agProductsReceive.Where(z => z.Branch == b.Key).ToList();
+                if (!string.IsNullOrEmpty(product))
+                {
+                    listPerBranch = listPerBranch.Where(k => k.PCode.ToUpper().Equals(product.ToUpper())).ToList();
+                    startingdate = date1;
+                }
                 var listofproducts = listPerBranch.GroupBy(m => m.PCode).ToList();
                 listofproducts.ForEach(e =>
-            {
-                var productNow = e.FirstOrDefault();
-                var pro_buyy = _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch
-                && i.DateEntered <= endDate && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(g => g.Qin);
-
-                var positive_pro_sell = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
-                 i.TDate <= endDate && i.Amount >= 0 && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(d => d.Qua);
-
-                var negatives_pro_sell = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
-                 i.TDate <= endDate && i.Amount < 0 && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(d => d.Qua);
-
-                decimal open = (decimal)((pro_buyy) - (positive_pro_sell - negatives_pro_sell));
-
-                var receiptthatmonth = _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch && i.DateEntered >= date1
-               && i.DateEntered <= date2 && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(g => g.Qin);
-
-                var positive_agProductsales = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1
-                && i.TDate <= date2 && i.Amount >= 0 && i.Branch == saccobranch && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(n => n.Qua);
-
-                var negative_agProductsales = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1
-                && i.TDate <= date2 && i.Amount < 0 && i.Branch == saccobranch && i.PCode.ToUpper().Equals(productNow.PCode.ToUpper())).Sum(n => n.Qua);
-
-                decimal correctbal = (decimal)receiptthatmonth + open;
-                decimal saleskgs = (decimal)(positive_agProductsales - negative_agProductsales);
-                decimal bal = (correctbal - saleskgs);
-                decimal BPrice = (decimal)productNow.Pprice;
-                decimal SPrice = (decimal)productNow.Sprice;
-
-                if ((decimal)productNow.Pprice < 0)
-                    BPrice = (decimal)productNow.Pprice * -1;
-
-                if ((decimal)productNow.Sprice < 0)
-                    SPrice = (decimal)productNow.Sprice * -1;
-
-                products.Add(new AgProductVM
                 {
-                    Code = productNow.PCode,
-                    Name = productNow.PName,
-                    Openning = open,
-                    AddedStock = (decimal)receiptthatmonth,
-                    StoreBal = correctbal,
-                    Sales = (decimal)saleskgs,
-                    Bal = bal,
-                    BPrice = BPrice,
-                    SPrice = SPrice,
-                    Branch = productNow.Branch,
-                    Date = DateTime.Today
+                    var productNow = e.FirstOrDefault();
+
+                    while (startingdate <= date2)
+                    {
+
+                        var detailstore = GetReceipts(productNow.PCode, sacco, b.Key, date1, startingdate, endDate);
+
+                        decimal open = (decimal)((detailstore.pro_buyy) - (detailstore.positive_pro_sell - detailstore.negatives_pro_sell));
+                        decimal correctbal = (decimal)detailstore.receiptthatmonth + open;
+                        decimal saleskgs = (decimal)(detailstore.positive_agProductsales - detailstore.negative_agProductsales);
+                        decimal bal = (correctbal - saleskgs);
+                        decimal BPrice = (decimal)productNow.Pprice;
+                        decimal SPrice = (decimal)productNow.Sprice;
+
+                        if ((decimal)productNow.Pprice < 0)
+                            BPrice = (decimal)productNow.Pprice * -1;
+
+                        if ((decimal)productNow.Sprice < 0)
+                            SPrice = (decimal)productNow.Sprice * -1;
+
+                        products.Add(new AgProductVM
+                        {
+                            Code = productNow.PCode,
+                            Name = productNow.PName,
+                            Openning = open,
+                            AddedStock = (decimal)detailstore.receiptthatmonth,
+                            StoreBal = correctbal,
+                            Sales = (decimal)saleskgs,
+                            Bal = bal,
+                            BPrice = BPrice,
+                            SPrice = SPrice,
+                            Branch = productNow.Branch,
+                            Date = DateTime.Today
+                        });
+
+                        startingdate = startingdate.AddDays(1);
+                    }
+                    startingdate = date2;
+                    if (!string.IsNullOrEmpty(product))
+                    {
+                        startingdate = date1;
+                    }
+                    
                 });
             });
-            });
             return Json(products);
+        }
+
+
+        private dynamic GetReceipts(string pCode, string sacco, string key, DateTime date1, DateTime date2, DateTime endDate)
+        {
+            IQueryable<AgReceipt> agReceipts = _context.AgReceipts;
+            IQueryable<AgProducts4> agProducts4s = _context.AgProducts4s;
+            var saccobranch = key;
+
+
+            var pro_buyy = agProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch
+                   && i.DateEntered <= endDate && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(g => g.Qin);
+
+            var positive_pro_sell = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
+             i.TDate <= endDate && i.Amount >= 0 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Qua);
+
+            var negatives_pro_sell = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
+             i.TDate <= endDate && i.Amount < 0 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Qua);
+
+            var receiptthatmonth = agProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch && i.DateEntered >= date1
+           && i.DateEntered <= date2 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(g => g.Qin);
+
+            var positive_agProductsales = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1
+            && i.TDate <= date2 && i.Amount >= 0 && i.Branch == saccobranch && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(n => n.Qua);
+
+            var negative_agProductsales = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1
+            && i.TDate <= date2 && i.Amount < 0 && i.Branch == saccobranch && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(n => n.Qua);
+
+
+            return new
+            {
+                pro_buyy,
+                positive_pro_sell,
+                negatives_pro_sell,
+                receiptthatmonth,
+                positive_agProductsales,
+                negative_agProductsales,
+            };
         }
     }
 }
