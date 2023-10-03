@@ -90,7 +90,8 @@ namespace EasyPro.Controllers
                 .Where(i => i.TransactionType == TransactionType.Correction && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && i.TransDate == date).OrderByDescending(l => l.Auditdatetime).ToList();
 
-            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
+            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
+            && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
 
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccoBranch).ToList();

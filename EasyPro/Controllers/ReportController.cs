@@ -1,5 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
+using Syncfusion.EJ2.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -419,34 +421,26 @@ namespace EasyPro.Controllers
                 dpayrollobj = dpayrollobj.Where(i => i.Branch == saccoBranch).ToList();
             using (var workbook = new XLWorkbook())
             {
-                var worksheet = workbook.Worksheets.Add("dpayrollobj");
+                var worksheet = workbook.Worksheets.Add($"{filter.BankName} Payroll");
                 var currentRow = 1;
-                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
-                foreach (var emp in companyobj)
-                {
-                    worksheet.Cell(currentRow, 2).Value = emp.Name;
-                    currentRow++;
-                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
-                    currentRow++;
-                    worksheet.Cell(currentRow, 2).Value = emp.Town;
-                    currentRow++;
-                    worksheet.Cell(currentRow, 2).Value = emp.Email;
-                }
-                currentRow = 5;
+                var company = _context.DCompanies.FirstOrDefault(u => u.Name == sacco);
+                worksheet.Cell(currentRow, 2).Value = company.Name;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = company.Adress;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = company.Town;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = company.Email;
+                currentRow++;
 
                 var EndofPeriod = dpayrollobj.FirstOrDefault();
                 worksheet.Cell(currentRow, 2).Value = filter.BankName.ToUpper() + " Payroll List For:";
                 worksheet.Cell(currentRow, 4).Value = EndofPeriod.EndofPeriod;
-                // SNo, Transport, Agrovet, Bonus,, HShares, Advance, TDeductions, KgsSupplied, GPay,
-                //Bank, AccountNumber, BBranch
-                currentRow = 6;
+                currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
                 worksheet.Cell(currentRow, 2).Value = "Name";
-                worksheet.Cell(currentRow, 3).Value = "IdNo";
-                worksheet.Cell(currentRow, 4).Value = "Bank";
-                worksheet.Cell(currentRow, 5).Value = "AccountNumber";
-                worksheet.Cell(currentRow, 6).Value = "BBranch";
-                worksheet.Cell(currentRow, 7).Value = "NPay";
+                worksheet.Cell(currentRow, 3).Value = "AccountNumber";
+                worksheet.Cell(currentRow, 4).Value = "NPay";
 
                 decimal? SNpay = 0, TNpay = 0;
 
@@ -454,54 +448,71 @@ namespace EasyPro.Controllers
                 .Where(p => p.SaccoCode == sacco && p.BankName.ToUpper().Equals(filter.BankName.ToUpper()) && p.NetPay > 0 && p.EndPeriod == EndofPeriod.EndofPeriod)
                 .OrderBy(p => p.Code).ToList();
 
-                TNpay = gettransporterspayrolllist.Sum(k => k.NetPay);
+                TNpay = gettransporterspayrolllist.Where(K => K.NetPay > 0).Sum(k => k.NetPay);
                 var transporterspayroll = gettransporterspayrolllist.GroupBy(l => l.Code).ToList();
 
-                foreach (var emp in dpayrollobj)
+                var suppliers = _context.DSuppliers.Where(u => u.Scode == sacco);
+                var transporters = _context.DTransporters.Where(u => u.ParentT == sacco);
+                if (user.AccessLevel == AccessLevel.Branch)
                 {
-                    SNpay = dpayrollobj.Sum(k => k.Npay);
-
-                    currentRow++;
-                    worksheet.Cell(currentRow, 1).Value = emp.Sno;
-
-                    //long.TryParse(emp.Sno, out long sno);
-                    var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
-                    foreach (var al in TName)
-                        worksheet.Cell(currentRow, 2).Value = al.Names;
-                    worksheet.Cell(currentRow, 3).Value = "'" + emp.IdNo;
-                    worksheet.Cell(currentRow, 4).Value = emp.Bank;
-                    worksheet.Cell(currentRow, 5).Value = "'" + emp.AccountNumber;
-                    worksheet.Cell(currentRow, 6).Value = emp.Bbranch;
-                    worksheet.Cell(currentRow, 7).Value = emp.Npay;
+                    suppliers = suppliers.Where(p => p.Branch == saccoBranch);
+                    transporters = transporters.Where(p => p.Tbranch == saccoBranch);
                 }
 
-                transporterspayroll.ForEach(l =>
+                SNpay = dpayrollobj.Where(k => k.Npay > 0).Sum(k => k.Npay);
+                foreach (var emp in dpayrollobj)
                 {
+                    if(emp.Npay > 0)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = emp.Sno;
 
-                    var transporterdetails = l.FirstOrDefault();
+                        //long.TryParse(emp.Sno, out long sno);
+                        var supplier = suppliers.FirstOrDefault(u => u.Sno == emp.Sno);
+                        worksheet.Cell(currentRow, 2).Value = supplier?.Names ?? "";
+                        worksheet.Cell(currentRow, 3).Value = "'" + emp.AccountNumber;
+                        worksheet.Cell(currentRow, 4).Value = emp.Npay;
+                    }
+                }
 
+                foreach(var payRolls in transporterspayroll)
+                {
+                    var transporterdetails = payRolls.FirstOrDefault();
+                    if(transporterdetails.NetPay > 0)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = transporterdetails.Code;
+                        var transporter = transporters.FirstOrDefault(u => u.TransCode == transporterdetails.Code);
+                        worksheet.Cell(currentRow, 2).Value = transporter.TransName;
+                        worksheet.Cell(currentRow, 3).Value = "'" + transporterdetails.AccNo;
+                        worksheet.Cell(currentRow, 4).Value = transporterdetails.NetPay;
+                    }
+                }
+
+                var sign1 = "Created By:";
+                var sign2 = "Approved By:";
+                var sign3 = "Signed By:";
+                if(StrValues.Slopes == sacco)
+                {
                     currentRow++;
-                    worksheet.Cell(currentRow, 1).Value = transporterdetails.Code;
-                    var namelist = _context.DTransporters.FirstOrDefault(u => u.TransCode == transporterdetails.Code && u.ParentT == sacco);
-                    worksheet.Cell(currentRow, 2).Value = namelist.TransName;
-                    worksheet.Cell(currentRow, 3).Value = "'" + namelist.CertNo;
-                    worksheet.Cell(currentRow, 4).Value = transporterdetails.BankName;
-                    worksheet.Cell(currentRow, 5).Value = "'" + transporterdetails.AccNo;
-                    worksheet.Cell(currentRow, 6).Value = transporterdetails.BBranch;
-                    worksheet.Cell(currentRow, 7).Value = transporterdetails.NetPay;
-                });
+                    worksheet.Cell(currentRow, 3).Value = "Signed by:";
+                    sign1 = "CHAIRMAN:";
+                    sign2 = "TREASURER:";
+                    sign3 = "SECRETARY:";
+                }
+
                 currentRow++;
                 worksheet.Cell(currentRow, 3).Value = "Total";
                 worksheet.Cell(currentRow, 7).Value = SNpay + TNpay;
                 currentRow++;
                 currentRow++;
-                worksheet.Cell(currentRow, 2).Value = "Created By:";
+                worksheet.Cell(currentRow, 2).Value = sign1;
                 worksheet.Cell(currentRow, 4).Value = "______________________";
                 currentRow++;
-                worksheet.Cell(currentRow, 2).Value = "Approved By:";
+                worksheet.Cell(currentRow, 2).Value = sign2;
                 worksheet.Cell(currentRow, 4).Value = "______________________";
                 currentRow++;
-                worksheet.Cell(currentRow, 2).Value = "Signed By:";
+                worksheet.Cell(currentRow, 2).Value = sign3;
                 worksheet.Cell(currentRow, 4).Value = "______________________";
                 using (var stream = new MemoryStream())
                 {
@@ -509,7 +520,7 @@ namespace EasyPro.Controllers
                     var content = stream.ToArray();
                     return File(content,
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        $"Suppliers {filter.BankName} Payroll List.xlsx");
+                        $"{filter.BankName} Payroll List.xlsx");
                 }
             }
         }
@@ -568,56 +579,85 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 3).Value = price.Price;
                 worksheet.Cell(currentRow, 4).Value = totalKgs * price.Price;
 
-                // Transport section
-                var transporters = _context.DTransporters.Where(t => t.ParentT == sacco).ToList();
-                var transNos = transporters.Where(t => t.TraderRate < 1)
-                    .Select(t => t.TransCode.ToUpper()).ToList();
-                var transporterPayroll = dTransportersPayRolls.Where(t => transNos.Contains(t.Code.ToUpper()));
-                currentRow++;
-                worksheet.Cell(currentRow, 1).Value = "TRANSPORTERS";
-                worksheet.Cell(currentRow, 2).Value = transporterPayroll.Sum(t => t.NetPay);
+                //// Transport section
+                //var transporters = _context.DTransporters.Where(t => t.ParentT == sacco).ToList();
+                //var transNos = transporters.Where(t => t.TraderRate < 1)
+                //    .Select(t => t.TransCode.ToUpper()).ToList();
+                //var transporterPayroll = dTransportersPayRolls.Where(t => transNos.Contains(t.Code.ToUpper()));
+                //currentRow++;
+                //worksheet.Cell(currentRow, 1).Value = "TRANSPORTERS";
+                //worksheet.Cell(currentRow, 2).Value = transporterPayroll.Sum(t => t.NetPay);
 
-                var tradersNos = transporters.Where(t => t.TraderRate > 0)
-                    .Select(t => t.TransCode.ToUpper()).ToList();
-                var traderPayroll = dTransportersPayRolls.Where(t => tradersNos.Contains(t.Code.ToUpper()));
-                currentRow++;
-                worksheet.Cell(currentRow, 1).Value = "TRADERS";
-                worksheet.Cell(currentRow, 2).Value = traderPayroll.Sum(t => t.NetPay);
+                //var tradersNos = transporters.Where(t => t.TraderRate > 0)
+                //    .Select(t => t.TransCode.ToUpper()).ToList();
+                //var traderPayroll = dTransportersPayRolls.Where(t => tradersNos.Contains(t.Code.ToUpper()));
+                //currentRow++;
+                //worksheet.Cell(currentRow, 1).Value = "TRADERS";
+                //worksheet.Cell(currentRow, 2).Value = traderPayroll.Sum(t => t.NetPay);
 
-                currentRow++;
-                worksheet.Cell(currentRow, 1).Value = "STORES";
-                worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.Agrovet) + dTransportersPayRolls.Sum(t => t.Agrovet);
+                //currentRow++;
+                //worksheet.Cell(currentRow, 1).Value = "STORES";
+                //worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.Agrovet) + dTransportersPayRolls.Sum(t => t.Agrovet);
 
-                currentRow++;
-                worksheet.Cell(currentRow, 1).Value = "ADVANCE";
-                worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.Advance) + dTransportersPayRolls.Sum(t => t.Advance);
+                //currentRow++;
+                //worksheet.Cell(currentRow, 1).Value = "ADVANCE";
+                //worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.Advance) + dTransportersPayRolls.Sum(t => t.Advance);
 
                 // Payment Section
-                var bankGroupedPayroll = payrolls.GroupBy(p => p.Bank).ToList();
+                var bankGroupedPayroll = payrolls.Where(p => p.Npay > 0).GroupBy(p => p.Bank).ToList();
+                var combinedSummaries = new List<CombinedSummary>();
                 bankGroupedPayroll.ForEach(p =>
                 {
-                    currentRow++;
-                    worksheet.Cell(currentRow, 1).Value = p.Key;
-                    worksheet.Cell(currentRow, 2).Value =  p.Sum(b => b.Npay);
+                    combinedSummaries.Add(new CombinedSummary
+                    {
+                        Name = p.Key,
+                        Amount = p.Sum(b => b.Npay)
+                    });
                 });
-
-                var bankGroupedTransporterPayroll = dTransportersPayRolls.GroupBy(p => p.BankName).ToList();
+              
+                var bankGroupedTransporterPayroll = dTransportersPayRolls.Where(p => p.NetPay > 0).GroupBy(p => p.BankName).ToList();
                 bankGroupedTransporterPayroll.ForEach(p =>
                 {
-                    currentRow++;
-                    worksheet.Cell(currentRow, 1).Value = p.Key;
-                    worksheet.Cell(currentRow, 2).Value = p.Sum(b => b.NetPay);
+                    combinedSummaries.Add(new CombinedSummary
+                    {
+                        Name = p.Key,
+                        Amount = p.Sum(b => b.NetPay)
+                    });
                 });
+
+                var summaries = combinedSummaries.GroupBy(s => s.Name);
+                summaries.ForEach(d =>
+                {
+                    var amount = d.Sum(b => b.Amount);
+                    if(amount > 0)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = d.Key;
+                        worksheet.Cell(currentRow, 2).Value = amount;
+                    }
+                });
+
+                var sign1 = "Created By:";
+                var sign2 = "Approved By:";
+                var sign3 = "Signed By:";
+                if (StrValues.Slopes == sacco)
+                {
+                    currentRow++;
+                    worksheet.Cell(currentRow, 3).Value = "Signed by:";
+                    sign1 = "CHAIRMAN:";
+                    sign2 = "TREASURER:";
+                    sign3 = "SECRETARY:";
+                }
 
                 currentRow++;
                 currentRow++;
-                worksheet.Cell(currentRow, 2).Value = "Created By:";
+                worksheet.Cell(currentRow, 2).Value = sign1;
                 worksheet.Cell(currentRow, 4).Value = "______________________";
                 currentRow++;
-                worksheet.Cell(currentRow, 2).Value = "Approved By:";
+                worksheet.Cell(currentRow, 2).Value = sign2;
                 worksheet.Cell(currentRow, 4).Value = "______________________";
                 currentRow++;
-                worksheet.Cell(currentRow, 2).Value = "Signed By:";
+                worksheet.Cell(currentRow, 2).Value = sign3;
                 worksheet.Cell(currentRow, 4).Value = "______________________";
                 using (var stream = new MemoryStream())
                 {
@@ -751,11 +791,12 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 20).Value = "TDeductions";
                 worksheet.Cell(currentRow, 21).Value = "KgsSupplied";
                 worksheet.Cell(currentRow, 22).Value = "GPay";
-                worksheet.Cell(currentRow, 23).Value = "NPay";
-                worksheet.Cell(currentRow, 24).Value = "Bank";
-                worksheet.Cell(currentRow, 25).Value = "AccountNumber";
-                worksheet.Cell(currentRow, 26).Value = "BBranch";
-                worksheet.Cell(currentRow, 27).Value = "Station";
+                worksheet.Cell(currentRow, 23).Value = "Subsidy";
+                worksheet.Cell(currentRow, 24).Value = "NPay";
+                worksheet.Cell(currentRow, 25).Value = "Bank";
+                worksheet.Cell(currentRow, 26).Value = "AccountNumber";
+                worksheet.Cell(currentRow, 27).Value = "BBranch";
+                worksheet.Cell(currentRow, 28).Value = "Station";
 
                 decimal? Transport = 0;
                 decimal? Agrovet = 0;
@@ -774,6 +815,7 @@ namespace EasyPro.Controllers
                 decimal? Tdeductions = 0;
                 double? KgsSupplied = 0;
                 decimal? Gpay = 0;
+                decimal? Subsidy = 0;
                 decimal? Npay = 0;
                 decimal? loans = 0;
                 decimal? Registration = 0;
@@ -796,6 +838,7 @@ namespace EasyPro.Controllers
                 Tdeductions = payrollData.Sum(k => k.Tdeductions);
                 KgsSupplied = payrollData.Sum(k => k.KgsSupplied);
                 Gpay = payrollData.Sum(k => k.Gpay);
+                Subsidy = payrollData.Sum(k => k.Subsidy);
                 Npay = payrollData.Sum(k => k.Npay);
                 loans = payrollData.Sum(k => k.Fsa);
 
@@ -824,11 +867,12 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 20).Value = c.Tdeductions;
                     worksheet.Cell(currentRow, 21).Value = c.KgsSupplied;
                     worksheet.Cell(currentRow, 22).Value = c.Gpay;
-                    worksheet.Cell(currentRow, 23).Value = c.Npay;
-                    worksheet.Cell(currentRow, 24).Value = c.Bank;
-                    worksheet.Cell(currentRow, 25).Value = "'" + c.AccountNumber;
-                    worksheet.Cell(currentRow, 26).Value = c.Bbranch;
-                    worksheet.Cell(currentRow, 27).Value = c.Branch;
+                    worksheet.Cell(currentRow, 23).Value = c.Subsidy;
+                    worksheet.Cell(currentRow, 24).Value = c.Npay;
+                    worksheet.Cell(currentRow, 25).Value = c.Bank;
+                    worksheet.Cell(currentRow, 26).Value = "'" + c.AccountNumber;
+                    worksheet.Cell(currentRow, 27).Value = c.Bbranch;
+                    worksheet.Cell(currentRow, 28).Value = c.Branch;
                 });
 
                 currentRow++;
@@ -852,7 +896,8 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 20).Value = Tdeductions;
                 worksheet.Cell(currentRow, 21).Value = KgsSupplied;
                 worksheet.Cell(currentRow, 22).Value = Gpay;
-                worksheet.Cell(currentRow, 23).Value = Npay;
+                worksheet.Cell(currentRow, 23).Value = Subsidy;
+                worksheet.Cell(currentRow, 24).Value = Npay;
 
                 
                 using (var stream = new MemoryStream())

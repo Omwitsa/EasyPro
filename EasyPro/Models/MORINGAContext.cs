@@ -309,6 +309,8 @@ namespace EasyPro.Models
 		public virtual DbSet<EmpBenefit> EmpBenefits { get; set; }
 		public virtual DbSet<ProductCat> d_ProductCat { get; set; }
 		public virtual DbSet<SocietyStandingOrder> SocietyStandingOrder { get; set; }
+		public virtual DbSet<SaccoShares> SaccoShares { get; set; }
+		public virtual DbSet<SaccoLoans> SaccoLoans { get; set; }
         public object DemoExcel { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

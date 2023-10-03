@@ -1,4 +1,6 @@
-﻿namespace EasyPro.Models.BosaModels
+﻿using System;
+
+namespace EasyPro.Models.BosaModels
 {
     public class LoanBal
     {
@@ -7,6 +9,7 @@
         public string LoanCode { get; set; }
         public string MemberNo { get; set; }
         public decimal Balance { get; set; }
+        public DateTime? LastDate { get; set; }
         public decimal? Installments { get; set; }
         public decimal? RepayRate { get; set; }
         public string Companycode { get; set; }
