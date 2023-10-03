@@ -62,5 +62,12 @@ namespace EasyPro.Models
         public decimal? Tractor { get; set; }
         public decimal? CurryForward { get; set; }
         public decimal? MIDPAY { get; set; }
+        public decimal? NOV_OVPMNT { get; set; }
+        public decimal? SACCO_SHARES { get; set; }
+        public decimal? SACCO_SAVINGS { get; set; }
+        public decimal? INST_ADVANCE { get; set; }
+        public decimal? MILK_RECOVERY { get; set; }
+        public decimal? KIIGA { get; set; }
+        public decimal? KIROHA { get; set; }
     }
 }

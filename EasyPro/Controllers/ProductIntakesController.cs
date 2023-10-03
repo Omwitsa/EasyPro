@@ -1597,17 +1597,17 @@ namespace EasyPro.Controllers
                 //return Json(new { data = Farmersobj });
                 return View(Farmersobj);
             }
-            //if (!intakes.Any())
-            //{
-            //    _notyf.Error("Sorry, Supplier has not deliver any product for this month" + " " + startdate + "To " + " " + enddate);
-            //    Farmersobj = new FarmersVM()
-            //    {
-            //        DSuppliers = supplierList,
-            //        ProductIntake = productIntake
-            //    };
-            //    //return Json(new { data = Farmersobj });
-            //    return View(Farmersobj);
-            //}
+            if (!intakes.Any())
+            {
+                _notyf.Error("Sorry, Supplier has not deliver any product for this month" + " " + startdate + "To " + " " + enddate);
+                Farmersobj = new FarmersVM()
+                {
+                    DSuppliers = supplierList,
+                    ProductIntake = productIntake
+                };
+                //return Json(new { data = Farmersobj });
+                return View(Farmersobj);
+            }
             if (string.IsNullOrEmpty(productIntake.Sno))
             {
                 _notyf.Error("Sorry, Farmer code cannot be zero");

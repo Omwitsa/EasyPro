@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Syncfusion.EJ2.Linq;
 using DocumentFormat.OpenXml.InkML;
 using Stripe;
+using EasyPro.Models.BosaModels;
 
 namespace EasyPro.Controllers
 {
@@ -21,11 +22,13 @@ namespace EasyPro.Controllers
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
         private Utilities utilities;
+        private readonly BosaDbContext _bosaDbContext;
 
-        public DPayrollsController(MORINGAContext context, INotyfService notyf)
+        public DPayrollsController(MORINGAContext context, INotyfService notyf, BosaDbContext bosaDbContext)
         {
             _context = context;
             _notyf = notyf;
+            _bosaDbContext = bosaDbContext;
             utilities = new Utilities(context);
         }
 
@@ -284,6 +287,48 @@ namespace EasyPro.Controllers
                     + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR)
                     + registration.Sum(s => s.DR) + MIDPAY.Sum(s => s.DR);
 
+                    var memberLoans = loan.Sum(s => s.DR);
+                    decimal saccoShares = 0;
+                    decimal saccoSavings = 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        var loans = _bosaDbContext.LOANBAL.Where(l => l.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper())
+                        && l.Balance > 0 && l.Companycode == StrValues.SlopesCode).ToList();
+                        
+                        //var types = _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToList();
+                        loans.ForEach(l =>
+                        {
+                            Tot += l.Installments;
+                            memberLoans += l.Installments;
+                            l.Balance -= (decimal)l.Installments;
+                        });
+
+                        var standingOrder = _bosaDbContext.CONTRIB_standingOrder.FirstOrDefault(o => o.CompanyCode == StrValues.SlopesCode 
+                        && o.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper()));
+                        decimal.TryParse(standingOrder.Installment, out saccoShares);
+                        Tot += saccoShares;
+                        var contribs = _bosaDbContext.CONTRIB.Where(c => c.CompanyCode == StrValues.SlopesCode
+                        && c.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper())).ToList();
+                        contribs.ForEach(c =>
+                        {
+                            if (c.Remarks.ToUpper().Contains("SHARES") && c.Amount < 5500)
+                            {
+                                c.Amount += saccoShares;
+                                if(c.Amount > 5500)
+                                {
+                                    saccoSavings = (decimal)(c.Amount - 5500);
+                                    c.Amount = 5500;
+                                    saccoShares = 0;
+                                }
+                            }
+                            if (c.Remarks.ToUpper().Contains("SAVINGS") && c.Amount >= 5500)
+                            {
+                                saccoSavings += saccoShares;
+                                c.Amount += saccoShares;
+                            }
+                        });
+                    }
+
                     var grossPay = credited + subsidy;
                     if (supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate))
                     {
@@ -305,7 +350,7 @@ namespace EasyPro.Controllers
                             SMS = SMS.Sum(s => s.DR),
                             Agrovet = agrovet.Sum(s => s.DR),
                             Bonus = bonus.Sum(s => s.DR),
-                            Fsa = loan.Sum(s => s.DR),
+                            Fsa = memberLoans,
                             Hshares = shares.Sum(s => s.DR),
                             MIDPAY = MIDPAY.Sum(s => s.DR),
                             Tdeductions = Tot,
@@ -319,7 +364,9 @@ namespace EasyPro.Controllers
                             EndofPeriod = period.EndDate,
                             SaccoCode = sacco,
                             Auditid = loggedInUser,
-                            Branch = supplier.Branch
+                            Branch = supplier.Branch,
+                            SACCO_SHARES = saccoShares,
+                            SACCO_SAVINGS = saccoSavings
                         });
 
                         var checkifanydeduction = productIntakeslist.Where(n => n.Branch == supplier.Branch && n.TransDate == period.EndDate

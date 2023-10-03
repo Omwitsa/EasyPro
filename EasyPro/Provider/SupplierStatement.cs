@@ -27,6 +27,7 @@ namespace EasyPro.Provider
             _context = context;
             _bosaDbContext = bosaDbContext;
         }
+
         public async Task<dynamic> GenerateStatement(StatementFilter filter)
         {
             filter.Code = filter.Code ?? "";

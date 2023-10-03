@@ -44,5 +44,8 @@ namespace EasyPro.Models
         public decimal? VARIANCE { get; set; }
         public decimal? CurryForward { get; set; }
         public decimal? MIDPAY { get; set; }
+        public decimal? SACCO_SHARES { get; set; }
+        public decimal? SACCO_SAVINGS { get; set; }
+        public decimal? INST_ADVANCE { get; set; }
     }
 }
