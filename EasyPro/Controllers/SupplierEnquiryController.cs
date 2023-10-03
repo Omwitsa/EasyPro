@@ -151,7 +151,8 @@ namespace EasyPro.Controllers
             DateTime now = DateTime.Now;
             DateTime startDate = new DateTime(now.Year, now.Month, 1);
             DateTime enDate = startDate.AddMonths(1).AddDays(-1);
-            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            IQueryable<DTransporter> dTransporters = _context.DTransporters;
+            var transporters = await dTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
@@ -301,10 +302,12 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
 
+            IQueryable<DTransporter> dTransporters = _context.DTransporters;
+            IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
             if (StrValues.Slopes == sacco)
-                sno = _context.DTransporters.FirstOrDefault(t => t.CertNo == sno)?.TransCode ?? "";
+                sno = dTransporters.FirstOrDefault(t => t.CertNo == sno)?.TransCode ?? "";
 
-            var intakes = _context.ProductIntake.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
+            var intakes = productIntakes.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
            .Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)

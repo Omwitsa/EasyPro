@@ -240,9 +240,9 @@ namespace EasyPro.Controllers
                 await ConsolidateTranspoterIntakes(startDate, period.EndDate, productIntakeslist);
 
             _context.SaveChanges();
-            var dcodes = await _context.DDcodes.Where(c => c.Description.ToLower().Equals("advance") || c.Description.ToLower().Equals("transport")
-               || c.Description.ToLower().Equals("agrovet") || c.Description.ToLower().Equals("store")
-               || c.Description.ToLower().Equals("bonus") || c.Description.ToLower().Equals("shares")
+            var dcodes = await _context.DDcodes.Where(c => c.Description.ToLower().Contains("advance") || c.Description.ToLower().Equals("transport")
+               || c.Description.ToLower().Equals("agrovet") || c.Description.ToLower().Equals("store") || c.Description.ToLower().Equals("eclof")
+               || c.Description.ToLower().Equals("bonus") || c.Description.ToLower().Equals("shares") || c.Description.ToLower().Equals("sacco")
                || c.Description.ToLower().Equals("loan") || c.Description.ToLower().Equals("carry forward") || c.Description.ToLower().Equals("clinical")
                || c.Description.ToLower().Equals("a.i") || c.Description.ToLower().Equals("ai") || c.Description.ToLower().Equals("tractor")
                || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work")
@@ -280,6 +280,8 @@ namespace EasyPro.Controllers
                 var kiiga = p.Where(k => k.ProductType.ToUpper().Contains("KIIGA"));
                 var kiroha = p.Where(k => k.ProductType.ToUpper().Contains("KIROHA DAIRY"));
                 var overpayment = p.Where(k => k.ProductType.ToUpper().Contains("NOV OVERPAYMENT"));
+                var ECLOF = p.Where(k => k.ProductType.ToLower().Contains("eclof"));
+                var saccoDed = p.Where(k => k.ProductType.ToLower().Contains("sacco"));
                 var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                 var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
@@ -305,7 +307,8 @@ namespace EasyPro.Controllers
                     + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) + tractor.Sum(s => s.DR) + transport.Sum(s => s.DR)
                     + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR)
                     + registration.Sum(s => s.DR) + MIDPAY.Sum(s => s.DR) + instantAdvance.Sum(s => s.DR) + kiiga.Sum(s => s.DR)
-                    + kiroha.Sum(s => s.DR) + overpayment.Sum(s => s.DR); 
+                    + kiroha.Sum(s => s.DR) + overpayment.Sum(s => s.DR) + registration.Sum(s => s.DR) + MIDPAY.Sum(s => s.DR) 
+                    + saccoDed.Sum(s => s.DR) + ECLOF.Sum(s => s.DR);
 
                     var memberLoans = loan.Sum(s => s.DR);
                     decimal saccoShares = 0;
@@ -374,6 +377,8 @@ namespace EasyPro.Controllers
                             Fsa = memberLoans,
                             Hshares = shares.Sum(s => s.DR),
                             MIDPAY = MIDPAY.Sum(s => s.DR),
+                            ECLOF = ECLOF.Sum(s => s.DR),
+                            saccoDed = saccoDed.Sum(s => s.DR),
                             Tdeductions = Tot,
                             Npay = grossPay - (debits + Tot),
                             Yyear = period.EndDate.Year,
@@ -585,8 +590,6 @@ namespace EasyPro.Controllers
         {
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
 
-
-
             var getsuppliers = productIntakeslist.Where(n => n.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && n.TransDate >= startDate
              && n.TransDate <= endDate &&
              (n.TransactionType == TransactionType.Correction || n.TransactionType == TransactionType.Intake))
@@ -640,7 +643,7 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var dcodes = await _context.DDcodes.Where(d => d.Dcode == sacco).ToListAsync();
-
+            IQueryable<ProductIntake> productIntakes1 = _context.ProductIntake;
             ViewBag.isElburgon = StrValues.Elburgon == sacco;
             if (StrValues.Elburgon != sacco)
             {
@@ -764,7 +767,7 @@ namespace EasyPro.Controllers
                 getsuppliers.ForEach(n =>
                 {
                     var supplierDetails = n.FirstOrDefault();
-                    var kilos = productIntakeslist.Where(l =>l.TransDate>= startDate  && l.TransDate<= endDate && l.Sno.ToUpper().Equals(supplierDetails.Sno.ToUpper()) && l.TransactionType == TransactionType.Intake || l.TransactionType == TransactionType.Correction).Sum(w => w.Qsupplied);
+                    var kilos = productIntakes1.Where(l =>(l.TransDate>= startDate && l.TransDate <= endDate) && l.SaccoCode == sacco && l.Branch == saccoBranch  && l.Sno.ToUpper().Equals(supplierDetails.Sno.ToUpper()) && (l.TransactionType == TransactionType.Intake || l.TransactionType == TransactionType.Correction)).Sum(w => w.Qsupplied);
                     if (kilos > 0)
                     {
                         var totalshare = _context.DShares.Where(f => f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.Branch == saccoBranch && f.Sno.ToUpper().Equals(supplierDetails.Sno.ToUpper())).Sum(n => n.Amount);
@@ -791,7 +794,7 @@ namespace EasyPro.Controllers
                             Sno = supplierDetails.Sno.Trim().ToUpper(),
                             TransDate = (DateTime)endDate,
                             TransTime = DateTime.Now.TimeOfDay,
-                            ProductType = getpricegls.Products,
+                            ProductType = "SHARES",
                             Qsupplied = 0,
                             Ppu = 0,
                             CR = 0,

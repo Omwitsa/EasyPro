@@ -788,15 +788,17 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 17).Value = "SMS";
                 worksheet.Cell(currentRow, 18).Value = "Loan";
                 worksheet.Cell(currentRow, 19).Value = "Registration";
-                worksheet.Cell(currentRow, 20).Value = "TDeductions";
-                worksheet.Cell(currentRow, 21).Value = "KgsSupplied";
-                worksheet.Cell(currentRow, 22).Value = "GPay";
-                worksheet.Cell(currentRow, 23).Value = "Subsidy";
-                worksheet.Cell(currentRow, 24).Value = "NPay";
-                worksheet.Cell(currentRow, 25).Value = "Bank";
-                worksheet.Cell(currentRow, 26).Value = "AccountNumber";
-                worksheet.Cell(currentRow, 27).Value = "BBranch";
-                worksheet.Cell(currentRow, 28).Value = "Station";
+                worksheet.Cell(currentRow, 20).Value = "ECLOF";
+                worksheet.Cell(currentRow, 21).Value = "saccoDed";
+                worksheet.Cell(currentRow, 22).Value = "TDeductions";
+                worksheet.Cell(currentRow, 23).Value = "KgsSupplied";
+                worksheet.Cell(currentRow, 24).Value = "GPay";
+                worksheet.Cell(currentRow, 25).Value = "Subsidy";
+                worksheet.Cell(currentRow, 26).Value = "NPay";
+                worksheet.Cell(currentRow, 27).Value = "Bank";
+                worksheet.Cell(currentRow, 28).Value = "AccountNumber";
+                worksheet.Cell(currentRow, 29).Value = "BBranch";
+                worksheet.Cell(currentRow, 30).Value = "Station";
 
                 decimal? Transport = 0;
                 decimal? Agrovet = 0;
@@ -819,6 +821,8 @@ namespace EasyPro.Controllers
                 decimal? Npay = 0;
                 decimal? loans = 0;
                 decimal? Registration = 0;
+                decimal? ECLOF = 0;
+                decimal? saccoDed = 0;
 
                 var payrollData = await Gedpayrolldata(startDate, endDate);
                 Transport = payrollData.Sum(k => k.Transport);
@@ -841,6 +845,8 @@ namespace EasyPro.Controllers
                 Subsidy = payrollData.Sum(k => k.Subsidy);
                 Npay = payrollData.Sum(k => k.Npay);
                 loans = payrollData.Sum(k => k.Fsa);
+                ECLOF = payrollData.Sum(k => k.ECLOF);
+                saccoDed = payrollData.Sum(k => k.saccoDed);
 
                 payrollData.ForEach(c =>
                 {
@@ -864,15 +870,17 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 17).Value = c.SMS;
                     worksheet.Cell(currentRow, 18).Value = c.Fsa;
                     worksheet.Cell(currentRow, 19).Value = c.Registration;
-                    worksheet.Cell(currentRow, 20).Value = c.Tdeductions;
-                    worksheet.Cell(currentRow, 21).Value = c.KgsSupplied;
-                    worksheet.Cell(currentRow, 22).Value = c.Gpay;
-                    worksheet.Cell(currentRow, 23).Value = c.Subsidy;
-                    worksheet.Cell(currentRow, 24).Value = c.Npay;
-                    worksheet.Cell(currentRow, 25).Value = c.Bank;
-                    worksheet.Cell(currentRow, 26).Value = "'" + c.AccountNumber;
-                    worksheet.Cell(currentRow, 27).Value = c.Bbranch;
-                    worksheet.Cell(currentRow, 28).Value = c.Branch;
+                    worksheet.Cell(currentRow, 20).Value = c.ECLOF;
+                    worksheet.Cell(currentRow, 21).Value = c.saccoDed;
+                    worksheet.Cell(currentRow, 22).Value = c.Tdeductions;
+                    worksheet.Cell(currentRow, 23).Value = c.KgsSupplied;
+                    worksheet.Cell(currentRow, 24).Value = c.Gpay;
+                    worksheet.Cell(currentRow, 25).Value = c.Subsidy;
+                    worksheet.Cell(currentRow, 26).Value = c.Npay;
+                    worksheet.Cell(currentRow, 27).Value = c.Bank;
+                    worksheet.Cell(currentRow, 28).Value = "'" + c.AccountNumber;
+                    worksheet.Cell(currentRow, 29).Value = c.Bbranch;
+                    worksheet.Cell(currentRow, 30).Value = c.Branch;
                 });
 
                 currentRow++;
@@ -893,13 +901,14 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 17).Value = SMS;
                 worksheet.Cell(currentRow, 18).Value = loans;
                 worksheet.Cell(currentRow, 19).Value = Registration;
-                worksheet.Cell(currentRow, 20).Value = Tdeductions;
-                worksheet.Cell(currentRow, 21).Value = KgsSupplied;
-                worksheet.Cell(currentRow, 22).Value = Gpay;
-                worksheet.Cell(currentRow, 23).Value = Subsidy;
-                worksheet.Cell(currentRow, 24).Value = Npay;
+                worksheet.Cell(currentRow, 20).Value = ECLOF;
+                worksheet.Cell(currentRow, 21).Value = saccoDed;
+                worksheet.Cell(currentRow, 22).Value = Tdeductions;
+                worksheet.Cell(currentRow, 23).Value = KgsSupplied;
+                worksheet.Cell(currentRow, 24).Value = Gpay;
+                worksheet.Cell(currentRow, 26).Value = Subsidy;
+                worksheet.Cell(currentRow, 26).Value = Npay;
 
-                
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
@@ -954,6 +963,7 @@ namespace EasyPro.Controllers
                 Tdeductions=val.Tdeductions,
                 KgsSupplied=val.KgsSupplied,
                 Gpay=val.Gpay,
+                Subsidy = val.Subsidy,
                 Npay=val.Npay,
                 Bank=val.Bank,
                 AccountNumber=val.AccountNumber,
