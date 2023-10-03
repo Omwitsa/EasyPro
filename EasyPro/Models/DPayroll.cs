@@ -69,5 +69,7 @@ namespace EasyPro.Models
         public decimal? MILK_RECOVERY { get; set; }
         public decimal? KIIGA { get; set; }
         public decimal? KIROHA { get; set; }
+        public decimal? ECLOF { get; set; }
+        public decimal? saccoDed { get; set; }
     }
 }

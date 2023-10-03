@@ -65,5 +65,7 @@ namespace EasyPro.ViewModels
         public decimal? Tractor { get; set; }
         public decimal? CurryForward { get; set; }
         public decimal? MIDPAY { get; set; }
+        public decimal? ECLOF { get; set; }
+        public decimal? saccoDed { get; set; }
     }
 }
