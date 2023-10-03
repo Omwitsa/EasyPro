@@ -839,6 +839,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
             productIntake.Branch = saccoBranch;
             productIntake.Sno = productIntake?.Sno ?? "";
             productIntake.Qsupplied = productIntake?.Qsupplied ?? 0;
@@ -1012,8 +1013,11 @@ namespace EasyPro.Controllers
                     productIntake.CR = productIntake.Qsupplied * transport.Rate;
 
                 productIntake.DR = 0;
-                if (StrValues.Slopes != sacco)
-                    productIntake.Remarks = "Intake for " + productIntake.Sno;
+                //if (StrValues.Slopes != sacco)
+                productIntake.Remarks = "Intake for: " + productIntake.Sno;
+
+                //var checktransportifalreadyded = productIntakes.FirstOrDefault(m=>m.SaccoCode == sacco && m.Branch == saccoBranch 
+                //&& m.Sno.Trim().ToUpper().Equals(transport.TransCode.Trim().ToUpper()) && );
                 _context.ProductIntake.Add(new ProductIntake
                 {
                     Sno = transport.TransCode.Trim().ToUpper(),

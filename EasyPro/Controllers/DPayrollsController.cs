@@ -429,8 +429,15 @@ namespace EasyPro.Controllers
 
             await _context.SaveChangesAsync();
             var transporters = await _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
+            if (StrValues.Slopes == sacco)
+            { 
+                if (user.AccessLevel == AccessLevel.Branch)
                 transporters = transporters.Where(p => p.Tbranch == saccoBranch).ToList();
+            }
+            else
+            {
+                transporters = transporters.Where(p => p.Tbranch == saccoBranch).ToList();
+            }
             var transpoterCodes = transporters.Select(s => s.TransCode.Trim().ToUpper()).ToList();
             var productIntakes = productIntakeslist.Where(p => transpoterCodes.Contains(p.Sno.Trim().ToUpper())).ToList();
             intakes = productIntakes.GroupBy(p => p.Sno.Trim().ToUpper()).ToList();
@@ -451,6 +458,8 @@ namespace EasyPro.Controllers
                 var extension = p.Where(k => k.ProductType.ToLower().Contains("extension work"));
                 var instantAdvance = p.Where(k => k.ProductType.ToUpper().Contains("INST ADV"));
                 var SMS = p.Where(k => k.ProductType.ToLower().Contains("sms"));
+                var ECLOF = p.Where(k => k.ProductType.ToLower().Contains("eclof"));
+                var saccoDed = p.Where(k => k.ProductType.ToLower().Contains("sacco"));
                 var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                 var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
@@ -479,7 +488,7 @@ namespace EasyPro.Controllers
                     var Tot = advance.Sum(s => s.DR) + agrovet.Sum(s => s.DR) + shares.Sum(s => s.DR)
                     + Others.Sum(s => s.DR) + clinical.Sum(s => s.DR) + ai.Sum(s => s.DR) + MIDPAY.Sum(s => s.DR)
                     + tractor.Sum(s => s.DR) + variance.Sum(s => s.DR) + carryforward.Sum(s => s.DR) + extension.Sum(s => s.DR)
-                    + SMS.Sum(s => s.DR) + instantAdvance.Sum(s => s.DR);
+                    + SMS.Sum(s => s.DR) + instantAdvance.Sum(s => s.DR) + ECLOF.Sum(s => s.DR) + saccoDed.Sum(s => s.DR);
                     decimal? tranporterLoans = 0;
                     decimal saccoShares = 0;
                     decimal saccoSavings = 0;
@@ -522,7 +531,32 @@ namespace EasyPro.Controllers
                         }
                     }
 
-                    var grossPay = amount + subsidy;
+                    if (StrValues.Elburgon == sacco)
+                    {
+                        subsidy = ((decimal)(p.Sum(s => s.Qsupplied) * (decimal)(0.5)));
+                        _context.ProductIntake.Add(new ProductIntake
+                        {
+                            Sno = transporter.TransCode.Trim().ToUpper(),
+                            TransDate = period.EndDate,
+                            TransTime = DateTime.Now.TimeOfDay,
+                            ProductType = "SUBSIDY",
+                            Qsupplied = 0,
+                            Ppu = 0,
+                            CR = subsidy,
+                            DR = 0,
+                            Description = "SUBSIDY",
+                            TransactionType = TransactionType.Deduction,
+                            Remarks = "SUBSIDY FOR: " + period.EndDate.ToString("mm/yyy"),
+                            AuditId = loggedInUser,
+                            Auditdatetime = DateTime.Now,
+                            Branch = transporter.Tbranch,
+                            SaccoCode = sacco,
+                            DrAccNo = price?.TransportDrAccNo ?? "",
+                            CrAccNo = price?.TransportCrAccNo ?? ""
+                        });
+                    }
+
+                        var grossPay = amount + subsidy;
                     _context.DTransportersPayRolls.Add(new DTransportersPayRoll
                     {
                         Code = transporter.TransCode,
@@ -557,6 +591,8 @@ namespace EasyPro.Controllers
                         SACCO_SHARES = saccoShares,
                         SACCO_SAVINGS = saccoSavings,
                         INST_ADVANCE = instantAdvance.Sum(s => s.DR),
+                        ECLOF = ECLOF.Sum(s => s.DR),
+                        saccoDed = saccoDed.Sum(s => s.DR),
                     });
                 }
             });
@@ -762,6 +798,7 @@ namespace EasyPro.Controllers
             }
             else
             {//n.Status1 &&
+                /// FOR ELBURGON PROGRESIVE DAIRY ONLY
                 //var getsuppliers = _context.DSuppliers.Where(n => n.Scode == sacco  && n.Branch == saccoBranch).ToList().GroupBy(b => b.Sno.ToUpper()).Distinct().ToList();
                 var getsuppliers = _context.d_PreSets.Where(l => !l.Stopped && l.saccocode == sacco && l.BranchCode == saccoBranch).ToList().GroupBy(b => b.Sno.ToUpper()).Distinct().ToList();
                 getsuppliers.ForEach(n =>
@@ -776,7 +813,7 @@ namespace EasyPro.Controllers
                         _context.DShares.Add(new DShare
                         {
                             Sno = supplierDetails.Sno.Trim().ToUpper(),
-                            Type = "Checkoff",
+                            Type = "SHARES",
                             Pmode = "Checkoff",
                             Amount = (decimal)kilos,
                             Period = DateTime.Today.Month.ToString(),
@@ -900,7 +937,7 @@ namespace EasyPro.Controllers
                             DR = dr,
                             Description = "Transport",
                             TransactionType = TransactionType.Deduction,
-                            Remarks = "Transport",
+                            Remarks = "Transport For: " + intake.TransCode,
                             AuditId = loggedInUser,
                             Auditdatetime = DateTime.Now,
                             Branch = intake.Branch,
@@ -929,7 +966,7 @@ namespace EasyPro.Controllers
                         DR = dr,
                         Description = "Transport",
                         TransactionType = TransactionType.Deduction,
-                        Remarks = "Intake for" + intake.Sno,
+                        Remarks = "Intake for: " + intake.Sno,
                         AuditId = loggedInUser,
                         Auditdatetime = DateTime.Now,
                         Branch = intake.Branch,

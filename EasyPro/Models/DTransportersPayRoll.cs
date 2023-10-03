@@ -47,5 +47,7 @@ namespace EasyPro.Models
         public decimal? SACCO_SHARES { get; set; }
         public decimal? SACCO_SAVINGS { get; set; }
         public decimal? INST_ADVANCE { get; set; }
+        public decimal? ECLOF { get; set; }
+        public decimal? saccoDed { get; set; }
     }
 }

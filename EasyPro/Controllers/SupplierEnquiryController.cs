@@ -308,10 +308,17 @@ namespace EasyPro.Controllers
                 sno = dTransporters.FirstOrDefault(t => t.CertNo == sno)?.TransCode ?? "";
 
             var intakes = productIntakes.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
-           .Equals(sacco.ToUpper()) && i.TransDate >= date1 && i.TransDate <= date2).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
+           .Equals(sacco.ToUpper()) && (i.TransDate >= date1 && i.TransDate <= date2)).ToList().OrderBy(m=>m.TransDate).ToList();
+            if (StrValues.Slopes == sacco)
+            { 
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
+            }
+            else
+            {
                 intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
+            }
 
             decimal? bal = 0;
             intakes.ForEach(i =>
@@ -324,7 +331,7 @@ namespace EasyPro.Controllers
                     i.Remarks = i.ProductType;
             });
 
-            intakes = intakes.OrderByDescending(i => i.TransDate).ToList();
+            //intakes = intakes.OrderByDescending(i => i.TransDate).ToList();
             return Json(intakes);
         }
 
