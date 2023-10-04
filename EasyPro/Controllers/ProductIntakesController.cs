@@ -940,7 +940,11 @@ namespace EasyPro.Controllers
             };
             _context.ProductIntake.Add(collection);
 
-            await calcDefaultdeductions(collection);
+            if (StrValues.Elburgon != sacco)
+            {
+                await calcDefaultdeductions(collection);
+            }
+                
 
             var activeAssignments = await _context.DTransports.Where(t => t.Active && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) && t.saccocode == sacco).ToListAsync();
             var transports = activeAssignments.Where(t => t.Sno == productIntake.Sno).ToList();
@@ -1626,7 +1630,10 @@ namespace EasyPro.Controllers
             }
             if (ModelState.IsValid)
             {
+                decimal amounttoshares = 0;
                 var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                if (StrValues.Elburgon == sacco && productIntake.ProductType.ToLower().Contains("share"))
+                    auditId = "admin";
                 productIntake.AuditId = auditId ?? "";
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.TransDate = productIntake.TransDate;
@@ -1636,20 +1643,57 @@ namespace EasyPro.Controllers
                 {
                     productIntake.DR = productIntake.DR;
                     productIntake.CR = 0;
+                    amounttoshares = (decimal)productIntake.DR;
                 }
                 else
                 {
                     productIntake.CR = (productIntake.DR*-1);
                     productIntake.DR = 0;
+                    amounttoshares = (decimal)productIntake.CR;
                 }
                 string re = productIntake.Remarks;
                 if (string.IsNullOrEmpty(productIntake.Remarks))
                     re = productIntake.ProductType;
                 productIntake.Description = re;
-                productIntake.Remarks = re;
+                productIntake.Remarks = re+ "Deducted";
                 productIntake.Balance = utilities.GetBalance(productIntake);
                 productIntake.Zone = productIntake.Zone;
                 _context.Add(productIntake);
+
+                ///for shares deduction it should add to shares and product intake table
+                if (productIntake.ProductType.ToLower().Contains("share"))
+                {
+                    var dSupplier = suppliers.FirstOrDefault();
+                    _context.DShares.Add(new DShare
+                    {
+                        Sno = productIntake.Sno,
+                        Bal = amounttoshares,
+                        IdNo = dSupplier.IdNo,
+                        Code ="",
+                        Name = dSupplier.Names,
+                        Sex = dSupplier.Type,
+                        Loc = dSupplier.Location,
+                        Type = dSupplier.Type,
+                        TransDate = productIntake.TransDate,
+                        Pmode = "Checkoff",
+                        Cash = false,
+                        Period = productIntake.TransDate.ToString("M"),
+                        Amnt =  0,
+                        AuditId = loggedInUser,
+                        AuditDateTime = DateTime.Now,
+                        Shares = 0,
+                        Regdate = dSupplier.Regdate,
+                        Mno = "0",
+                        Amount = amounttoshares,
+                        Premium = 0,
+                        Spu = 0,
+                        SaccoCode = sacco,
+                        Branch = productIntake.Branch,
+                        zone = "",
+                    });
+                }
+                
+
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
             }
@@ -1936,7 +1980,10 @@ namespace EasyPro.Controllers
             };
             _context.ProductIntake.Add(collection);
 
-            await calcDefaultdeductions(collection);
+            if (StrValues.Elburgon != sacco)
+            {
+                await calcDefaultdeductions(collection);
+            }
 
             var activeAssignments = await _context.DTransports.Where(t => t.Active && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) && t.saccocode == sacco).ToListAsync();
             var transports = activeAssignments.Where(t => t.Sno == productIntake.Sno).ToList();

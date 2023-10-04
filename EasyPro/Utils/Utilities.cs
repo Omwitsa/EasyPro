@@ -276,6 +276,7 @@ namespace EasyPro.Utils
                     WARD = row.GetCell(13)?.ToString() ?? "",
                     SUB_COUNTY = row.GetCell(14)?.ToString() ?? "",
                     COUNTY = row.GetCell(15)?.ToString() ?? "",
+                    CIGName = row.GetCell(16)?.ToString() ?? "",
                 });
                 
                 sb.AppendLine("</tr>");

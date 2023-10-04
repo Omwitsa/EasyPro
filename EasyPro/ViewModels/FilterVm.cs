@@ -30,5 +30,6 @@ namespace EasyPro.ViewModels
     {
         public DateTime? Date { get; set; }
         public string TCode { get; set; }
+        public bool Individual { get; set; }
     }
 }

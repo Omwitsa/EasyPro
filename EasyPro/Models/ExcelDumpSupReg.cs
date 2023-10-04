@@ -26,5 +26,6 @@ namespace EasyPro.Models
         public string LoggedInUser { get; set; }
         public string Branch { get; set; }
         public string SaccoCode { get; set; }
+        public string CIGName { get; set; }
     }
 }

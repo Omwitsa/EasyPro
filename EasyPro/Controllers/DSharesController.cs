@@ -67,14 +67,20 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var suppliers = _context.DSuppliers
+            GetInitialValues();
+            return View();
+        }
+        private void GetInitialValues()
+        {
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var suppliers = dSuppliers
                 .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
             ViewBag.suppliers = suppliers;
             var codes = _context.DDcodes.Where(a => a.Dcode == sacco).ToList();
             ViewBag.codes = new SelectList(codes, "Description", "Description");
             var modes = new string[] { "Cash", "Mpesa" };
             ViewBag.modes = new SelectList(modes);
-            return View();
         }
 
         // POST: DShares/Create
@@ -91,19 +97,20 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             dShare.Period = DateTime.Today.Month.ToString();
-            dShare.TransDate = DateTime.Today;
             dShare.AuditDateTime = DateTime.Now;
             dShare.SaccoCode = sacco;
             dShare.AuditId = auditId;
-
-            var supplier = _context.DSuppliers.FirstOrDefault(m => m.Scode == sacco && m.Sno == dShare.Sno);
+            GetInitialValues();
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
+            IQueryable<DDcode> dDcodes = _context.DDcodes;
+            var supplier = dSuppliers.FirstOrDefault(m => m.Scode == sacco && m.Sno == dShare.Sno);
             if(supplier == null)
             {
                 _notyf.Error("Sorry, The Sno doe not exist");
                 return View(dShare);
             }
 
-            var dDcode = _context.DDcodes.FirstOrDefault(c => c.Description == dShare.Type && c.Dcode == sacco);
+            var dDcode = dDcodes.FirstOrDefault(c => c.Description == dShare.Type && c.Dcode == sacco);
             if(dDcode == null)
             {
                 _notyf.Error("Sorry, Deduction not set");
@@ -158,6 +165,7 @@ namespace EasyPro.Controllers
                     Spu = dShare.Spu,
                     SaccoCode = dShare.SaccoCode,
                     zone = dShare.zone,
+                    Branch = dShare.Branch,
                 });
 
                 _context.SaveChanges();
