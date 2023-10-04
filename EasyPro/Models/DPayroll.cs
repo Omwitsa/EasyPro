@@ -1,8 +1,5 @@
-﻿using EasyPro.Models.Coffee;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable disable
 
@@ -69,6 +66,7 @@ namespace EasyPro.Models
         public decimal? MILK_RECOVERY { get; set; }
         public decimal? KIIGA { get; set; }
         public decimal? KIROHA { get; set; }
+        public decimal? MilkRecovery { get; set; }
         public decimal? ECLOF { get; set; }
         public decimal? saccoDed { get; set; }
     }

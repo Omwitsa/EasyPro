@@ -246,7 +246,11 @@ namespace EasyPro.Controllers
                || c.Description.ToLower().Equals("loan") || c.Description.ToLower().Equals("carry forward") || c.Description.ToLower().Equals("clinical")
                || c.Description.ToLower().Equals("a.i") || c.Description.ToLower().Equals("ai") || c.Description.ToLower().Equals("tractor")
                || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work")
-               || c.Description.ToLower().Equals("registration") || c.Description.ToLower().Equals("midpay")).Select(c => c.Description.ToLower()).ToListAsync();
+               || c.Description.ToLower().Equals("registration") || c.Description.ToLower().Equals("midpay")
+               || c.Description.ToUpper().Equals("INST ADV") || c.Description.ToUpper().Equals("KIIGA")
+               || c.Description.ToUpper().Equals("KIROHA DAIRY") || c.Description.ToUpper().Equals("NOV OVERPAYMENT")
+               || c.Description.ToUpper().Equals("MILK RECOVERY") 
+               ).Select(c => c.Description.ToLower()).ToListAsync();
 
             var suppliers = await _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
@@ -280,6 +284,7 @@ namespace EasyPro.Controllers
                 var kiiga = p.Where(k => k.ProductType.ToUpper().Contains("KIIGA"));
                 var kiroha = p.Where(k => k.ProductType.ToUpper().Contains("KIROHA DAIRY"));
                 var overpayment = p.Where(k => k.ProductType.ToUpper().Contains("NOV OVERPAYMENT"));
+                var milkRecovery = p.Where(k => k.ProductType.ToUpper().Contains("MILK RECOVERY"));
                 var ECLOF = p.Where(k => k.ProductType.ToLower().Contains("eclof"));
                 var saccoDed = p.Where(k => k.ProductType.ToLower().Contains("sacco"));
                 var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
@@ -308,7 +313,7 @@ namespace EasyPro.Controllers
                     + carryforward.Sum(s => s.DR) + loan.Sum(s => s.DR) + extension.Sum(s => s.DR) + SMS.Sum(s => s.DR)
                     + registration.Sum(s => s.DR) + MIDPAY.Sum(s => s.DR) + instantAdvance.Sum(s => s.DR) + kiiga.Sum(s => s.DR)
                     + kiroha.Sum(s => s.DR) + overpayment.Sum(s => s.DR) + registration.Sum(s => s.DR) + MIDPAY.Sum(s => s.DR) 
-                    + saccoDed.Sum(s => s.DR) + ECLOF.Sum(s => s.DR);
+                    + saccoDed.Sum(s => s.DR) + ECLOF.Sum(s => s.DR) + milkRecovery.Sum(s => s.DR);
 
                     var memberLoans = loan.Sum(s => s.DR);
                     decimal saccoShares = 0;
@@ -397,6 +402,7 @@ namespace EasyPro.Controllers
                             KIIGA = kiiga.Sum(s => s.DR),
                             KIROHA = kiroha.Sum(s => s.DR),
                             NOV_OVPMNT = overpayment.Sum(s => s.DR),
+                            MILK_RECOVERY = milkRecovery.Sum(s => s.DR)
                         });
 
                         var checkifanydeduction = productIntakeslist.Where(n => n.Branch == supplier.Branch && n.TransDate == period.EndDate
@@ -542,6 +548,7 @@ namespace EasyPro.Controllers
                         VARIANCE = variance.Sum(s => s.DR),
                         Agrovet = agrovet.Sum(s => s.DR),
                         Hshares = shares.Sum(s => s.DR),
+                        Fsa = tranporterLoans,
                         Totaldeductions = Tot,
                         NetPay = grossPay - debits - Tot,
                         BankName = transporter.Bcode,
