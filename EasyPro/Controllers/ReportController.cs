@@ -584,21 +584,22 @@ namespace EasyPro.Controllers
                 // Transport section
                 var transNos = transporters.Where(t => t.TraderRate < 1 && t.CertNo != "KIAMARIGA")
                     .Select(t => t.TransCode.ToUpper()).ToList();
-                var transporterPayroll = dTransportersPayRolls.Where(t => t.NetPay > 0 && transNos.Contains(t.Code.ToUpper()));
+                var transporterPayroll = dTransportersPayRolls.Where(t => transNos.Contains(t.Code.ToUpper()));
+                var transportersNet = transporterPayroll.Where(t => t.NetPay > 0).Sum(t => t.NetPay);
                 currentRow++;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORTERS";
-                worksheet.Cell(currentRow, 2).Value = transporterPayroll.Sum(t => t.NetPay);
+                worksheet.Cell(currentRow, 2).Value = transportersNet;
 
                 var tradersNos = transporters.Where(t => t.TraderRate > 0)
                     .Select(t => t.TransCode.ToUpper()).ToList();
-                var traderPayroll = dTransportersPayRolls.Where(t => t.NetPay > 0 && tradersNos.Contains(t.Code.ToUpper()));
+                var traderPayroll = dTransportersPayRolls.Where(t => tradersNos.Contains(t.Code.ToUpper()));
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRADERS TRANS";
                 worksheet.Cell(currentRow, 2).Value = traderPayroll.Sum(t => t.Subsidy);
 
                 var transporter = transporters.FirstOrDefault(t => t.CertNo == "KIAMARIGA");
-                var kiamariga = dTransportersPayRolls.Where(p => p.NetPay > 0 && p.Code.ToUpper().Equals(transporter.TransCode.ToUpper()));
+                var kiamariga = dTransportersPayRolls.Where(p => p.Code.ToUpper().Equals(transporter.TransCode.ToUpper()));
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "KIAMARIGA TRANS";
                 worksheet.Cell(currentRow, 2).Value = kiamariga.Sum(t => t.NetPay);
@@ -617,9 +618,9 @@ namespace EasyPro.Controllers
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "FARMERS FEES";
-                worksheet.Cell(currentRow, 4).Value = payrolls.Where(p => p.Npay > 0).Sum(P => P.Subsidy);
+                worksheet.Cell(currentRow, 4).Value = payrolls.Sum(P => P.Subsidy);
 
-                var totalPayment = farmersPayables + totalTransCost + totalTradersFee + payrolls.Where(p => p.Npay > 0).Sum(P => P.Subsidy);
+                var totalPayment = farmersPayables + totalTransCost + totalTradersFee + payrolls.Sum(P => P.Subsidy);
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TOTAL PAYMENT";
                 worksheet.Cell(currentRow, 4).Value = totalPayment;
