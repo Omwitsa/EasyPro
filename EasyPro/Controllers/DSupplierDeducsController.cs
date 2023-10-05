@@ -405,47 +405,70 @@ namespace EasyPro.Controllers
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
             var activeorders = _context.StandingOrder.Where(o => o.StartDate <= endDate && o.SaccoCode == sacco && !o.Status).ToList();
+
+            var productIntakes = _context.ProductIntake.Where(i => i.Remarks == "Standing Order" && i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco);
             activeorders.ForEach(o =>
             {
-                var exists = _context.ProductIntake.Any(i => i.Sno == o.Sno && i.TransDate >= startDate && i.TransDate <= endDate
-                && i.Remarks == "Standing Order" 
-                && i.Description == o.Description && i.SaccoCode == sacco);
-                if (!exists)
+                if (!productIntakes.Any(i => i.Sno == o.Sno && i.Description == o.Description))
                 {
-                    var check = _context.ProductIntake.Where(m => m.Sno.ToUpper().Equals(o.Sno.ToUpper()) && m.Description.ToUpper().Equals(o.Zone.ToUpper())
-                    && m.SaccoCode== sacco && m.Remarks == "Standing Order" ).Sum(g => g.DR);
-                    if(o.Duration> check)
-                    {
-                        decimal deductamount = (decimal)(o.Duration - check);
-                        if (deductamount < o.Amount)
-                            deductamount = deductamount;
-                        else
-                            deductamount = (decimal)o.Amount;
+                    //var check = _context.ProductIntake.Where(m => m.Sno.ToUpper().Equals(o.Sno.ToUpper()) && m.Description.ToUpper().Equals(o.Zone.ToUpper())
+                    //&& m.SaccoCode== sacco && m.Remarks == "Standing Order").Sum(g => g.DR);
+                    //if(o.Duration> check)
+                    //{
+                    //    decimal deductamount = (decimal)(o.Duration - check);
+                    //    if (deductamount < o.Amount)
+                    //        deductamount = deductamount;
+                    //    else
+                    //        deductamount = (decimal)o.Amount;
 
-                        _context.ProductIntake.Add(new ProductIntake
-                        {
-                            Sno = o.Sno.ToUpper(),
-                            TransDate = endDate,
-                            TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                            ProductType = o?.Zone ?? "",
-                            Qsupplied = 0,
-                            Ppu = 0,
-                            CR = 0,
-                            DR = deductamount,
-                            Balance = 0,
-                            Description = o?.Description ?? "",
-                            TransactionType = TransactionType.Deduction,
-                            Paid = false,
-                            Remarks = "Standing Order",
-                            AuditId = auditId,
-                            Auditdatetime = DateTime.Now,
-                            Branch = "",
-                            SaccoCode = sacco,
-                            DrAccNo = "",
-                            CrAccNo = "",
-                            Posted = false
-                        });
-                    }
+                    //    _context.ProductIntake.Add(new ProductIntake
+                    //    {
+                    //        Sno = o.Sno.ToUpper(),
+                    //        TransDate = endDate,
+                    //        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    //        ProductType = o?.Zone ?? "",
+                    //        Qsupplied = 0,
+                    //        Ppu = 0,
+                    //        CR = 0,
+                    //        DR = deductamount,
+                    //        Balance = 0,
+                    //        Description = o?.Description ?? "",
+                    //        TransactionType = TransactionType.Deduction,
+                    //        Paid = false,
+                    //        Remarks = "Standing Order",
+                    //        AuditId = auditId,
+                    //        Auditdatetime = DateTime.Now,
+                    //        Branch = "",
+                    //        SaccoCode = sacco,
+                    //        DrAccNo = "",
+                    //        CrAccNo = "",
+                    //        Posted = false
+                    //    });
+                    //}
+
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = o.Sno.ToUpper(),
+                        TransDate = endDate,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                        ProductType = o?.Zone ?? "",
+                        Qsupplied = 0,
+                        Ppu = 0,
+                        CR = 0,
+                        DR = o.Amount,
+                        Balance = 0,
+                        Description = o?.Description ?? "",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = false,
+                        Remarks = "Standing Order",
+                        AuditId = auditId,
+                        Auditdatetime = DateTime.Now,
+                        Branch = "",
+                        SaccoCode = sacco,
+                        DrAccNo = "",
+                        CrAccNo = "",
+                        Posted = false
+                    });
                 }
             });
 
