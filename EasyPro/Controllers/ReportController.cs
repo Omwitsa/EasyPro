@@ -537,10 +537,10 @@ namespace EasyPro.Controllers
             var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var payrolls = _context.DPayrolls.Where(p => p.EndofPeriod >= startDate && p.EndofPeriod <= monthsLastDate
-                && p.SaccoCode == sacco).ToList();
+                && p.SaccoCode == sacco && p.Npay > 0).ToList();
             var EndofPeriod = payrolls.FirstOrDefault();
-            var dTransportersPayRolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == sacco && p.NetPay > 0 && p.EndPeriod == EndofPeriod.EndofPeriod)
-               .OrderBy(p => p.Code).ToList();
+            var dTransportersPayRolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == sacco && p.EndPeriod == EndofPeriod.EndofPeriod
+            && p.NetPay > 0).ToList();
             var transporters = _context.DTransporters.Where(t => t.ParentT == sacco).ToList();
             if (user.AccessLevel == AccessLevel.Branch)
             {
@@ -585,7 +585,7 @@ namespace EasyPro.Controllers
                 var transNos = transporters.Where(t => t.TraderRate < 1 && t.CertNo != "KIAMARIGA")
                     .Select(t => t.TransCode.ToUpper()).ToList();
                 var transporterPayroll = dTransportersPayRolls.Where(t => transNos.Contains(t.Code.ToUpper()));
-                var transportersNet = transporterPayroll.Where(t => t.NetPay > 0).Sum(t => t.NetPay);
+                var transportersNet = transporterPayroll.Sum(t => t.NetPay);
                 currentRow++;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORTERS";
@@ -604,7 +604,7 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 1).Value = "KIAMARIGA TRANS";
                 worksheet.Cell(currentRow, 2).Value = kiamariga.Sum(t => t.NetPay);
 
-                var totalTransCost = transporterPayroll.Sum(p => p.NetPay) + traderPayroll.Sum(t => t.Subsidy) + kiamariga.Sum(t => t.NetPay);
+                var totalTransCost = transportersNet + traderPayroll.Sum(t => t.Subsidy) + kiamariga.Sum(t => t.NetPay);
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORT COST";
@@ -616,11 +616,12 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 1).Value = "TRADERS FEES";
                 worksheet.Cell(currentRow, 4).Value = totalTradersFee;
 
+                var farmersSpecialPrice = payrolls.Sum(P => P.Subsidy);
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "FARMERS FEES";
-                worksheet.Cell(currentRow, 4).Value = payrolls.Sum(P => P.Subsidy);
+                worksheet.Cell(currentRow, 4).Value = farmersSpecialPrice;
 
-                var totalPayment = farmersPayables + totalTransCost + totalTradersFee + payrolls.Sum(P => P.Subsidy);
+                var totalPayment = farmersPayables + totalTransCost + totalTradersFee + farmersSpecialPrice;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TOTAL PAYMENT";
                 worksheet.Cell(currentRow, 4).Value = totalPayment;
@@ -629,6 +630,11 @@ namespace EasyPro.Controllers
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "NOV_PAYMENT";
                 worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.NOV_OVPMNT);
+
+                var societyShares = payrolls.Sum(t => t.Hshares) + dTransportersPayRolls.Sum(t => t.Hshares); ;
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "SOCIETY SHARES";
+                worksheet.Cell(currentRow, 2).Value = societyShares;
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "SACCO SHARES";
@@ -667,7 +673,7 @@ namespace EasyPro.Controllers
                     + dTransportersPayRolls.Sum(t => t.Agrovet) + payrolls.Sum(t => t.Advance) + dTransportersPayRolls.Sum(t => t.Advance)
                     + payrolls.Sum(t => t.INST_ADVANCE) + dTransportersPayRolls.Sum(t => t.INST_ADVANCE) + payrolls.Sum(t => t.Fsa)
                     + dTransportersPayRolls.Sum(t => t.Fsa) + payrolls.Sum(t => t.AI) + dTransportersPayRolls.Sum(t => t.AI)
-                    + payrolls.Sum(t => t.KIIGA) + payrolls.Sum(t => t.KIROHA);
+                    + payrolls.Sum(t => t.KIIGA) + payrolls.Sum(t => t.KIROHA) + societyShares;
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "KIROHA DAIRY";

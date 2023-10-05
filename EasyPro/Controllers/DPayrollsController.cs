@@ -407,6 +407,14 @@ namespace EasyPro.Controllers
                         payroll.Hshares = payroll.Hshares > 0 ? payroll.Hshares : 0;
                         netPay -= shares.Sum(s => s.DR);
 
+                        payroll.KIIGA = netPay > kiiga.Sum(s => s.DR) ? kiiga.Sum(s => s.DR) : netPay;
+                        payroll.KIIGA = payroll.KIIGA > 0 ? payroll.KIIGA : 0;
+                        netPay -= kiiga.Sum(s => s.DR);
+
+                        payroll.KIROHA = netPay > kiroha.Sum(s => s.DR) ? kiroha.Sum(s => s.DR) : netPay;
+                        payroll.KIROHA = payroll.KIROHA > 0 ? payroll.KIROHA : 0;
+                        netPay -= kiroha.Sum(s => s.DR);
+
                         payroll.AI = netPay > ai.Sum(s => s.DR) ? ai.Sum(s => s.DR) : netPay;
                         payroll.AI = payroll.AI > 0 ? payroll.AI : 0;
                         netPay -= ai.Sum(s => s.DR);
@@ -435,10 +443,6 @@ namespace EasyPro.Controllers
                         payroll.Fsa = netPay > memberLoans ? memberLoans : netPay;
                         payroll.Fsa = payroll.Fsa > 0 ? payroll.Fsa : 0;
                         netPay -= memberLoans;
-
-                        payroll.SACCO_SHARES = netPay > saccoShares ? saccoShares : netPay;
-                        payroll.SACCO_SHARES = payroll.SACCO_SHARES > 0 ? payroll.SACCO_SHARES : 0;
-                        netPay -= saccoShares;
 
                         payroll.Transport = netPay > transport.Sum(s => s.DR) ? transport.Sum(s => s.DR) : netPay;
                         payroll.Transport = payroll.Transport > 0 ? payroll.Transport : 0;
@@ -476,18 +480,6 @@ namespace EasyPro.Controllers
                         payroll.saccoDed = payroll.saccoDed > 0 ? payroll.saccoDed : 0;
                         netPay -= saccoDed.Sum(s => s.DR);
 
-                        payroll.SACCO_SAVINGS = netPay > saccoSavings ? saccoSavings : netPay;
-                        payroll.SACCO_SAVINGS = payroll.SACCO_SAVINGS > 0 ? payroll.SACCO_SAVINGS : 0;
-                        netPay -= saccoSavings;
-
-                        payroll.KIIGA = netPay > kiiga.Sum(s => s.DR) ? kiiga.Sum(s => s.DR) : netPay;
-                        payroll.KIIGA = payroll.KIIGA > 0 ? payroll.KIIGA : 0;
-                        netPay -= kiiga.Sum(s => s.DR);
-
-                        payroll.KIROHA = netPay > kiroha.Sum(s => s.DR) ? kiroha.Sum(s => s.DR) : netPay;
-                        payroll.KIROHA = payroll.KIROHA > 0 ? payroll.KIROHA : 0;
-                        netPay -= kiroha.Sum(s => s.DR);
-
                         payroll.MILK_RECOVERY = netPay > milkRecovery.Sum(s => s.DR) ? milkRecovery.Sum(s => s.DR) : netPay;
                         payroll.MILK_RECOVERY = payroll.MILK_RECOVERY > 0 ? payroll.MILK_RECOVERY : 0;
                         netPay -= milkRecovery.Sum(s => s.DR);
@@ -495,8 +487,17 @@ namespace EasyPro.Controllers
                         payroll.Others = netPay > Others.Sum(s => s.DR) ? Others.Sum(s => s.DR) : netPay;
                         payroll.Others = payroll.Others > 0 ? payroll.Others : 0;
                         netPay -= Others.Sum(s => s.DR);
-                        
+
+                        payroll.SACCO_SHARES = netPay > saccoShares ? saccoShares : netPay;
+                        payroll.SACCO_SHARES = payroll.SACCO_SHARES > 0 ? payroll.SACCO_SHARES : 0;
+                        netPay -= saccoShares;
+
+                        payroll.SACCO_SAVINGS = netPay > saccoSavings ? saccoSavings : netPay;
+                        payroll.SACCO_SAVINGS = payroll.SACCO_SAVINGS > 0 ? payroll.SACCO_SAVINGS : 0;
+                        netPay -= saccoSavings;
+
                         payroll.Tdeductions = grossPay - netPay;
+                        payroll.Tdeductions = payroll.Tdeductions > grossPay ? grossPay : payroll.Tdeductions;
                         netPay -= debits;
                         payroll.Npay = netPay;
 
@@ -741,6 +742,7 @@ namespace EasyPro.Controllers
                     netPay -= Others.Sum(s => s.DR);
 
                     payRoll.Totaldeductions = grossPay - netPay;
+                    payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
                     netPay -= debits;
                     payRoll.NetPay = netPay;
 
