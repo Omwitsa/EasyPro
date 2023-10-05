@@ -7,66 +7,83 @@
                 <h2>Create</h2>
             </div>
             <hr />
+            
             <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                @*<ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#checkoffReport">Cash Shares</a></li>
+                    <li><a data-toggle="tab" href="#checkoffSummary">Deduct Shares</a></li>
+                </ul>*@
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-sm-9 col-xs-12">
+
+                    </div>
+                    <div class="col-sm-3 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="Sno" class="control-label"></label>
-                            <input asp-for="Sno" id="Sno" class="form-control" />
-                            <span asp-validation-for="Sno" class="text-danger"></span>
+                            <label asp-for="TransDate" class="control-label"></label>
+                            <input asp-for="TransDate" type="date" id="transDate" class="form-control" required/>
+                            <span asp-validation-for="TransDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    </div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Sno" class="control-label"></label>
+                                <input asp-for="Sno" id="Sno" class="form-control" />
+                                <span asp-validation-for="Sno" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label">Names</label>
+                                <input id="Names" class="form-control" readonly />
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Names</label>
-                            <input id="Names" class="form-control" readonly />
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Amount" class="control-label"></label>
+                                <input asp-for="Amount" class="form-control" />
+                                <span asp-validation-for="Amount" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Type" class="control-label"></label>
+                                <select asp-for="Type" class="form-control" asp-items="@ViewBag.codes">
+                                    <option value="" disabled selected hidden>Please select</option>
+                                </select>
+                                <span asp-validation-for="Type" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Amount" class="control-label"></label>
-                            <input asp-for="Amount" class="form-control" />
-                            <span asp-validation-for="Amount" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Pmode" class="control-label"></label>
+                                <select asp-for="Pmode" class="form-control" asp-items="@ViewBag.modes">
+                                    <option value="" disabled selected hidden>Please select</option>
+                                </select>
+                                <span asp-validation-for="Pmode" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Type" class="control-label"></label>
-                            <select asp-for="Type" class="form-control" asp-items="@ViewBag.codes">
-                                <option value="" disabled selected hidden>Please select</option>
-                            </select>
-                            <span asp-validation-for="Type" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            <a asp-action="Index" class="btn btn-primary">Back to List</a>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Pmode" class="control-label"></label>
-                            <select asp-for="Pmode" class="form-control" asp-items="@ViewBag.modes">
-                                <option value="" disabled selected hidden>Please select</option>
-                            </select>
-                            <span asp-validation-for="Pmode" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Save</button>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
-                    </div>
-                </div>
-            </form>
+</form>
         </div>
     </div>
 </div>
@@ -76,6 +93,8 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script type="text/javascript">
+        var today = new Date().toISOString().split('T')[0];
+       $("#transDate").val(today);
         $(function () {
             $('#Sno').on('keyup', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));

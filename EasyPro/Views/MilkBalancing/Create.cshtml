@@ -42,7 +42,16 @@
                 <form asp-action="Create">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="row">
-                        <div class="col-sm-8 col-xs-12">
+                        <div class="col-sm-5 col-xs-12">
+                            @if (ViewBag.isElburgon)
+                            {
+                                <div class="form-group">
+                                    <input id="Shares" type="checkbox" />
+                                    <label class="control-label" for="print">Individual</label>
+                                </div>
+                            }
+                        </div>
+                        <div class="col-sm-5 col-xs-12">
 
                         </div>
                         <div class="col-sm-4 col-xs-12">
@@ -53,126 +62,126 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="control-label">Select Transporter</label>
-                                <select id="name" class="chzn-select form-control" asp-items="@ViewBag.Transporterslist">
-                                    <option value=""></option>
-                                </select>
-                                <span asp-validation-for="Transporter" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">Select Transporter</label>
+                                    <select id="name" class="chzn-select form-control" asp-items="@ViewBag.Transporterslist">
+                                        <option value=""></option>
+                                    </select>
+                                    <span asp-validation-for="Transporter" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">TCode</label>
+                                    <input id="tcode" class="form-control" readonly />
+                                </div>
                             </div>
                         </div>
-                        <div class="col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="control-label">TCode</label>
-                                <input id="tcode" class="form-control" readonly />
+                        <div class="row">
+                            <div class="col-sm-4 col-xs-12">
+                                <a id="show" class="btn btn-success">Show</a>
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <a id="excel" class="btn btn-success">Export Excel</a>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4 col-xs-12">
-                            <a id="show" class="btn btn-success">Show</a>
-                        </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <a id="excel" class="btn btn-success">Export Excel</a>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="bsc-tbl-hvr table-border-style">
-                                <div class="divScroll">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover" id="tbl_journal">
-                                            <thead>
-                                                <tr>
-                                                    <th>
-                                                        Supplier No.
-                                                    </th>
-                                                    <th>
-                                                        Date
-                                                    </th>
-                                                    <th>
-                                                        Product Type
-                                                    </th>
-                                                    <th>
-                                                        Quantity
-                                                    </th>
-                                                    <th>
-                                                        @ViewBag.remarks
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="balance">
-                                            </tbody>
-                                        </table>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="bsc-tbl-hvr table-border-style">
+                                    <div class="divScroll">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover" id="tbl_journal">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Supplier No.
+                                                        </th>
+                                                        <th>
+                                                            Date
+                                                        </th>
+                                                        <th>
+                                                            Product Type
+                                                        </th>
+                                                        <th>
+                                                            Quantity
+                                                        </th>
+                                                        <th>
+                                                            @ViewBag.remarks
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="balance">
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-sm-4 col-xs-12">
-                            <div class="form-group">
-                                <label class="control-label">Total Kgs</label>
-                                <input id="totalkgs" asp-for="Quantity" class="form-control" readonly />
-                                <span asp-validation-for="Quantity" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">Total Kgs</label>
+                                    <input id="totalkgs" asp-for="Quantity" class="form-control" readonly />
+                                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">Actual Kgs</label>
+                                    <input id="actual" asp-for="ActualBal" class="form-control" />
+                                    <span asp-validation-for="ActualBal" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">Varriance</label>
+                                    <input id="varriance" asp-for="Varriance" class="form-control" readonly />
+                                    <span asp-validation-for="Varriance" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <div class="form-group">
-                                <label class="control-label">Actual Kgs</label>
-                                <input id="actual" asp-for="ActualBal" class="form-control" />
-                                <span asp-validation-for="ActualBal" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">Spillage Kgs</label>
+                                    <input id="spillage" asp-for="Spillage" class="form-control" />
+                                    <span asp-validation-for="Spillage" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">Rejects Kgs</label>
+                                    <input id="rejects" asp-for="Rejects" class="form-control" />
+                                    <span asp-validation-for="Rejects" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <div class="form-group">
-                                <label class="control-label">Varriance</label>
-                                <input id="varriance" asp-for="Varriance" class="form-control" readonly />
-                                <span asp-validation-for="Varriance" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <input id="print" type="checkbox" />
+                                    <label class="control-label" for="print">Print</label>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4 col-xs-12">
-                            <div class="form-group">
-                                <label class="control-label">Spillage Kgs</label>
-                                <input id="spillage" asp-for="Spillage" class="form-control" />
-                                <span asp-validation-for="Spillage" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <div class="form-group">
-                                <label class="control-label">Rejects Kgs</label>
-                                <input id="rejects" asp-for="Rejects" class="form-control" />
-                                <span asp-validation-for="Rejects" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <input id="print" type="checkbox" />
-                                <label class="control-label" for="print">Print</label>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <a id="save" class="btn btn-success">Save</a>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <a id="save" class="btn btn-success">Save</a>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                            </div>
                         </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <a asp-action="Index" class="btn btn-primary">Back to List</a>
-                        </div>
-                    </div>
-                </form>
+</form>
             </div>
         </div>
     </div>
@@ -189,6 +198,7 @@
             $("#date").val(today);
             let suppliedItems = new Array();
             let print = false;
+            let individual = false;
             $('#name').on('change', function () {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
                 var selectVal = $("#name").val();
@@ -199,6 +209,14 @@
                 
                 if (selectSupplier[0]) {
                     $("#tcode").val(selectSupplier[0].TransCode);
+                }
+            }); 
+
+            $('input[type="checkbox"]').click(function () {
+                if ($(this).prop("checked") && $(this).attr('id') == 'Shares') {
+                    individual = true;
+                } else {
+                    individual = false;
                 }
             });
 
@@ -214,6 +232,7 @@
                 var filter = {
                     date: $("#date").val(),
                     tcode: $("#tcode").val(),
+                    individual: individual,
                 };
                 $("#totalkgs").val('0');
                 $("#actual").val("0");
@@ -254,7 +273,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "saveVariance?print=" + print,
+                    url: "saveVariance?print=" + print + "&individual=" + individual,
                     contentType: 'application/json',
                     data: JSON.stringify(variance),
                     success: function (response) {

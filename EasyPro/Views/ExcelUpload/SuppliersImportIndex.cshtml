@@ -83,7 +83,7 @@
                             <a asp-action="RegDownload" class="btn btn-info">Download</a>
                         </div>
                         <div class="col-md-3">
-                            <a asp-action="RegApprove" name="Approve" id="btnapprove" class="btn btn-primary">Approve</a>
+                            <a  id="btnapprove" class="btn btn-primary">Approve</a>
                         </div>
                     </div>
                 </form>
@@ -104,9 +104,11 @@
                     $.ajax(
                         {
                             type: 'POST',
-                            url: "/ExcelUpload/RegApprove?scodes=" + scodes,
+                            url: "RegApprove?scodes=" + scodes,
                             contentType: 'application/json',
                             success: function (response) {
+                                $("#divPrint tr").remove();
+                                $("#fileupload").val('');
                                 if (response) {
                                     //alert("Record uploaded successfully.");
                                     return false;
@@ -119,7 +121,7 @@
                             }
                         }).then(function () {
 
-                        });
+                    });
                 });
                 function checkdefaults() {
                     var fileExtension = ['xls', 'xlsx'];

@@ -403,26 +403,31 @@ namespace EasyPro.Controllers
             }
             return RedirectToAction("Index");
         }
-
-        public ActionResult RegApprove(string scodes)
+        [HttpPost]
+        public JsonResult RegApprove(string scodes)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             int ch = 0;
             string sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             string saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var scodess = scodes;
-            string Checkyear = "0";
-
 
             if (string.IsNullOrEmpty(loggedInUser))
-                return Redirect("~/");
-            utilities.SetUpPrivileges(this);
-            if (ch <= 0)
             {
+                _notyf.Error("Sorry, Please Log Out and Try to Login");
+                GetInitialValues();
+                return Json(new
+                {
+                    success = false
+            });
+            }
+               
+            utilities.SetUpPrivileges(this);
+            
                 var ValueChain = _context.ValueChain.FirstOrDefault();
-                var CigName = _context.CIGs.FirstOrDefault(b => b.saccocode == scodess);
+                var CigName = _context.CIGs.FirstOrDefault(b => b.saccocode == scodes);
                 var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-                var excelDumps = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == scodess).ToList();
+                var excelDumps = _context.ExcelDumpSupReg.Where(d => d.LoggedInUser == loggedInUser && d.SaccoCode == scodes).ToList();
                 //var checkifcorrectdatefeeded = excelDumps.GroupBy(p => p.DOB).ToList();
 
                 //checkifcorrectdatefeeded.ForEach(v =>
@@ -466,7 +471,7 @@ namespace EasyPro.Controllers
                 {
                     _notyf.Error("Sorry, Please provide Society");
                     GetInitialValues();
-                    return RedirectToAction(nameof(SuppliersImportIndex));
+                    return Json(new { success = false});
                 }
 
                 if (ModelState.IsValid)
@@ -512,7 +517,7 @@ namespace EasyPro.Controllers
                             AuditId = loggedInUser,
                             Auditdatetime = DateTime.Now,
                             Branch = saccoBranch,
-                            Scode = scodess,
+                            Scode = scodes,
                             Loan = false,
                             Compare = "0",
                             Isfrate = "0",
@@ -541,7 +546,7 @@ namespace EasyPro.Controllers
                             Status1 = 0,
                             Run = 0,
                             Zone = "",
-                            CigName = CigName.Name,
+                            CigName = getsno.CIGName,
                             ValueChain = ValueChain.Name,
                             Shares = false
                         };
@@ -555,9 +560,14 @@ namespace EasyPro.Controllers
                     _context.SaveChanges();
 
                 }
-                ch = 1;
-            }
-            return RedirectToAction(nameof(SuppliersImportIndex));
+            //return RedirectToAction(nameof(SuppliersImportIndex));
+            _notyf.Success("Records saved successfully");
+                GetInitialValues();
+           // return RedirectToAction(nameof(SuppliersImportIndex));
+            return Json(new
+            {
+                success =true,Url= "~/ExcelUpload/SuppliersImportIndex"
+            });
         }
     }
 }
