@@ -717,7 +717,8 @@ namespace EasyPro.Controllers
             if (transporter != null)
             {
                 var debits = corrections.Sum(s => s.DR);
-                var amount = p.Sum(s => s.CR);
+                //var amount = p.Sum(s => s.CR);
+                var amount = (p.Where(K=>K.ProductType == "Transport").Sum(s => s.CR)- p.Where(K => K.ProductType == "Transport").Sum(s => s.DR));
 
                 var totalSupplied = p.Sum(s => s.Qsupplied);
                 decimal subsidy = 0;
