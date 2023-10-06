@@ -33,6 +33,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Syncfusion.EJ2.Linq;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using EasyPro.Models.BosaModels;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace EasyPro.Controllers
 {
@@ -464,8 +465,7 @@ namespace EasyPro.Controllers
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
             var payrolls = await _context.DPayrolls.Where(p => p.Sno.ToUpper().Equals(filter.Code.ToUpper())
-            && p.EndofPeriod == endDate
-            && p.SaccoCode == filter.Sacco).ToListAsync();
+            && p.EndofPeriod == endDate && p.SaccoCode == filter.Sacco).ToListAsync();
             var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco);
 
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(filter.Code.ToUpper()) && s.Scode == filter.Sacco && s.Branch == filter.Branch);
@@ -488,6 +488,7 @@ namespace EasyPro.Controllers
         [HttpPost]
         public async Task<JsonResult> GetBankFarmersPayslip([FromBody] StatementFilter filter)
         {
+            filter.Code = filter?.Code ?? "";
             utilities.SetUpPrivileges(this);
             await SetIntakeInitialValues();
             filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -495,9 +496,59 @@ namespace EasyPro.Controllers
             filter.LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             ViewBag.slopes = StrValues.Slopes == filter.Sacco;
 
-            var statement = new SupplierStatement(_context, _bosaDbContext);
-            var statementResp = await statement.GetTransporterFarmersStat(filter);
-            return Json(statementResp);
+            var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            var payrolls = await _context.DPayrolls.Where(p => p.Bank.ToUpper().Equals(filter.Code.ToUpper())
+           && p.EndofPeriod == endDate && p.SaccoCode == filter.Sacco).ToListAsync();
+            var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco);
+
+            var suppliers = await _context.DSuppliers.Where(s => s.Scode == filter.Sacco).ToListAsync();
+            var transports = await _context.DTransports.Where(s => s.saccocode == filter.Sacco).ToListAsync();
+            var transporters = await _context.DTransporters.Where(s => s.ParentT == filter.Sacco).ToListAsync();
+            
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(filter.LoggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                suppliers = suppliers.Where(s => s.Branch == filter.Branch).ToList();
+                transports = transports.Where(s => s.Branch == filter.Branch).ToList();
+                transporters = transporters.Where(s => s.Tbranch == filter.Branch).ToList();
+            }
+
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
+            company.SupStatementNote = company?.SupStatementNote ?? "";
+
+            var banksPayslip = new List<dynamic>();
+            foreach(var payroll in payrolls)
+            {
+                payroll.Sno = payroll?.Sno ?? "";
+                var supplier = suppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(payroll.Sno.ToUpper()));
+                var transCode = transports.FirstOrDefault(s => s.Sno.ToUpper().Equals(payroll.Sno.ToUpper()))?.TransCode ?? "";
+                var transporter = transporters.FirstOrDefault(s => s.TransCode.ToUpper().Trim().Equals(transCode.ToUpper().Trim()));
+                banksPayslip.Add(new
+                {
+                    payroll.Gpay,
+                    payroll.Subsidy,
+                    payroll.Npay,
+                    payroll.KgsSupplied,
+                    payroll.Agrovet,
+                    payroll.Advance,
+                    payroll.Fsa,
+                    payroll.SACCO_SAVINGS,
+                    payroll.SACCO_SHARES,
+                    payroll.Tdeductions,
+                    supplier.Names,
+                    supplier.Sno,
+                    transName = transporter?.TransName ?? "",
+                    CertNo = transporter?.CertNo ?? ""
+                });
+            }
+
+            return Json(new
+            {
+                banksPayslip,
+                price,
+                company,
+            });
         }
 
 
