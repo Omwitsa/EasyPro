@@ -583,7 +583,7 @@ namespace EasyPro.Controllers
                 var transNos = transporters.Where(t => t.TraderRate < 1 && t.CertNo != "KIAMARIGA" && t.CertNo != "KDK 015D")
                     .Select(t => t.TransCode.ToUpper()).ToList();
                 var transporterPayroll = dTransportersPayRolls.Where(t => transNos.Contains(t.Code.ToUpper()));
-                var transportersNet = transporterPayroll.Sum(t => t.NetPay) + 6305.3M;
+                var transportersNet = transporterPayroll.Sum(t => t.NetPay) + 5952.65M;
                 currentRow++;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORTERS";
@@ -649,7 +649,7 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 1).Value = "SACCO SAVINGS";
                 worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.SACCO_SAVINGS) + dTransportersPayRolls.Sum(t => t.SACCO_SAVINGS);
 
-                decimal? store = payrolls.Sum(t => t.Agrovet) + dTransportersPayRolls.Sum(t => t.Agrovet) + 352.65M;
+                decimal? store = payrolls.Sum(t => t.Agrovet) + dTransportersPayRolls.Sum(t => t.Agrovet);
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "STORES";
                 worksheet.Cell(currentRow, 2).Value = store;
