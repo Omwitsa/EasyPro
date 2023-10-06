@@ -1552,6 +1552,17 @@ namespace EasyPro.Controllers
             var thismonthdescription = "Carry Forward";
             var forlastmonthremarks = "Carry Forward";
 
+            if (endDate == null) 
+            {
+                _notyf.Error("Please provide Date.");
+                return Json(new { success = false });
+            }
+            IQueryable<DPayroll> dPayrolls = _context.DPayrolls;
+            IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
+            IQueryable<DTransportersPayRoll> dTransportersPayRolls = _context.DTransportersPayRolls;
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
+            IQueryable<DTransporter> dTransporters = _context.DTransporters;
+
             ViewBag.isElburgon = StrValues.Elburgon == sacco;
             if (StrValues.Elburgon == sacco)
             {
@@ -1560,14 +1571,14 @@ namespace EasyPro.Controllers
                 forlastmonthremarks = endDate.Month.ToString() + endDate.Year.ToString() + "Arrears CF";
             }
 
-            var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
+            var suppliers = dSuppliers.Where(s => s.Scode == sacco).ToList();
             suppliers.ForEach(s =>
             {
-                var payrolls = _context.DPayrolls.Where(p => p.SaccoCode == sacco
+                var payrolls = dPayrolls.Where(p => p.SaccoCode == sacco
                 && p.EndofPeriod == endDate && p.Sno.ToUpper().Equals(s.Sno.ToUpper()) && p.Branch.ToUpper().Equals(s.Branch.ToUpper())).ToList();
 
                 var netPay = payrolls.Sum(p => p.Npay);
-                var debited = _context.ProductIntake.Any(i => i.SaccoCode == sacco && i.Sno.ToUpper().Equals(s.Sno.ToUpper())
+                var debited = productIntakes.Any(i => i.SaccoCode == sacco && i.Sno.ToUpper().Equals(s.Sno.ToUpper())
                 && i.TransDate >= nextMonth && i.Branch.ToUpper().Equals(s.Branch.ToUpper()) && i.Description == "Carry Forward");
                 if (netPay < 0 && !debited)
                 {
@@ -1622,14 +1633,14 @@ namespace EasyPro.Controllers
                 }
             });
 
-            var Transporters = _context.DTransporters.Where(s => s.ParentT == sacco).ToList();
+            var Transporters = dTransporters.Where(s => s.ParentT == sacco).ToList();
             Transporters.ForEach(s =>
             {
-                var payrolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == sacco
+                var payrolls = dTransportersPayRolls.Where(p => p.SaccoCode == sacco
                 && p.EndPeriod == endDate && p.Code.ToUpper().Equals(s.TransCode.ToUpper()) && p.Branch.ToUpper().Equals(s.Tbranch.ToUpper())).ToList();
 
                 var netPay = payrolls.Sum(p => p.NetPay);
-                var debited = _context.ProductIntake.Any(i => i.SaccoCode == sacco && i.Sno.ToUpper().Equals(s.TransCode.ToUpper())
+                var debited = productIntakes.Any(i => i.SaccoCode == sacco && i.Sno.ToUpper().Equals(s.TransCode.ToUpper())
                 && i.TransDate >= nextMonth && i.Description == "Carry Forward" && i.Branch.ToUpper().Equals(s.Tbranch.ToUpper()));
                 if (netPay < 0 && !debited)
                 {
