@@ -552,7 +552,8 @@ namespace EasyPro.Controllers
 
                         payroll.Tdeductions = grossPay - netPay;
                         payroll.Tdeductions = payroll.Tdeductions > grossPay ? grossPay : payroll.Tdeductions;
-                        netPay -= debits;
+                        //netPay -= debits;
+                        netPay -= grossPay - netPay;
                         payroll.Npay = netPay;
 
                         _context.DPayrolls.Add(payroll);
@@ -735,7 +736,7 @@ namespace EasyPro.Controllers
                     Code = transporter.TransCode,
                     Amnt = amount - subsidy,
                     Subsidy = subsidy,
-                    GrossPay = grossPay,
+                    GrossPay = grossPay- subsidy,
                     QntySup = (double?)p.Sum(s => s.Qsupplied),
                     PhoneNo = transporter.Phoneno,
                     Advance = 0,
@@ -870,7 +871,8 @@ namespace EasyPro.Controllers
 
                     payRoll.Totaldeductions = grossPay - netPay;
                     payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
-                    netPay -= debits;
+                    //netPay -= debits;
+                    netPay -= grossPay - netPay;
                     payRoll.NetPay = netPay;
 
                     _context.DTransportersPayRolls.Add(payRoll);
