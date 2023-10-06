@@ -609,10 +609,6 @@ namespace EasyPro.Controllers
                     decimal subsidy = 0;
                     if (StrValues.Slopes == sacco)
                     {
-                        if(transporter.TransCode == "T063")
-                        {
-
-                        }
                         amount = totalSupplied * (decimal)transporter.Rate;
                         var daysInMonth = DateTime.DaysInMonth(period.EndDate.Year, period.EndDate.Month);
                         var averageSupplied = totalSupplied / daysInMonth;
