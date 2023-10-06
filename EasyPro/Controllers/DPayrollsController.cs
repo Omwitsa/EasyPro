@@ -553,7 +553,6 @@ namespace EasyPro.Controllers
                         payroll.Tdeductions = grossPay - netPay;
                         payroll.Tdeductions = payroll.Tdeductions > grossPay ? grossPay : payroll.Tdeductions;
                         //netPay -= debits;
-                        netPay -= grossPay - netPay;
                         payroll.Npay = netPay;
 
                         _context.DPayrolls.Add(payroll);
@@ -872,7 +871,6 @@ namespace EasyPro.Controllers
                     payRoll.Totaldeductions = grossPay - netPay;
                     payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
                     //netPay -= debits;
-                    netPay -= grossPay - netPay;
                     payRoll.NetPay = netPay;
 
                     _context.DTransportersPayRolls.Add(payRoll);
