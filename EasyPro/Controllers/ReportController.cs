@@ -1036,6 +1036,7 @@ namespace EasyPro.Controllers
             {
                 Sno = val.Sno,
                 Name = supplier.Names,
+                PhoneNo = supplier.PhoneNo,
                 IdNo = val.IdNo,
                 Transport=val.Transport,
                 Agrovet= val.Agrovet,
@@ -1059,10 +1060,12 @@ namespace EasyPro.Controllers
                 Bank=val.Bank,
                 AccountNumber=val.AccountNumber,
                 Bbranch=val.Bbranch,
-                Branch=val.Branch
+                Branch=val.Branch,
+                ECLOF = val.ECLOF,
+                saccoDed = val.saccoDed
             });
         });
-        return payrollData;
+        return (payrollData);
     }
 
     [HttpPost]

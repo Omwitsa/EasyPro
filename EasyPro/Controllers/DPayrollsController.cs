@@ -46,9 +46,11 @@ namespace EasyPro.Controllers
             var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var startDate = month.AddMonths(-1);
             var endDate = month.AddDays(-1);
+            IQueryable<DSupplier> suppliers1 = _context.DSuppliers;
+            IQueryable<DPayroll> dPayrolls = _context.DPayrolls;
 
-            var suppliers = await _context.DSuppliers.Where(d => d.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-            var payrolls = await _context.DPayrolls.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndofPeriod == endDate).ToListAsync();
+            var suppliers = await suppliers1.Where(d => d.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var payrolls = await dPayrolls.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.EndofPeriod == endDate).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
             {
                 suppliers = suppliers.Where(i => i.Branch == saccoBranch).ToList();
@@ -258,7 +260,7 @@ namespace EasyPro.Controllers
                || c.Description.ToLower().Equals("loan") || c.Description.ToLower().Equals("carry forward") || c.Description.ToLower().Equals("clinical")
                || c.Description.ToLower().Equals("a.i") || c.Description.ToLower().Equals("ai") || c.Description.ToLower().Equals("tractor")
                || c.Description.ToLower().Equals("sms") || c.Description.ToLower().Equals("extension work")
-               || c.Description.ToLower().Equals("registration") || c.Description.ToLower().Equals("sacco")
+               || c.Description.ToLower().Equals("registration") || c.Description.ToUpper().Contains("MAENDELEO")
                || c.Description.ToUpper().Equals("INST ADV") || c.Description.ToUpper().Equals("KIIGA")
                || c.Description.ToUpper().Equals("KIROHA DAIRY") || c.Description.ToUpper().Equals("NOV OVERPAYMENT")
                || c.Description.ToUpper().Equals("MILK RECOVERY") || c.Description.ToLower().Equals("midpay")
@@ -301,7 +303,7 @@ namespace EasyPro.Controllers
                 var overpayment = p.Where(k => k.ProductType.ToUpper().Contains("NOV OVERPAYMENT"));
                 var milkRecovery = p.Where(k => k.ProductType.ToUpper().Contains("MILK RECOVERY"));
                 var ECLOF = p.Where(k => k.ProductType.ToLower().Contains("eclof"));
-                var saccoDed = p.Where(k => k.ProductType.ToLower().Contains("sacco"));
+                var saccoDed = p.Where(k => k.ProductType.ToUpper().Contains("MAENDELEO"));
                 var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
                 var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
@@ -324,7 +326,17 @@ namespace EasyPro.Controllers
                     }
 
                     var grossPay = credited + subsidy;
-                    if (supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate))
+                    //add correct gross and subsidy for other societies 
+                    if (StrValues.Slopes != sacco)
+                    {
+                        var getCrDr  = p.Where(s => s.Description == "Intake" || s.Description == "Correction");
+                        var getDebitsCrDr  = p.Where(s => s.Description != "Intake" || s.Description != "Correction");
+                        grossPay = getCrDr.Where(n=>n.CR>0).Sum(x=>x.CR)- getCrDr.Where(n => n.DR > 0).Sum(x => x.DR);
+                        debits = getDebitsCrDr.Where(n => n.DR > 0).Sum(x => x.DR) - getDebitsCrDr.Where(n => n.CR > 0).Sum(x => x.CR);
+                        subsidy =0;
+                    }
+
+                   if (supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate))
                     {
                         //var netPay = grossPay - (debits + Tot);
                         var payroll = new DPayroll
@@ -338,6 +350,7 @@ namespace EasyPro.Controllers
                             Bank = supplier.Bcode,
                             AccountNumber = supplier.AccNo,
                             Bbranch = supplier.Bbranch,
+                            PhoneNo = supplier.PhoneNo,
                             IdNo = supplier.IdNo,
                             EndofPeriod = period.EndDate,
                             SaccoCode = sacco,
@@ -372,92 +385,100 @@ namespace EasyPro.Controllers
                         };
 
                         decimal? netPay = grossPay;
-                        payroll.Registration = netPay > registration.Sum(s => s.DR) ? registration.Sum(s => s.DR) : netPay;
+                        var regis = (registration.Sum(s => s.DR) - registration.Sum(s => s.CR));
+                        payroll.Registration = netPay > regis ? regis : netPay;
                         payroll.Registration = payroll.Registration > 0 ? payroll.Registration : 0;
-                        netPay -= registration.Sum(s => s.DR);
-                        if(supplier.Sno == "04946")
-                        {
+                        netPay -= regis;
 
-                        }
-                        payroll.Hshares = netPay > shares.Sum(s => s.DR) ? shares.Sum(s => s.DR) : netPay;
+                        var shar = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
+                        payroll.Hshares = netPay > shar ? shar : netPay;
                         payroll.Hshares = payroll.Hshares > 0 ? payroll.Hshares : 0;
-                        netPay -= shares.Sum(s => s.DR);
-                       
+                        netPay -= shar;
+
                         payroll.KIIGA = netPay > kiiga.Sum(s => s.DR) ? kiiga.Sum(s => s.DR) : netPay;
                         payroll.KIIGA = payroll.KIIGA > 0 ? payroll.KIIGA : 0;
                         netPay -= kiiga.Sum(s => s.DR);
                         
                         payroll.KIROHA = netPay > kiroha.Sum(s => s.DR) ? kiroha.Sum(s => s.DR) : netPay;
                         payroll.KIROHA = payroll.KIROHA > 0 ? payroll.KIROHA : 0;
-                        netPay -= kiroha.Sum(s => s.DR);
+                        netPay -= (kiroha.Sum(s => s.DR)- kiroha.Sum(s => s.CR));
 
-                        payroll.AI = netPay > ai.Sum(s => s.DR) ? ai.Sum(s => s.DR) : netPay;
+                        var AIs = (ai.Sum(s => s.DR) - ai.Sum(s => s.CR));
+                        payroll.AI = netPay > AIs ? AIs : netPay;
                         payroll.AI = payroll.AI > 0 ? payroll.AI : 0;
-                        netPay -= ai.Sum(s => s.DR);
+                        netPay -= AIs;
 
-                        payroll.Agrovet = netPay > agrovet.Sum(s => s.DR) ? agrovet.Sum(s => s.DR) : netPay;
+                        var agro = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
+                        payroll.Agrovet = netPay > agro ? agro : netPay;
                         payroll.Agrovet = payroll.Agrovet > 0 ? payroll.Agrovet : 0;
-                        netPay -= agrovet.Sum(s => s.DR);
+                        netPay -= agro;
 
                         payroll.NOV_OVPMNT = netPay > overpayment.Sum(s => s.DR) ? overpayment.Sum(s => s.DR) : netPay;
                         payroll.NOV_OVPMNT = payroll.NOV_OVPMNT > 0 ? payroll.NOV_OVPMNT : 0;
-                        netPay -= overpayment.Sum(s => s.DR);
+                        netPay -= (overpayment.Sum(s => s.DR)- overpayment.Sum(s => s.CR));
 
-                        payroll.CurryForward = netPay > carryforward.Sum(s => s.DR) ? carryforward.Sum(s => s.DR) : netPay;
+                        var carryfw = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
+                        payroll.CurryForward = netPay > carryfw ? carryfw : netPay;
                         payroll.CurryForward = payroll.CurryForward > 0 ? payroll.CurryForward : 0;
-                        netPay -= carryforward.Sum(s => s.DR);
+                        netPay -= carryfw;
 
-                        payroll.Advance = netPay > advance.Sum(s => s.DR) ? advance.Sum(s => s.DR) : netPay;
+                        var adva = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
+                        payroll.Advance = netPay > adva ? adva  : netPay;
                         payroll.Advance = payroll.Advance > 0 ? payroll.Advance : 0;
-                        netPay -= advance.Sum(s => s.DR);
+                        netPay -= adva;
 
                         payroll.INST_ADVANCE = netPay > instantAdvance.Sum(s => s.DR) ? instantAdvance.Sum(s => s.DR) : netPay;
                         payroll.INST_ADVANCE = payroll.INST_ADVANCE > 0 ? payroll.INST_ADVANCE : 0;
-                        netPay -= instantAdvance.Sum(s => s.DR);
+                        netPay -= (instantAdvance.Sum(s => s.DR)- instantAdvance.Sum(s => s.CR));
 
-                        payroll.Transport = netPay > transport.Sum(s => s.DR) ? transport.Sum(s => s.DR) : netPay;
-                        payroll.Transport = payroll.Transport > 0 ? payroll.Transport : 0;
-                        netPay -= transport.Sum(s => s.DR);
-
-                        payroll.CLINICAL = netPay > clinical.Sum(s => s.DR) ? clinical.Sum(s => s.DR) : netPay;
+                        var trans = (transport.Sum(s => s.DR) - transport.Sum(s => s.CR));
+                        payroll.Transport = netPay > trans ? trans : netPay;
+                        netPay -= trans;
+                        
+                        var clini = (clinical.Sum(s => s.DR) - clinical.Sum(s => s.CR));
+                        payroll.CLINICAL = netPay > clini ? clini : netPay;
                         payroll.CLINICAL = payroll.CLINICAL > 0 ? payroll.CLINICAL : 0;
-                        netPay -= clinical.Sum(s => s.DR);
+                        netPay -= clini;
 
-                        payroll.Tractor = netPay > tractor.Sum(s => s.DR) ? tractor.Sum(s => s.DR) : netPay;
+                        var Tract = (tractor.Sum(s => s.DR) - tractor.Sum(s => s.CR));
+                        payroll.Tractor = netPay > Tract ? Tract : netPay;
                         payroll.Tractor = payroll.Tractor > 0 ? payroll.Tractor : 0;
-                        netPay -= tractor.Sum(s => s.DR);
+                        netPay -= Tract;
 
                         payroll.extension = netPay > extension.Sum(s => s.DR) ? extension.Sum(s => s.DR) : netPay;
                         payroll.extension = payroll.extension > 0 ? payroll.extension : 0;
-                        netPay -= extension.Sum(s => s.DR);
+                        netPay -= (extension.Sum(s => s.DR)- extension.Sum(s => s.CR));
 
                         payroll.SMS = netPay > SMS.Sum(s => s.DR) ? SMS.Sum(s => s.DR) : netPay;
                         payroll.SMS = payroll.SMS > 0 ? payroll.SMS : 0;
-                        netPay -= SMS.Sum(s => s.DR);
+                        netPay -= (SMS.Sum(s => s.DR)- SMS.Sum(s => s.CR));
 
                         payroll.Bonus = netPay > bonus.Sum(s => s.DR) ? bonus.Sum(s => s.DR) : netPay;
                         payroll.Bonus = payroll.Bonus > 0 ? payroll.Bonus : 0;
-                        netPay -= bonus.Sum(s => s.DR);
+                        netPay -= (bonus.Sum(s => s.DR)- bonus.Sum(s => s.CR));
 
                         payroll.MIDPAY = netPay > MIDPAY.Sum(s => s.DR) ? MIDPAY.Sum(s => s.DR) : netPay;
                         payroll.MIDPAY = payroll.MIDPAY > 0 ? payroll.MIDPAY : 0;
-                        netPay -= MIDPAY.Sum(s => s.DR);
+                        netPay -= (MIDPAY.Sum(s => s.DR)- MIDPAY.Sum(s => s.CR));
 
-                        payroll.ECLOF = netPay > ECLOF.Sum(s => s.DR) ? ECLOF.Sum(s => s.DR) : netPay;
+                        var ECLO = (ECLOF.Sum(s => s.DR) - ECLOF.Sum(s => s.CR));
+                        payroll.ECLOF = netPay > ECLO ? ECLO : netPay;
                         payroll.ECLOF = payroll.ECLOF > 0 ? payroll.ECLOF : 0;
-                        netPay -= ECLOF.Sum(s => s.DR);
+                        netPay -= ECLO;
 
-                        payroll.saccoDed = netPay > saccoDed.Sum(s => s.DR) ? saccoDed.Sum(s => s.DR) : netPay;
+                        var Maendeleo = (saccoDed.Sum(s => s.DR) - saccoDed.Sum(s => s.CR));
+                        payroll.saccoDed = netPay > Maendeleo ? Maendeleo : netPay;
                         payroll.saccoDed = payroll.saccoDed > 0 ? payroll.saccoDed : 0;
-                        netPay -= saccoDed.Sum(s => s.DR);
+                        netPay -= Maendeleo;
 
                         payroll.MILK_RECOVERY = netPay > milkRecovery.Sum(s => s.DR) ? milkRecovery.Sum(s => s.DR) : netPay;
                         payroll.MILK_RECOVERY = payroll.MILK_RECOVERY > 0 ? payroll.MILK_RECOVERY : 0;
-                        netPay -= milkRecovery.Sum(s => s.DR);
+                        netPay -= (milkRecovery.Sum(s => s.DR)- milkRecovery.Sum(s => s.CR));
 
-                        payroll.Others = netPay > Others.Sum(s => s.DR) ? Others.Sum(s => s.DR) : netPay;
+                        var other = (Others.Sum(s => s.DR) - Others.Sum(s => s.CR));
+                        payroll.Others = netPay > other ? other : netPay;
                         payroll.Others = payroll.Others > 0 ? payroll.Others : 0;
-                        netPay -= Others.Sum(s => s.DR);
+                        netPay -= other;
 
                         var memberLoans = loan.Sum(s => s.DR);
                         payroll.Fsa = netPay > memberLoans ? memberLoans : netPay;
@@ -564,242 +585,265 @@ namespace EasyPro.Controllers
             intakes = productIntakes.GroupBy(p => p.Sno.Trim().ToUpper()).ToList();
             intakes.ForEach(p =>
             {
-                var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
-                var transport = p.Where(k => k.ProductType.ToLower().Contains("transport"));
-                var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet") || k.ProductType.ToLower().Contains("store"));
-                var variance = p.Where(k => k.ProductType.ToLower().Contains("variance"));
-                var Others = p.Where(k => k.ProductType.ToLower().Contains("others"));
-                var MIDPAY = p.Where(k => k.ProductType.ToLower().Contains("midpay"));
-                var clinical = p.Where(k => k.ProductType.ToLower().Contains("clinical"));
-                var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
-                var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai") || k.ProductType.ToLower().Contains("a.i")));
-                var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
-                var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
-                var shares = p.Where(k => k.ProductType.ToLower().Contains("shares") || k.ProductType.ToLower().Contains("society shares"));
-                var extension = p.Where(k => k.ProductType.ToLower().Contains("extension work"));
-                var instantAdvance = p.Where(k => k.ProductType.ToUpper().Contains("INST ADV"));
-                var SMS = p.Where(k => k.ProductType.ToLower().Contains("sms"));
-                var ECLOF = p.Where(k => k.ProductType.ToLower().Contains("eclof"));
-                var saccoDed = p.Where(k => k.ProductType.ToLower().Contains("sacco"));
-                var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
-                var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
+            var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
+            var transport = p.Where(k => k.ProductType.ToLower().Contains("transport"));
+            var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet") || k.ProductType.ToLower().Contains("store"));
+            var variance = p.Where(k => k.ProductType.ToLower().Contains("variance"));
+            var Others = p.Where(k => k.ProductType.ToLower().Contains("others"));
+            var MIDPAY = p.Where(k => k.ProductType.ToLower().Contains("midpay"));
+            var clinical = p.Where(k => k.ProductType.ToLower().Contains("clinical"));
+            var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
+            var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai") || k.ProductType.ToLower().Contains("a.i")));
+            var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
+            var loan = p.Where(k => k.ProductType.ToLower().Contains("loan"));
+            var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
+            var shares = p.Where(k => k.ProductType.ToLower().Contains("shares") || k.ProductType.ToLower().Contains("society shares"));
+            var extension = p.Where(k => k.ProductType.ToLower().Contains("extension work"));
+            var instantAdvance = p.Where(k => k.ProductType.ToUpper().Contains("INST ADV"));
+            var SMS = p.Where(k => k.ProductType.ToLower().Contains("sms"));
+            var ECLOF = p.Where(k => k.ProductType.ToLower().Contains("eclof"));
+            var saccoDed = p.Where(k => k.ProductType.ToUpper().Contains("MAENDELEO"));
+            var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
+            var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
 
-                /*
-                var loan = p.Where(k => k.ProductType.ToLower().Contains("loan"));
-                var MIDPAY = p.Where(k => k.ProductType.ToLower().Contains("midpay"));
-                var kiiga = p.Where(k => k.ProductType.ToUpper().Contains("KIIGA"));
-                var kiroha = p.Where(k => k.ProductType.ToUpper().Contains("KIROHA DAIRY"));
-                var overpayment = p.Where(k => k.ProductType.ToUpper().Contains("NOV OVERPAYMENT"));
-                var milkRecovery = p.Where(k => k.ProductType.ToUpper().Contains("MILK RECOVERY"));
-                var ECLOF = p.Where(k => k.ProductType.ToLower().Contains("eclof"));
-                var saccoDed = p.Where(k => k.ProductType.ToLower().Contains("sacco"));
-                var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
-                var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
+            //var payroll = new DTransportersPayRoll();
+            var transporter = transporters.FirstOrDefault(s => s.TransCode.ToUpper().Equals(p.Key.ToUpper()));
+            if (transporter != null)
+            {
+                var debits = corrections.Sum(s => s.DR);
+                var amount = p.Sum(s => s.CR);
 
-                 */
-
-                //var payroll = new DTransportersPayRoll();
-                var transporter = transporters.FirstOrDefault(s => s.TransCode.ToUpper().Equals(p.Key.ToUpper()));
-                if (transporter != null)
+                var totalSupplied = p.Sum(s => s.Qsupplied);
+                decimal subsidy = 0;
+                if (StrValues.Slopes == sacco)
                 {
-                    var debits = corrections.Sum(s => s.DR);
-                    var amount = p.Sum(s => s.CR);
-
-                    var totalSupplied = p.Sum(s => s.Qsupplied);
-                    decimal subsidy = 0;
-                    if (StrValues.Slopes == sacco)
+                    amount = totalSupplied * (decimal)transporter.Rate;
+                    var daysInMonth = DateTime.DaysInMonth(period.EndDate.Year, period.EndDate.Month);
+                    var averageSupplied = totalSupplied / daysInMonth;
+                    transporter.TraderRate = transporter?.TraderRate ?? 0;
+                    // Assigning trader rate means the transporter is a trader
+                    if (transporter.TraderRate > 0)
                     {
-                        amount = totalSupplied * (decimal)transporter.Rate;
-                        var daysInMonth = DateTime.DaysInMonth(period.EndDate.Year, period.EndDate.Month);
-                        var averageSupplied = totalSupplied / daysInMonth;
-                        transporter.TraderRate = transporter?.TraderRate ?? 0;
-                        // Assigning trader rate means the transporter is a trader
-                        if (transporter.TraderRate > 0)
-                        {
-                            amount = totalSupplied * (decimal)transporter.TraderRate;
+                       amount = totalSupplied * (decimal)transporter.TraderRate;
                             if (price != null && averageSupplied >= price.SubsidyQty)
                                 subsidy += totalSupplied * (decimal)transporter.Rate;
-                        }
                     }
-
-                    IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
-                    var intakeskGS = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && i.SaccoCode.ToUpper()
-                                       .Equals(sacco.ToUpper()) && i.Branch == transporter.Tbranch && (i.TransDate >= startDate && i.TransDate <= period.EndDate)).ToList()
-                                       .Sum(m => m.Qsupplied);
-
-
-                    if (StrValues.Elburgon == sacco)
-                    {
-
-                        subsidy = ((intakeskGS * (decimal)(0.5)));
-                        _context.ProductIntake.Add(new ProductIntake
-                        {
-                            Sno = transporter.TransCode.Trim().ToUpper(),
-                            TransDate = period.EndDate,
-                            TransTime = DateTime.Now.TimeOfDay,
-                            ProductType = "SUBSIDY",
-                            Qsupplied = 0,
-                            Ppu = 0,
-                            CR = subsidy,
-                            DR = 0,
-                            Description = "SUBSIDY",
-                            TransactionType = TransactionType.Deduction,
-                            Remarks = "SUBSIDY FOR: " + period.EndDate.ToString("MMM/yyy"),
-                            AuditId = loggedInUser,
-                            Auditdatetime = DateTime.Now,
-                            Branch = transporter.Tbranch,
-                            SaccoCode = sacco,
-                            DrAccNo = price?.TransportDrAccNo ?? "",
-                            CrAccNo = price?.TransportCrAccNo ?? ""
-                        });
-                    }
-
-                    var grossPay = amount + subsidy;
-                    var payRoll = new DTransportersPayRoll
-                    {
-                        Code = transporter.TransCode,
-                        Amnt = amount,
-                        Subsidy = subsidy,
-                        GrossPay = grossPay,
-                        QntySup = (double?)p.Sum(s => s.Qsupplied),
-                        Advance = 0,
-                        extension = 0,
-                        SMS = 0,
-                        CurryForward = 0,
-                        Others = 0,
-                        MIDPAY = 0,
-                        AI = 0,
-                        CLINICAL = 0,
-                        Tractor = 0,
-                        VARIANCE = 0,
-                        Agrovet = 0,
-                        Hshares = 0,
-                        Fsa = 0,
-                        Totaldeductions = 0,
-                        NetPay = 0,
-                        SACCO_SHARES = 0,
-                        SACCO_SAVINGS = 0,
-                        INST_ADVANCE = 0,
-                        BankName = transporter.Bcode,
-                        Yyear = period.EndDate.Year,
-                        Mmonth = period.EndDate.Month,
-                        AccNo = transporter.Accno,
-                        BBranch = transporter.Bbranch,
-                        EndPeriod = period.EndDate,
-                        Rate = 0,
-                        SaccoCode = sacco,
-                        AuditId = loggedInUser,
-                        Branch = transporter.Tbranch,
-                    };
-
-                    decimal? netPay = grossPay;
-                    payRoll.VARIANCE = netPay > variance.Sum(s => s.DR) ? variance.Sum(s => s.DR) : netPay;
-                    payRoll.VARIANCE = payRoll.VARIANCE > 0 ? payRoll.VARIANCE : 0;
-                    netPay -= variance.Sum(s => s.DR);
-
-                    payRoll.Agrovet = netPay > agrovet.Sum(s => s.DR) ? agrovet.Sum(s => s.DR) : netPay;
-                    payRoll.Agrovet = payRoll.Agrovet > 0 ? payRoll.Agrovet : 0;
-                    netPay -= agrovet.Sum(s => s.DR);
-
-                    payRoll.Advance = netPay > advance.Sum(s => s.DR) ? advance.Sum(s => s.DR) : netPay;
-                    payRoll.Advance = payRoll.Advance > 0 ? payRoll.Advance : 0;
-                    netPay -= advance.Sum(s => s.DR);
-
-                    payRoll.INST_ADVANCE = netPay > instantAdvance.Sum(s => s.DR) ? instantAdvance.Sum(s => s.DR) : netPay;
-                    payRoll.INST_ADVANCE = payRoll.INST_ADVANCE > 0 ? payRoll.INST_ADVANCE : 0;
-                    netPay -= instantAdvance.Sum(s => s.DR);
-
-                    payRoll.extension = netPay > extension.Sum(s => s.DR) ? extension.Sum(s => s.DR) : netPay;
-                    payRoll.extension = payRoll.extension > 0 ? payRoll.extension : 0;
-                    netPay -= extension.Sum(s => s.DR);
-
-                    payRoll.SMS = netPay > SMS.Sum(s => s.DR) ? SMS.Sum(s => s.DR) : netPay;
-                    payRoll.SMS = payRoll.SMS > 0 ? payRoll.SMS : 0;
-                    netPay -= SMS.Sum(s => s.DR);
-
-                    payRoll.CurryForward = netPay > carryforward.Sum(s => s.DR) ? carryforward.Sum(s => s.DR) : netPay;
-                    payRoll.CurryForward = payRoll.CurryForward > 0 ? payRoll.CurryForward : 0;
-                    netPay -= carryforward.Sum(s => s.DR);
-
-                    payRoll.MIDPAY = netPay > MIDPAY.Sum(s => s.DR) ? MIDPAY.Sum(s => s.DR) : netPay;
-                    payRoll.MIDPAY = payRoll.MIDPAY > 0 ? payRoll.MIDPAY : 0;
-                    netPay -= MIDPAY.Sum(s => s.DR);
-
-                    payRoll.AI = netPay > ai.Sum(s => s.DR) ? ai.Sum(s => s.DR) : netPay;
-                    payRoll.AI = payRoll.AI > 0 ? payRoll.AI : 0;
-                    netPay -= ai.Sum(s => s.DR);
-
-                    payRoll.CLINICAL = netPay > clinical.Sum(s => s.DR) ? clinical.Sum(s => s.DR) : netPay;
-                    payRoll.CLINICAL = payRoll.CLINICAL > 0 ? payRoll.CLINICAL : 0;
-                    netPay -= clinical.Sum(s => s.DR);
-
-                    payRoll.Tractor = netPay > tractor.Sum(s => s.DR) ? tractor.Sum(s => s.DR) : netPay;
-                    payRoll.Tractor = payRoll.Tractor > 0 ? payRoll.Tractor : 0;
-                    netPay -= tractor.Sum(s => s.DR);
-                    
-                    payRoll.Hshares = netPay > shares.Sum(s => s.DR) ? shares.Sum(s => s.DR) : netPay;
-                    payRoll.Hshares = payRoll.Hshares > 0 ? payRoll.Hshares : 0;
-                    netPay -= shares.Sum(s => s.DR);
-
-                    payRoll.Others = netPay > Others.Sum(s => s.DR) ? Others.Sum(s => s.DR) : netPay;
-                    payRoll.Others = payRoll.Others > 0 ? payRoll.Others : 0;
-                    netPay -= Others.Sum(s => s.DR);
-                    if (StrValues.Slopes == sacco)
-                    {
-                        var transportersLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToList();
-                        transportersLoans.ForEach(l =>
-                        {
-                            payRoll.Fsa = netPay > l.Installments ? l.Installments : netPay;
-                            payRoll.Fsa = payRoll.Fsa > 0 ? payRoll.Fsa : 0;
-                            netPay -= l.Installments;
-                            if (payRoll.Fsa > 0)
-                                listSaccoLoans.Add(new SaccoLoans
-                                {
-                                    LoanNo = l.LoanNo,
-                                    LoanCode = l.LoanCode,
-                                    Sno = l.MemberNo,
-                                    Amount = payRoll.Fsa,
-                                    TransDate = monthsLastDate,
-                                    AuditDate = DateTime.Now,
-                                    Saccocode = sacco,
-                                    AuditId = loggedInUser
-                                });
-                        });
-
-                        var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()));
-                        if (standingOrder != null)
-                        {
-                            decimal.TryParse(standingOrder?.Installment ?? "", out decimal installment);
-                            payRoll.SACCO_SHARES = netPay > installment ? installment : netPay;
-                            payRoll.SACCO_SHARES = payRoll.SACCO_SHARES > 0 ? payRoll.SACCO_SHARES : 0;
-                            netPay -= installment;
-                            if (payRoll.SACCO_SHARES > 0)
-                                listSaccoShares.Add(new SaccoShares
-                                {
-                                    SharesCode = standingOrder.Sharescode,
-                                    Sno = standingOrder.MemberNo,
-                                    Amount = payRoll.SACCO_SHARES,
-                                    TransDate = monthsLastDate,
-                                    AuditDate = DateTime.Now,
-                                    Saccocode = sacco,
-                                    AuditId = loggedInUser
-                                });
-
-                            decimal saccoSavings = 0;
-                            payRoll.SACCO_SAVINGS = netPay > saccoSavings ? saccoSavings : netPay;
-                            payRoll.SACCO_SAVINGS = payRoll.SACCO_SAVINGS > 0 ? payRoll.SACCO_SAVINGS : 0;
-                            netPay -= saccoSavings;
-                        }
-                    }
-
-                    payRoll.Totaldeductions = grossPay - netPay;
-                    payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
-                    netPay -= debits;
-                    payRoll.NetPay = netPay;
-
-                    _context.DTransportersPayRolls.Add(payRoll);
                 }
-            });
+
+                var intakeskGS = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && i.Branch == transporter.Tbranch).ToList()
+                                    .Sum(m => m.Qsupplied);
+                if (StrValues.Elburgon == sacco)
+                {
+
+                    subsidy = ((intakeskGS * (decimal)(0.5)));
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = transporter.TransCode.Trim().ToUpper(),
+                        TransDate = period.EndDate,
+                        TransTime = DateTime.Now.TimeOfDay,
+                        ProductType = "SUBSIDY",
+                        Qsupplied = 0,
+                        Ppu = 0,
+                        CR = subsidy,
+                        DR = 0,
+                        Description = "SUBSIDY",
+                        TransactionType = TransactionType.Deduction,
+                        Remarks = "SUBSIDY FOR: " + period.EndDate.ToString("MMM/yyy"),
+                        AuditId = loggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = transporter.Tbranch,
+                        SaccoCode = sacco,
+                        DrAccNo = price?.TransportDrAccNo ?? "",
+                        CrAccNo = price?.TransportCrAccNo ?? ""
+                    });
+                }
+
+                var grossPay = amount + subsidy;
+                var payRoll = new DTransportersPayRoll
+                {
+                    Code = transporter.TransCode,
+                    Amnt = amount - subsidy,
+                    Subsidy = subsidy,
+                    GrossPay = grossPay,
+                    QntySup = (double?)p.Sum(s => s.Qsupplied),
+                    PhoneNo = transporter.Phoneno,
+                    Advance = 0,
+                    extension = 0,
+                    SMS = 0,
+                    CurryForward = 0,
+                    Others = 0,
+                    MIDPAY = 0,
+                    AI = 0,
+                    CLINICAL = 0,
+                    Tractor = 0,
+                    VARIANCE = 0,
+                    Agrovet = 0,
+                    Hshares = 0,
+                    Fsa = 0,
+                    Totaldeductions = 0,
+                    NetPay = 0,
+                    SACCO_SHARES = 0,
+                    SACCO_SAVINGS = 0,
+                    INST_ADVANCE = 0,
+                    BankName = transporter.Bcode,
+                    Yyear = period.EndDate.Year,
+                    Mmonth = period.EndDate.Month,
+                    AccNo = transporter.Accno,
+                    BBranch = transporter.Bbranch,
+                    EndPeriod = period.EndDate,
+                    Rate = 0,
+                    SaccoCode = sacco,
+                    AuditId = loggedInUser,
+                    Branch = transporter.Tbranch,
+                    ECLOF = 0,
+                    saccoDed = 0
+                };
+
+                decimal? netPay = grossPay;
+
+                var saccodeductions = (saccoDed.Sum(s => s.DR) - saccoDed.Sum(s => s.CR));
+
+                payRoll.saccoDed = netPay > saccodeductions ? saccodeductions : netPay;
+                payRoll.saccoDed = payRoll.saccoDed > 0 ? payRoll.saccoDed : 0;
+                netPay -= saccodeductions;
+
+                var eclofdeduction = (ECLOF.Sum(s => s.DR) - ECLOF.Sum(s => s.CR));
+
+                payRoll.ECLOF = netPay > eclofdeduction ? eclofdeduction : netPay;
+                payRoll.ECLOF = payRoll.ECLOF > 0 ? payRoll.ECLOF : 0;
+                netPay -= eclofdeduction;
+
+                var variancededuction = (variance.Sum(s => s.DR) - variance.Sum(s => s.CR));
+
+                payRoll.VARIANCE = netPay > variancededuction ? variancededuction : netPay;
+                payRoll.VARIANCE = payRoll.VARIANCE > 0 ? payRoll.VARIANCE : 0;
+                netPay -= variancededuction;
+
+                var agrovetdeduction = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
+
+                payRoll.Agrovet = netPay > agrovetdeduction ? agrovetdeduction : netPay;
+                payRoll.Agrovet = payRoll.Agrovet > 0 ? payRoll.Agrovet : 0;
+                netPay -= agrovetdeduction;
+
+                var advancededuction = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
+
+                payRoll.Advance = netPay > advancededuction ? advancededuction : netPay;
+                payRoll.Advance = payRoll.Advance > 0 ? payRoll.Advance : 0;
+                netPay -= advancededuction;
+
+                payRoll.INST_ADVANCE = netPay > instantAdvance.Sum(s => s.DR) ? instantAdvance.Sum(s => s.DR) : netPay;
+                payRoll.INST_ADVANCE = payRoll.INST_ADVANCE > 0 ? payRoll.INST_ADVANCE : 0;
+                netPay -= instantAdvance.Sum(s => s.DR);
+
+                payRoll.extension = netPay > extension.Sum(s => s.DR) ? extension.Sum(s => s.DR) : netPay;
+                payRoll.extension = payRoll.extension > 0 ? payRoll.extension : 0;
+                netPay -= extension.Sum(s => s.DR);
+
+                payRoll.SMS = netPay > SMS.Sum(s => s.DR) ? SMS.Sum(s => s.DR) : netPay;
+                payRoll.SMS = payRoll.SMS > 0 ? payRoll.SMS : 0;
+                netPay -= SMS.Sum(s => s.DR);
+
+                var CurryForwarddeduction = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
+
+                payRoll.CurryForward = netPay > CurryForwarddeduction ? CurryForwarddeduction : netPay;
+                payRoll.CurryForward = payRoll.CurryForward > 0 ? payRoll.CurryForward : 0;
+                netPay -= CurryForwarddeduction;
+
+                var midpaydeduction = (MIDPAY.Sum(s => s.DR) - MIDPAY.Sum(s => s.CR));
+
+                payRoll.MIDPAY = netPay > midpaydeduction ? midpaydeduction : netPay;
+                payRoll.MIDPAY = payRoll.MIDPAY > 0 ? payRoll.MIDPAY : 0;
+                netPay -= midpaydeduction;
+
+                var AIDeduction = (ai.Sum(s => s.DR) - ai.Sum(s => s.CR));
+
+                payRoll.AI = netPay > AIDeduction ? AIDeduction : netPay;
+                payRoll.AI = payRoll.AI > 0 ? payRoll.AI : 0;
+                netPay -= AIDeduction;
+
+                var CLINICALdeduction = (clinical.Sum(s => s.DR) - clinical.Sum(s => s.CR));
+
+                payRoll.CLINICAL = netPay > CLINICALdeduction ? CLINICALdeduction : netPay;
+                payRoll.CLINICAL = payRoll.CLINICAL > 0 ? payRoll.CLINICAL : 0;
+                netPay -= CLINICALdeduction;
+
+                var tractordeduction = (tractor.Sum(s => s.DR) - tractor.Sum(s => s.CR));
+
+                payRoll.Tractor = netPay > tractordeduction ? tractordeduction : netPay;
+                payRoll.Tractor = payRoll.Tractor > 0 ? payRoll.Tractor : 0;
+                netPay -= tractordeduction;
+
+                var Hsharesdeductions = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
+                payRoll.Hshares = netPay > Hsharesdeductions  ? Hsharesdeductions : netPay;
+                payRoll.Hshares = payRoll.Hshares > 0 ? payRoll.Hshares : 0;
+                netPay -= Hsharesdeductions;
+
+                var memberLoans = loan.Sum(s => s.DR);
+                payRoll.Fsa = netPay > memberLoans ? memberLoans : netPay;
+                payRoll.Fsa = payRoll.Fsa > 0 ? payRoll.Fsa : 0;
+                netPay -= memberLoans;
+
+                var Othersdedutcion = (Others.Sum(s => s.DR)- Others.Sum(s => s.CR));
+                payRoll.Others = netPay > Othersdedutcion ? Othersdedutcion : netPay;
+                payRoll.Others = payRoll.Others > 0 ? payRoll.Others : 0;
+                netPay -= Othersdedutcion;
+
+                if (StrValues.Slopes == sacco)
+                {
+                    var transportersLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToList();
+                    transportersLoans.ForEach(l =>
+                    {
+                        payRoll.Fsa = netPay > l.Installments ? l.Installments : netPay;
+                        payRoll.Fsa = payRoll.Fsa > 0 ? payRoll.Fsa : 0;
+                        netPay -= l.Installments;
+                        if (payRoll.Fsa > 0)
+                            listSaccoLoans.Add(new SaccoLoans
+                            {
+                                LoanNo = l.LoanNo,
+                                LoanCode = l.LoanCode,
+                                Sno = l.MemberNo,
+                                Amount = payRoll.Fsa,
+                                TransDate = monthsLastDate,
+                                AuditDate = DateTime.Now,
+                                Saccocode = sacco,
+                                AuditId = loggedInUser
+                            });
+                    });
+
+                    var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()));
+                    if (standingOrder != null)
+                    {
+                        decimal.TryParse(standingOrder?.Installment ?? "", out decimal installment);
+                        payRoll.SACCO_SHARES = netPay > installment ? installment : netPay;
+                        payRoll.SACCO_SHARES = payRoll.SACCO_SHARES > 0 ? payRoll.SACCO_SHARES : 0;
+                        netPay -= installment;
+                        if (payRoll.SACCO_SHARES > 0)
+                            listSaccoShares.Add(new SaccoShares
+                            {
+                                SharesCode = standingOrder.Sharescode,
+                                Sno = standingOrder.MemberNo,
+                                Amount = payRoll.SACCO_SHARES,
+                                TransDate = monthsLastDate,
+                                AuditDate = DateTime.Now,
+                                Saccocode = sacco,
+                                AuditId = loggedInUser
+                            });
+
+                        decimal saccoSavings = 0;
+                        payRoll.SACCO_SAVINGS = netPay > saccoSavings ? saccoSavings : netPay;
+                        payRoll.SACCO_SAVINGS = payRoll.SACCO_SAVINGS > 0 ? payRoll.SACCO_SAVINGS : 0;
+                        netPay -= saccoSavings;
+                    }
+                }
+                    
+
+                payRoll.Totaldeductions = grossPay - netPay;
+                payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
+                netPay -= debits;
+                payRoll.NetPay = netPay;
+
+                _context.DTransportersPayRolls.Add(payRoll);
+            }});
 
             if(listSaccoLoans.Any())
                 _context.SaccoLoans.AddRange(listSaccoLoans);

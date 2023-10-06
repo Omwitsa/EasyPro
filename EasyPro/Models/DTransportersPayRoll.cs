@@ -49,5 +49,6 @@ namespace EasyPro.Models
         public decimal? INST_ADVANCE { get; set; }
         public decimal? ECLOF { get; set; }
         public decimal? saccoDed { get; set; }
+        public string PhoneNo { get; set; }
     }
 }

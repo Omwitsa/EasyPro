@@ -129,7 +129,8 @@
                             printJS({
                                 printable: content,
                                 type: 'raw-html',
-                                style: '.blueText {color:blue;}'
+                                style: 'font-size: 11px;'
+                                //style: '.blueText {color:blue;}'
                             });
                         },
                         failure: function (response) {
@@ -201,16 +202,17 @@
                                                         *************************</br>
                                                         ${htmlTransporterSummery}</br>
                                                         *************************</br>
-                                                        Total Kgs: ${response.totalKgs}</br>
-                                                        Gross Pay Kshs: ${response.grossPay}</br>
+                                                        Total Kgs: ${response.totalKgs.toFixed(2)}</br>
+                                                        Subsidy : ${response.subsidy.toFixed(2)}</br>
+                                                        Gross Pay Kshs: ${response.grossPay.toFixed(2)}</br>
                                                         *************************</br>
                                                         DEDUCTIONS</br>
                                                         *************************</br>
                                                         ${htmlDeductionSummery}</br>
                                                         *************************</br>
-                                                        Total Deductions Kshs: ${response.totalDeductions}</br>
+                                                        Total Deductions Kshs: ${response.totalDeductions.toFixed(2)}</br>
                                                         *************************</br>
-                                                        Net Pay Kshs: ${response.netPay}</br>
+                                                        Net Pay Kshs: ${response.netPay.toFixed(2)}</br>
                                                         *************************</br>
                                                         BANK DETAILS</br>
                                                         *************************</br>
