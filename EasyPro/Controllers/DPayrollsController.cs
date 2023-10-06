@@ -829,16 +829,6 @@ namespace EasyPro.Controllers
                                 AuditId = loggedInUser
                             });
 
-                        var Othededutcion = (Others.Sum(s => s.DR)- Others.Sum(s => s.CR));
-
-                        payRoll.Others = netPay > Othededutcion ? Othededutcion : netPay;
-                        payRoll.Others = payRoll.Others > 0 ? payRoll.Others : 0;
-                        netPay -= Othededutcion;
-
-                        payRoll.Totaldeductions = grossPay - netPay;
-                        payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
-                        //netPay -= debits;
-                        payRoll.NetPay = netPay;
 
                     _context.DTransportersPayRolls.Add(payRoll);
                         decimal saccoSavings = 0;
@@ -851,7 +841,7 @@ namespace EasyPro.Controllers
 
                 payRoll.Totaldeductions = grossPay - netPay;
                 payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
-                netPay -= debits;
+                //netPay -= debits;
                 payRoll.NetPay = netPay;
 
                 _context.DTransportersPayRolls.Add(payRoll);
