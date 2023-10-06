@@ -40,6 +40,7 @@ namespace EasyPro.Provider
             && i.TransDate >= startDate && i.TransDate <= endDate && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()))
                 .ToListAsync();
 
+            var pricing = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco);
             var intakes = productIntakeslist.Where(i => (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
                 .OrderBy(i => i.TransDate).ToList();
 
@@ -52,15 +53,23 @@ namespace EasyPro.Provider
                 var intake = i.FirstOrDefault();
                 var price = intake.Ppu;
                 var qty = i.Sum(p => p.Qsupplied);
+                var payable = qty * price;
+                decimal? subsidy = 0;
+                if (StrValues.Slopes == filter.Sacco && qty > pricing.SubsidyQty)
+                {
+                    subsidy = qty * pricing.SubsidyPrice;
+                    payable += subsidy;
+                }
                 supplies.Add(new
                 {
                     date = i.Key,
                     qnty = qty,
                     price,
-                    payable = qty * price
+                    subsidy,
+                    payable
                 });
                 totalKgs += qty;
-                grossPay += (qty * price);
+                grossPay += payable;
             });
 
             var deductionIntakes = productIntakeslist.Where(i => i.TransactionType == TransactionType.Deduction
@@ -108,6 +117,8 @@ namespace EasyPro.Provider
                         type.LoanType
                     });
                 });
+
+                totalDeductions += loans.Sum(l => l.Installments);
             }
 
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == filter.Code && s.Scode == filter.Sacco && s.Branch == filter.Branch);

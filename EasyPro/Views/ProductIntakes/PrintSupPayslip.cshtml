@@ -1,0 +1,381 @@
+﻿<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <form asp-action="PrintSupPayslip">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                        <h2>Print Farmer Payslip</h2>
+                    </div>
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <input name="statement" type="radio" id="individual_farmers" />
+                            <label class="control-label" for="individual_farmers">Individual Farmer</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input name="statement" type="radio" id="bank_farmers" />
+                            <label class="control-label" for="transporter_farmers">By Bank</label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">End Month Date</label>
+                                    <input id="date" type="date" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="farmer_section">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Farmer Number</label>
+                                    <input id="sno" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Farmer Name</label>
+                                    <input id="name" readonly class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row" id="bank_section">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Bank</label>
+                                    <select id="bank" class="chzn-select form-control" asp-items="@ViewBag.bankNames" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a id="print" class="btn btn-success">Print</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            $(".chzn-select").chosen();
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+            $('#sno').on('keyup', function () {
+                getSupplier();
+            });
+            $("#individual_farmers").prop("checked", true);
+            $("#bank_farmers").prop("checked", false);
+            if ($('#individual_farmers').is(':checked')) {
+                $('#farmer_section').show();
+                $('#bank_section').hide();
+            }
+            if ($('#bank_farmers').is(':checked')) {
+                $('#bank_section').show();
+                $('#farmer_section').hide();
+            }
+            
+            $('input[type=radio]').change(function () {
+                if ($('#individual_farmers').is(':checked')) {
+                    $('#farmer_section').show();
+                    $('#bank_section').hide();
+                }
+                if ($('#bank_farmers').is(':checked')) {
+                    $('#bank_section').show();
+                    $('#farmer_section').hide();
+                }
+            });
+
+            $('#print').on('click', function () {
+                var date = $("#date").val();
+                var name = $("#name").val();
+                var code = $("#sno").val();
+                var operation = "printSupPayslip";
+
+                if ($('#individual_farmers').is(':checked')) {
+                    code = $("#sno").val();
+                    operation = "printSupPayslip";
+                }
+                if ($('#transporter_farmers').is(':checked')) {
+                    code = $("#bank").val();
+                    operation = "getBankFarmersPayslip";
+                }
+
+                var filter = {
+                    date: date,
+                    code: code,
+                    name: name
+                };
+
+                if (code && date) {
+                    $.ajax({
+                        type: 'POST',
+                        url: operation,
+                        contentType: 'application/json',
+                        data: JSON.stringify(filter),
+                        success: function (response) {
+                            $("#date").val('');
+                            $("#sno").val('');
+                            var content = '';
+                            if ($('#individual_farmers').is(':checked')) {
+                                content = generateHTML(response, filter);
+                            }
+                            if ($('#bank_farmers').is(':checked')) {
+                                content = generateTransHTML(response, filter);
+                            }
+                            printJS({
+                                printable: content,
+                                type: 'raw-html',
+                                style: '.blueText {color:blue;}; #printMe { font-size: 11px; }'
+                            });
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            });
+            // individual_farmers, bank_farmers, date, bank, sno, bank_section, farmer_section
+            function getSupplier() {
+                var sno = $('#sno').val();
+                var branch = $("#branch").val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: `selectedDateIntake?sno=${sno}&branch=${branch}`,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#name").val(response.supplier.Names);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
+
+            function generateHTML(response, filter) {
+                var mevng = $('#mevng').val();
+                var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                debugger
+                var supPayslip = response.payrolls.map(s => {
+                    //let transDate = new Date(s.date).toLocaleDateString('en-GB');
+                    var totalPrice = s.Gpay - s.Subsidy;
+                    return `<tr>
+                                <td>KGs</td>
+                                <td>${s.KgsSupplied}</td>
+                                <td></td>
+                                <td>${response.price.Price}</td>
+                                <td></td>
+                                <td>${totalPrice}</td>
+                            </tr>
+                            <tr>
+                                <td>SUBSIDY</td>
+                                <td>${s.KgsSupplied}</td>
+                                <td></td>
+                                <td>${response.price.SubsidyPrice}</td>
+                                <td></td>
+                                <td>${s.Subsidy}</td>
+                            </tr>
+                            <tr>
+                                <td>TOTAL</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>${s.Gpay}</td>
+                            </tr>
+                            <tr>
+                                <td>STORES</td>
+                                <td>${s.Agrovet}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>ADVANCE</td>
+                                <td>${s.Advance}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>NORMAL LOAN</td>
+                                <td>${s.Fsa}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            *************************</br>
+                            <tr>
+                                <td>TOTAL DED</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>${s.Tdeductions}</td>
+                            </tr>
+                            <tr>
+                                <td>NET PAY</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>${s.Npay}</td>
+                            </tr>
+                                    `;
+                });
+
+                var strSupPayslip = supPayslip.join('');
+                var htmlSupPayslip = `<table>
+                                    <thead>
+                                        <tr> </tr>
+                                    </thead>
+
+                                    <tbody>${strSupPayslip}</tbody>
+                                   </table>`;
+
+                //var deductionSummery = response.deductions.map(s => {
+                //    let transDate = new Date(s.TransDate).toLocaleDateString();
+                //    return `<tr>
+                //                                        <td>${transDate}</td>
+                //                                        <td>${s.DR}</td>
+                //                                        <td>${s.Description}</td>
+                //                                    </tr>`;
+                //});
+
+                let curDate = new Date().toLocaleDateString('en-GB');
+                var content = `<div class="row" id="printMe">
+                                                <div class="col-xs-12 text-center">
+                                                     <h4>
+                                                        ${response.company.Name}</br>
+                                                        Adress: ${response.company.Adress}</br>
+                                                        Tell: ${response.company.PhoneNo}</br>
+                                                        Town: ${response.company.Town}</br>
+                                                        Payment slip for ${date}
+                                                      </h4>
+                                                     <h5>
+                                                        *************************</br>
+                                                        DATE: ${curDate}</br>
+                                                        SNO: ${filter.code}</br>
+                                                        Name: ${response.supplier.Names}</br>
+                                                        VEHICLE: ${response.transporter.CertNo}</br>
+                                                        Name: ${response.supplier.Bcode}</br>
+                                                        *************************</br>
+                                                        ${htmlSupPayslip}</br>
+                                                        *************************</br>
+                                                    </h5>
+                                                    <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                                        **************************
+                                                    <hr>
+                                                </div>
+                                           </div>`;
+
+                return content;
+            }
+
+            function generateTransHTML(response, filter) {
+                response.company = response.company ? response.company : {};
+                response.transporter = response.transporter ? response.transporter : {};
+                var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                let content = "";
+                response.transpoterIntakes.forEach(i => {
+                    i.supplier = i.supplier ? i.supplier : {};
+                    var supplierSummery = i.supplies.map(s => {
+                        let transDate = new Date(s.TransDate).toLocaleDateString('en-GB');
+                        return `<tr>
+                                            <td>${transDate}</td>
+                                            <td></td>
+                                            <td>${s.Id}</td>
+                                            <td></td>
+                                            <td>${s.Qsupplied}</td>
+                                        </tr>`;
+                    });
+
+                    let strSupplierSummery = supplierSummery.join('');
+                    let htmlSupplierSummery = `<table>
+                            <thead>
+                                <tr>
+                                    <th> DATE </th>
+                                    <th></th>
+                                    <th> RCPT </th>
+                                    <th></th>
+                                    <th> KGS </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>${strSupplierSummery}</tbody>
+                            </table>`;
+
+                    let transCode = isSlopes ? response.transporter.CertNo : response.transporter.TransCode;
+                    let currentContent = `<div class="row" id="printMe">
+                                <div class="col-xs-12 text-center">
+                                        <h6>
+                                        ${response.company.Name}</br>
+                                        Detailed statement for ${date}
+                                        </h6>
+                                        *************************</br>
+                                        Transporter: ${response.transporter.TransName} (${transCode})</br>
+                                        *************************</br>
+                                        Name: ${i.supplier.Names} (${i.supplier.Sno})</br>
+                                        *************************</br>
+                                        ${htmlSupplierSummery}</br>
+                                        *************************</br>
+                                        Total Kgs: ${i.qnty}</br>
+                                        *************************</br>
+                                    <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                    **************************
+                                    <hr>
+                                    **************************
+                                </div>
+                            </div>`;
+
+                    content = `${content}${currentContent}`;
+                });
+
+                return content;
+            }
+        });
+    </script>
+}
+
