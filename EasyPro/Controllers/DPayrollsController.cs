@@ -386,13 +386,29 @@ namespace EasyPro.Controllers
 
                         decimal? netPay = grossPay;
                         var regis = (registration.Sum(s => s.DR) - registration.Sum(s => s.CR));
-                        payroll.Registration = netPay > regis ? regis : netPay;
-                        payroll.Registration = payroll.Registration > 0 ? payroll.Registration : 0;
+                        if(StrValues.Slopes == sacco)
+                        {
+                            payroll.Registration = netPay > regis ? regis : netPay;
+                            payroll.Registration = payroll.Registration > 0 ? payroll.Registration : 0;
+                        }
+                        else
+                        {
+                            payroll.Registration = regis;
+                        }
+                        
                         netPay -= regis;
 
                         var shar = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
-                        payroll.Hshares = netPay > shar ? shar : netPay;
-                        payroll.Hshares = payroll.Hshares > 0 ? payroll.Hshares : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.Hshares = netPay > shar ? shar : netPay;
+                            payroll.Hshares = payroll.Hshares > 0 ? payroll.Hshares : 0;
+                        }
+                        else
+                        {
+                            payroll.Hshares = shar;
+                        }
+                            
                         netPay -= shar;
 
                         payroll.KIIGA = netPay > kiiga.Sum(s => s.DR) ? kiiga.Sum(s => s.DR) : netPay;
@@ -404,13 +420,29 @@ namespace EasyPro.Controllers
                         netPay -= (kiroha.Sum(s => s.DR)- kiroha.Sum(s => s.CR));
 
                         var AIs = (ai.Sum(s => s.DR) - ai.Sum(s => s.CR));
-                        payroll.AI = netPay > AIs ? AIs : netPay;
-                        payroll.AI = payroll.AI > 0 ? payroll.AI : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.AI = netPay > AIs ? AIs : netPay;
+                            payroll.AI = payroll.AI > 0 ? payroll.AI : 0;
+                        }
+                        else
+                        {
+                            payroll.AI = AIs;
+                        }
+                            
                         netPay -= AIs;
 
                         var agro = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
-                        payroll.Agrovet = netPay > agro ? agro : netPay;
-                        payroll.Agrovet = payroll.Agrovet > 0 ? payroll.Agrovet : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.Agrovet = netPay > agro ? agro : netPay;
+                            payroll.Agrovet = payroll.Agrovet > 0 ? payroll.Agrovet : 0;
+                        }
+                        else
+                        {
+                            payroll.Agrovet = agro;
+                        }
+                            
                         netPay -= agro;
 
                         payroll.NOV_OVPMNT = netPay > overpayment.Sum(s => s.DR) ? overpayment.Sum(s => s.DR) : netPay;
@@ -418,31 +450,72 @@ namespace EasyPro.Controllers
                         netPay -= (overpayment.Sum(s => s.DR)- overpayment.Sum(s => s.CR));
 
                         var carryfw = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
-                        payroll.CurryForward = netPay > carryfw ? carryfw : netPay;
-                        payroll.CurryForward = payroll.CurryForward > 0 ? payroll.CurryForward : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.CurryForward = netPay > carryfw ? carryfw : netPay;
+                            payroll.CurryForward = payroll.CurryForward > 0 ? payroll.CurryForward : 0;
+                        }
+                        else
+                        {
+                            payroll.CurryForward = carryfw;
+                        }
+                           
                         netPay -= carryfw;
 
                         var adva = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
-                        payroll.Advance = netPay > adva ? adva  : netPay;
-                        payroll.Advance = payroll.Advance > 0 ? payroll.Advance : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.Advance = netPay > adva ? adva : netPay;
+                            payroll.Advance = payroll.Advance > 0 ? payroll.Advance : 0;
+                        }
+                        else
+                        {
+                            payroll.Advance = adva;
+                        }
+                           
                         netPay -= adva;
 
                         payroll.INST_ADVANCE = netPay > instantAdvance.Sum(s => s.DR) ? instantAdvance.Sum(s => s.DR) : netPay;
                         payroll.INST_ADVANCE = payroll.INST_ADVANCE > 0 ? payroll.INST_ADVANCE : 0;
                         netPay -= (instantAdvance.Sum(s => s.DR)- instantAdvance.Sum(s => s.CR));
 
-                        var trans = (transport.Sum(s => s.DR) - transport.Sum(s => s.CR));
-                        payroll.Transport = netPay > trans ? trans : netPay;
+                        var trans = (transport.Sum(s => s.DR));
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.Transport = netPay > trans ? trans : netPay;
+                            payroll.Transport = payroll.Transport > 0 ? payroll.Transport : 0;
+                        }
+                        else
+                        {
+                            payroll.Transport = trans;
+                        }
+                            
                         netPay -= trans;
                         
                         var clini = (clinical.Sum(s => s.DR) - clinical.Sum(s => s.CR));
-                        payroll.CLINICAL = netPay > clini ? clini : netPay;
-                        payroll.CLINICAL = payroll.CLINICAL > 0 ? payroll.CLINICAL : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.CLINICAL = netPay > clini ? clini : netPay;
+                            payroll.CLINICAL = payroll.CLINICAL > 0 ? payroll.CLINICAL : 0;
+                        }
+                        else
+                        {
+                            payroll.CLINICAL = clini;
+                        }
+                           
                         netPay -= clini;
 
                         var Tract = (tractor.Sum(s => s.DR) - tractor.Sum(s => s.CR));
-                        payroll.Tractor = netPay > Tract ? Tract : netPay;
-                        payroll.Tractor = payroll.Tractor > 0 ? payroll.Tractor : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.Tractor = netPay > Tract ? Tract : netPay;
+                            payroll.Tractor = payroll.Tractor > 0 ? payroll.Tractor : 0;
+                        }
+                        else
+                        {
+                            payroll.Tractor = Tract;
+                        }
+                           
                         netPay -= Tract;
 
                         payroll.extension = netPay > extension.Sum(s => s.DR) ? extension.Sum(s => s.DR) : netPay;
@@ -462,13 +535,29 @@ namespace EasyPro.Controllers
                         netPay -= (MIDPAY.Sum(s => s.DR)- MIDPAY.Sum(s => s.CR));
 
                         var ECLO = (ECLOF.Sum(s => s.DR) - ECLOF.Sum(s => s.CR));
-                        payroll.ECLOF = netPay > ECLO ? ECLO : netPay;
-                        payroll.ECLOF = payroll.ECLOF > 0 ? payroll.ECLOF : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.ECLOF = netPay > ECLO ? ECLO : netPay;
+                            payroll.ECLOF = payroll.ECLOF > 0 ? payroll.ECLOF : 0;
+                        }
+                        else
+                        {
+                            payroll.ECLOF = ECLO;
+                        }
+                            
                         netPay -= ECLO;
 
                         var Maendeleo = (saccoDed.Sum(s => s.DR) - saccoDed.Sum(s => s.CR));
-                        payroll.saccoDed = netPay > Maendeleo ? Maendeleo : netPay;
-                        payroll.saccoDed = payroll.saccoDed > 0 ? payroll.saccoDed : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.saccoDed = netPay > Maendeleo ? Maendeleo : netPay;
+                            payroll.saccoDed = payroll.saccoDed > 0 ? payroll.saccoDed : 0;
+                        }
+                        else
+                        {
+                            payroll.saccoDed = Maendeleo;
+                        }
+                            
                         netPay -= Maendeleo;
 
                         payroll.MILK_RECOVERY = netPay > milkRecovery.Sum(s => s.DR) ? milkRecovery.Sum(s => s.DR) : netPay;
@@ -476,13 +565,29 @@ namespace EasyPro.Controllers
                         netPay -= (milkRecovery.Sum(s => s.DR)- milkRecovery.Sum(s => s.CR));
 
                         var other = (Others.Sum(s => s.DR) - Others.Sum(s => s.CR));
-                        payroll.Others = netPay > other ? other : netPay;
-                        payroll.Others = payroll.Others > 0 ? payroll.Others : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.Others = netPay > other ? other : netPay;
+                            payroll.Others = payroll.Others > 0 ? payroll.Others : 0;
+                        }
+                        else
+                        {
+                            payroll.Others = other;
+                        }
+                           
                         netPay -= other;
 
                         var memberLoans = loan.Sum(s => s.DR);
-                        payroll.Fsa = netPay > memberLoans ? memberLoans : netPay;
-                        payroll.Fsa = payroll.Fsa > 0 ? payroll.Fsa : 0;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            payroll.Fsa = netPay > memberLoans ? memberLoans : netPay;
+                            payroll.Fsa = payroll.Fsa > 0 ? payroll.Fsa : 0;
+                        }
+                        else
+                        {
+                            payroll.Fsa = memberLoans;
+                        }
+                           
                         netPay -= memberLoans;
 
                         if (StrValues.Slopes == sacco)
@@ -535,7 +640,8 @@ namespace EasyPro.Controllers
                         }
 
                         payroll.Tdeductions = grossPay - netPay;
-                        payroll.Tdeductions = payroll.Tdeductions > grossPay ? grossPay : payroll.Tdeductions;
+                        if (StrValues.Slopes == sacco)
+                            payroll.Tdeductions = payroll.Tdeductions > grossPay ? grossPay : payroll.Tdeductions;
                         //netPay -= debits;
                         payroll.Npay = netPay;
 
@@ -662,9 +768,9 @@ namespace EasyPro.Controllers
                 var payRoll = new DTransportersPayRoll
                 {
                     Code = transporter.TransCode,
-                    Amnt = amount - subsidy,
+                    Amnt = amount,
                     Subsidy = subsidy,
-                    GrossPay = grossPay- subsidy,
+                    GrossPay = grossPay,
                     QntySup = (double?)p.Sum(s => s.Qsupplied),
                     PhoneNo = transporter.Phoneno,
                     Advance = 0,
@@ -703,32 +809,69 @@ namespace EasyPro.Controllers
 
                 var saccodeductions = (saccoDed.Sum(s => s.DR) - saccoDed.Sum(s => s.CR));
 
-                payRoll.saccoDed = netPay > saccodeductions ? saccodeductions : netPay;
-                payRoll.saccoDed = payRoll.saccoDed > 0 ? payRoll.saccoDed : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.saccoDed = netPay > saccodeductions ? saccodeductions : netPay;
+                        payRoll.saccoDed = payRoll.saccoDed > 0 ? payRoll.saccoDed : 0;
+                    }
+                    else
+                    {
+                        payRoll.saccoDed = saccodeductions;
+                    }
+                        
                 netPay -= saccodeductions;
 
                 var eclofdeduction = (ECLOF.Sum(s => s.DR) - ECLOF.Sum(s => s.CR));
-
-                payRoll.ECLOF = netPay > eclofdeduction ? eclofdeduction : netPay;
-                payRoll.ECLOF = payRoll.ECLOF > 0 ? payRoll.ECLOF : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.ECLOF = netPay > eclofdeduction ? eclofdeduction : netPay;
+                        payRoll.ECLOF = payRoll.ECLOF > 0 ? payRoll.ECLOF : 0;
+                    }
+                    else
+                    {
+                        payRoll.ECLOF = eclofdeduction;
+                    }
+                        
                 netPay -= eclofdeduction;
 
                 var variancededuction = (variance.Sum(s => s.DR) - variance.Sum(s => s.CR));
-
-                payRoll.VARIANCE = netPay > variancededuction ? variancededuction : netPay;
-                payRoll.VARIANCE = payRoll.VARIANCE > 0 ? payRoll.VARIANCE : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.VARIANCE = netPay > variancededuction ? variancededuction : netPay;
+                        payRoll.VARIANCE = payRoll.VARIANCE > 0 ? payRoll.VARIANCE : 0;
+                    }
+                    else
+                    {
+                        payRoll.VARIANCE = variancededuction;
+                    }
+                        
                 netPay -= variancededuction;
 
                 var agrovetdeduction = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.Agrovet = netPay > agrovetdeduction ? agrovetdeduction : netPay;
+                        payRoll.Agrovet = payRoll.Agrovet > 0 ? payRoll.Agrovet : 0;
+                    }
+                    else
+                    {
+                        payRoll.Agrovet = agrovetdeduction;
+                    }
 
-                payRoll.Agrovet = netPay > agrovetdeduction ? agrovetdeduction : netPay;
-                payRoll.Agrovet = payRoll.Agrovet > 0 ? payRoll.Agrovet : 0;
+                        
                 netPay -= agrovetdeduction;
 
                 var advancededuction = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
-
-                payRoll.Advance = netPay > advancededuction ? advancededuction : netPay;
-                payRoll.Advance = payRoll.Advance > 0 ? payRoll.Advance : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.Advance = netPay > advancededuction ? advancededuction : netPay;
+                        payRoll.Advance = payRoll.Advance > 0 ? payRoll.Advance : 0;
+                    }
+                    else
+                    {
+                        payRoll.Advance = advancededuction;
+                    }
+                       
                 netPay -= advancededuction;
 
                 payRoll.INST_ADVANCE = netPay > instantAdvance.Sum(s => s.DR) ? instantAdvance.Sum(s => s.DR) : netPay;
@@ -744,38 +887,81 @@ namespace EasyPro.Controllers
                 netPay -= SMS.Sum(s => s.DR);
 
                 var CurryForwarddeduction = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
-
-                payRoll.CurryForward = netPay > CurryForwarddeduction ? CurryForwarddeduction : netPay;
-                payRoll.CurryForward = payRoll.CurryForward > 0 ? payRoll.CurryForward : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.CurryForward = netPay > CurryForwarddeduction ? CurryForwarddeduction : netPay;
+                        payRoll.CurryForward = payRoll.CurryForward > 0 ? payRoll.CurryForward : 0;
+                    }
+                    else
+                    {
+                        payRoll.CurryForward = CurryForwarddeduction;
+                    }
+                        
                 netPay -= CurryForwarddeduction;
 
                 var midpaydeduction = (MIDPAY.Sum(s => s.DR) - MIDPAY.Sum(s => s.CR));
-
-                payRoll.MIDPAY = netPay > midpaydeduction ? midpaydeduction : netPay;
-                payRoll.MIDPAY = payRoll.MIDPAY > 0 ? payRoll.MIDPAY : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.MIDPAY = netPay > midpaydeduction ? midpaydeduction : netPay;
+                        payRoll.MIDPAY = payRoll.MIDPAY > 0 ? payRoll.MIDPAY : 0;
+                    }
+                    else
+                    {
+                        payRoll.MIDPAY = midpaydeduction;
+                    }
+                        
                 netPay -= midpaydeduction;
 
                 var AIDeduction = (ai.Sum(s => s.DR) - ai.Sum(s => s.CR));
-
-                payRoll.AI = netPay > AIDeduction ? AIDeduction : netPay;
-                payRoll.AI = payRoll.AI > 0 ? payRoll.AI : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.AI = netPay > AIDeduction ? AIDeduction : netPay;
+                        payRoll.AI = payRoll.AI > 0 ? payRoll.AI : 0;
+                    }
+                    else
+                    {
+                        payRoll.AI = AIDeduction;
+                    }
+                       
                 netPay -= AIDeduction;
 
                 var CLINICALdeduction = (clinical.Sum(s => s.DR) - clinical.Sum(s => s.CR));
-
-                payRoll.CLINICAL = netPay > CLINICALdeduction ? CLINICALdeduction : netPay;
-                payRoll.CLINICAL = payRoll.CLINICAL > 0 ? payRoll.CLINICAL : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.CLINICAL = netPay > CLINICALdeduction ? CLINICALdeduction : netPay;
+                        payRoll.CLINICAL = payRoll.CLINICAL > 0 ? payRoll.CLINICAL : 0;
+                    }
+                    else
+                    {
+                        payRoll.CLINICAL = CLINICALdeduction;
+                    }
+                       
                 netPay -= CLINICALdeduction;
 
                 var tractordeduction = (tractor.Sum(s => s.DR) - tractor.Sum(s => s.CR));
-
-                payRoll.Tractor = netPay > tractordeduction ? tractordeduction : netPay;
-                payRoll.Tractor = payRoll.Tractor > 0 ? payRoll.Tractor : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.Tractor = netPay > tractordeduction ? tractordeduction : netPay;
+                        payRoll.Tractor = payRoll.Tractor > 0 ? payRoll.Tractor : 0;
+                    }
+                    else
+                    {
+                        payRoll.Tractor = tractordeduction;
+                    }
+                       
                 netPay -= tractordeduction;
 
                 var Hsharesdeductions = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
-                payRoll.Hshares = netPay > Hsharesdeductions  ? Hsharesdeductions : netPay;
-                payRoll.Hshares = payRoll.Hshares > 0 ? payRoll.Hshares : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.Hshares = netPay > Hsharesdeductions ? Hsharesdeductions : netPay;
+                        payRoll.Hshares = payRoll.Hshares > 0 ? payRoll.Hshares : 0;
+                    }
+                    else
+                    {
+                        payRoll.Hshares = Hsharesdeductions;
+                    }
+                       
                 netPay -= Hsharesdeductions;
 
                 var memberLoans = loan.Sum(s => s.DR);
@@ -784,8 +970,16 @@ namespace EasyPro.Controllers
                 netPay -= memberLoans;
 
                 var Othersdedutcion = (Others.Sum(s => s.DR)- Others.Sum(s => s.CR));
-                payRoll.Others = netPay > Othersdedutcion ? Othersdedutcion : netPay;
-                payRoll.Others = payRoll.Others > 0 ? payRoll.Others : 0;
+                    if (StrValues.Slopes == sacco)
+                    {
+                        payRoll.Others = netPay > Othersdedutcion ? Othersdedutcion : netPay;
+                        payRoll.Others = payRoll.Others > 0 ? payRoll.Others : 0;
+                    }
+                    else
+                    {
+                        payRoll.Others = Othersdedutcion;
+                    }
+                       
                 netPay -= Othersdedutcion;
 
                 if (StrValues.Slopes == sacco)
@@ -840,7 +1034,8 @@ namespace EasyPro.Controllers
                     
 
                 payRoll.Totaldeductions = grossPay - netPay;
-                payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
+                    if (StrValues.Slopes == sacco)
+                        payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
                 //netPay -= debits;
                 payRoll.NetPay = netPay;
 

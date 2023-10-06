@@ -120,7 +120,7 @@ namespace EasyPro.Provider
                 grossPay = grossPay+ subsidy,
                 deductions,
                 totalDeductions,
-                netPay = grossPay - totalDeductions,
+                netPay = (grossPay + subsidy) - totalDeductions,
                 transporter,
                 company
             };
