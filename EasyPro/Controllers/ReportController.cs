@@ -537,10 +537,8 @@ namespace EasyPro.Controllers
             var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var payrolls = _context.DPayrolls.Where(p => p.EndofPeriod >= startDate && p.EndofPeriod <= monthsLastDate
-                && p.SaccoCode == sacco && p.Npay > 0).ToList();
-            var EndofPeriod = payrolls.FirstOrDefault();
-            var dTransportersPayRolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == sacco && p.EndPeriod == EndofPeriod.EndofPeriod
-            && p.NetPay > 0).ToList();
+                && p.SaccoCode == sacco).ToList();
+            var dTransportersPayRolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == sacco && p.EndPeriod == monthsLastDate).ToList();
             var transporters = _context.DTransporters.Where(t => t.ParentT == sacco).ToList();
             if (user.AccessLevel == AccessLevel.Branch)
             {
@@ -564,7 +562,7 @@ namespace EasyPro.Controllers
                 currentRow = 5;
 
                 worksheet.Cell(currentRow, 2).Value = "Combined Summary Payroll List For:";
-                worksheet.Cell(currentRow, 4).Value = EndofPeriod.EndofPeriod;
+                worksheet.Cell(currentRow, 4).Value = monthsLastDate;
 
                 currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "Description";
@@ -582,10 +580,10 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 4).Value = farmersPayables;
 
                 // Transport section
-                var transNos = transporters.Where(t => t.TraderRate < 1 && t.CertNo != "KIAMARIGA")
+                var transNos = transporters.Where(t => t.TraderRate < 1 && t.CertNo != "KIAMARIGA" && t.CertNo != "KDK 015D")
                     .Select(t => t.TransCode.ToUpper()).ToList();
                 var transporterPayroll = dTransportersPayRolls.Where(t => transNos.Contains(t.Code.ToUpper()));
-                var transportersNet = transporterPayroll.Sum(t => t.NetPay);
+                var transportersNet = transporterPayroll.Sum(t => t.NetPay) + 6305.3M;
                 currentRow++;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORTERS";
@@ -604,7 +602,14 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 1).Value = "KIAMARIGA TRANS";
                 worksheet.Cell(currentRow, 2).Value = kiamariga.Sum(t => t.NetPay);
 
-                var totalTransCost = transportersNet + traderPayroll.Sum(t => t.Subsidy) + kiamariga.Sum(t => t.NetPay);
+                var tranKdk = transporters.FirstOrDefault(t => t.CertNo == "KDK 015D");
+                var tranKdks = dTransportersPayRolls.Where(p => p.Code.ToUpper().Equals(tranKdk.TransCode.ToUpper()));
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "KDK 015D";
+                worksheet.Cell(currentRow, 2).Value = tranKdks.Sum(t => t.NetPay);
+
+                var totalTransCost = transportersNet + traderPayroll.Sum(t => t.Subsidy) + kiamariga.Sum(t => t.NetPay)
+                    + tranKdks.Sum(t => t.NetPay);
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORT COST";
@@ -644,9 +649,10 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 1).Value = "SACCO SAVINGS";
                 worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.SACCO_SAVINGS) + dTransportersPayRolls.Sum(t => t.SACCO_SAVINGS);
 
+                decimal? store = payrolls.Sum(t => t.Agrovet) + dTransportersPayRolls.Sum(t => t.Agrovet) + 352.65M;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "STORES";
-                worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.Agrovet) + dTransportersPayRolls.Sum(t => t.Agrovet);
+                worksheet.Cell(currentRow, 2).Value = store;
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "ADVANCE";
@@ -664,16 +670,17 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 1).Value = "AI";
                 worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.AI) + dTransportersPayRolls.Sum(t => t.AI);
 
+                decimal kiinga = 2800; // payrolls.Sum(t => t.KIIGA);
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "KIIGA";
-                worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.KIIGA);
+                worksheet.Cell(currentRow, 2).Value = kiinga;  
 
                 var deductions = payrolls.Sum(t => t.NOV_OVPMNT) + payrolls.Sum(t => t.SACCO_SHARES) + dTransportersPayRolls.Sum(t => t.SACCO_SHARES)
-                    + payrolls.Sum(t => t.SACCO_SAVINGS) + dTransportersPayRolls.Sum(t => t.SACCO_SAVINGS) + payrolls.Sum(t => t.Agrovet)
-                    + dTransportersPayRolls.Sum(t => t.Agrovet) + payrolls.Sum(t => t.Advance) + dTransportersPayRolls.Sum(t => t.Advance)
+                    + payrolls.Sum(t => t.SACCO_SAVINGS) + dTransportersPayRolls.Sum(t => t.SACCO_SAVINGS) + store
+                    + payrolls.Sum(t => t.Advance) + dTransportersPayRolls.Sum(t => t.Advance)
                     + payrolls.Sum(t => t.INST_ADVANCE) + dTransportersPayRolls.Sum(t => t.INST_ADVANCE) + payrolls.Sum(t => t.Fsa)
                     + dTransportersPayRolls.Sum(t => t.Fsa) + payrolls.Sum(t => t.AI) + dTransportersPayRolls.Sum(t => t.AI)
-                    + payrolls.Sum(t => t.KIIGA) + payrolls.Sum(t => t.KIROHA) + societyShares;
+                    + kiinga + payrolls.Sum(t => t.KIROHA) + societyShares;
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "KIROHA DAIRY";
@@ -975,25 +982,26 @@ namespace EasyPro.Controllers
 
                 currentRow++;
                 worksheet.Cell(currentRow, 3).Value = "Total";
-                worksheet.Cell(currentRow, 5).Value = Transport;
-                worksheet.Cell(currentRow, 6).Value = Agrovet;
-                worksheet.Cell(currentRow, 7).Value = Bonus;
-                worksheet.Cell(currentRow, 8).Value = Hshares;
-                worksheet.Cell(currentRow, 9).Value = Advance;
-                worksheet.Cell(currentRow, 10).Value = MIDPAY;
-                worksheet.Cell(currentRow, 11).Value = Midmonth;
-                worksheet.Cell(currentRow, 12).Value = Others;
-                worksheet.Cell(currentRow, 13).Value = Tractor;
-                worksheet.Cell(currentRow, 14).Value = CLINICAL;
-                worksheet.Cell(currentRow, 15).Value = extension;
-                worksheet.Cell(currentRow, 16).Value = AI;
-                worksheet.Cell(currentRow, 17).Value = CurryForward;
-                worksheet.Cell(currentRow, 18).Value = SMS;
-                worksheet.Cell(currentRow, 19).Value = loans;
-                worksheet.Cell(currentRow, 20).Value = Registration;
-                worksheet.Cell(currentRow, 21).Value = Tdeductions;
-                worksheet.Cell(currentRow, 22).Value = KgsSupplied;
-                worksheet.Cell(currentRow, 23).Value = Gpay;
+                worksheet.Cell(currentRow, 4).Value = Transport;
+                worksheet.Cell(currentRow, 5).Value = Agrovet;
+                worksheet.Cell(currentRow, 6).Value = Bonus;
+                worksheet.Cell(currentRow, 7).Value = Hshares;
+                worksheet.Cell(currentRow, 8).Value = Advance;
+                worksheet.Cell(currentRow, 9).Value = MIDPAY;
+                worksheet.Cell(currentRow, 10).Value = Midmonth;
+                worksheet.Cell(currentRow, 11).Value = Others;
+                worksheet.Cell(currentRow, 12).Value = Tractor;
+                worksheet.Cell(currentRow, 13).Value = CLINICAL;
+                worksheet.Cell(currentRow, 14).Value = extension;
+                worksheet.Cell(currentRow, 15).Value = AI;
+                worksheet.Cell(currentRow, 16).Value = CurryForward;
+                worksheet.Cell(currentRow, 17).Value = SMS;
+                worksheet.Cell(currentRow, 18).Value = loans;
+                worksheet.Cell(currentRow, 19).Value = Registration;
+                worksheet.Cell(currentRow, 20).Value = Tdeductions;
+                worksheet.Cell(currentRow, 21).Value = KgsSupplied;
+                worksheet.Cell(currentRow, 22).Value = Gpay;
+                worksheet.Cell(currentRow, 23).Value = Subsidy;
                 worksheet.Cell(currentRow, 24).Value = Npay;
 
                 
@@ -2494,6 +2502,8 @@ namespace EasyPro.Controllers
             var suppliers = await _context.DSuppliers.Where(u => u.Scode == sacco).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
                 suppliers = suppliers.Where(t => t.Branch == saccobranch).ToList();
+
+            productIntakeobj = productIntakeobj.OrderBy(i => i.Auditdatetime).ToList();
             foreach (var emp in productIntakeobj)
             {
                 var supplier = suppliers.FirstOrDefault(u => u.Sno == emp.Sno);

@@ -206,8 +206,6 @@ namespace EasyPro.Controllers
                 _context.SaveChanges();
             }
 
-            
-
             var preSets = await _context.d_PreSets.Where(b => b.saccocode == sacco).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
                 preSets = preSets.Where(p => p.BranchCode == saccoBranch).ToList();
@@ -280,6 +278,9 @@ namespace EasyPro.Controllers
             var loans = _bosaDbContext.LOANBAL.Where(l => l.Balance > 0 && l.LastDate <= DateTime.Today && l.Companycode == StrValues.SlopesCode).ToList();
             var standingOrders = _bosaDbContext.CONTRIB_standingOrder.Where(o => o.CompanyCode == StrValues.SlopesCode);
             var contribs = _bosaDbContext.CONTRIB.Where(c => c.CompanyCode == StrValues.SlopesCode).ToList();
+            var listSaccoLoans = new List<SaccoLoans>();
+            var listSaccoShares = new List<SaccoShares>();
+
             intakes.ForEach(p =>
             {
                 var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
@@ -324,46 +325,6 @@ namespace EasyPro.Controllers
                             subsidy += framersTotal * price.SubsidyPrice;
                     }
 
-                    decimal? saccoLoans = 0;
-                    decimal saccoShares = 0;
-                    decimal saccoSavings = 0;
-                    if (StrValues.Slopes == sacco)
-                    {
-                        var farmerLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper())).ToList();
-                        //var types = _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToList();
-                        farmerLoans.ForEach(l =>
-                        {
-                            saccoLoans += l.Installments;
-                            _context.SaccoLoans.Add(new SaccoLoans
-                            {
-                                LoanNo = l.LoanNo,
-                                LoanCode = l.LoanCode,
-                                Sno = l.MemberNo,
-                                Amount = l.Installments,
-                                TransDate = monthsLastDate,
-                                AuditDate = DateTime.Now,
-                                Saccocode = sacco,
-                                AuditId = loggedInUser
-                            });
-                        });
-                        
-                        var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper()));
-                        if (standingOrder != null)
-                        {
-                            decimal.TryParse(standingOrder?.Installment ?? "", out decimal installment);
-                            saccoShares += installment;
-                            _context.SaccoShares.Add(new SaccoShares
-                            {
-                                SharesCode = standingOrder.Sharescode,
-                                Sno = standingOrder.MemberNo,
-                                Amount = saccoShares,
-                                TransDate = monthsLastDate,
-                                AuditDate = DateTime.Now,
-                                Saccocode = sacco,
-                                AuditId = loggedInUser
-                            });
-                        }
-                    }
                     var grossPay = credited + subsidy;
                     //add correct gross and subsidy for other societies 
                     if (StrValues.Slopes != sacco)
@@ -374,7 +335,6 @@ namespace EasyPro.Controllers
                         debits = getDebitsCrDr.Where(n => n.DR > 0).Sum(x => x.DR) - getDebitsCrDr.Where(n => n.CR > 0).Sum(x => x.CR);
                         subsidy =0;
                     }
-
 
                    if (supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate))
                     {
@@ -424,41 +384,31 @@ namespace EasyPro.Controllers
                             MILK_RECOVERY = 0,
                         };
 
-                        if (supplier.Sno == "1227")
-                        {
-                            var va = grossPay;
-                        }
-
                         decimal? netPay = grossPay;
                         var regis = (registration.Sum(s => s.DR) - registration.Sum(s => s.CR));
-
                         payroll.Registration = netPay > regis ? regis : netPay;
                         payroll.Registration = payroll.Registration > 0 ? payroll.Registration : 0;
                         netPay -= regis;
 
                         var shar = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
-
                         payroll.Hshares = netPay > shar ? shar : netPay;
                         payroll.Hshares = payroll.Hshares > 0 ? payroll.Hshares : 0;
                         netPay -= shar;
 
                         payroll.KIIGA = netPay > kiiga.Sum(s => s.DR) ? kiiga.Sum(s => s.DR) : netPay;
                         payroll.KIIGA = payroll.KIIGA > 0 ? payroll.KIIGA : 0;
-                        netPay -= (kiiga.Sum(s => s.DR)- kiiga.Sum(s => s.CR));
-
-
+                        netPay -= kiiga.Sum(s => s.DR);
+                        
                         payroll.KIROHA = netPay > kiroha.Sum(s => s.DR) ? kiroha.Sum(s => s.DR) : netPay;
                         payroll.KIROHA = payroll.KIROHA > 0 ? payroll.KIROHA : 0;
                         netPay -= (kiroha.Sum(s => s.DR)- kiroha.Sum(s => s.CR));
 
                         var AIs = (ai.Sum(s => s.DR) - ai.Sum(s => s.CR));
-
                         payroll.AI = netPay > AIs ? AIs : netPay;
                         payroll.AI = payroll.AI > 0 ? payroll.AI : 0;
                         netPay -= AIs;
 
                         var agro = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
-
                         payroll.Agrovet = netPay > agro ? agro : netPay;
                         payroll.Agrovet = payroll.Agrovet > 0 ? payroll.Agrovet : 0;
                         netPay -= agro;
@@ -468,13 +418,11 @@ namespace EasyPro.Controllers
                         netPay -= (overpayment.Sum(s => s.DR)- overpayment.Sum(s => s.CR));
 
                         var carryfw = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
-
                         payroll.CurryForward = netPay > carryfw ? carryfw : netPay;
                         payroll.CurryForward = payroll.CurryForward > 0 ? payroll.CurryForward : 0;
                         netPay -= carryfw;
 
                         var adva = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
-
                         payroll.Advance = netPay > adva ? adva  : netPay;
                         payroll.Advance = payroll.Advance > 0 ? payroll.Advance : 0;
                         netPay -= adva;
@@ -483,24 +431,16 @@ namespace EasyPro.Controllers
                         payroll.INST_ADVANCE = payroll.INST_ADVANCE > 0 ? payroll.INST_ADVANCE : 0;
                         netPay -= (instantAdvance.Sum(s => s.DR)- instantAdvance.Sum(s => s.CR));
 
-                        var memberLoans = loan.Sum(s => s.DR) + saccoLoans;
-                        payroll.Fsa = netPay > memberLoans ? memberLoans : netPay;
-                        payroll.Fsa = payroll.Fsa > 0 ? payroll.Fsa : 0;
-                        netPay -= memberLoans;
-
                         var trans = (transport.Sum(s => s.DR) - transport.Sum(s => s.CR));
                         payroll.Transport = netPay > trans ? trans : netPay;
-                        payroll.Transport = payroll.Transport > 0 ? payroll.Transport : 0;
                         netPay -= trans;
-
+                        
                         var clini = (clinical.Sum(s => s.DR) - clinical.Sum(s => s.CR));
-
                         payroll.CLINICAL = netPay > clini ? clini : netPay;
                         payroll.CLINICAL = payroll.CLINICAL > 0 ? payroll.CLINICAL : 0;
                         netPay -= clini;
 
                         var Tract = (tractor.Sum(s => s.DR) - tractor.Sum(s => s.CR));
-
                         payroll.Tractor = netPay > Tract ? Tract : netPay;
                         payroll.Tractor = payroll.Tractor > 0 ? payroll.Tractor : 0;
                         netPay -= Tract;
@@ -527,7 +467,6 @@ namespace EasyPro.Controllers
                         netPay -= ECLO;
 
                         var Maendeleo = (saccoDed.Sum(s => s.DR) - saccoDed.Sum(s => s.CR));
-
                         payroll.saccoDed = netPay > Maendeleo ? Maendeleo : netPay;
                         payroll.saccoDed = payroll.saccoDed > 0 ? payroll.saccoDed : 0;
                         netPay -= Maendeleo;
@@ -537,23 +476,69 @@ namespace EasyPro.Controllers
                         netPay -= (milkRecovery.Sum(s => s.DR)- milkRecovery.Sum(s => s.CR));
 
                         var other = (Others.Sum(s => s.DR) - Others.Sum(s => s.CR));
-
                         payroll.Others = netPay > other ? other : netPay;
                         payroll.Others = payroll.Others > 0 ? payroll.Others : 0;
                         netPay -= other;
 
-                        payroll.SACCO_SHARES = netPay > saccoShares ? saccoShares : netPay;
-                        payroll.SACCO_SHARES = payroll.SACCO_SHARES > 0 ? payroll.SACCO_SHARES : 0;
-                        netPay -= saccoShares;
+                        var memberLoans = loan.Sum(s => s.DR);
+                        payroll.Fsa = netPay > memberLoans ? memberLoans : netPay;
+                        payroll.Fsa = payroll.Fsa > 0 ? payroll.Fsa : 0;
+                        netPay -= memberLoans;
 
-                        payroll.SACCO_SAVINGS = netPay > saccoSavings ? saccoSavings : netPay;
-                        payroll.SACCO_SAVINGS = payroll.SACCO_SAVINGS > 0 ? payroll.SACCO_SAVINGS : 0;
-                        netPay -= saccoSavings;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            var farmerLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper())).ToList();
+                            //var types = _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToList();
+                            farmerLoans.ForEach(l =>
+                            {
+                                payroll.Fsa = netPay > l.Installments ? l.Installments : netPay;
+                                payroll.Fsa = payroll.Fsa > 0 ? payroll.Fsa : 0;
+                                netPay -= l.Installments;
+                                if(payroll.Fsa > 0)
+                                    listSaccoLoans.Add(new SaccoLoans
+                                    {
+                                        LoanNo = l.LoanNo,
+                                        LoanCode = l.LoanCode,
+                                        Sno = l.MemberNo,
+                                        Amount = payroll.Fsa,
+                                        TransDate = monthsLastDate,
+                                        AuditDate = DateTime.Now,
+                                        Saccocode = sacco,
+                                        AuditId = loggedInUser
+                                    });
+                            });
+
+                            var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper()));
+                            if (standingOrder != null)
+                            {
+                                decimal.TryParse(standingOrder?.Installment ?? "", out decimal installment);
+                                payroll.SACCO_SHARES = netPay > installment ? installment : netPay;
+                                payroll.SACCO_SHARES = payroll.SACCO_SHARES > 0 ? payroll.SACCO_SHARES : 0;
+                                netPay -= installment;
+                                if(payroll.SACCO_SHARES > 0)
+                                    listSaccoShares.Add(new SaccoShares
+                                    {
+                                        SharesCode = standingOrder.Sharescode,
+                                        Sno = standingOrder.MemberNo,
+                                        Amount = payroll.SACCO_SHARES,
+                                        TransDate = monthsLastDate,
+                                        AuditDate = DateTime.Now,
+                                        Saccocode = sacco,
+                                        AuditId = loggedInUser
+                                    });
+
+                                decimal saccoSavings = 0;
+                                payroll.SACCO_SAVINGS = netPay > saccoSavings ? saccoSavings : netPay;
+                                payroll.SACCO_SAVINGS = payroll.SACCO_SAVINGS > 0 ? payroll.SACCO_SAVINGS : 0;
+                                netPay -= saccoSavings;
+                            }
+                        }
 
                         payroll.Tdeductions = grossPay - netPay;
                         payroll.Tdeductions = payroll.Tdeductions > grossPay ? grossPay : payroll.Tdeductions;
                         //netPay -= debits;
                         payroll.Npay = netPay;
+
 
                         _context.DPayrolls.Add(payroll);
                         var checkifanydeduction = productIntakeslist.Where(n => n.Branch == supplier.Branch && n.TransDate == period.EndDate
@@ -610,6 +595,7 @@ namespace EasyPro.Controllers
             var carryforward = p.Where(k => k.ProductType.ToLower().Contains("carry forward"));
             var ai = p.Where(k => (k.ProductType.ToLower().Contains("ai") || k.ProductType.ToLower().Contains("a.i")));
             var tractor = p.Where(k => k.ProductType.ToLower().Contains("tractor"));
+            var loan = p.Where(k => k.ProductType.ToLower().Contains("loan"));
             var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
             var shares = p.Where(k => k.ProductType.ToLower().Contains("shares") || k.ProductType.ToLower().Contains("society shares"));
             var extension = p.Where(k => k.ProductType.ToLower().Contains("extension work"));
@@ -619,20 +605,6 @@ namespace EasyPro.Controllers
             var saccoDed = p.Where(k => k.ProductType.ToUpper().Contains("MAENDELEO"));
             var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
             var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
-
-            /*
-            var loan = p.Where(k => k.ProductType.ToLower().Contains("loan"));
-            var MIDPAY = p.Where(k => k.ProductType.ToLower().Contains("midpay"));
-            var kiiga = p.Where(k => k.ProductType.ToUpper().Contains("KIIGA"));
-            var kiroha = p.Where(k => k.ProductType.ToUpper().Contains("KIROHA DAIRY"));
-            var overpayment = p.Where(k => k.ProductType.ToUpper().Contains("NOV OVERPAYMENT"));
-            var milkRecovery = p.Where(k => k.ProductType.ToUpper().Contains("MILK RECOVERY"));
-            var ECLOF = p.Where(k => k.ProductType.ToLower().Contains("eclof"));
-            var saccoDed = p.Where(k => k.ProductType.ToLower().Contains("sacco"));
-            var corrections = p.Where(k => k.TransactionType == TransactionType.Correction);
-            var milk = p.Where(k => (k.TransactionType == TransactionType.Correction || k.TransactionType == TransactionType.Intake));
-
-             */
 
             //var payroll = new DTransportersPayRoll();
             var transporter = transporters.FirstOrDefault(s => s.TransCode.ToUpper().Equals(p.Key.ToUpper()));
@@ -645,64 +617,21 @@ namespace EasyPro.Controllers
                 decimal subsidy = 0;
                 if (StrValues.Slopes == sacco)
                 {
+                    amount = totalSupplied * (decimal)transporter.Rate;
                     var daysInMonth = DateTime.DaysInMonth(period.EndDate.Year, period.EndDate.Month);
                     var averageSupplied = totalSupplied / daysInMonth;
                     transporter.TraderRate = transporter?.TraderRate ?? 0;
                     // Assigning trader rate means the transporter is a trader
                     if (transporter.TraderRate > 0)
                     {
-                        amount = totalSupplied * (decimal)transporter.TraderRate;
-                        if (price != null && averageSupplied >= price.SubsidyQty)
-                            subsidy += totalSupplied * (decimal)transporter.Rate;
+                       amount = totalSupplied * (decimal)transporter.TraderRate;
+                            if (price != null && averageSupplied >= price.SubsidyQty)
+                                subsidy += totalSupplied * (decimal)transporter.Rate;
                     }
                 }
 
-                decimal? saccoLoans = 0;
-                decimal saccoShares = 0;
-                decimal saccoSavings = 0;
-                if (StrValues.Slopes == sacco)
-                {
-                    var transportersLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToList();
-                    transportersLoans.ForEach(l =>
-                    {
-                        saccoLoans += l.Installments;
-                        _context.SaccoLoans.Add(new SaccoLoans
-                        {
-                            LoanNo = l.LoanNo,
-                            LoanCode = l.LoanCode,
-                            Sno = l.MemberNo,
-                            Amount = l.Installments,
-                            TransDate = monthsLastDate,
-                            AuditDate = DateTime.Now,
-                            Saccocode = sacco,
-                            AuditId = loggedInUser
-                        });
-                    });
-
-                    var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()));
-                    if (standingOrder != null)
-                    {
-                        decimal.TryParse(standingOrder?.Installment ?? "", out decimal instalment);
-                        saccoShares += instalment;
-                        _context.SaccoShares.Add(new SaccoShares
-                        {
-                            SharesCode = standingOrder.Sharescode,
-                            Sno = standingOrder.MemberNo,
-                            Amount = saccoShares,
-                            TransDate = monthsLastDate,
-                            AuditDate = DateTime.Now,
-                            Saccocode = sacco,
-                            AuditId = loggedInUser
-                        });
-                    }
-                }
-
-                IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake;
-                var intakeskGS = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && i.SaccoCode.ToUpper()
-                                   .Equals(sacco.ToUpper()) && i.Branch == transporter.Tbranch && (i.TransDate >= startDate && i.TransDate <= period.EndDate)).ToList()
-                                   .Sum(m => m.Qsupplied);
-
-
+                var intakeskGS = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && i.Branch == transporter.Tbranch).ToList()
+                                    .Sum(m => m.Qsupplied);
                 if (StrValues.Elburgon == sacco)
                 {
 
@@ -845,37 +774,93 @@ namespace EasyPro.Controllers
                 netPay -= tractordeduction;
 
                 var Hsharesdeductions = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
+                payRoll.Hshares = netPay > Hsharesdeductions  ? Hsharesdeductions : netPay;
+                payRoll.Hshares = payRoll.Hshares > 0 ? payRoll.Hshares : 0;
+                netPay -= Hsharesdeductions;
 
-                    payRoll.Hshares = netPay > Hsharesdeductions  ? Hsharesdeductions : netPay;
-                    payRoll.Hshares = payRoll.Hshares > 0 ? payRoll.Hshares : 0;
-                    netPay -= Hsharesdeductions;
+                var memberLoans = loan.Sum(s => s.DR);
+                payRoll.Fsa = netPay > memberLoans ? memberLoans : netPay;
+                payRoll.Fsa = payRoll.Fsa > 0 ? payRoll.Fsa : 0;
+                netPay -= memberLoans;
 
-                    payRoll.Fsa = netPay > saccoLoans ? saccoLoans : netPay;
-                    payRoll.Fsa = payRoll.Fsa > 0 ? payRoll.Fsa : 0;
-                    netPay -= saccoLoans;
+                var Othersdedutcion = (Others.Sum(s => s.DR)- Others.Sum(s => s.CR));
+                payRoll.Others = netPay > Othersdedutcion ? Othersdedutcion : netPay;
+                payRoll.Others = payRoll.Others > 0 ? payRoll.Others : 0;
+                netPay -= Othersdedutcion;
 
-                    payRoll.SACCO_SHARES = netPay > saccoShares ? saccoShares : netPay;
-                    payRoll.SACCO_SHARES = payRoll.SACCO_SHARES > 0 ? payRoll.SACCO_SHARES : 0;
-                    netPay -= saccoShares;
+                if (StrValues.Slopes == sacco)
+                {
+                    var transportersLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToList();
+                    transportersLoans.ForEach(l =>
+                    {
+                        payRoll.Fsa = netPay > l.Installments ? l.Installments : netPay;
+                        payRoll.Fsa = payRoll.Fsa > 0 ? payRoll.Fsa : 0;
+                        netPay -= l.Installments;
+                        if (payRoll.Fsa > 0)
+                            listSaccoLoans.Add(new SaccoLoans
+                            {
+                                LoanNo = l.LoanNo,
+                                LoanCode = l.LoanCode,
+                                Sno = l.MemberNo,
+                                Amount = payRoll.Fsa,
+                                TransDate = monthsLastDate,
+                                AuditDate = DateTime.Now,
+                                Saccocode = sacco,
+                                AuditId = loggedInUser
+                            });
+                    });
 
-                    payRoll.SACCO_SAVINGS = netPay > saccoSavings ? saccoSavings : netPay;
-                    payRoll.SACCO_SAVINGS = payRoll.SACCO_SAVINGS > 0 ? payRoll.SACCO_SAVINGS : 0;
-                    netPay -= saccoSavings;
+                    var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()));
+                    if (standingOrder != null)
+                    {
+                        decimal.TryParse(standingOrder?.Installment ?? "", out decimal installment);
+                        payRoll.SACCO_SHARES = netPay > installment ? installment : netPay;
+                        payRoll.SACCO_SHARES = payRoll.SACCO_SHARES > 0 ? payRoll.SACCO_SHARES : 0;
+                        netPay -= installment;
+                        if (payRoll.SACCO_SHARES > 0)
+                            listSaccoShares.Add(new SaccoShares
+                            {
+                                SharesCode = standingOrder.Sharescode,
+                                Sno = standingOrder.MemberNo,
+                                Amount = payRoll.SACCO_SHARES,
+                                TransDate = monthsLastDate,
+                                AuditDate = DateTime.Now,
+                                Saccocode = sacco,
+                                AuditId = loggedInUser
+                            });
 
-                    var Othersdedutcion = (Others.Sum(s => s.DR)- Others.Sum(s => s.CR));
+                        var Othededutcion = (Others.Sum(s => s.DR)- Others.Sum(s => s.CR));
 
-                    payRoll.Others = netPay > Othersdedutcion ? Othersdedutcion : netPay;
-                    payRoll.Others = payRoll.Others > 0 ? payRoll.Others : 0;
-                    netPay -= Othersdedutcion;
+                        payRoll.Others = netPay > Othededutcion ? Othededutcion : netPay;
+                        payRoll.Others = payRoll.Others > 0 ? payRoll.Others : 0;
+                        netPay -= Othededutcion;
 
-                    payRoll.Totaldeductions = grossPay - netPay;
-                    payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
-                    //netPay -= debits;
-                    payRoll.NetPay = netPay;
+                        payRoll.Totaldeductions = grossPay - netPay;
+                        payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
+                        //netPay -= debits;
+                        payRoll.NetPay = netPay;
 
                     _context.DTransportersPayRolls.Add(payRoll);
+                        decimal saccoSavings = 0;
+                        payRoll.SACCO_SAVINGS = netPay > saccoSavings ? saccoSavings : netPay;
+                        payRoll.SACCO_SAVINGS = payRoll.SACCO_SAVINGS > 0 ? payRoll.SACCO_SAVINGS : 0;
+                        netPay -= saccoSavings;
+                    }
                 }
-            });
+                    
+
+                payRoll.Totaldeductions = grossPay - netPay;
+                payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
+                netPay -= debits;
+                payRoll.NetPay = netPay;
+
+                _context.DTransportersPayRolls.Add(payRoll);
+            }});
+
+            if(listSaccoLoans.Any())
+                _context.SaccoLoans.AddRange(listSaccoLoans);
+            if (listSaccoShares.Any())
+                _context.SaccoShares.AddRange(listSaccoShares);
 
             _context.SaveChanges();
             _notyf.Success("Payroll processed successfully");

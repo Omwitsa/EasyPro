@@ -130,8 +130,6 @@ namespace EasyPro.Controllers
             });
         }
 
-      
-
         public async Task<IActionResult> TDeductionList()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -388,6 +386,111 @@ namespace EasyPro.Controllers
                 var transports = await _context.DTransports.Where(h => h.Sno.ToUpper().Equals(filter.Code.ToUpper())
                 && h.saccocode.ToUpper().Equals(filter.Sacco.ToUpper()) && h.Branch.ToUpper().Equals(filter.Branch.ToUpper())).ToListAsync();
                 
+                var gettransportersrate = transports.FirstOrDefault();
+                if (gettransportersrate != null)
+                {
+                    decimal Rate = (decimal)gettransportersrate.Rate;
+                    var sumkgs = productIntakeslist.Where(i => (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
+                        .ToList().Sum(n => n.Qsupplied);
+                    var actualrate = Rate * sumkgs;
+
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = filter.Code.ToUpper(),
+                        TransDate = (DateTime)endDate,
+                        TransTime = DateTime.Now.TimeOfDay,
+                        ProductType = getpricegls.Products,
+                        Qsupplied = sumkgs,
+                        Ppu = Rate,
+                        CR = 0,
+                        DR = actualrate,
+                        Balance = actualrate,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Remarks = "",
+                        AuditId = filter.LoggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = filter.Branch,
+                        SaccoCode = filter.Sacco,
+                        DrAccNo = getpricegls.TransportCrAccNo,
+                        CrAccNo = getpricegls.TransportDrAccNo,
+
+                    });
+                    _context.SaveChanges();
+                }
+
+            }
+
+            var statement = new SupplierStatement(_context, _bosaDbContext);
+            var statementResp = await statement.GenerateStatement(filter);
+            return Json(statementResp);
+        }
+
+        public async Task<IActionResult> PrintSupPayslip()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+
+            ViewBag.slopes = StrValues.Slopes == sacco;
+            var suppliers = await _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
+            }
+
+            ViewBag.suppliers = suppliers.Select(s => new DSupplier
+            {
+                Sno = s.Sno,
+                Names = s.Names,
+            }).ToList();
+
+            var transCodes = new SelectList(transporters.Select(t => t.TransCode).ToList());
+            if (StrValues.Slopes == sacco)
+                transCodes = new SelectList(transporters.Select(t => t.CertNo).ToList());
+
+            ViewBag.transCodes = transCodes;
+            ViewBag.transporters = transporters.Select(s => new DTransporter
+            {
+                TransCode = s.TransCode,
+                TransName = s.TransName,
+                CertNo = s.CertNo
+            }).ToList();
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> PrintSupPayslip([FromBody] StatementFilter filter)
+        {
+            utilities.SetUpPrivileges(this);
+            await SetIntakeInitialValues();
+            filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            filter.Branch = filter?.Branch ?? HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            filter.LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            ViewBag.slopes = StrValues.Slopes == filter.Sacco;
+
+            var productIntakeslist = await _context.ProductIntake.Where(n => n.Sno.ToUpper().Equals(filter.Code.ToUpper())
+                && n.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper()) && n.TransDate >= startDate
+                && n.TransDate <= endDate && n.Branch.ToUpper().Equals(filter.Branch.ToUpper())).ToListAsync();
+            if (filter.Sacco == "MBURUGU DAIRY F.C.S" && !string.IsNullOrEmpty(filter.Code))
+            {
+                var deletetransport = productIntakeslist.Where(n => n.Description == "Transport" && n.TransactionType == TransactionType.Deduction).ToList();
+                _context.RemoveRange(deletetransport);
+                //check transport rate
+
+                var getpricegls = _context.DPrices.FirstOrDefault(j => j.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper()));
+                var transports = await _context.DTransports.Where(h => h.Sno.ToUpper().Equals(filter.Code.ToUpper())
+                && h.saccocode.ToUpper().Equals(filter.Sacco.ToUpper()) && h.Branch.ToUpper().Equals(filter.Branch.ToUpper())).ToListAsync();
+
                 var gettransportersrate = transports.FirstOrDefault();
                 if (gettransportersrate != null)
                 {
