@@ -424,11 +424,6 @@ namespace EasyPro.Controllers
                             MILK_RECOVERY = 0,
                         };
 
-                        if (supplier.Sno == "1227")
-                        {
-                            var va = grossPay;
-                        }
-
                         decimal? netPay = grossPay;
                         var regis = (registration.Sum(s => s.DR) - registration.Sum(s => s.CR));
 
@@ -537,7 +532,6 @@ namespace EasyPro.Controllers
                         netPay -= (milkRecovery.Sum(s => s.DR)- milkRecovery.Sum(s => s.CR));
 
                         var other = (Others.Sum(s => s.DR) - Others.Sum(s => s.CR));
-
                         payroll.Others = netPay > other ? other : netPay;
                         payroll.Others = payroll.Others > 0 ? payroll.Others : 0;
                         netPay -= other;
