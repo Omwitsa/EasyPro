@@ -861,31 +861,32 @@ namespace EasyPro.Controllers
                 currentRow = 6;
                 worksheet.Cell(currentRow, 1).Value = "SNo";
                 worksheet.Cell(currentRow, 2).Value = "Name";
-                worksheet.Cell(currentRow, 3).Value = "IdNo";
-                worksheet.Cell(currentRow, 4).Value = "Transport";
-                worksheet.Cell(currentRow, 5).Value = "Agrovet";
-                worksheet.Cell(currentRow, 6).Value = "Bonus";
-                worksheet.Cell(currentRow, 7).Value = "Shares";
-                worksheet.Cell(currentRow, 8).Value = "Advance";
-                worksheet.Cell(currentRow, 9).Value = "MidPay";
-                worksheet.Cell(currentRow, 10).Value = "midmonth";
-                worksheet.Cell(currentRow, 11).Value = "Others";
-                worksheet.Cell(currentRow, 12).Value = "Tractor";
-                worksheet.Cell(currentRow, 13).Value = "Clinical";
-                worksheet.Cell(currentRow, 14).Value = "Extension";
-                worksheet.Cell(currentRow, 15).Value = "AI";
-                worksheet.Cell(currentRow, 16).Value = "CurryForward";
-                worksheet.Cell(currentRow, 17).Value = "SMS";
-                worksheet.Cell(currentRow, 18).Value = "Loan";
-                worksheet.Cell(currentRow, 19).Value = "Registration";
-                worksheet.Cell(currentRow, 20).Value = "TDeductions";
-                worksheet.Cell(currentRow, 21).Value = "KgsSupplied";
-                worksheet.Cell(currentRow, 22).Value = "GPay";
-                worksheet.Cell(currentRow, 23).Value = "NPay";
-                worksheet.Cell(currentRow, 24).Value = "Bank";
-                worksheet.Cell(currentRow, 25).Value = "AccountNumber";
-                worksheet.Cell(currentRow, 26).Value = "BBranch";
-                worksheet.Cell(currentRow, 27).Value = "Station";
+                worksheet.Cell(currentRow, 3).Value = "PhoneNo";
+                worksheet.Cell(currentRow, 4).Value = "IdNo";
+                worksheet.Cell(currentRow, 5).Value = "Transport";
+                worksheet.Cell(currentRow, 6).Value = "Agrovet";
+                worksheet.Cell(currentRow, 7).Value = "Bonus";
+                worksheet.Cell(currentRow, 8).Value = "Shares";
+                worksheet.Cell(currentRow, 9).Value = "Advance";
+                worksheet.Cell(currentRow, 10).Value = "MidPay";
+                worksheet.Cell(currentRow, 11).Value = "midmonth";
+                worksheet.Cell(currentRow, 12).Value = "Others";
+                worksheet.Cell(currentRow, 13).Value = "Tractor";
+                worksheet.Cell(currentRow, 14).Value = "Clinical";
+                worksheet.Cell(currentRow, 15).Value = "Extension";
+                worksheet.Cell(currentRow, 16).Value = "AI";
+                worksheet.Cell(currentRow, 17).Value = "CurryForward";
+                worksheet.Cell(currentRow, 18).Value = "SMS";
+                worksheet.Cell(currentRow, 19).Value = "Loan";
+                worksheet.Cell(currentRow, 20).Value = "Registration";
+                worksheet.Cell(currentRow, 21).Value = "TDeductions";
+                worksheet.Cell(currentRow, 22).Value = "KgsSupplied";
+                worksheet.Cell(currentRow, 23).Value = "GPay";
+                worksheet.Cell(currentRow, 24).Value = "NPay";
+                worksheet.Cell(currentRow, 25).Value = "Bank";
+                worksheet.Cell(currentRow, 26).Value = "AccountNumber";
+                worksheet.Cell(currentRow, 27).Value = "BBranch";
+                worksheet.Cell(currentRow, 28).Value = "Station";
 
                 decimal? Transport = 0;
                 decimal? Agrovet = 0;
@@ -940,55 +941,56 @@ namespace EasyPro.Controllers
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = c.Sno;
                     worksheet.Cell(currentRow, 2).Value = c.Name;
-                    worksheet.Cell(currentRow, 3).Value = "'" + c.IdNo;
-                    worksheet.Cell(currentRow, 4).Value = c.Transport;
-                    worksheet.Cell(currentRow, 5).Value = c.Agrovet;
-                    worksheet.Cell(currentRow, 6).Value = c.Bonus;
-                    worksheet.Cell(currentRow, 7).Value = c.Hshares;
-                    worksheet.Cell(currentRow, 8).Value = c.Advance;
-                    worksheet.Cell(currentRow, 9).Value = c.MIDPAY;
-                    worksheet.Cell(currentRow, 10).Value = c.Midmonth;
-                    worksheet.Cell(currentRow, 11).Value = c.Others;
-                    worksheet.Cell(currentRow, 12).Value = c.Tractor;
-                    worksheet.Cell(currentRow, 13).Value = c.CLINICAL;
-                    worksheet.Cell(currentRow, 14).Value = c.extension;
-                    worksheet.Cell(currentRow, 15).Value = c.AI;
-                    worksheet.Cell(currentRow, 16).Value = c.CurryForward;
-                    worksheet.Cell(currentRow, 17).Value = c.SMS;
-                    worksheet.Cell(currentRow, 18).Value = c.Fsa;
-                    worksheet.Cell(currentRow, 19).Value = c.Registration;
-                    worksheet.Cell(currentRow, 20).Value = c.Tdeductions;
-                    worksheet.Cell(currentRow, 21).Value = c.KgsSupplied;
-                    worksheet.Cell(currentRow, 22).Value = c.Gpay;
-                    worksheet.Cell(currentRow, 23).Value = c.Npay;
-                    worksheet.Cell(currentRow, 24).Value = c.Bank;
-                    worksheet.Cell(currentRow, 25).Value = "'" + c.AccountNumber;
-                    worksheet.Cell(currentRow, 26).Value = c.Bbranch;
-                    worksheet.Cell(currentRow, 27).Value = c.Branch;
+                    worksheet.Cell(currentRow, 3).Value = "'" + c.PhoneNo;
+                    worksheet.Cell(currentRow, 4).Value = "'" + c.IdNo;
+                    worksheet.Cell(currentRow, 5).Value = c.Transport;
+                    worksheet.Cell(currentRow, 6).Value = c.Agrovet;
+                    worksheet.Cell(currentRow, 7).Value = c.Bonus;
+                    worksheet.Cell(currentRow, 8).Value = c.Hshares;
+                    worksheet.Cell(currentRow, 9).Value = c.Advance;
+                    worksheet.Cell(currentRow, 10).Value = c.MIDPAY;
+                    worksheet.Cell(currentRow, 11).Value = c.Midmonth;
+                    worksheet.Cell(currentRow, 12).Value = c.Others;
+                    worksheet.Cell(currentRow, 13).Value = c.Tractor;
+                    worksheet.Cell(currentRow, 14).Value = c.CLINICAL;
+                    worksheet.Cell(currentRow, 15).Value = c.extension;
+                    worksheet.Cell(currentRow, 16).Value = c.AI;
+                    worksheet.Cell(currentRow, 17).Value = c.CurryForward;
+                    worksheet.Cell(currentRow, 18).Value = c.SMS;
+                    worksheet.Cell(currentRow, 19).Value = c.Fsa;
+                    worksheet.Cell(currentRow, 20).Value = c.Registration;
+                    worksheet.Cell(currentRow, 21).Value = c.Tdeductions;
+                    worksheet.Cell(currentRow, 22).Value = c.KgsSupplied;
+                    worksheet.Cell(currentRow, 23).Value = c.Gpay;
+                    worksheet.Cell(currentRow, 24).Value = c.Npay;
+                    worksheet.Cell(currentRow, 25).Value = c.Bank;
+                    worksheet.Cell(currentRow, 26).Value = "'" + c.AccountNumber;
+                    worksheet.Cell(currentRow, 27).Value = c.Bbranch;
+                    worksheet.Cell(currentRow, 28).Value = c.Branch;
                 });
 
                 currentRow++;
                 worksheet.Cell(currentRow, 3).Value = "Total";
-                worksheet.Cell(currentRow, 4).Value = Transport;
-                worksheet.Cell(currentRow, 5).Value = Agrovet;
-                worksheet.Cell(currentRow, 6).Value = Bonus;
-                worksheet.Cell(currentRow, 7).Value = Hshares;
-                worksheet.Cell(currentRow, 8).Value = Advance;
-                worksheet.Cell(currentRow, 9).Value = MIDPAY;
-                worksheet.Cell(currentRow, 10).Value = Midmonth;
-                worksheet.Cell(currentRow, 11).Value = Others;
-                worksheet.Cell(currentRow, 12).Value = Tractor;
-                worksheet.Cell(currentRow, 13).Value = CLINICAL;
-                worksheet.Cell(currentRow, 14).Value = extension;
-                worksheet.Cell(currentRow, 15).Value = AI;
-                worksheet.Cell(currentRow, 16).Value = CurryForward;
-                worksheet.Cell(currentRow, 17).Value = SMS;
-                worksheet.Cell(currentRow, 18).Value = loans;
-                worksheet.Cell(currentRow, 19).Value = Registration;
-                worksheet.Cell(currentRow, 20).Value = Tdeductions;
-                worksheet.Cell(currentRow, 21).Value = KgsSupplied;
-                worksheet.Cell(currentRow, 22).Value = Gpay;
-                worksheet.Cell(currentRow, 23).Value = Npay;
+                worksheet.Cell(currentRow, 5).Value = Transport;
+                worksheet.Cell(currentRow, 6).Value = Agrovet;
+                worksheet.Cell(currentRow, 7).Value = Bonus;
+                worksheet.Cell(currentRow, 8).Value = Hshares;
+                worksheet.Cell(currentRow, 9).Value = Advance;
+                worksheet.Cell(currentRow, 10).Value = MIDPAY;
+                worksheet.Cell(currentRow, 11).Value = Midmonth;
+                worksheet.Cell(currentRow, 12).Value = Others;
+                worksheet.Cell(currentRow, 13).Value = Tractor;
+                worksheet.Cell(currentRow, 14).Value = CLINICAL;
+                worksheet.Cell(currentRow, 15).Value = extension;
+                worksheet.Cell(currentRow, 16).Value = AI;
+                worksheet.Cell(currentRow, 17).Value = CurryForward;
+                worksheet.Cell(currentRow, 18).Value = SMS;
+                worksheet.Cell(currentRow, 19).Value = loans;
+                worksheet.Cell(currentRow, 20).Value = Registration;
+                worksheet.Cell(currentRow, 21).Value = Tdeductions;
+                worksheet.Cell(currentRow, 22).Value = KgsSupplied;
+                worksheet.Cell(currentRow, 23).Value = Gpay;
+                worksheet.Cell(currentRow, 24).Value = Npay;
 
                 
                 using (var stream = new MemoryStream())
@@ -1026,6 +1028,7 @@ namespace EasyPro.Controllers
             {
                 Sno = val.Sno,
                 Name = supplier.Names,
+                PhoneNo = supplier.PhoneNo,
                 IdNo = val.IdNo,
                 Transport=val.Transport,
                 Agrovet= val.Agrovet,
@@ -1049,10 +1052,12 @@ namespace EasyPro.Controllers
                 Bank=val.Bank,
                 AccountNumber=val.AccountNumber,
                 Bbranch=val.Bbranch,
-                Branch=val.Branch
+                Branch=val.Branch,
+                ECLOF = val.ECLOF,
+                saccoDed = val.saccoDed
             });
         });
-        return payrollData;
+        return (payrollData);
     }
 
     [HttpPost]

@@ -27,11 +27,13 @@ namespace EasyPro.Provider
 
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var transports = await _context.DTransports.Where(t =>t.Active && t.TransCode.ToUpper().Equals(filter.Code.ToUpper()) 
+            IQueryable<DTransport> dTransports = _context.DTransports;
+            IQueryable<ProductIntake> productIntakes1 = _context.ProductIntake;
+            var transports = await dTransports.Where(t =>t.Active && t.TransCode.ToUpper().Equals(filter.Code.ToUpper()) 
                 && t.saccocode == filter.Sacco && t.Branch.ToUpper().Equals(filter.Branch.ToUpper())).ToListAsync();
 
             var transporterFarmers = transports.Select(t => t.Sno).ToList();
-            var productIntakes = await _context.ProductIntake.Where(i => i.SaccoCode == filter.Sacco
+            var productIntakes = await productIntakes1.Where(i => i.SaccoCode == filter.Sacco
             && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()) && i.TransDate >= startDate && i.TransDate <= endDate)
                 .ToListAsync();
 
@@ -44,21 +46,28 @@ namespace EasyPro.Provider
                 && auditDatetimes.Contains(s.Auditdatetime));
             }
 
-            intakes = intakes.OrderBy(i => i.TransDate).ToList();
+            intakes = intakes.OrderBy(i => i.Sno).ToList();
             var supplierGroupedIntakes = intakes.GroupBy(i => i.Sno).ToList();
             var transporters = new List<dynamic>();
             decimal totalKgs = 0;
             decimal? grossPay = 0;
+            decimal? subsidy = 0;
             
             supplierGroupedIntakes.ForEach(i =>
             {
                 var intake = i.FirstOrDefault();
                 var transport = transports.FirstOrDefault(t => t.Sno == intake.Sno);
+                //get correct kgs
+                var getsumkgs = productIntakes.Where(i =>i.Sno.ToUpper().Equals(intake.Sno.ToUpper()) && (i.TransactionType == TransactionType.Intake
+                    || i.TransactionType == TransactionType.Correction) && i.SaccoCode == filter.Sacco 
+                    && i.Branch == filter.Branch).Sum(n => n.Qsupplied);
+
                 decimal? rate = 0;
                 if (transport != null)
                     rate = transport.Rate;
 
-                var qty = i.Sum(p => p.Qsupplied);
+                //var qty = i.Sum(p => p.Qsupplied);
+                var qty =  getsumkgs;
                 transporters.Add(new
                 {
                     intake.Sno,
@@ -70,38 +79,45 @@ namespace EasyPro.Provider
             });
 
             var deductionIntakes = productIntakes.Where(i => i.Sno.ToUpper().Equals(filter.Code.ToUpper()) 
-            && i.DR > 0).OrderBy(i => i.TransDate).ToList();
-            var totalDeductions = deductionIntakes.Sum(d => d.DR);
+            && i.TransactionType == TransactionType.Deduction).OrderBy(i => i.TransDate).ToList();
+            //&& i.DR > 0).OrderBy(i => i.TransDate).ToList();
+            //var totalDeductions = deductionIntakes.Sum(d => d.DR)- deductionIntakes.Sum(d => d.CR);
+            decimal? totalDeductions = 0;
 
             var transportationDeductions = deductionIntakes.Where(i => i.Description == "Transport");
             var deductions = new List<dynamic>
             {
                 new
                 {
-                    TransDate = endDate,
-                    Description = "Transport",
-                    DR = transportationDeductions.Sum(i => i.DR)
+                    //TransDate = endDate,
+                    //Description = "Transport",
+                    //DR = transportationDeductions.Sum(i => i.DR)
                 }
             };
 
-            var otherDeductions = deductionIntakes.Where(i => i.Description != "Transport").ToList();
+            var otherDeductions = deductionIntakes.Where(i => i.Description != "Transport" && i.ProductType != "SUBSIDY").ToList();
             otherDeductions.ForEach(i =>
             {
+                if (i.CR > 0)
+                    i.DR = i.CR*-1;
+                totalDeductions += i.DR;
                 deductions.Add(new
                 {
                     i.TransDate,
                     i.Description,
-                    i.DR
+                    i.DR,
                 });
             });
-            
+
+            subsidy = productIntakes.Where(v=>v.Sno.ToUpper().Equals(filter.Code.ToUpper()) && v.ProductType == "SUBSIDY").Sum(m=>m.CR);
             var transporter = _context.DTransporters.FirstOrDefault(s => s.TransCode.ToUpper().Equals(filter.Code.ToUpper()) && s.ParentT == filter.Sacco && s.Tbranch == filter.Branch);
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             return new
             {
                 transporters,
                 totalKgs,
-                grossPay,
+                subsidy,
+                grossPay = grossPay+ subsidy,
                 deductions,
                 totalDeductions,
                 netPay = grossPay - totalDeductions,

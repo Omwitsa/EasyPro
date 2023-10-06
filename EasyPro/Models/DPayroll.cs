@@ -47,6 +47,7 @@ namespace EasyPro.Models
         public string Otheraccno { get; set; }
         public string Netaccno { get; set; }
         public decimal? Cbo { get; set; }
+        public string PhoneNo { get; set; }
         public string IdNo { get; set; }
         public decimal Tchp { get; set; }
         public decimal Midmonth { get; set; }

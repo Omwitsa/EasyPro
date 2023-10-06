@@ -53,6 +53,7 @@ namespace EasyPro.ViewModels
         public decimal? Subsidy { get; set; }
         public decimal? Cbo { get; set; }
         public string IdNo { get; set; }
+        public string PhoneNo { get; set; }
         public decimal Tchp { get; set; }
         public decimal Midmonth { get; set; }
         public decimal? Deduct12 { get; set; }

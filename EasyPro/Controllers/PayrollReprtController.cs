@@ -90,6 +90,7 @@ namespace EasyPro.Controllers
                     t.EndofPeriod,
                     t.Sno,
                     i.Names,
+                    i.PhoneNo,
                     t.Branch,
                     t.KgsSupplied,
                     t.Gpay,
