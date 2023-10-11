@@ -10,6 +10,7 @@ using EasyPro.Models;
 using EasyPro.Repository;
 using EasyPro.Utils;
 using EasyPro.ViewModels;
+using EasyPro.ViewModels.TransportersVM;
 using FastReport.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -1927,16 +1928,90 @@ namespace EasyPro.Controllers
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
         var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
         
-        var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-        var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-        productIntakeobj = await _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo
-        && u.Qsupplied != 0 && u.SaccoCode == sacco && u.Description != "Transport").ToListAsync();
-            
+        var startDate = new DateTime(filter.DateTo.GetValueOrDefault().Year, filter.DateTo.GetValueOrDefault().Month, 1);
+        var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
+        var transporters = await _context.DTransporters.Where(t => t.ParentT == sacco).ToListAsync();
+        var  suppliers = await _context.DSuppliers.Where(u => u.Scode == sacco).ToListAsync();
+        IQueryable<ProductIntake> intakes = _context.ProductIntake.Where(u => u.Qsupplied != 0 && u.SaccoCode == sacco && u.TransDate >= startDate && u.TransDate <= monthsLastDate);
         var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-        if (user.AccessLevel == AccessLevel.Branch)
-            productIntakeobj = productIntakeobj.Where(t => t.Branch == saccobranch).ToList();
+        if (user.AccessLevel == AccessLevel.Branch) { 
+            intakes = intakes.Where(t => t.Branch == saccobranch);
+            suppliers = suppliers.Where(t => t.Branch == saccobranch).ToList();
+            transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
+        }
 
-        return await IntakeExcel();
+        IQueryable<ProductIntake> productIntakeobj = intakes.Where(u => u.TransDate >= filter.DateFrom && u.TransDate <= filter.DateTo && u.Description != "Transport");
+        using (var workbook = new XLWorkbook())
+        {
+            var worksheet = workbook.Worksheets.Add("productIntakeobj");
+            var currentRow = 1;
+            companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+            foreach (var emp in companyobj)
+            {
+                worksheet.Cell(currentRow, 2).Value = emp.Name;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = emp.Town;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = emp.Email;
+            }
+            currentRow = 5;
+            worksheet.Cell(currentRow, 2).Value = "Suppliers Intake Report";
+
+            currentRow = 6;
+            worksheet.Cell(currentRow, 1).Value = "SNo";
+            worksheet.Cell(currentRow, 2).Value = "Name";
+            worksheet.Cell(currentRow, 3).Value = "TransDate";
+            worksheet.Cell(currentRow, 4).Value = "ProductType";
+            worksheet.Cell(currentRow, 5).Value = "Qsupplied";
+            worksheet.Cell(currentRow, 6).Value = "Price";
+            worksheet.Cell(currentRow, 7).Value = "Description";
+            worksheet.Cell(currentRow, 8).Value = "Vehicle";
+            worksheet.Cell(currentRow, 9).Value = "Receipt No.";
+            worksheet.Cell(currentRow, 10).Value = "Cumlative";
+
+            var farmerIntakes = await intakes.Where(i => i.Description != "Transport").ToListAsync();
+            var transporterIntakes = await intakes.Where(i => i.Sno.ToUpper().Contains("T")).ToListAsync();
+
+            decimal sum = 0;
+            var productIntakes = await productIntakeobj.OrderBy(i => i.Auditdatetime).ToListAsync();
+            foreach (var intake in productIntakes)
+            {
+                var transcode = transporterIntakes.FirstOrDefault(i => i.Auditdatetime == intake.Auditdatetime)?.Sno ?? "";
+                var transporter = transporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transcode.ToUpper()));
+                var supplier = suppliers.FirstOrDefault(u => u.Sno == intake.Sno);
+                if (supplier != null)
+                {
+                    var cumlative = farmerIntakes.Where(i => i.Sno.ToUpper().Equals(supplier.Sno.ToUpper())).Sum(i => i.Qsupplied);
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(currentRow, 1).Value = intake.Sno;
+                    worksheet.Cell(currentRow, 2).Value = supplier?.Names ?? "";
+                    worksheet.Cell(currentRow, 3).Value = intake.TransDate;
+                    worksheet.Cell(currentRow, 4).Value = intake.ProductType;
+                    worksheet.Cell(currentRow, 5).Value = intake.Qsupplied;
+                    worksheet.Cell(currentRow, 6).Value = intake.Ppu;
+                    worksheet.Cell(currentRow, 7).Value = intake.Description;
+                    worksheet.Cell(currentRow, 8).Value = transporter?.CertNo ?? "";
+                    worksheet.Cell(currentRow, 9).Value = intake.Id;
+                    worksheet.Cell(currentRow, 10).Value = cumlative;
+
+                    sum += (intake.Qsupplied);
+                }
+            }
+            currentRow++;
+            worksheet.Cell(currentRow, 4).Value = "Total Kgs";
+            worksheet.Cell(currentRow, 5).Value = sum;
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                return File(content,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Suppliers Intake.xlsx");
+            }
+        }
     }
 
     [HttpPost]
@@ -2478,78 +2553,7 @@ namespace EasyPro.Controllers
             }
         }
     }
-    public async Task<IActionResult> IntakeExcel()
-    {
-        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-        if (string.IsNullOrEmpty(loggedInUser))
-            return Redirect("~/");
-        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-        var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-
-        using (var workbook = new XLWorkbook())
-        {
-            var worksheet = workbook.Worksheets.Add("productIntakeobj");
-            var currentRow = 1;
-            companyobj = _context.DCompanies.Where(u => u.Name == sacco);
-            foreach (var emp in companyobj)
-            {
-                worksheet.Cell(currentRow, 2).Value = emp.Name;
-                currentRow++;
-                worksheet.Cell(currentRow, 2).Value = emp.Adress;
-                currentRow++;
-                worksheet.Cell(currentRow, 2).Value = emp.Town;
-                currentRow++;
-                worksheet.Cell(currentRow, 2).Value = emp.Email;
-            }
-            currentRow = 5;
-            worksheet.Cell(currentRow, 2).Value = "Suppliers Intake Report";
-
-            currentRow = 6;
-            worksheet.Cell(currentRow, 1).Value = "SNo";
-            worksheet.Cell(currentRow, 2).Value = "Name";
-            worksheet.Cell(currentRow, 3).Value = "TransDate";
-            worksheet.Cell(currentRow, 4).Value = "ProductType";
-            worksheet.Cell(currentRow, 5).Value = "Qsupplied";
-            worksheet.Cell(currentRow, 6).Value = "Price";
-            worksheet.Cell(currentRow, 7).Value = "Description";
-            decimal sum = 0;
-            var suppliers = await _context.DSuppliers.Where(u => u.Scode == sacco).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(t => t.Branch == saccobranch).ToList();
-
-            productIntakeobj = productIntakeobj.OrderBy(i => i.Auditdatetime).ToList();
-            foreach (var emp in productIntakeobj)
-            {
-                var supplier = suppliers.FirstOrDefault(u => u.Sno == emp.Sno);
-                if (supplier != null)
-                {
-                    currentRow++;
-                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
-                    worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                    worksheet.Cell(currentRow, 2).Value = supplier?.Names ?? "";
-                    worksheet.Cell(currentRow, 3).Value = emp.TransDate;
-                    worksheet.Cell(currentRow, 4).Value = emp.ProductType;
-                    worksheet.Cell(currentRow, 5).Value = emp.Qsupplied;
-                    worksheet.Cell(currentRow, 6).Value = emp.Ppu;
-                    worksheet.Cell(currentRow, 7).Value = emp.Description;
-                    sum += (emp.Qsupplied);
-                }
-            }
-            currentRow++;
-            worksheet.Cell(currentRow, 4).Value = "Total Kgs";
-            worksheet.Cell(currentRow, 5).Value = sum;
-            using (var stream = new MemoryStream())
-            {
-                workbook.SaveAs(stream);
-                var content = stream.ToArray();
-                return File(content,
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    "Suppliers Intake.xlsx");
-            }
-        }
-    }
-
+  
     public async Task<IActionResult> DSumarryIntakeExcel(DateTime DateFrom, DateTime DateTo, string Branch)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";

@@ -268,7 +268,7 @@ namespace EasyPro.Controllers
             var supplierIntakes = productIntakeslist.Where(p => supplierNos.Contains(p.Sno)).ToList();
             var intakes = supplierIntakes.GroupBy(p => p.Sno.ToUpper()).ToList();
 
-            var loans = _bosaDbContext.LOANBAL.Where(l => l.Balance > 0 && l.LastDate <= DateTime.Today && l.Companycode == StrValues.SlopesCode).ToList();
+            var loans = _bosaDbContext.LOANBAL.Where(l => l.Balance > 0 && l.LastDate <= monthsLastDate && l.Companycode == StrValues.SlopesCode).ToList();
             var standingOrders = _bosaDbContext.CONTRIB_standingOrder.Where(o => o.CompanyCode == StrValues.SlopesCode);
             var contribs = _bosaDbContext.CONTRIB.Where(c => c.CompanyCode == StrValues.SlopesCode).ToList();
             var listSaccoLoans = new List<SaccoLoans>();
@@ -304,7 +304,7 @@ namespace EasyPro.Controllers
                 && !k.ProductType.ToUpper().Equals("MILK") && k.TransactionType == TransactionType.Deduction);
                 var supplier = suppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(p.Key));
                 if (supplier != null)
-                {
+                {  
                     var debits = corrections.Sum(s => s.DR);
                     var credited = p.Sum(s => s.CR);
                     var framersTotal = p.Where(s => s.Description == "Intake" || s.Description == "Correction").Sum(s => s.Qsupplied);
@@ -570,7 +570,7 @@ namespace EasyPro.Controllers
                            
                         netPay -= other;
 
-                        var memberLoans = loan.Sum(s => s.DR);
+                        var memberLoans = loan.Sum(s => s.DR) - loan.Sum(s => s.CR);
                         if (StrValues.Slopes == sacco)
                         {
                             payroll.Fsa = netPay > memberLoans ? memberLoans : netPay;
@@ -582,29 +582,33 @@ namespace EasyPro.Controllers
                         }
                            
                         netPay -= memberLoans;
-
                         if (StrValues.Slopes == sacco)
                         {
                             var farmerLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper())).ToList();
                             //var types = _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToList();
                             farmerLoans.ForEach(l =>
                             {
-                                payroll.Fsa = netPay > l.Installments ? l.Installments : netPay;
-                                payroll.Fsa = payroll.Fsa > 0 ? payroll.Fsa : 0;
-                                netPay -= l.Installments;
-                                if(payroll.Fsa > 0)
+                                if(l.Installments > 0 && netPay > 0)
+                                {
+                                    l.Installments = netPay > l.Installments ? l.Installments : netPay;
+                                    payroll.Fsa += l.Installments;
+                                    netPay -= l.Installments;
                                     listSaccoLoans.Add(new SaccoLoans
                                     {
                                         LoanNo = l.LoanNo,
                                         LoanCode = l.LoanCode,
                                         Sno = l.MemberNo,
-                                        Amount = payroll.Fsa,
+                                        Amount = l.Installments,
                                         TransDate = monthsLastDate,
                                         AuditDate = DateTime.Now,
                                         Saccocode = sacco,
                                         AuditId = loggedInUser
                                     });
+                                }
                             });
+
+                            payroll.Fsa = netPay > listSaccoLoans.Sum(l => l.Amount) ? listSaccoLoans.Sum(l => l.Amount) : netPay;
+                            payroll.Fsa = payroll.Fsa > 0 ? payroll.Fsa : 0;
 
                             var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper()));
                             if (standingOrder != null)
@@ -981,23 +985,27 @@ namespace EasyPro.Controllers
                     var transportersLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToList();
                     transportersLoans.ForEach(l =>
                     {
-                        payRoll.Fsa = netPay > l.Installments ? l.Installments : netPay;
-                        payRoll.Fsa = payRoll.Fsa > 0 ? payRoll.Fsa : 0;
-                        netPay -= l.Installments;
-                        if (payRoll.Fsa > 0)
+                        if (l.Installments > 0 && netPay > 0)
+                        {
+                            l.Installments = netPay > l.Installments ? l.Installments : netPay;
+                            payRoll.Fsa += l.Installments;
+                            netPay -= l.Installments;
                             listSaccoLoans.Add(new SaccoLoans
                             {
                                 LoanNo = l.LoanNo,
                                 LoanCode = l.LoanCode,
                                 Sno = l.MemberNo,
-                                Amount = payRoll.Fsa,
+                                Amount = l.Installments,
                                 TransDate = monthsLastDate,
                                 AuditDate = DateTime.Now,
                                 Saccocode = sacco,
                                 AuditId = loggedInUser
                             });
+                        }
                     });
 
+                    payRoll.Fsa = netPay > listSaccoLoans.Sum(l => l.Amount) ? listSaccoLoans.Sum(l => l.Amount) : netPay;
+                    payRoll.Fsa = payRoll.Fsa > 0 ? payRoll.Fsa : 0;
                     var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()));
                     if (standingOrder != null)
                     {
