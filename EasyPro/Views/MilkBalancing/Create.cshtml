@@ -257,7 +257,11 @@
                 let date = $("#date").val() ? $("#date").val() : "";
                 let transporter = $("#name").val() ? $("#name").val() : "";
                 let fileName = `${transporter} ${date}`;
-                $('#tbl_journal').table2excel({ filename: fileName, fileext: ".xls" });
+                $('#tbl_journal').table2excel({ 
+                    filename: fileName, 
+                    fileext: ".xls",
+                    name: transporter,
+                });
             });
 
             $('#save').on('click', function () {
@@ -297,7 +301,7 @@
                     var date = j.TransDate;
                     var dd1 = new Date(date).toLocaleDateString();
                     itemTableRows.push(`<tr>
-				            <td>${j.Sno}</td>
+				            <td>'${j.Sno}</td>
                             <td>${dd1}</td>
                             <td>${j.ProductType}</td>
                             <td>${j.Qsupplied}</td>

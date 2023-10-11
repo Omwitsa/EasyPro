@@ -279,9 +279,11 @@ namespace EasyPro.Controllers
                 flmdData.ForEach(c =>
                 {
                     currentRow++;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                     worksheet.Cell(currentRow, 1).Value = c.Sno;
                     worksheet.Cell(currentRow, 2).Value = c.Name;
-                    worksheet.Cell(currentRow, 3).Value = "'" + c.Phone;
+                    worksheet.Cell(currentRow, 3).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(currentRow, 3).Value = c.Phone;
                     worksheet.Cell(currentRow, 4).Value = c.MilkKgs;
                     worksheet.Cell(currentRow, 5).Value = c.Assets;
                     worksheet.Cell(currentRow, 6).Value = c.Total;
@@ -465,6 +467,7 @@ namespace EasyPro.Controllers
                     if(emp.Npay > 0)
                     {
                         currentRow++;
+                        worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                         worksheet.Cell(currentRow, 1).Value = emp.Sno;
 
                         //long.TryParse(emp.Sno, out long sno);
@@ -670,7 +673,7 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 1).Value = "AI";
                 worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.AI) + dTransportersPayRolls.Sum(t => t.AI);
 
-                decimal kiinga = 2800; // payrolls.Sum(t => t.KIIGA);
+                decimal? kiinga = payrolls.Sum(t => t.KIIGA);  //2800;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "KIIGA";
                 worksheet.Cell(currentRow, 2).Value = kiinga;  
@@ -948,10 +951,13 @@ namespace EasyPro.Controllers
                 payrollData.ForEach(c =>
                 {
                     currentRow++;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                     worksheet.Cell(currentRow, 1).Value = c.Sno;
                     worksheet.Cell(currentRow, 2).Value = c.Name;
-                    worksheet.Cell(currentRow, 3).Value = "'" + c.PhoneNo;
-                    worksheet.Cell(currentRow, 4).Value = "'" + c.IdNo;
+                    worksheet.Cell(currentRow, 3).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(currentRow, 3).Value = c.PhoneNo;
+                    worksheet.Cell(currentRow, 4).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(currentRow, 4).Value = c.IdNo;
                     worksheet.Cell(currentRow, 5).Value = c.Transport;
                     worksheet.Cell(currentRow, 6).Value = c.Agrovet;
                     worksheet.Cell(currentRow, 7).Value = c.Bonus;
@@ -975,7 +981,8 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 25).Value = c.Gpay;
                     worksheet.Cell(currentRow, 26).Value = c.Npay;
                     worksheet.Cell(currentRow, 27).Value = c.Bank;
-                    worksheet.Cell(currentRow, 28).Value = "'" + c.AccountNumber;
+                    worksheet.Cell(currentRow, 28).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(currentRow, 28).Value = c.AccountNumber;
                     worksheet.Cell(currentRow, 29).Value = c.Bbranch;
                     worksheet.Cell(currentRow, 30).Value = c.Branch;
                 });
@@ -1625,7 +1632,8 @@ namespace EasyPro.Controllers
                 var TName = _context.DTransporters.FirstOrDefault(u => u.TransCode == emp.Code && u.ParentT == sacco);
                 worksheet.Cell(currentRow, 2).Value = TName.TransName;
                 worksheet.Cell(currentRow, 3).Value = emp.PhoneNo;
-                worksheet.Cell(currentRow, 4).Value = "" + TName.CertNo;
+                worksheet.Cell(currentRow, 4).Style.NumberFormat.Format = "@";
+                worksheet.Cell(currentRow, 4).Value = TName.CertNo;
                 worksheet.Cell(currentRow, 5).Value = emp.QntySup;
                 worksheet.Cell(currentRow, 6).Value = emp.Amnt;
                 worksheet.Cell(currentRow, 7).Value = emp.Subsidy;
@@ -1646,7 +1654,8 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 22).Value = emp.Totaldeductions;
                 worksheet.Cell(currentRow, 23).Value = emp.NetPay;
                 worksheet.Cell(currentRow, 24).Value = emp.BankName;
-                worksheet.Cell(currentRow, 25).Value = "" + emp.AccNo;
+                worksheet.Cell(currentRow, 25).Style.NumberFormat.Format = "@";
+                worksheet.Cell(currentRow, 25).Value = emp.AccNo;
                 worksheet.Cell(currentRow, 26).Value = emp.Branch;
                 
             }
@@ -1826,6 +1835,7 @@ namespace EasyPro.Controllers
                                 if (TransporterExist > 0)
                                 {
                                     currentRow++;
+                                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
                                     var TName = _context.DSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == po);
                                     worksheet.Cell(currentRow, 2).Value = TName?.Names ?? "";
@@ -2238,11 +2248,13 @@ namespace EasyPro.Controllers
                 foreach (var emp in suppliers)
                 {
                     currentRow++;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
                     worksheet.Cell(currentRow, 2).Value = emp.Names;
                     worksheet.Cell(currentRow, 3).Value = emp.Regdate;
                     worksheet.Cell(currentRow, 4).Value = emp.IdNo;
-                    worksheet.Cell(currentRow, 5).Value = "'" + emp.PhoneNo;
+                    worksheet.Cell(currentRow, 5).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
                     worksheet.Cell(currentRow, 6).Value = emp.Bcode;
                     worksheet.Cell(currentRow, 7).Value = emp.AccNo;
                     worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
@@ -2333,11 +2345,13 @@ namespace EasyPro.Controllers
                 foreach (var emp in suppliers)
                 {
                     currentRow++;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
                     worksheet.Cell(currentRow, 2).Value = emp.Names;
                     worksheet.Cell(currentRow, 3).Value = emp.Regdate;
                     worksheet.Cell(currentRow, 4).Value = emp.IdNo;
-                    worksheet.Cell(currentRow, 5).Value = "'" + emp.PhoneNo;
+                    worksheet.Cell(currentRow, 5).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(currentRow, 5).Value = emp.PhoneNo;
                     worksheet.Cell(currentRow, 6).Value = emp.Bcode;
                     worksheet.Cell(currentRow, 7).Value = emp.AccNo;
                     worksheet.Cell(currentRow, 8).Value = emp.Bbranch;
@@ -2427,6 +2441,7 @@ namespace EasyPro.Controllers
                 foreach (var emp in suppliers)
                 {
                     currentRow++;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
                     worksheet.Cell(currentRow, 2).Value = emp.Names;
                     worksheet.Cell(currentRow, 3).Value = emp.Regdate;
@@ -2510,6 +2525,7 @@ namespace EasyPro.Controllers
                 if (supplier != null)
                 {
                     currentRow++;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
                     worksheet.Cell(currentRow, 2).Value = supplier?.Names ?? "";
                     worksheet.Cell(currentRow, 3).Value = emp.TransDate;
@@ -2619,6 +2635,7 @@ namespace EasyPro.Controllers
                         {
 
                             currentRow++;
+                            worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                             worksheet.Cell(currentRow, 1).Value = sup.Sno;
                             worksheet.Cell(currentRow, 2).Value = sup.Names;
                             worksheet.Cell(currentRow, 3).Value = sup.IdNo;
@@ -2916,6 +2933,7 @@ namespace EasyPro.Controllers
                 if (TransporterExist > 0)
                 {
                     currentRow++;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
                     var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
                     foreach (var al in TName)
@@ -2998,6 +3016,7 @@ namespace EasyPro.Controllers
                     if (TransporterExist > 0)
                     {
                         currentRow++;
+                        worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                         worksheet.Cell(currentRow, 1).Value = emp.Sno;
                         var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
                         foreach (var al in TName)
@@ -3096,6 +3115,7 @@ namespace EasyPro.Controllers
                             if (TransporterExist > 0)
                             {
                                 currentRow++;
+                                worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                                 worksheet.Cell(currentRow, 1).Value = emp.Sno;
                                 var TName = _context.DSuppliers.Where(u => u.Sno == emp.Sno && u.Scode == sacco);
                                 foreach (var al in TName)
@@ -3278,6 +3298,7 @@ namespace EasyPro.Controllers
                         if (TransporterExist != null)
                         {
                             currentRow++;
+                            worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                             worksheet.Cell(currentRow, 1).Value = emp.Sno;
                             var TName = dSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == sacco);
                             worksheet.Cell(currentRow, 2).Value = TName?.Names ?? "";
@@ -3374,6 +3395,7 @@ namespace EasyPro.Controllers
                         if (TransporterExist > 0)
                         {
                             currentRow++;
+                            worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                             worksheet.Cell(currentRow, 1).Value = emp.Sno;
                             var TName = _context.DTransporters.FirstOrDefault(u => u.TransCode == emp.Sno && u.ParentT == sacco);
                             worksheet.Cell(currentRow, 2).Value = TName.TransName;
@@ -3464,6 +3486,7 @@ namespace EasyPro.Controllers
                 foreach (var emp in s)
                 {
                     currentRow++;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
                     worksheet.Cell(currentRow, 1).Value = emp.Sno;
                     worksheet.Cell(currentRow, 2).Value = emp.Names;
                     worksheet.Cell(currentRow, 3).Value = emp.Regdate;

@@ -10,6 +10,7 @@ using EasyPro.Utils;
 using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
 using System;
+using Syncfusion.EJ2.Spreadsheet;
 
 namespace EasyPro.Controllers
 {
@@ -353,6 +354,7 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             SetStandingOrderValues();
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             if (string.IsNullOrEmpty(standingOrder.Sno))
             {
                 _notyf.Error("Sorry, Kindly provide supplier No");
@@ -383,6 +385,7 @@ namespace EasyPro.Controllers
             standingOrder.EndDate = standingOrder.StartDate.GetValueOrDefault().AddMonths((int)standingOrder.Duration);
             standingOrder.SaccoCode = sacco;
             standingOrder.AuditId = auditId;
+            standingOrder.Branch = saccoBranch;
             standingOrder.Zone = standingOrder.Zone;
 
             _context.StandingOrder.Add(standingOrder);
@@ -392,24 +395,33 @@ namespace EasyPro.Controllers
             return RedirectToAction(nameof(GetStandingOrder));
         }
 
-        public IActionResult ProcessStandingOrder()
+        public async Task<IActionResult> ProcessStandingOrder()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
 
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            var activeorders = _context.StandingOrder.Where(o => o.StartDate <= endDate && o.SaccoCode == sacco && !o.Status).ToList();
-
-            var productIntakes = _context.ProductIntake.Where(i => i.Remarks == "Standing Order" && i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco);
+            var activeorders = await _context.StandingOrder.Where(o => o.StartDate <= endDate && o.SaccoCode == sacco && !o.Status).ToListAsync();
+            var productIntakes = await _context.ProductIntake.Where(i => i.Remarks == "Standing Order" && i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                activeorders = activeorders.Where(i => i.Branch == saccoBranch).ToList();
+                productIntakes = productIntakes.Where(i => i.Branch == saccoBranch).ToList();
+            }
+                
+            var intakes = new List<ProductIntake>();
             activeorders.ForEach(o =>
             {
-                if (!productIntakes.Any(i => i.Sno == o.Sno && i.Description == o.Description))
+                o.Sno = o?.Sno ?? "";
+                o.Description = o?.Description ?? "";
+                if (!productIntakes.Any(i => i.Sno.ToUpper().Equals(o.Sno) && i.Description.ToUpper().Equals(o.Description.ToUpper())))
                 {
                     //var check = _context.ProductIntake.Where(m => m.Sno.ToUpper().Equals(o.Sno.ToUpper()) && m.Description.ToUpper().Equals(o.Zone.ToUpper())
                     //&& m.SaccoCode== sacco && m.Remarks == "Standing Order").Sum(g => g.DR);
@@ -436,7 +448,7 @@ namespace EasyPro.Controllers
                     //        TransactionType = TransactionType.Deduction,
                     //        Paid = false,
                     //        Remarks = "Standing Order",
-                    //        AuditId = auditId,
+                    //        AuditId = loggedInUser,
                     //        Auditdatetime = DateTime.Now,
                     //        Branch = "",
                     //        SaccoCode = sacco,
@@ -446,7 +458,7 @@ namespace EasyPro.Controllers
                     //    });
                     //}
 
-                    _context.ProductIntake.Add(new ProductIntake
+                    intakes.Add(new ProductIntake
                     {
                         Sno = o.Sno.ToUpper(),
                         TransDate = endDate,
@@ -457,13 +469,13 @@ namespace EasyPro.Controllers
                         CR = 0,
                         DR = o.Amount,
                         Balance = 0,
-                        Description = o?.Description ?? "",
+                        Description = o.Description,
                         TransactionType = TransactionType.Deduction,
                         Paid = false,
                         Remarks = "Standing Order",
-                        AuditId = auditId,
+                        AuditId = loggedInUser,
                         Auditdatetime = DateTime.Now,
-                        Branch = "",
+                        Branch = saccoBranch,
                         SaccoCode = sacco,
                         DrAccNo = "",
                         CrAccNo = "",
@@ -472,7 +484,12 @@ namespace EasyPro.Controllers
                 }
             });
 
-            _context.SaveChanges();
+            if (intakes.Any())
+            {
+                _context.ProductIntake.AddRange(intakes);
+                _context.SaveChanges();
+            }
+            
             _notyf.Success("Standing order processed successfully");
             return RedirectToAction(nameof(GetStandingOrder));
         }

@@ -229,8 +229,15 @@ namespace EasyPro.Controllers
             var intakes = productIntakes.Where(i => i.Sno.ToUpper().Equals(supplier.Sno.ToUpper())
             && i.SaccoCode == sacco && ( i.TransDate >= date1 && i.TransDate <= date2)).ToList();
 
-            var getsumkgs = intakes.Where(i => i.TransactionType == TransactionType.Intake 
-            || i.TransactionType == TransactionType.Correction && i.Branch == saccobranch).Sum(n => n.Qsupplied);
+            var getdetail = intakes.Where(i => i.TransactionType == TransactionType.Intake
+            || i.TransactionType == TransactionType.Correction && i.Branch == saccobranch).ToList();
+
+            var getsumkgs = getdetail.Sum(n => n.Qsupplied);
+
+            var grosspay = (getdetail.Sum(s => s.CR) - getdetail.Sum(s => s.DR));
+
+            var deductions = (intakes.Where(K => K.TransactionType == TransactionType.Deduction ).Sum(s => s.DR) -
+                intakes.Where(K => K.TransactionType == TransactionType.Deduction).Sum(s => s.CR));
 
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
@@ -239,6 +246,7 @@ namespace EasyPro.Controllers
                 intakes = intakes.Where(i => i.ProductType.ToUpper().Equals(producttype.ToUpper())).ToList();
             decimal? bal = 0;
             var intake = intakes.OrderBy(i => i.TransDate).GroupBy(d => d.TransDate).ToList();
+            
             var MilkEnquryVM = new List<MilkEnqury>();
             intake.ForEach(l =>
             {
@@ -288,10 +296,13 @@ namespace EasyPro.Controllers
                 });
 
             var entries = MilkEnquryVM.OrderByDescending(n => n.Auditdatetime).ToList();
+
             return Json(new
             {
                 entries,
-                getsumkgs
+                getsumkgs,
+                grosspay,
+                deductions
             });
         }
 
@@ -313,13 +324,14 @@ namespace EasyPro.Controllers
             { 
                 var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
                 if (user.AccessLevel == AccessLevel.Branch)
-                    intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
+                    intakes = intakes.OrderByDescending(n => n.TransDate).Where(i => i.Branch == saccobranch).ToList();
             }
             else
             {
-                intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
+                intakes = intakes.OrderByDescending(n=>n.TransDate).Where(i => i.Branch == saccobranch).ToList();
             }
-
+            var grosspay = (intakes.Where(K => (K.Description == "Transport" || K.Description == "SUBSIDY")).Sum(s => s.CR) - intakes.Where(K => (K.Description == "Transport" || K.Description == "SUBSIDY")).Sum(s => s.DR));
+            var deductions = (intakes.Where(K => K.Description != "Transport" && K.Description != "SUBSIDY").Sum(s => s.DR) - intakes.Where(K => K.Description != "Transport" && K.Description != "SUBSIDY").Sum(s => s.CR));
             decimal? bal = 0;
             intakes.ForEach(i =>
             {
@@ -332,7 +344,7 @@ namespace EasyPro.Controllers
             });
 
             //intakes = intakes.OrderByDescending(i => i.TransDate).ToList();
-            return Json(intakes);
+            return Json( new { intakes, grosspay, deductions });
         }
 
         [HttpPost]

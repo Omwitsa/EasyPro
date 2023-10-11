@@ -580,9 +580,10 @@ namespace EasyPro.Controllers
             try
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-                var glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement"
-                && !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")
-                && !g.GlAccName.ToUpper().Equals("STORE")).ToListAsync();
+                var glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement").ToListAsync();
+                if (StrValues.Slopes == sacco)
+                    glsetups = glsetups.Where(g => !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")
+                    && !g.GlAccName.ToUpper().Equals("STORE")).ToList();
                 var journalListings = await GetIncomeStatement(filter, glsetups);
                 var income = journalListings.Where(a => a.Group == "INCOME").ToList();
                 var expenses = journalListings.Where(a => a.Group == "EXPENSES").ToList();

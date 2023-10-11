@@ -51,7 +51,7 @@
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <div class="form-group">
                                 <label class="control-label">Society Name</label>
-                                <select id="scode" class="form-control" asp-for="SaccoCode" asp-items="@ViewBag.scode" required>
+                                <select id="scode" class="chzn-select form-control" asp-for="SaccoCode" asp-items="@ViewBag.scode" required>
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="SaccoCode" class="text-danger"></span>
@@ -98,6 +98,7 @@
         }
         <script type="text/javascript">
             $(function () {
+                $(".chzn-select").chosen();
                 $('#btnapprove').on('click', function () {
                     var scodes = $("#scode").val();
                     checkdefaults();

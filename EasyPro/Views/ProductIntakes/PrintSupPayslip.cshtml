@@ -192,11 +192,47 @@
             }
 
             function generateHTML(response, filter) {
-                var mevng = $('#mevng').val();
-                var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
-                var supPayslip = response.payrolls.map(s => {
+                let mevng = $('#mevng').val();
+                response.supplier = response.supplier ? response.supplier : {};
+                response.transporter = response.transporter ? response.transporter : {};
+                let date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                let supPayslip = response.payrolls.map(s => {
                     //let transDate = new Date(s.date).toLocaleDateString('en-GB');
-                    var totalPrice = s.Gpay - s.Subsidy;
+                    let totalPrice = s.Gpay - s.Subsidy;
+                    let subsidyRaw = "";
+                    if (s.Subsidy) {
+                        subsidyRaw = `<tr>
+                                        <td>SUBSIDY</td>
+                                        <td>${s.KgsSupplied}</td>
+                                        <td></td>
+                                        <td>${response.price.SubsidyPrice}</td>
+                                        <td></td>
+                                        <td>${s.Subsidy}</td>
+                                    </tr>`;
+                    }
+                    let advanceRaw = "";
+                    if (s.Advance) {
+                        advanceRaw = `<tr>
+                                        <td>ADVANCE</td>
+                                        <td>${s.Advance}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>`;
+                    }
+                    let normalLoanRaw = "";
+                    if (s.Fsa) {
+                        normalLoanRaw = ` <tr>
+                                        <td>NORMAL LOAN</td>
+                                        <td>${s.Fsa}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>`;
+                    }
+
                     return `<tr>
                                 <td>KGs</td>
                                 <td>${s.KgsSupplied}</td>
@@ -205,14 +241,7 @@
                                 <td></td>
                                 <td>${totalPrice}</td>
                             </tr>
-                            <tr>
-                                <td>SUBSIDY</td>
-                                <td>${s.KgsSupplied}</td>
-                                <td></td>
-                                <td>${response.price.SubsidyPrice}</td>
-                                <td></td>
-                                <td>${s.Subsidy}</td>
-                            </tr>
+                            ${subsidyRaw}
                             <tr>
                                 <td>TOTAL</td>
                                 <td></td>
@@ -229,22 +258,8 @@
                                 <td></td>
                                 <td></td>
                             </tr>
-                            <tr>
-                                <td>ADVANCE</td>
-                                <td>${s.Advance}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>NORMAL LOAN</td>
-                                <td>${s.Fsa}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+                            ${advanceRaw}
+                            ${normalLoanRaw}
                             <tr>
                                 <td>SOCIETY SHARES</td>
                                 <td></td>

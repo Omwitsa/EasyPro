@@ -19,6 +19,7 @@ namespace EasyPro.Models
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }
         public string SaccoCode { get; set; }
+        public string Branch { get; set; }
         public string Zone { get; set; }
         public bool Status { get; set; }
     }

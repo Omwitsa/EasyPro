@@ -158,7 +158,7 @@
                         </div>
                     </div>
                     <div class="col-sm-2 col-xs-12">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="col-sm-4 col-xs-12">
                             <label class="control-label"></label>
                             <a id="showtable" class="btn btn-warning">Show</a>
                         </div>
@@ -402,8 +402,8 @@
                 share = share ? share : 0;
                 intake.getsumkgs = intake.getsumkgs ? intake.getsumkgs : 0;
                 $('#netpay').val(netpay.toFixed(2));
-                $('#totaldeductions').val(Total2.toFixed(2));
-                $('#grosspay').val(Total.toFixed(2));
+                $('#totaldeductions').val(intake.deductions.toFixed(2));
+                $('#grosspay').val(intake.grosspay.toFixed(2));
                 $('#totkgs').val(intake.getsumkgs.toFixed(2));
                 $('#shar').val(share.toFixed(2));
                 $('#transporter').val(transporter);

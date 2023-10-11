@@ -471,9 +471,15 @@ namespace EasyPro.Controllers
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(filter.Code.ToUpper()) && s.Scode == filter.Sacco && s.Branch == filter.Branch);
             var transCode = _context.DTransports.FirstOrDefault(s => s.Sno.ToUpper().Equals(filter.Code.ToUpper()) && s.saccocode == filter.Sacco && s.Branch == filter.Branch)?.TransCode ?? "";
             var transporter = _context.DTransporters.FirstOrDefault(s => s.TransCode.ToUpper().Equals(transCode.ToUpper()) && s.ParentT == filter.Sacco && s.Tbranch == filter.Branch);
+            if (transporter == null)
+                transporter = new DTransporter
+                {
+                    CertNo = "",
+                    TransCode = "",
+                    TransName = ""
+                };
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
-
 
             return Json(new
             {

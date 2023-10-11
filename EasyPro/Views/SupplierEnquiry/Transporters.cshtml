@@ -29,6 +29,7 @@
             background-color: #dec3eb;
             color: white;
         }
+
     .divScroll {
         width: 1000px;
         height: 200px;
@@ -45,7 +46,7 @@
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Transporter</label>
@@ -56,7 +57,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
@@ -67,7 +68,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
@@ -78,18 +79,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label class="control-label">Phone No</label>
-                                <input id="phoneno" autocomplete="off" class="form-control" />
-                                <span class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">BName</label>
@@ -98,7 +90,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
@@ -109,7 +101,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <div class="form-group">
@@ -120,75 +112,66 @@
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
                 <div class="row">
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                    <div class="col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <div class="form-group">
-                                    <label class="control-label">Gross Pay</label>
-                                    <input id="grosspay" class="form-control text-green" />
-                                    <span class="text-danger"></span>
-                                </div>
+                                <label class="control-label">Phone No</label>
+                                <input id="phoneno" autocomplete="off" class="form-control" />
+                                <span class="text-danger"></span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <div class="form-group">
-                                    <label class="control-label">NETPAY</label>
-                                    <input id="netpay" class="form-control text-danger" />
-                                </div>
-                            </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Gross Pay</label>
+                            <input id="grosspay" class="form-control text-green" />
+                            <span class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <div class="form-group">
-                                    <label class="control-label">Deductions</label>
-                                    <input id="totaldeductions" class="form-control text-blue" />
-                                    <span class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <div class="form-group">
-                                    <label class="control-label">Total Quantity</label>
-                                    <input id="totalQty" class="form-control text-blue" />
-                                    <span class="text-danger"></span>
-                                </div>
-                            </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">NETPAY</label>
+                            <input id="netpay" class="form-control text-danger" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="FilterVm.DateFrom" class="control-label"></label>
-                                <input id="firstdate" class="form-control" type="date" />
-                                <span asp-validation-for="FilterVm.DateFrom" class="text-danger"></span>
-                            </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="FilterVm.DateFrom" class="control-label"></label>
+                            <input id="firstdate" class="form-control" type="date" />
+                            <span asp-validation-for="FilterVm.DateFrom" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="FilterVm.DateTo" class="control-label"></label>
-                                <input id="enddate" class="form-control" type="date" />
-                                <span asp-validation-for="FilterVm.DateTo" class="text-danger"></span>
-                            </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <div class="form-group ">
+                            <label asp-for="FilterVm.DateTo" class="control-label"></label>
+                            <input id="enddate" class="form-control" type="date" />
+                            <span asp-validation-for="FilterVm.DateTo" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <label class="control-label"></label>
-                        <a id="showtable" class="btn btn-warning">Show</a>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Deductions</label>
+                            <input id="totaldeductions" class="form-control text-blue" readonly />
+                            <span class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Total Quantity</label>
+                            <input id="totalQty" class="form-control text-blue" readonly />
+                            <span class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="control-label"></label>
+                            <a id="showtable" class="btn btn-warning">Show</a>
+                        </div>
                     </div>
                 </div>
                 <div class="bsc-tbl-hvr table-border-style">
@@ -263,7 +246,7 @@
                 if (isSlopes){
                     selectTransporters = transporters.filter(p => p.CertNo === selectVal);
                 }
-                    
+
                 if (selectTransporters[0]) {
                     $("#names").val(selectTransporters[0].TransName);
                     $("#idno").val(selectTransporters[0].CertNo);
@@ -297,7 +280,7 @@
                 let deductions = 0;
                 let totalQty = 0;
 
-                intakes.forEach(i => {
+                intakes.intakes.forEach(i => {
                     let ddate = i.TransDate;
                     let dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
@@ -318,8 +301,8 @@
                 let netpay = grossPay - deductions;
                 $('#totalQty').val(totalQty.toFixed(2));
                 $('#netpay').val(netpay.toFixed(2));
-                $('#totaldeductions').val(deductions.toFixed(2))
-                $('#grosspay').val(grossPay.toFixed(2))
+                $('#totaldeductions').val(intakes.deductions.toFixed(2))
+                $('#grosspay').val(intakes.grosspay.toFixed(2))
                 $('#intakes').html(itemTableRows);
             }
         });
