@@ -774,6 +774,12 @@
                                         <a asp-controller="ProductIntakes" asp-action="PrintTransporterStatement">Print Transporters Statement</a>
                                     </li>
                                 }
+                                @if (ViewBag.CorrectionRole)
+                                {
+                                <li>
+                                        <a asp-controller="ProductIntakes" asp-action="ChangeTransporter">Change Transporter</a>
+                                </li>
+                                }
                             </ul>
                         </div>
                         

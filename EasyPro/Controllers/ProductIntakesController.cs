@@ -2407,6 +2407,96 @@ namespace EasyPro.Controllers
         {
             return _context.ProductIntake.Any(e => e.Id == id);
         }
+
+        public IActionResult ChangeTransporter()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco).OrderBy(t => t.CertNo).ToList();
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
+
+            var vehicles = transporters.Select(t => t.CertNo).ToList();
+            ViewBag.vehicles = new SelectList(vehicles);
+
+            return View();
+        }
+       
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeTransporter([Bind("Code,ReceiptNoFrom,ReceiptNoTo")] TransporterChangeVm changeVm)
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            await SetIntakeInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            ViewBag.slopes = StrValues.Slopes == sacco;
+
+            IQueryable<ProductIntake> intakes = _context.ProductIntake.Where(p => p.Id >= changeVm.ReceiptNoFrom && p.Id <= changeVm.ReceiptNoTo 
+            && p.SaccoCode == sacco && p.AuditId.ToUpper().Equals(loggedInUser.ToUpper()));
+            var transporters = await _context.DTransporters.Where(s => s.ParentT == sacco && s.CertNo == changeVm.Code).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                intakes = intakes.Where(s => s.Branch == branch);
+                transporters = transporters.Where(s => s.Tbranch == branch).ToList();
+            }
+
+            var transporter = transporters.FirstOrDefault();
+            var farmerIntakes = await intakes.Where(i => i.Description != "Transport").ToListAsync();
+            var transporterIntakes = await intakes.Where(i => i.Sno.ToUpper().Contains("T")).ToListAsync();
+            var productIntakes = new List<ProductIntake>();
+            foreach(var intake in farmerIntakes)
+            {
+                var transporterIntake = transporterIntakes.FirstOrDefault(i => i.Auditdatetime == intake.Auditdatetime);
+                if(transporterIntake != null)
+                {
+                    transporterIntake.Sno = transporter?.TransCode ?? "";
+                    transporterIntake.AuditId = loggedInUser;
+                }
+                if(transporterIntake == null && transporter != null)
+                    productIntakes.Add(new ProductIntake
+                    {
+                        Sno = transporter?.TransCode ?? "",
+                        TransDate = intake.TransDate,
+                        TransTime = intake.TransTime,
+                        ProductType = intake.ProductType,
+                        Qsupplied = intake.Qsupplied,
+                        Ppu = (decimal?)transporter.Rate,
+                        CR = (decimal?)transporter.Rate * intake.Qsupplied,
+                        DR = 0,
+                        Balance = 0,
+                        Description = "Transport",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = false,
+                        Remarks = intake.Remarks,
+                        AuditId = loggedInUser,
+                        Auditdatetime = intake.Auditdatetime,
+                        Branch = intake.Branch,
+                        SaccoCode = intake.SaccoCode,
+                        DrAccNo = "",
+                        CrAccNo = "",
+                        Posted = intake.Posted,
+                        Zone = intake.Zone,
+                        MornEvening = intake.MornEvening
+                    });
+            }
+
+            if (productIntakes.Any())
+                _context.ProductIntake.AddRange(productIntakes);
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 
     internal class ReceiptPrinter

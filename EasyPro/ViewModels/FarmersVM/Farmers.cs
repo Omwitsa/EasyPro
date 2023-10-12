@@ -24,4 +24,11 @@ namespace EasyPro.ViewModels.FarmersVM
         public string LoggedInUser { get; set; }
         public string Sacco { get; set; }
     }
+
+    public class TransporterChangeVm
+    {
+        public string Code { get; set; }
+        public long ReceiptNoFrom { get; set; }
+        public long ReceiptNoTo { get; set; }
+    }
 }
