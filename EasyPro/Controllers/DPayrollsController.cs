@@ -1571,7 +1571,7 @@ namespace EasyPro.Controllers
                 forlastmonthremarks = endDate.Month.ToString() + endDate.Year.ToString() + "Arrears CF";
             }
 
-            var suppliers = dSuppliers.Where(s => s.Scode == sacco).ToList();
+            var suppliers = dPayrolls.Where(s => s.SaccoCode == sacco && s.EndofPeriod == endDate && s.Npay<0).ToList();
             suppliers.ForEach(s =>
             {
                 var payrolls = dPayrolls.Where(p => p.SaccoCode == sacco
@@ -1591,7 +1591,7 @@ namespace EasyPro.Controllers
                         ProductType = productty,
                         Qsupplied = 0,
                         Ppu = 0,
-                        CR = netPay,
+                        CR = netPay * -1,
                         DR = 0,
                         Balance = 0,
                         Description = "Carry Forward",
@@ -1616,7 +1616,7 @@ namespace EasyPro.Controllers
                         Qsupplied = 0,
                         Ppu = 0,
                         CR = 0,
-                        DR = netPay,
+                        DR = netPay*-1,
                         Balance = 0,
                         Description = "Carry Forward",
                         TransactionType = TransactionType.Deduction,
@@ -1653,7 +1653,7 @@ namespace EasyPro.Controllers
                         ProductType = productty,
                         Qsupplied = 0,
                         Ppu = 0,
-                        CR = netPay,
+                        CR = netPay*-1,
                         DR = 0,
                         Balance = 0,
                         Description = "Carry Forward",
@@ -1677,8 +1677,8 @@ namespace EasyPro.Controllers
                         ProductType = productty,
                         Qsupplied = 0,
                         Ppu = 0,
-                        CR = netPay,
-                        DR = 0,
+                        CR = 0,
+                        DR = netPay * -1,
                         Balance = 0,
                         Description = "Carry Forward",
                         TransactionType = TransactionType.Deduction,

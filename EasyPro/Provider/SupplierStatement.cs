@@ -109,7 +109,10 @@ namespace EasyPro.Provider
                     });
                 });
             }
-
+            var shares = await _context.DShares.Where(m => m.SaccoCode == filter.Sacco && m.Type.Contains("shares") 
+            && m.Sno.ToUpper().Equals(filter.Code.ToUpper()) && m.Branch == filter.Branch)
+                .ToListAsync();
+            var sharesAmount = shares.Sum(x => x.Amount);
             var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == filter.Code && s.Scode == filter.Sacco && s.Branch == filter.Branch);
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
@@ -133,7 +136,8 @@ namespace EasyPro.Provider
                 netPay = grossPay - totalDeductions,
                 supplier,
                 company,
-                transporterName
+                transporterName,
+                sharesAmount
             };
         }
 
