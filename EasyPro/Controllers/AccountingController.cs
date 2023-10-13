@@ -286,9 +286,9 @@ namespace EasyPro.Controllers
                     {
                         decimal dr = 0;
                         decimal cr = 0;
-                        if (g.NormalBal.ToLower().Equals("debit"))
+                        if (g.NormalBal.ToUpper().Equals("DR"))
                             dr = g.OpeningBal;
-                        if (g.NormalBal.ToLower().Equals("credit"))
+                        if (g.NormalBal.ToUpper().Equals("CR"))
                             cr = g.OpeningBal;
                         journalListings.Add(new JournalVm
                         {
@@ -753,7 +753,8 @@ namespace EasyPro.Controllers
                 if (t.HasRate)
                 {
                     var balancing = balancings.Where(b => b.Date == filter.FromDate).FirstOrDefault();
-                    var totalKgs = balancings.Sum(b => b.Intake) + balancing.BF;
+                    var broughtForward = balancing?.BF ?? 0;
+                    var totalKgs = balancings.Sum(b => b.Intake) + broughtForward;
                     t.Amount = (decimal)(t.Amount * totalKgs);
                 }
                 var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == t.GlAcc);

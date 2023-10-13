@@ -17,6 +17,7 @@ namespace EasyPro.Models.BosaModels
         public virtual DbSet<Member> MEMBERS { get; set; }
         public virtual DbSet<SContrib> CONTRIB { get; set; }
         public virtual DbSet<LoanTypes> LOANTYPE { get; set; }
+        public virtual DbSet<ShareTypes> sharetype { get; set; }
         public virtual DbSet<LoanBal> LOANBAL { get; set; }
         public virtual DbSet<ContribStandingOrder> CONTRIB_standingOrder { get; set; }
     }

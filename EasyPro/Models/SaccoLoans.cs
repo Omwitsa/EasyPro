@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EasyPro.Models
 {
@@ -13,5 +14,7 @@ namespace EasyPro.Models
         public DateTime? AuditDate { get; set; }
         public string Saccocode { get; set; }
         public string AuditId { get; set; }
+        [NotMapped]
+        public decimal? Balance { get; set; }
     }
 }

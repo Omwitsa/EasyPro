@@ -590,15 +590,16 @@ namespace EasyPro.Controllers
                             {
                                 if(l.Installments > 0 && netPay > 0)
                                 {
-                                    l.Installments = netPay > l.Installments ? l.Installments : netPay;
-                                    payroll.Fsa += l.Installments;
-                                    netPay -= l.Installments;
+                                    var installments = l.Balance < l.Installments ? l.Balance : l.Installments;
+                                    installments = netPay > installments ? installments : netPay;
+                                    payroll.Fsa += installments;
+                                    netPay -= installments;
                                     listSaccoLoans.Add(new SaccoLoans
                                     {
                                         LoanNo = l.LoanNo,
                                         LoanCode = l.LoanCode,
                                         Sno = l.MemberNo,
-                                        Amount = l.Installments,
+                                        Amount = installments,
                                         TransDate = monthsLastDate,
                                         AuditDate = DateTime.Now,
                                         Saccocode = sacco,
@@ -613,10 +614,9 @@ namespace EasyPro.Controllers
                             var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper()));
                             if (standingOrder != null)
                             {
-                                decimal.TryParse(standingOrder?.Installment ?? "", out decimal installment);
-                                payroll.SACCO_SHARES = netPay > installment ? installment : netPay;
+                                payroll.SACCO_SHARES = netPay > standingOrder.Installment ? standingOrder.Installment : netPay;
                                 payroll.SACCO_SHARES = payroll.SACCO_SHARES > 0 ? payroll.SACCO_SHARES : 0;
-                                netPay -= installment;
+                                netPay -= standingOrder.Installment;
                                 if(payroll.SACCO_SHARES > 0)
                                     listSaccoShares.Add(new SaccoShares
                                     {
@@ -987,15 +987,16 @@ namespace EasyPro.Controllers
                     {
                         if (l.Installments > 0 && netPay > 0)
                         {
-                            l.Installments = netPay > l.Installments ? l.Installments : netPay;
-                            payRoll.Fsa += l.Installments;
-                            netPay -= l.Installments;
+                            var installments = l.Balance < l.Installments ? l.Balance : l.Installments;
+                            installments = netPay > installments ? installments : netPay;
+                            payRoll.Fsa += installments;
+                            netPay -= installments;
                             listSaccoLoans.Add(new SaccoLoans
                             {
                                 LoanNo = l.LoanNo,
                                 LoanCode = l.LoanCode,
                                 Sno = l.MemberNo,
-                                Amount = l.Installments,
+                                Amount = installments,
                                 TransDate = monthsLastDate,
                                 AuditDate = DateTime.Now,
                                 Saccocode = sacco,
@@ -1009,10 +1010,9 @@ namespace EasyPro.Controllers
                     var standingOrder = standingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()));
                     if (standingOrder != null)
                     {
-                        decimal.TryParse(standingOrder?.Installment ?? "", out decimal installment);
-                        payRoll.SACCO_SHARES = netPay > installment ? installment : netPay;
+                        payRoll.SACCO_SHARES = netPay > standingOrder.Installment ? standingOrder.Installment : netPay;
                         payRoll.SACCO_SHARES = payRoll.SACCO_SHARES > 0 ? payRoll.SACCO_SHARES : 0;
-                        netPay -= installment;
+                        netPay -= standingOrder.Installment;
                         if (payRoll.SACCO_SHARES > 0)
                             listSaccoShares.Add(new SaccoShares
                             {

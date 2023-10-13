@@ -196,6 +196,28 @@
                 response.supplier = response.supplier ? response.supplier : {};
                 response.transporter = response.transporter ? response.transporter : {};
                 let date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                let saccoLoans = response.loans.map(l => {
+                    return `<tr>
+                                <td>${l.LoanCode}</td>
+                                <td>${l.Amount}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>${l.Balance}</td>
+                            </tr>`;
+                });
+                var strSaccoLoans = saccoLoans.join('');
+                let saccoShares = response.shares.map(l => {
+                    return `<tr>
+                                        <td>${l.Remarks}</td>
+                                        <td>${l.Paid}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>${l.Amount}</td>
+                                    </tr>`;
+                });
+                var strSaccoShares = saccoShares.join('');
                 let supPayslip = response.payrolls.map(s => {
                     //let transDate = new Date(s.date).toLocaleDateString('en-GB');
                     let totalPrice = s.Gpay - s.Subsidy;
@@ -221,17 +243,17 @@
                                         <td></td>
                                     </tr>`;
                     }
-                    let normalLoanRaw = "";
-                    if (s.Fsa) {
-                        normalLoanRaw = ` <tr>
-                                        <td>NORMAL LOAN</td>
-                                        <td>${s.Fsa}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>`;
-                    }
+                    //let normalLoanRaw = "";
+                    //if (s.Fsa) {
+                    //    normalLoanRaw = ` <tr>
+                    //                    <td>NORMAL LOAN</td>
+                    //                    <td>${s.Fsa}</td>
+                    //                    <td></td>
+                    //                    <td></td>
+                    //                    <td></td>
+                    //                    <td></td>
+                    //                </tr>`;
+                    //}
 
                     return `<tr>
                                 <td>KGs</td>
@@ -259,31 +281,24 @@
                                 <td></td>
                             </tr>
                             ${advanceRaw}
-                            ${normalLoanRaw}
+                            ${strSaccoLoans}
                             <tr>
                                 <td>SOCIETY SHARES</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
                                 <td>${s.SACCO_SAVINGS}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                             </tr>
-                            <tr>
-                                <td>SACCO SHARES</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>${s.SACCO_SHARES}</td>
-                            </tr>
+                            ${strSaccoShares}
                             *************************</br>
                             <tr>
                                 <td>TOTAL DED</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
                                 <td>${s.Tdeductions}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td>NET PAY</td>

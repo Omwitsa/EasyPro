@@ -1,4 +1,6 @@
-﻿namespace EasyPro.Models.BosaModels
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EasyPro.Models.BosaModels
 {
     public class SContrib
     {
@@ -7,5 +9,8 @@
         public decimal? Amount { get; set; }
         public string CompanyCode { get; set; }
         public string Remarks { get; set; }
+        public string Sharescode { get; set; }
+        [NotMapped]
+        public decimal? Paid { get; set; }
     }
 }

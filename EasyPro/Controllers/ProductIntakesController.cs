@@ -481,13 +481,36 @@ namespace EasyPro.Controllers
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
 
+            var loanTypes = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode && t.MemberNo.ToUpper().Equals(filter.Code.ToUpper())).ToListAsync();
+            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code).ToListAsync();
+            loans.ForEach(l =>
+            {
+                var loanType = loanTypes.FirstOrDefault(t => t.LoanCode == l.LoanCode);
+                var loanBal = loanBals.FirstOrDefault(s => s.LoanNo == l.LoanNo);
+                l.LoanCode = loanType?.LoanType ?? "";
+                l.Balance = loanBal?.Balance ?? 0;
+            });
+
+            var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(filter.Code.ToUpper()) && s.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code).ToListAsync();
+            shares.ForEach(s =>
+            {
+                s.Paid = 0;
+                if (s.Sharescode == "S03" && s.Amount < 5500)
+                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
+                if (s.Sharescode != "S03" && s.Amount >= 5500)
+                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
+            });
             return Json(new
             {
                 payrolls,
                 price,
                 company,
                 supplier,
-                transporter
+                transporter,
+                loans,
+                shares
             });
         }
 
