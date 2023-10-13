@@ -107,8 +107,10 @@ namespace EasyPro.Controllers
 
                         var detailstore = GetReceipts(productNow.PCode, sacco, b.Key, date1, startingdate, endDate);
 
-                        decimal open = (decimal)((detailstore.pro_buyy) - (detailstore.positive_pro_sell - detailstore.negatives_pro_sell));
-                        decimal correctbal = (decimal)detailstore.receiptthatmonth + open;
+                        decimal open = (decimal)((detailstore.pro_buyy) - (detailstore.positive_pro_sell - detailstore.negatives_pro_sell)
+                        + detailstore.dispatchlasttoBranch - detailstore.dispatchlastfromBranch);
+                        decimal dispatch = (decimal)(detailstore.dispatchthismonthtoBranch - detailstore.dispatchthismonthfromBranch);
+                        decimal correctbal = (decimal)detailstore.receiptthatmonth + open + dispatch;
                         decimal saleskgs = (decimal)(detailstore.positive_agProductsales - detailstore.negative_agProductsales);
                         decimal bal = (correctbal - saleskgs);
                         decimal BPrice = (decimal)productNow.Pprice;
@@ -126,6 +128,7 @@ namespace EasyPro.Controllers
                             Name = productNow.PName,
                             Openning = open,
                             AddedStock = (decimal)detailstore.receiptthatmonth,
+                            Dispatch = dispatch,
                             StoreBal = correctbal,
                             Sales = (decimal)saleskgs,
                             Bal = bal,
@@ -153,6 +156,7 @@ namespace EasyPro.Controllers
         {
             IQueryable<AgReceipt> agReceipts = _context.AgReceipts;
             IQueryable<AgProducts4> agProducts4s = _context.AgProducts4s;
+            IQueryable<Drawnstock> drawnstocks = _context.Drawnstocks;
             var saccobranch = key;
 
 
@@ -162,11 +166,17 @@ namespace EasyPro.Controllers
             var positive_pro_sell = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
              i.TDate <= endDate && i.Amount >= 0 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Qua);
 
+            var dispatchlastfromBranch = drawnstocks.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.BranchF == saccobranch &&
+             i.Date <= endDate && i.Productid.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
+
+            var dispatchlasttoBranch = drawnstocks.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
+             i.Date <= endDate && i.Productid.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
+
             var negatives_pro_sell = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
              i.TDate <= endDate && i.Amount < 0 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Qua);
 
-            var receiptthatmonth = agProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch && i.DateEntered >= date1
-           && i.DateEntered <= date2 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(g => g.Qin);
+            var receiptthatmonth = agProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch &&
+            i.DateEntered >= date1  && i.DateEntered <= date2 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(g => g.Qin);
 
             var positive_agProductsales = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1
             && i.TDate <= date2 && i.Amount >= 0 && i.Branch == saccobranch && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(n => n.Qua);
@@ -174,6 +184,11 @@ namespace EasyPro.Controllers
             var negative_agProductsales = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1
             && i.TDate <= date2 && i.Amount < 0 && i.Branch == saccobranch && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(n => n.Qua);
 
+            var dispatchthismonthfromBranch = drawnstocks.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.BranchF == saccobranch
+             && i.Date >= date1 && i.Date <= date2 && i.Productid.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
+
+            var dispatchthismonthtoBranch = drawnstocks.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch
+             && i.Date >= date1 && i.Date <= date2 && i.Productid.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
 
             return new
             {
@@ -183,6 +198,10 @@ namespace EasyPro.Controllers
                 receiptthatmonth,
                 positive_agProductsales,
                 negative_agProductsales,
+                dispatchlastfromBranch,
+                dispatchlasttoBranch,
+                dispatchthismonthfromBranch,
+                dispatchthismonthtoBranch
             };
         }
     }

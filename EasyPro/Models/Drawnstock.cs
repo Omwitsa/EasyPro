@@ -10,7 +10,7 @@ namespace EasyPro.Models
         public long Id { get; set; }
         public DateTime? Date { get; set; }
         public string Description { get; set; }
-        public string Quantity { get; set; }
+        public double? Quantity { get; set; }
         public string Totalamount { get; set; }
         public string Productid { get; set; }
         public string Productname { get; set; }
