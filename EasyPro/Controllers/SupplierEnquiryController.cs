@@ -193,13 +193,14 @@ namespace EasyPro.Controllers
             //    ViewBag.checkiftoenable = 0;
         }
 
-        private async Task Getshares(string sno)
+        public async Task Getshares(string sno)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
-            var shares = await _context.DShares.Where(m => m.SaccoCode == sacco && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(sno.ToUpper()))
+            var shares = await _context.DShares.Where(m => m.SaccoCode == sacco && m.Branch == saccobranch 
+            && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(sno.ToUpper()))
                 .ToListAsync();
             var sharesAmount = shares.Sum(x=>x.Amount);
             ViewBag.shares = sharesAmount;

@@ -50,7 +50,7 @@ namespace EasyPro.Controllers
             var agproducts = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).Select(b => b.PName).ToList();
             ViewBag.agproductsall = new SelectList(agproducts, "");
 
-            var brances = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper()) && i.Bname!= saccobranch).Select(b => b.Bname).ToList();
+            var brances = _context.DBranch.Where(i => i.Bcode.ToUpper().Equals(sacco.ToUpper()) && i.Bname == saccobranch).Select(b => b.Bname).ToList();
             ViewBag.brances = new SelectList(brances);
 
         }
@@ -132,7 +132,7 @@ namespace EasyPro.Controllers
                 _notyf.Error("Product not exist");
                 return RedirectToAction(nameof(Create));
             }
-            if (drawnstock.Quantity == "0")
+            if (drawnstock.Quantity == 0)
             {
                 GetInitialValues();
                 _notyf.Error("Quantity should be Greater Than Zero");
