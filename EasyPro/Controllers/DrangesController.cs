@@ -39,7 +39,7 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var deductionnames = _context.Deductions.Where(a => a.SaccoCode == sacco).ToList();
+            var deductionnames = _context.DeductionType.Where(a => a.SaccoCode == sacco).ToList();
             ViewBag.deductionname = new SelectList(deductionnames, "Name", "Name");
         }
         // GET: Dranges/Details/5

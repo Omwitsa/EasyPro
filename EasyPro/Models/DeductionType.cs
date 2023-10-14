@@ -2,7 +2,7 @@
 
 namespace EasyPro.Models
 {
-    public class Deduction
+    public class DeductionType
     {
         [Key]
         public long Id { get; set; }

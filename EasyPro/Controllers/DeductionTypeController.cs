@@ -13,13 +13,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace EasyPro.Controllers
 {
-    public class DeductionsController : Controller
+    public class DeductionTypeController : Controller
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
         private Utilities utilities;
 
-        public DeductionsController(MORINGAContext context, INotyfService notyf)
+        public DeductionTypeController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
@@ -35,7 +35,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            return View(await _context.Deductions
+            return View(await _context.DeductionType
                 .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync());
         }
         private void GetInitialValues()
@@ -55,7 +55,7 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var deduction = await _context.Deductions
+            var deduction = await _context.DeductionType
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (deduction == null)
             {
@@ -81,7 +81,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Accno,SaccoCode")] Deduction deduction)
+        public async Task<IActionResult> Create([Bind("Id,Name,Accno,SaccoCode")] DeductionType deduction)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -89,7 +89,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             deduction.SaccoCode = sacco;
-            var dCodesExists = _context.Deductions.Any(i => i.Name == deduction.Name && i.SaccoCode == sacco);
+            var dCodesExists = _context.DeductionType.Any(i => i.Name == deduction.Name && i.SaccoCode == sacco);
             if (dCodesExists)
             {
                 _notyf.Error("Sorry, The Name already exist");
@@ -117,7 +117,7 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var deduction = await _context.Deductions.FindAsync(id);
+            var deduction = await _context.DeductionType.FindAsync(id);
             if (deduction == null)
             {
                 return NotFound();
@@ -130,7 +130,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Accno,SaccoCode")] Deduction deduction)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Accno,SaccoCode")] DeductionType deduction)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -180,7 +180,7 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var deduction = await _context.Deductions
+            var deduction = await _context.DeductionType
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (deduction == null)
             {
@@ -198,15 +198,15 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
-            var deduction = await _context.Deductions.FindAsync(id);
-            _context.Deductions.Remove(deduction);
+            var deduction = await _context.DeductionType.FindAsync(id);
+            _context.DeductionType.Remove(deduction);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool DeductionExists(long id)
         {
-            return _context.Deductions.Any(e => e.Id == id);
+            return _context.DeductionType.Any(e => e.Id == id);
         }
     }
 }

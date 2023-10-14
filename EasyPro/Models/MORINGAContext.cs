@@ -300,7 +300,7 @@ namespace EasyPro.Models
 		public virtual DbSet<CProduct> CProducts { get; set; }
 		public virtual DbSet<StandingOrder> StandingOrder { get; set; }
 		public virtual DbSet<Employee> Employees { get; set; }
-		public virtual DbSet<Deduction> Deductions { get; set; }
+		public virtual DbSet<DeductionType> DeductionType { get; set; }
 		public virtual DbSet<Departments> Departments { get; set; }
 		public virtual DbSet<PaySlip> PaySlip { get; set; }
 		public virtual DbSet<EmployeesDed> EmployeesDed { get; set; }

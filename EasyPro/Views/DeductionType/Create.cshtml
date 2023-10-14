@@ -1,19 +1,17 @@
-﻿@model EasyPro.Models.Deduction
+﻿@model EasyPro.Models.DeductionType
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Create";
 }
-
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
             <div class="cmp-tb-hd">
-                <h2>Edit Staff Deduction</h2>
+                <h2>Deduction Type</h2>
             </div>
             <hr />
-            <form asp-action="Edit">
+            <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="Id" />
                 <div class="row">
                     <div class="col-sm-6 col-xs-12">
                         <div class="form-group">
@@ -28,7 +26,6 @@
                         <div class="form-group">
                             <label asp-for="Accno" class="control-label"></label>
                             <select id="glAcc" asp-for="Accno" class="form-control" asp-items="@ViewBag.glAccounts">
-                                <option value="" disabled selected hidden>Please select</option>
                             </select>
                             <span asp-validation-for="Accno" class="text-danger"></span>
                         </div>
@@ -47,5 +44,14 @@
         </div>
     </div>
 </div>
-
-
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#glAcc").val("");
+        });
+    </script>
+}
