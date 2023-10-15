@@ -65,6 +65,7 @@
                                     <th>IDNo</th>
                                     <th>Phone</th>
                                     <th>Shares</th>
+                                    <th>Year Of Completion</th>
                                     <th>Branch</th>
                                 </tr>
                                 <tbody>
@@ -88,6 +89,9 @@
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.Shares)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.YearOfCompletion)
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.Branch)

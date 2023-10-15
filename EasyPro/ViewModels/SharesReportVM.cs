@@ -17,5 +17,6 @@ namespace EasyPro.ViewModels
         public string PhoneNo { get; set; }
         public decimal? Shares { get; set; }
         public string Branch { get; set; }
+        public long YearOfCompletion { get; set; }
     }
 }

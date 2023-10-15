@@ -78,6 +78,7 @@
                             <ul class="nav nav-tabs">
                                 <li class="active"><a data-toggle="tab" href="#allSalesReport">Report</a></li>
                                 <li><a data-toggle="tab" href="#allSalesSummary">Summary</a></li>
+                                <li><a data-toggle="tab" href="#allSalesSummaryDetailed">Detailed Summary</a></li>
                             </ul>
                             <div class="tab-content tab-custom-st">
                                 <div id="allSalesReport" class="tab-pane fade in active">
@@ -130,7 +131,7 @@
                                                     <div class="col-sm-4 col-xs-12">
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
-                                                        <label class="control-label">Total SPrice</label>
+                                                        <label class="control-label">Total Sales</label>
                                                         <input value="0" id="Tselling" class="form-control" readonly />
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
@@ -140,7 +141,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 <div id="allSalesSummary" class="tab-pane fade">
                                     <div class="tab-ctn">
                                         <div class="normal-table-list mg-t-30">
@@ -183,8 +183,59 @@
                                                     <div class="col-sm-4 col-xs-12">
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
-                                                        <label class="control-label">Total SPrice</label>
-                                                        <input  id="Tsell" class="form-control" readonly />
+                                                        <label class="control-label">Total Sales</label>
+                                                        <input id="Tsell" class="form-control" readonly />
+                                                    </div>
+                                                    <div class="col-sm-4 col-xs-12">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="allSalesSummaryDetailed" class="tab-pane fade">
+                                    <div class="tab-ctn">
+                                        <div class="normal-table-list mg-t-30">
+                                            <div class="row">
+                                                <div class="col-sm-4 col-xs-12">
+                                                    <a id="showSummery2" class="btn btn-warning">Show</a>
+                                                </div>
+                                                <div class="col-sm-4 col-xs-12">
+                                                    <a id="excel_summerydetailed" class="btn btn-success w3-circle">Export Excel</a>
+                                                </div>
+                                                <div class="col-sm-3 col-xs-12">
+                                                    <label class="control-label">--</label>
+                                                    <a id="print_reportdetailed" class="btn btn-success w3-circle">Print Report</a>
+                                                </div>
+                                            </div>
+
+                                            <div class="bsc-tbl-hvr table-border-style">
+                                                <div class="table-responsive">
+                                                    <div class="divScroll">
+                                                        <table class="table table-hover" id="tbl_summarydetailedre">
+                                                            <tr id="com2"><th></th><th colspan="4" id="company2"></th></tr>
+                                                            <tr id="htitl2"><th></th> <th colspan="4"> <strong>All Sales Detailed Summary Report</strong></th></tr>
+                                                            <tr id="hstartd2"><th></th><th colspan="4" id="sema2"></th>  </tr>
+                                                            <tr id="huser2"><th></th><th colspan="4" hidden id="user2"></th>  </tr>
+                                                            <tr><th colspan="7"><hr /></th></tr>
+                                                            <tr>
+                                                                <th>Date</th>
+                                                                <th>CheckOff Sales(ksh)</th>
+                                                                <th>Cash Sales(ksh)</th>
+                                                                <th>Total(ksh)</th>
+                                                            </tr>
+                                                            <tbody id="tbl_summarydetailed">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-sm-4 col-xs-12">
+                                                    </div>
+                                                    <div class="col-sm-4 col-xs-12">
+                                                        <label class="control-label">Total Sales</label>
+                                                        <input id="Tselldetailed" class="form-control" readonly />
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                     </div>
@@ -220,6 +271,10 @@
             $("#htitl1").hide();
             $("#hstartd1").hide();
             $("#huser1").hide();
+            $("#com2").hide();
+            $("#htitl2").hide();
+            $("#hstartd2").hide();
+            $("#huser2").hide();
 
             $("#showtable").click(function () {
                 var startDate = $("#firstdate").val();
@@ -289,6 +344,27 @@
                 $('#sema1').html(itemTableRows1);
                 itemTableRows2.push(`${usa}`);
                 $('#user1').html(itemTableRows2);
+            }
+            function heading2()
+            {
+                var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = $("#firstdate").val();
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#enddate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
+                var usa = "Printed By  :" + user ;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array();
+                let itemTableRows2 = new Array();
+                itemTableRow.push(`${company}`);
+                $('#company2').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema2').html(itemTableRows1);
+                itemTableRows2.push(`${usa}`);
+                $('#user2').html(itemTableRows2);
            }
             $('#print_report').on('click', function () {
                 $("#com").show();
@@ -322,7 +398,29 @@
                 $("#hstartd1").hide();
                 $("#huser1").hide();
             });
+            $('#print_reportdetailed').on('click', function () {
+                $("#com2").show();
+                $("#htitl2").show();
+                $("#hstartd2").show();
+                $("#huser2").show();
+                heading2();
+                var divToPrint = document.getElementById("tbl_summarydetailedre");
+                newWin = window.open("");
+                newWin.document.write(divToPrint.outerHTML);
+                newWin.print();
+                newWin.close();
+                $("#com2").hide();
+                $("#htitl2").hide();
+                $("#hstartd2").hide();
+                $("#huser2").hide();
+            });
 
+            $('#excel_summerydetailed').on('click', function () {
+                heading2();
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `All Detailed Summery ${date}`;
+                $('#tbl_summarydetailedre').table2excel({ filename: fileName, fileext: ".xls" });
+            });
             $('#excel_summery').on('click', function () {
                 let date = new Date().toLocaleDateString('en-GB');
                 let fileName = `All Summery ${date}`;
@@ -349,7 +447,26 @@
                         // ...
                     });
             });
-
+            $("#showSummery2").click(function () {
+                var startDate = $("#firstdate").val();
+                var endDate = $("#enddate").val();
+                var zone = $("#zone").val() ? $("#zone").val() : "";
+                var product = $("#product").val() ? $("#product").val() : "";
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: `allSalesSummaryDetailed?startDate=${startDate}&endDate=${endDate}&product=${product}`,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            response = response ? response : []
+                            populateSummarydetailed(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+            });
             function populateReports(intakes) {
                 let itemTableRows = new Array();
                 $('#Tbuying').val('0');
@@ -403,6 +520,29 @@
                 $('#tbl_sum_details').html(itemTableRows);
             }
 
+            function populateSummarydetailed(summary) {
+                let itemTableRows = new Array();
+                $('#Tselldetailed').val('0');
+                let Tselling = 0;
+                summary.forEach(i => {
+                    i.sno = i.sno ? i.sno : "";
+                    i.product = i.product ? i.product : "";
+                    Tselling += i.Total;
+                    let dd1 = new Date(i.date).toLocaleDateString();
+                    itemTableRows.push(`<tr>
+                                <td>${dd1}</td>
+                                <td>${i.Checkoff}</td>
+                                <td>${i.cash}</td>
+                                <td>${i.Total}</td>
+                            </tr>`)
+                });
+                itemTableRows.push(`< tr >
+                              <td colspan="3"><h5>Total Sales:</h5></td>
+                               <td>${Tselling}</td>
+                          </tr >`);
+                $('#Tselldetailed').val(Tselling);
+                $('#tbl_summarydetailed').html(itemTableRows);
+            }
         });
 </script>
 }

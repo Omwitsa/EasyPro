@@ -104,7 +104,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Date,Description,Quantity,Totalamount,Productid,Productname,Username,Priceeach,Month,Year,BranchF,Branch,Updated,Buying,Ai,Commission,auditdatetime")] Drawnstock drawnstock)
+        public async Task<IActionResult> Create(Drawnstock drawnstock)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -206,6 +206,8 @@ namespace EasyPro.Controllers
                 }
 
                 drawnstock.saccocode = sacco;
+                drawnstock.Buying = product.Pprice;
+                drawnstock.Selling = product.Sprice;
                 drawnstock.Month = drawnstock.Date.GetValueOrDefault().Month + ""; 
                 drawnstock.Year = drawnstock.Date.GetValueOrDefault().Year + "";
                 drawnstock.Username = LoggedInUser;

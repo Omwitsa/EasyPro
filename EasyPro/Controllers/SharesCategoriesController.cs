@@ -9,6 +9,7 @@ using EasyPro.Utils;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.ViewModels;
 using System.Collections.Generic;
+using System;
 
 namespace EasyPro.Controllers
 {
@@ -81,39 +82,45 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 if (string.IsNullOrEmpty(loggedInUser))
                     return Redirect("~/");
-            IQueryable<DShare> dShares = _context.DShares;
-            IQueryable<DSupplier> dsupplier = _context.DSuppliers;
-            var shares = new List<SharesReportVM>();
-            decimal totalshares = 0;
-            var getshares = dShares.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).Select(n => n.Branch).Distinct().ToList();
-            var getbranches = getshares;
-            getbranches.ForEach(k => {
-                var getsno = dShares.Where(n => n.Branch == k.ToUpper()).OrderBy(c=>c.Sno).ToList().Select(v => v.Sno).Distinct().ToList();
-                getsno.ForEach(j => {
-                    //var sno = j.FirstOrDefault();
-                    var snodetails = dShares.Where(n => n.Branch == k.ToUpper() && n.Sno.ToUpper().Equals(j.ToUpper()) && n.Type.ToUpper().Contains("SHARE")).ToList();
-                    var getsnodetail = dsupplier.FirstOrDefault(n => n.Branch == k.ToUpper() && n.Scode == sacco && n.Sno.ToUpper().Equals(j.ToUpper()));
-                    
 
-                    if (getsnodetail != null)
+            var dsupplier =await _context.DSuppliers.Where(n => n.Scode == sacco).ToListAsync();
+            var dShares = await _context.DShares.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var groupedBranchShares = dShares.GroupBy(s => s.Branch).ToList();
+            var shares = new List<SharesReportVM>();
+            foreach (var branchShare in groupedBranchShares)
+            {
+                var branchSuppliers = dsupplier.Where(b => b.Branch == branchShare.Key);
+                var groupedIndividualShares = branchShare.ToList().GroupBy(s => s.Sno).ToList();
+                groupedIndividualShares.ForEach(s =>
+                {
+                    var supplier = branchSuppliers.FirstOrDefault(n => n.Sno == s.Key);
+                    if (supplier != null)
                     {
-                        var Tshares = snodetails.Sum(b => b.Amount);
-                        totalshares += Tshares;
+                        var YearOfCompletion = 0;
+                        if (StrValues.Elburgon == sacco)
+                        {
+                            if(s.Sum(b => b.Amount) >= 20000)
+                            {
+                                DateTime getdateofcomplition = (DateTime)s.OrderByDescending(f => f.TransDate).FirstOrDefault().TransDate;
+                                YearOfCompletion = getdateofcomplition.Year;
+                            }
+                        }
                         shares.Add(new SharesReportVM
                         {
-                            Sno = j.ToUpper(),
-                            Name = getsnodetail.Names,
-                            Gender = getsnodetail.Type,
-                            IDNo = getsnodetail.IdNo,
-                            PhoneNo = getsnodetail.PhoneNo,
-                            Shares = Tshares,
-                            Branch = getsnodetail.Branch
+                            Sno = s.Key,
+                            Name = supplier.Names,
+                            Gender = supplier.Type,
+                            IDNo = supplier.IdNo,
+                            PhoneNo = supplier.PhoneNo,
+                            Shares = s.Sum(b => b.Amount),
+                            Branch = supplier.Branch,
+                            YearOfCompletion = YearOfCompletion,
                         });
                     }
                 });
-            });
-
-            ViewBag.Totalshares = totalshares;
+            }
+            
+            ViewBag.Totalshares = dShares.Sum(s => s.Amount);
             return View(shares);
         }
         // GET: SharesCategories/Details/5
