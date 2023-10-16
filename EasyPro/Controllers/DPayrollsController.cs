@@ -1336,7 +1336,7 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 transporters = transporters.Where(p => p.Tbranch == saccoBranch).ToList();
-            var assignedTranporters = await _context.DTransports.Where(t => t.saccocode == sacco).ToListAsync();
+            var assignedTranporters = await _context.DTransports.Where(t => t.saccocode == sacco && t.Sno == "2116").ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
                 assignedTranporters = assignedTranporters.Where(p => p.Branch == saccoBranch).ToList();
             var branchIntakes = productIntakeslist.Where(i => (i.TransactionType == TransactionType.Correction || i.TransactionType == TransactionType.Intake)).ToList();
@@ -1371,7 +1371,7 @@ namespace EasyPro.Controllers
                     }).ToList();
 
                 // Debit supplier transport amount
-                var supplierIntakes = transporterIntakes.GroupBy(s => s.Sno).ToList();
+                var supplierIntakes = transporterIntakes.Distinct().GroupBy(s => s.Sno).ToList();
                 supplierIntakes.ForEach(s =>
                 {
                     var intake = s.FirstOrDefault();

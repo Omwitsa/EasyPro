@@ -106,7 +106,31 @@ namespace EasyPro.Controllers
 
             return Json(summary);
         }
+        [HttpPost]
+        public async Task<JsonResult> allSalesSummaryDetailed(DateTime startDate, DateTime endDate, string product)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
 
+            var Salescheckoff = await GetAgReceipts(startDate, endDate, product);
+            var groupedReports = Salescheckoff.OrderByDescending(i => i.TDate).ToList().GroupBy(i => i.TDate).ToList();
+
+            var summary = new List<dynamic>();
+            groupedReports.ForEach(i =>
+            {
+                summary.Add(new
+                {
+                    date = i.Key,
+                    Checkoff = i.Where(n=>n.SNo != "cash").Sum(m=>m.Amount),
+                    cash = i.Where(n => n.SNo == "cash").Sum(m => m.Amount),
+                    Total = i.Sum(m=>m.Amount)
+                });
+            });
+
+            return Json(summary);
+        }
         private async Task<List<AgReceipt>> GetAgReceipts(DateTime startDate, DateTime endDate, string product)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
