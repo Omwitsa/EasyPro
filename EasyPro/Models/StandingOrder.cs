@@ -12,9 +12,9 @@ namespace EasyPro.Models
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? TransDate { get; set; }
         public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public decimal? Installment { get; set; }
         public decimal? Amount { get; set; }
-        public int? Duration { get; set; }
+        public decimal? Paid { get; set; }
         public string Description { get; set; }
         public string AuditId { get; set; }
         public DateTime? Auditdatetime { get; set; }

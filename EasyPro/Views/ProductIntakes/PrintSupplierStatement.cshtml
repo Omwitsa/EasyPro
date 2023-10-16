@@ -232,23 +232,27 @@
                 var mevng = $('#mevng').val();
                 var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
                 var supplierSummery = response.supplies.map(s => {
+                    var priceRaw = isSlopes ? "" : s.price;
+                    var payableRaw = isSlopes ? "" : s.payable;
                     let transDate = new Date(s.date).toLocaleDateString('en-GB');
                     return `<tr>
                                         <td>${transDate}</td>
+                                        <td>${priceRaw}</td>
                                         <td>${s.qnty}</td>
-                                        <td>${s.price}</td>
-                                        <td>${s.payable}</td>
+                                        <td>${payableRaw}</td>
                                     </tr>`;
                 });
 
                 var strSupplierSummery = supplierSummery.join('');
+                var priceField = isSlopes ? "" : "PRICE";
+                var payableField = isSlopes ? "" : "PAYABLE";
                 var htmlSupplierSummery = `<table>
                             <thead>
                                 <tr>
                                     <th> DATE </th>
+                                    <th>${priceField}</th>
                                     <th> QNTY </th>
-                                    <th> PRICE </th>
-                                    <th> PAYABLE </th>
+                                    <th> ${payableField} </th>
                                 </tr>
                             </thead>
 
@@ -306,15 +310,31 @@
                 }
 
                 let bankDetails = "";
+                let grossPay = "";
+                let totalShares = "";
+                let farmerDeductions = "";
                 if (!isSlopes){
+                    grossPay = `Gross Pay Kshs: ${response.grossPay}</br>`;
+                    totalShares = ` Total Shares: ${response.sharesAmount}</br>`;
                     bankDetails = `*************************</br>
                                     BANK DETAILS</br>
                                     *************************</br>
                                     Bank Name: ${response.supplier.Bcode}</br>
                                     Bank Branch: ${response.supplier.Bbranch}</br>
                                     Acc No.: ${response.supplier.AccNo}</br>`;
+                    farmerDeductions = `*************************</br>
+                                                DEDUCTIONS</br>
+                                                *************************</br>
+                                                ${htmlDeductionSummery}</br>
+                                                *************************</br>
+                                                ${htmlSaccoLoans}</br>
+                                                *************************</br>
+                                                Total Deductions Kshs: ${response.totalDeductions}</br>
+                                                *************************</br>
+                                                Net Pay Kshs: ${response.netPay}</br>`;
                 }
 
+                
                 var content = `<div class="row" id="printMe">
                                         <div class="col-xs-12 text-center">
                                              <h4>
@@ -335,18 +355,9 @@
                                                 ${htmlSupplierSummery}</br>
                                                 *************************</br>
                                                 Total Kgs: ${response.totalKgs}</br>
-                                                Gross Pay Kshs: ${response.grossPay}</br>
-                                                Total Shares: ${response.sharesAmount}</br>
-                                                *************************</br>
-                                                DEDUCTIONS</br>
-                                                *************************</br>
-                                                ${htmlDeductionSummery}</br>
-                                                *************************</br>
-                                                ${htmlSaccoLoans}</br>
-                                                *************************</br>
-                                                Total Deductions Kshs: ${response.totalDeductions}</br>
-                                                *************************</br>
-                                                Net Pay Kshs: ${response.netPay}</br>
+                                                ${grossPay}
+                                                ${totalShares}
+                                                ${farmerDeductions}
                                                 ${bankDetails}
                                                 *************************</br>
                                                 ${response.company.SupStatementNote}

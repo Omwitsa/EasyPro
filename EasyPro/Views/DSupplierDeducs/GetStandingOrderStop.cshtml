@@ -61,16 +61,16 @@
                                         @Html.DisplayNameFor(model => model.TransDate)
                                     </th>
                                     <th>
-                                        StandingOrder
+                                        @Html.DisplayNameFor(model => model.StartDate)
                                     </th>
                                     <th>
-                                        Maximum Amount
+                                        @Html.DisplayNameFor(model => model.Installment)
                                     </th>
                                     <th>
-                                        Amount
+                                        @Html.DisplayNameFor(model => model.Amount)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Description)
+                                        @Html.DisplayNameFor(model => model.Paid)
                                     </th>
                                     <th></th>
                                 </tr>
@@ -86,19 +86,19 @@
                                             @Html.DisplayFor(modelItem => item.TransDate)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Zone)
+                                            @Html.DisplayFor(modelItem => item.StartDate)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Duration)
+                                            @Html.DisplayFor(modelItem => item.Installment)
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.Amount)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Description)
+                                            @Html.DisplayFor(modelItem => item.Paid)
                                         </td>
                                         <td class="col-4">
-                                            <a class="btn btn-info" asp-action="ResumeStop" asp-route-id="@item.Id">Resume</a>
+                                            <a asp-action="Stop" class="btn btn-info" asp-route-id="@item.Id">Stop</a>
                                         </td>
                                     </tr>
                                 }

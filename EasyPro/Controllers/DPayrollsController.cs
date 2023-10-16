@@ -949,18 +949,18 @@ namespace EasyPro.Controllers
                        
                 netPay -= tractordeduction;
 
-                var Hsharesdeductions = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
+                var societyShares = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
                     if (StrValues.Slopes == sacco)
                     {
-                        payRoll.Hshares = netPay > Hsharesdeductions ? Hsharesdeductions : netPay;
+                        payRoll.Hshares = netPay > societyShares ? societyShares : netPay;
                         payRoll.Hshares = payRoll.Hshares > 0 ? payRoll.Hshares : 0;
                     }
                     else
                     {
-                        payRoll.Hshares = Hsharesdeductions;
+                        payRoll.Hshares = societyShares;
                     }
                        
-                netPay -= Hsharesdeductions;
+                netPay -= societyShares;
 
                 var memberLoans = loan.Sum(s => s.DR);
                 payRoll.Fsa = netPay > memberLoans ? memberLoans : netPay;

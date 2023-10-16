@@ -13,7 +13,7 @@
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
                                     <label class="control-label">Type of Deduction</label>
-                                    <select id="zone" Value="Select Bank" asp-for="Zone" class="form-control" asp-items="@ViewBag.Description" required></select>
+                                    <select asp-for="Description" class="form-control" asp-items="@ViewBag.Description" required></select>
                                 </div>
                             </div>
                     </div>
@@ -39,11 +39,21 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
+                            <label asp-for="Installment" class="control-label"></label>
+                            <input asp-for="Installment" class="form-control" />
+                            <span asp-validation-for="Installment" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
                             <label asp-for="Amount" class="control-label"></label>
                             <input asp-for="Amount" class="form-control" />
                             <span asp-validation-for="Amount" class="text-danger"></span>
                         </div>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="StartDate" class="control-label"></label>
@@ -51,23 +61,8 @@
                             <span asp-validation-for="StartDate" class="text-danger"></span>
                         </div>
                     </div>
-
-                </div>
-
-                <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label class="control-label">Duration(Months)</label>
-                            <input asp-for="Duration" class="form-control" />
-                            <span asp-validation-for="Duration" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label asp-for="Description" class="control-label"></label>
-                            <input asp-for="Description" class="form-control" />
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
+                        
                     </div>
                 </div>
 

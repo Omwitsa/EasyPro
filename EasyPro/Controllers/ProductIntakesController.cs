@@ -452,6 +452,15 @@ namespace EasyPro.Controllers
                 Names = s.Names,
             }).ToList();
 
+            var standingOrders = _context.StandingOrder.Where(o => o.SaccoCode == sacco)
+                .Select(o => new StandingOrder
+                {
+                    Sno = o.Sno,
+                    Paid = o.Paid,
+                    Description = o.Description,
+                }).ToList();
+            ViewBag.standingOrders = standingOrders;
+
             var banks = await _context.DBanks.Where(i => i.BankCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             ViewBag.bankNames = new SelectList(banks.Select(t => t.BankName).ToList());
             return View();
@@ -551,6 +560,21 @@ namespace EasyPro.Controllers
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
 
+            var loanTypes = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode).ToListAsync();
+            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco).ToListAsync();
+
+            var shares = await _bosaDbContext.CONTRIB.Where(s => s.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco).ToListAsync();
+            shares.ForEach(s =>
+            {
+                s.Paid = 0;
+                if (s.Sharescode == "S03" && s.Amount < 5500)
+                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
+                if (s.Sharescode != "S03" && s.Amount >= 5500)
+                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
+            });
+
             var banksPayslip = new List<dynamic>();
             foreach(var payroll in payrolls)
             {
@@ -558,18 +582,60 @@ namespace EasyPro.Controllers
                 var supplier = suppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(payroll.Sno.ToUpper()));
                 var transCode = transports.FirstOrDefault(s => s.Sno.ToUpper().Equals(payroll.Sno.ToUpper()))?.TransCode ?? "";
                 var transporter = transporters.FirstOrDefault(s => s.TransCode.ToUpper().Trim().Equals(transCode.ToUpper().Trim()));
+                var memberLoanBals = loanBals.Where(t => t.MemberNo.ToUpper().Equals(payroll.Sno.ToUpper())).ToList();
+                var memberLoans = loans.Where(l => l.Sno == payroll.Sno).ToList();
+                memberLoans.ForEach(l =>
+                {
+                    var loanType = loanTypes.FirstOrDefault(t => t.LoanCode == l.LoanCode);
+                    var loanBal = memberLoanBals.FirstOrDefault(s => s.LoanNo == l.LoanNo);
+                    l.LoanCode = loanType?.LoanType ?? "";
+                    l.Balance = loanBal?.Balance ?? 0;
+                });
+
+                var memberShares = shares.Where(s => s.MemberNo.ToUpper().Equals(payroll.Sno.ToUpper())).ToList();
+                var memberDeductedShares = deductedShares.Where(l => l.Sno == payroll.Sno).ToList();
+                memberShares.ForEach(s =>
+                {
+                    s.Paid = 0;
+                    if (s.Sharescode == "S03" && s.Amount < 5500)
+                        s.Paid = memberDeductedShares.FirstOrDefault()?.Amount ?? 0;
+                    if (s.Sharescode != "S03" && s.Amount >= 5500)
+                        s.Paid = memberDeductedShares.FirstOrDefault()?.Amount ?? 0;
+                });
+
                 banksPayslip.Add(new
                 {
+                    payroll.Transport,
+                    payroll.Agrovet,
+                    payroll.Bonus,
+                    payroll.extension,
+                    payroll.SMS,
+                    payroll.Tmshares,
+                    payroll.Fsa,
+                    payroll.Hshares,
+                    payroll.Advance,
+                    payroll.Others,
+                    payroll.Tdeductions,
+                    payroll.KgsSupplied,
+                    payroll.Registration,
                     payroll.Gpay,
                     payroll.Subsidy,
                     payroll.Npay,
-                    payroll.KgsSupplied,
-                    payroll.Agrovet,
-                    payroll.Advance,
-                    payroll.Fsa,
+                    payroll.AccountNumber,
+                    payroll.CLINICAL,
+                    payroll.AI,
+                    payroll.Tractor,
+                    payroll.CurryForward,
+                    payroll.MIDPAY,
+                    payroll.NOV_OVPMNT,
                     payroll.SACCO_SAVINGS,
                     payroll.SACCO_SHARES,
-                    payroll.Tdeductions,
+                    payroll.INST_ADVANCE,
+                    payroll.MILK_RECOVERY,
+                    payroll.KIIGA,
+                    payroll.KIROHA,
+                    memberLoans,
+                    memberShares,
                     supplier.Names,
                     supplier.Sno,
                     transName = transporter?.TransName ?? "",

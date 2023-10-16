@@ -94,6 +94,7 @@
     }
     <script type="text/javascript">
         $(function () {
+            let standingOrders = @Html.Raw(Json.Serialize(ViewBag.standingOrders));
             $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
@@ -219,7 +220,9 @@
                 });
                 var strSaccoShares = saccoShares.join('');
                 let supPayslip = response.payrolls.map(s => {
-                    //let transDate = new Date(s.date).toLocaleDateString('en-GB');
+                    s.Gpay = s.Gpay ? s.Gpay : 0;
+                    s.Subsidy = s.Subsidy ? s.Subsidy : 0;
+                    s.KgsSupplied = s.KgsSupplied ? s.KgsSupplied : 0;
                     let totalPrice = s.Gpay - s.Subsidy;
                     let subsidyRaw = "";
                     if (s.Subsidy) {
@@ -254,12 +257,13 @@
                     //                    <td></td>
                     //                </tr>`;
                     //}
-
+                    var unitPrice = Math.round(totalPrice / s.KgsSupplied);
+                    let paidOrders = standingOrders.filter(p => p.Sno === s.Sno && p.Description == "Society Shares");
                     return `<tr>
                                 <td>KGs</td>
                                 <td>${s.KgsSupplied}</td>
                                 <td></td>
-                                <td>${response.price.Price}</td>
+                                <td>${unitPrice}</td>
                                 <td></td>
                                 <td>${totalPrice}</td>
                             </tr>
@@ -284,11 +288,11 @@
                             ${strSaccoLoans}
                             <tr>
                                 <td>SOCIETY SHARES</td>
-                                <td>${s.SACCO_SAVINGS}</td>
+                                <td>${s.Hshares}</td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td></td>
+                                <td>${paidOrders[0].Paid}</td>
                             </tr>
                             ${strSaccoShares}
                             *************************</br>
@@ -352,7 +356,62 @@
                 let curDate = new Date().toLocaleDateString('en-GB');
                 let content = "";
                 response.banksPayslip.forEach(s => {
+                    s.Gpay = s.Gpay ? s.Gpay : 0;
+                    s.Subsidy = s.Subsidy ? s.Subsidy : 0;
+                    s.KgsSupplied = s.KgsSupplied ? s.KgsSupplied : 0;
                     let totalPrice = s.Gpay - s.Subsidy;
+
+                    let saccoLoans = s.memberLoans.map(l => {
+                        return `<tr>
+                                    <td>${l.LoanCode}</td>
+                                    <td>${l.Amount}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>${l.Balance}</td>
+                                </tr>`;
+                    });
+                    var strSaccoLoans = saccoLoans.join('');
+                    let saccoShares = s.memberShares.map(l => {
+                        return `<tr>
+                                            <td>${l.Remarks}</td>
+                                            <td>${l.Paid}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>${l.Amount}</td>
+                                        </tr>`;
+                    });
+
+                    var strSaccoShares = saccoShares.join('');
+                    let subsidyRaw = "";
+                    if (s.Subsidy) {
+                        subsidyRaw = `<tr>
+                                        <td>SUBSIDY</td>
+                                        <td>${s.KgsSupplied}</td>
+                                        <td></td>
+                                        <td>${response.price.SubsidyPrice}</td>
+                                        <td></td>
+                                        <td>${s.Subsidy}</td>
+                                    </tr>`;
+                    }
+                    let advanceRaw = "";
+                    if (s.Advance) {
+                        advanceRaw = `<tr>
+                                        <td>ADVANCE</td>
+                                        <td>${s.Advance}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>`;
+                    }
+
+                    var unitPrice = Math.round(totalPrice / s.KgsSupplied);
+                    let paidOrders = standingOrders.filter(p => p.Sno === s.Sno && p.Description == "Society Shares");
+                    paidOrders = paidOrders ? paidOrders : [];
+                    paidOrders[0] = paidOrders[0] ? paidOrders[0] : {};
+                    paidOrders[0].Paid = paidOrders[0].Paid ? paidOrders[0].Paid : 0;
                     content = `${content}<div class="row" id="printMe">
                         <div class="col-xs-12 text-center">
                             <h4>
@@ -376,18 +435,11 @@
                                         <td>KGs</td>
                                         <td>${s.KgsSupplied}</td>
                                         <td></td>
-                                        <td>${response.price.Price}</td>
+                                        <td>${unitPrice}</td>
                                         <td></td>
                                         <td>${totalPrice}</td>
                                     </tr>
-                                    <tr>
-                                        <td>SUBSIDY</td>
-                                        <td>${s.KgsSupplied}</td>
-                                        <td></td>
-                                        <td>${response.price.SubsidyPrice}</td>
-                                        <td></td>
-                                        <td>${s.Subsidy}</td>
-                                    </tr>
+                                    ${subsidyRaw}
                                     <tr>
                                         <td>TOTAL</td>
                                         <td></td>
@@ -404,46 +456,25 @@
                                         <td></td>
                                         <td></td>
                                     </tr>
-                                    <tr>
-                                        <td>ADVANCE</td>
-                                        <td>${s.Advance}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td>NORMAL LOAN</td>
-                                        <td>${s.Fsa}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
+                                    ${advanceRaw}
+                                    ${strSaccoLoans}
                                     <tr>
                                         <td>SOCIETY SHARES</td>
+                                        <td>${s.Hshares}</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td></td>
-                                        <td>${s.SACCO_SAVINGS}</td>
+                                        <td>${paidOrders[0].Paid}</td>
                                     </tr>
-                                    <tr>
-                                        <td>SACCO SHARES</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>${s.SACCO_SHARES}</td>
-                                    </tr>
+                                    ${strSaccoShares}
                                     *************************</br>
                                     <tr>
                                         <td>TOTAL DED</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
                                         <td>${s.Tdeductions}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
                                     </tr>
                                     <tr>
                                         <td>NET PAY</td>

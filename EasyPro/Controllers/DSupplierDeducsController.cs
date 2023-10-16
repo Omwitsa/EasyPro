@@ -347,46 +347,43 @@ namespace EasyPro.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> StandingOrder([Bind("Id,Sno,TransDate,StartDate,EndDate,Duration,Amount,Description,AuditId,Auditdatetime,SaccoCode,Zone")] StandingOrder standingOrder)
+        public async Task<IActionResult> StandingOrder([Bind("Id,Sno,TransDate,StartDate,Installment,Amount,Paid,Description,AuditId,Auditdatetime,SaccoCode,Zone")] StandingOrder standingOrder)
         {
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            if (string.IsNullOrEmpty(loggedInUser))
+            standingOrder.Installment = standingOrder?.Installment ?? 0;
+            standingOrder.Amount = standingOrder?.Amount ?? 0;
+            standingOrder.StartDate = standingOrder?.StartDate ?? DateTime.Today;
+            standingOrder.TransDate = DateTime.Today;
+            standingOrder.Paid = 0;
+            standingOrder.AuditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(standingOrder.AuditId))
                 return Redirect("~/");
+            standingOrder.SaccoCode = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             utilities.SetUpPrivileges(this);
             SetStandingOrderValues();
-            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            standingOrder.Branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             if (string.IsNullOrEmpty(standingOrder.Sno))
             {
                 _notyf.Error("Sorry, Kindly provide supplier No");
                 return View(standingOrder);
             }
 
-            if(standingOrder.Amount == null || standingOrder.Amount < 1)
+            if (standingOrder.Installment < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide installment");
+                return View(standingOrder);
+            }
+
+            if (standingOrder.Amount < 1)
             {
                 _notyf.Error("Sorry, Kindly provide standing order amount");
                 return View(standingOrder);
             }
 
-            if(standingOrder.StartDate == null || standingOrder.StartDate < DateTime.Today)
+            if(standingOrder.StartDate < DateTime.Today)
             {
                 _notyf.Error("Sorry, Start date must be greater than today");
                 return View(standingOrder);
             }
-
-            if(standingOrder.Duration == null || standingOrder.Duration < 1)
-            {
-                _notyf.Error("Sorry, Kindly provide duration");
-                return View(standingOrder);
-            }
-
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            standingOrder.TransDate = DateTime.Today;
-            standingOrder.EndDate = standingOrder.StartDate.GetValueOrDefault().AddMonths((int)standingOrder.Duration);
-            standingOrder.SaccoCode = sacco;
-            standingOrder.AuditId = auditId;
-            standingOrder.Branch = saccoBranch;
-            standingOrder.Zone = standingOrder.Zone;
 
             _context.StandingOrder.Add(standingOrder);
             _context.SaveChanges();
