@@ -379,54 +379,6 @@ namespace EasyPro.Controllers
             var endDate = startDate.AddMonths(1).AddDays(-1);
             ViewBag.slopes = StrValues.Slopes == filter.Sacco;
 
-            var productIntakeslist = await _context.ProductIntake.Where(n => n.Sno.ToUpper().Equals(filter.Code.ToUpper())
-                && n.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper()) && n.TransDate >= startDate
-                && n.TransDate <= endDate && n.Branch.ToUpper().Equals(filter.Branch.ToUpper())).ToListAsync();
-            if (filter.Sacco == "MBURUGU DAIRY F.C.S" && !string.IsNullOrEmpty(filter.Code))
-            {
-                var deletetransport = productIntakeslist.Where(n => n.Description == "Transport" && n.TransactionType == TransactionType.Deduction).ToList();
-                _context.RemoveRange(deletetransport);
-                //check transport rate
-
-                var getpricegls = _context.DPrices.FirstOrDefault(j => j.SaccoCode.ToUpper().Equals(filter.Sacco.ToUpper()));
-                var transports = await _context.DTransports.Where(h => h.Sno.ToUpper().Equals(filter.Code.ToUpper())
-                && h.saccocode.ToUpper().Equals(filter.Sacco.ToUpper()) && h.Branch.ToUpper().Equals(filter.Branch.ToUpper())).ToListAsync();
-                
-                var gettransportersrate = transports.FirstOrDefault();
-                if (gettransportersrate != null)
-                {
-                    decimal Rate = (decimal)gettransportersrate.Rate;
-                    var sumkgs = productIntakeslist.Where(i => (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
-                        .ToList().Sum(n => n.Qsupplied);
-                    var actualrate = Rate * sumkgs;
-
-                    _context.ProductIntake.Add(new ProductIntake
-                    {
-                        Sno = filter.Code.ToUpper(),
-                        TransDate = (DateTime)endDate,
-                        TransTime = DateTime.Now.TimeOfDay,
-                        ProductType = getpricegls.Products,
-                        Qsupplied = sumkgs,
-                        Ppu = Rate,
-                        CR = 0,
-                        DR = actualrate,
-                        Balance = actualrate,
-                        Description = "Transport",
-                        TransactionType = TransactionType.Deduction,
-                        Remarks = "",
-                        AuditId = filter.LoggedInUser,
-                        Auditdatetime = DateTime.Now,
-                        Branch = filter.Branch,
-                        SaccoCode = filter.Sacco,
-                        DrAccNo = getpricegls.TransportCrAccNo,
-                        CrAccNo = getpricegls.TransportDrAccNo,
-
-                    });
-                    _context.SaveChanges();
-                }
-
-            }
-
             var statement = new SupplierStatement(_context, _bosaDbContext);
             var statementResp = await statement.GenerateStatement(filter);
             return Json(statementResp);
@@ -506,7 +458,7 @@ namespace EasyPro.Controllers
                 l.Balance = loanBal?.Balance ?? 0;
             });
 
-            var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(filter.Code.ToUpper()) && s.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(filter.Code.ToUpper()) && s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
             var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code).ToListAsync();
             shares.ForEach(s =>
             {
@@ -564,7 +516,7 @@ namespace EasyPro.Controllers
             var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode).ToListAsync();
             var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco).ToListAsync();
 
-            var shares = await _bosaDbContext.CONTRIB.Where(s => s.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var shares = await _bosaDbContext.CONTRIB.Where(s => s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
             var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco).ToListAsync();
             shares.ForEach(s =>
             {

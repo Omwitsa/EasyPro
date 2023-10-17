@@ -109,7 +109,13 @@
                                                             Quantity
                                                         </th>
                                                         <th>
+                                                            Cumulative
+                                                        </th>
+                                                        <th>
                                                             @ViewBag.remarks
+                                                        </th>
+                                                        <th>
+                                                            Names
                                                         </th>
                                                     </tr>
                                                 </thead>
@@ -298,14 +304,15 @@
                 let totalQnty = 0;
                 $("#balance").empty();
                 suppliedItems.forEach(j => {
-                    var date = j.TransDate;
-                    var dd1 = new Date(date).toLocaleDateString();
+                    var dd1 = new Date(j.TransDate).toLocaleDateString();
                     itemTableRows.push(`<tr>
 				            <td>'${j.Sno}</td>
                             <td>${dd1}</td>
                             <td>${j.ProductType}</td>
                             <td>${j.Qsupplied}</td>
+                            <td>${j.cumulative}</td>
                             <td>${j.Remarks}</td>
+                            <td>${j.Names}</td>
 			            </tr>`);
 
                     totalQnty += j.Qsupplied;

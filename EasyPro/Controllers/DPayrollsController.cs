@@ -199,6 +199,13 @@ namespace EasyPro.Controllers
                 }
             }
 
+            var deletestandingorder = productIntakeslist.Where(i => i.Remarks == "Standing Order");
+            if (deletestandingorder.Any())
+            {
+                _context.ProductIntake.RemoveRange(deletestandingorder);
+                _context.SaveChanges();
+            }
+
             var preSets = await _context.d_PreSets.Where(b => b.saccocode == sacco).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
                 preSets = preSets.Where(p => p.BranchCode == saccoBranch).ToList();
@@ -641,7 +648,6 @@ namespace EasyPro.Controllers
                             payroll.Tdeductions = payroll.Tdeductions > grossPay ? grossPay : payroll.Tdeductions;
                         //netPay -= debits;
                         payroll.Npay = netPay;
-
 
                         _context.DPayrolls.Add(payroll);
                         var checkifanydeduction = productIntakeslist.Where(n => n.Branch == supplier.Branch && n.TransDate == period.EndDate

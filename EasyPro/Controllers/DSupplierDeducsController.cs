@@ -353,6 +353,7 @@ namespace EasyPro.Controllers
             standingOrder.Amount = standingOrder?.Amount ?? 0;
             standingOrder.StartDate = standingOrder?.StartDate ?? DateTime.Today;
             standingOrder.TransDate = DateTime.Today;
+            standingOrder.Auditdatetime = DateTime.Now;
             standingOrder.Paid = 0;
             standingOrder.AuditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(standingOrder.AuditId))

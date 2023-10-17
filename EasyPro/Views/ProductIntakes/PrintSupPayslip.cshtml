@@ -259,6 +259,10 @@
                     //}
                     var unitPrice = Math.round(totalPrice / s.KgsSupplied);
                     let paidOrders = standingOrders.filter(p => p.Sno === s.Sno && p.Description == "Society Shares");
+                    paidOrders = paidOrders ? paidOrders : [];
+                    paidOrders[0] = paidOrders[0] ? paidOrders[0] : {};
+                    paidOrders[0].Paid = paidOrders[0].Paid ? paidOrders[0].Paid : 0;
+
                     return `<tr>
                                 <td>KGs</td>
                                 <td>${s.KgsSupplied}</td>
@@ -373,6 +377,7 @@
                     });
                     var strSaccoLoans = saccoLoans.join('');
                     let saccoShares = s.memberShares.map(l => {
+                        l.Paid = l.Paid ? l.Paid : 0;
                         return `<tr>
                                             <td>${l.Remarks}</td>
                                             <td>${l.Paid}</td>

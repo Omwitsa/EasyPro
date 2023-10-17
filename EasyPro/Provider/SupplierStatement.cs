@@ -15,6 +15,7 @@ using Stripe;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using EasyPro.Models.BosaModels;
+using Syncfusion.EJ2.Linq;
 
 namespace EasyPro.Provider
 {
@@ -44,33 +45,58 @@ namespace EasyPro.Provider
             var intakes = productIntakeslist.Where(i => (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
                 .OrderBy(i => i.TransDate).ToList();
 
-            var dailyGroupedIntakes = intakes.GroupBy(i => i.TransDate).ToList();
             var supplies = new List<dynamic>();
             decimal totalKgs = 0;
             decimal? grossPay = 0;
-            dailyGroupedIntakes.ForEach(i =>
+            if(filter.Sacco == StrValues.Slopes)
             {
-                var intake = i.FirstOrDefault();
-                var price = intake.Ppu;
-                var qty = i.Sum(p => p.Qsupplied);
-                var payable = qty * price;
-                decimal? subsidy = 0;
-                if (StrValues.Slopes == filter.Sacco && qty > pricing.SubsidyQty)
+                var dailyGroupedIntakes = intakes.GroupBy(i => i.Remarks).ToList();
+                dailyGroupedIntakes.ForEach(i =>
                 {
-                    subsidy = qty * pricing.SubsidyPrice;
-                    payable += subsidy;
-                }
-                supplies.Add(new
-                {
-                    date = i.Key,
-                    qnty = qty,
-                    price,
-                    subsidy,
-                    payable
+                    var intake = i.FirstOrDefault();
+                    var price = intake.Ppu;
+                    var qty = i.Sum(p => p.Qsupplied);
+                    var payable = qty * price;
+                    decimal? subsidy = 0;
+                    supplies.Add(new
+                    {
+                        date = intake.TransDate,
+                        qnty = qty,
+                        price,
+                        intake.Remarks,
+                        subsidy,
+                        payable
+                    });
+                    totalKgs += qty;
                 });
-                totalKgs += qty;
-                grossPay += payable;
-            });
+            }
+            else
+            {
+                var dailyGroupedIntakes = intakes.GroupBy(i => i.TransDate).ToList();
+                dailyGroupedIntakes.ForEach(i =>
+                {
+                    var intake = i.FirstOrDefault();
+                    var price = intake.Ppu;
+                    var qty = i.Sum(p => p.Qsupplied);
+                    var payable = qty * price;
+                    decimal? subsidy = 0;
+                    if (StrValues.Slopes == filter.Sacco && qty > pricing.SubsidyQty)
+                    {
+                        subsidy = qty * pricing.SubsidyPrice;
+                        payable += subsidy;
+                    }
+                    supplies.Add(new
+                    {
+                        date = i.Key,
+                        qnty = qty,
+                        price,
+                        subsidy,
+                        payable
+                    });
+                    totalKgs += qty;
+                    grossPay += payable;
+                });
+            }
 
             var deductionIntakes = productIntakeslist.Where(i => i.TransactionType == TransactionType.Deduction
             && (i.CR > 0 || i.DR > 0)).OrderBy(i => i.TransDate).ToList();
@@ -188,10 +214,31 @@ namespace EasyPro.Provider
                 var intake = s.FirstOrDefault();
                 var price = intake.Ppu;
                 var qty = s.Sum(p => p.Qsupplied);
+                var supplies = new List<dynamic>();
+
+                var dailyGroupedIntakes = s.GroupBy(i => i.Remarks).ToList();
+                dailyGroupedIntakes.ForEach(i =>
+                {
+                    var intake = i.FirstOrDefault();
+                    var price = intake.Ppu;
+                    var qty = i.Sum(p => p.Qsupplied);
+                    var payable = qty * price;
+                    decimal? subsidy = 0;
+                    supplies.Add(new
+                    {
+                        date = intake.TransDate,
+                        qnty = qty,
+                        price,
+                        intake.Remarks,
+                        subsidy,
+                        payable
+                    });
+                });
+
                 transpoterIntakes.Add(new
                 {
                     supplier = suppliers.FirstOrDefault(o => o.Sno == s.Key),
-                    supplies = s.ToList(),
+                    supplies,
                     qnty = qty,
                 });
             });

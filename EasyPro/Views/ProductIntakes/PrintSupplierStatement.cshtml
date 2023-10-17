@@ -232,20 +232,28 @@
                 var mevng = $('#mevng').val();
                 var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
                 var supplierSummery = response.supplies.map(s => {
-                    var priceRaw = isSlopes ? "" : s.price;
-                    var payableRaw = isSlopes ? "" : s.payable;
+                    let priceField = isSlopes ? "" : s.price;
+                    var payableField = isSlopes ? "" : s.payable;
+                    var remarksFiled = isSlopes ? s.Remarks : "";
                     let transDate = new Date(s.date).toLocaleDateString('en-GB');
-                    return `<tr>
+                    let details = "";
+                    if (s.qnty){
+                        details = `<tr>
                                         <td>${transDate}</td>
-                                        <td>${priceRaw}</td>
+                                        <td>${priceField}</td>
                                         <td>${s.qnty}</td>
-                                        <td>${payableRaw}</td>
+                                        <td>${payableField}</td>
+                                        <td>${remarksFiled}</td>
                                     </tr>`;
+                    }
+
+                    return details;
                 });
 
                 var strSupplierSummery = supplierSummery.join('');
                 var priceField = isSlopes ? "" : "PRICE";
                 var payableField = isSlopes ? "" : "PAYABLE";
+                var remarksFiled = isSlopes ? "INVOICE" : "";
                 var htmlSupplierSummery = `<table>
                             <thead>
                                 <tr>
@@ -253,6 +261,7 @@
                                     <th>${priceField}</th>
                                     <th> QNTY </th>
                                     <th> ${payableField} </th>
+                                    <th> ${remarksFiled} </th>
                                 </tr>
                             </thead>
 
@@ -379,13 +388,13 @@
                 response.transpoterIntakes.forEach(i => {
                     i.supplier = i.supplier ? i.supplier : {};
                     var supplierSummery = i.supplies.map(s => {
-                        let transDate = new Date(s.TransDate).toLocaleDateString('en-GB');
+                        let transDate = new Date(s.date).toLocaleDateString('en-GB');
                         return `<tr>
                                     <td>${transDate}</td>
                                     <td></td>
-                                    <td>${s.Id}</td>
+                                    <td>${s.qnty}</td>
                                     <td></td>
-                                    <td>${s.Qsupplied}</td>
+                                    <td>${s.Remarks}</td>
                                 </tr>`;
                         });
 
@@ -395,9 +404,9 @@
                         <tr>
                             <th> DATE </th>
                             <th></th>
-                            <th> RCPT </th>
-                            <th></th>
                             <th> KGS </th>
+                            <th></th>
+                            <th> INVOIVE NO. </th>
                         </tr>
                     </thead>
 
