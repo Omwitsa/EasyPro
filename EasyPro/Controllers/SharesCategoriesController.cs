@@ -82,7 +82,7 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 if (string.IsNullOrEmpty(loggedInUser))
                     return Redirect("~/");
-
+            decimal TotalShare = 0;
             var dsupplier =await _context.DSuppliers.Where(n => n.Scode == sacco).ToListAsync();
             var dShares = await _context.DShares.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var groupedBranchShares = dShares.GroupBy(s => s.Branch).ToList();
@@ -105,6 +105,7 @@ namespace EasyPro.Controllers
                                 YearOfCompletion = getdateofcomplition.Year;
                             }
                         }
+                        TotalShare += s.Sum(b => b.Amount);
                         shares.Add(new SharesReportVM
                         {
                             Sno = s.Key,
@@ -120,7 +121,7 @@ namespace EasyPro.Controllers
                 });
             }
             
-            ViewBag.Totalshares = dShares.Sum(s => s.Amount);
+            ViewBag.Totalshares = TotalShare ;
             return View(shares);
         }
         // GET: SharesCategories/Details/5

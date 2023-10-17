@@ -1533,6 +1533,7 @@ namespace EasyPro.Controllers
         if (string.IsNullOrEmpty(loggedInUser))
             return Redirect("~/");
         var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+        var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
         var transporterpayrollobj = _context.DTransportersPayRolls
                     .Where(p => p.SaccoCode == sacco && p.EndPeriod >= filter.DateFrom && p.EndPeriod <= filter.DateTo)
                     .OrderBy(p => p.Code);
@@ -1630,7 +1631,7 @@ namespace EasyPro.Controllers
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = emp.Code;
-                var TName = _context.DTransporters.FirstOrDefault(u => u.TransCode == emp.Code && u.ParentT == sacco);
+                var TName = _context.DTransporters.FirstOrDefault(u => u.TransCode == emp.Code && u.ParentT == sacco && u.Tbranch == emp.Branch);
                 worksheet.Cell(currentRow, 2).Value = TName.TransName;
                 worksheet.Cell(currentRow, 3).Value = emp.PhoneNo;
                 worksheet.Cell(currentRow, 4).Style.NumberFormat.Format = "@";
