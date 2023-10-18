@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace EasyPro.ViewModels
 {
-    public class EmpBenefitVM
+    public class EmpBenefitDedVM
     {
         public long Id { get; set; }
         public string EmpNo { get; set; }
         public string Name { get; set; }
-        public string EntType { get; set; }
+        public string Type { get; set; }
         public decimal? Amount { get; set; }
     }
 }

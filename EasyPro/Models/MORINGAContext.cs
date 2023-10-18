@@ -307,6 +307,7 @@ namespace EasyPro.Models
 		public virtual DbSet<SharesCategory> SharesCategories { get; set; }
 		public virtual DbSet<EntitlementType> EntitlementType { get; set; }
 		public virtual DbSet<EmpBenefit> EmpBenefits { get; set; }
+		public virtual DbSet<EmpDeduction> EmpDeductions { get; set; }
 		public virtual DbSet<ProductCat> d_ProductCat { get; set; }
 		public virtual DbSet<SocietyStandingOrder> SocietyStandingOrder { get; set; }
 		public virtual DbSet<SaccoShares> SaccoShares { get; set; }
