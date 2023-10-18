@@ -352,6 +352,10 @@ namespace EasyPro.Controllers
             var bankNames = _context.DBanks.Where(b => b.BankCode == sacco)
                 .OrderBy(b => b.BankName).Select(b => b.BankName);
             ViewBag.bankname = new SelectList(bankNames);
+
+            var deductions = _context.DDcodes.Where(d => d.Dcode == sacco)
+                .Select(d => d.Description).ToList();
+            ViewBag.deductions = new SelectList(deductions);
         }
         [HttpPost]
         public IActionResult Suppliers([Bind("DateFrom,DateTo")] FilterVm filter)
@@ -1721,162 +1725,227 @@ namespace EasyPro.Controllers
     }
 
     [HttpPost]
-    public IActionResult Deductions([Bind("DateFrom,DateTo")] FilterVm filter)
+    public async Task<IActionResult> Deductions([Bind("DateFrom,DateTo,Code")] FilterVm filter)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
             return Redirect("~/");
-        var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-        sacco = sacco ?? "";
-        var DateFrom = Convert.ToDateTime(filter.DateFrom.ToString());
-        var DateTo = Convert.ToDateTime(filter.DateTo.ToString());
-        productIntakeobj = _context.ProductIntake.Where(u => u.TransDate >= DateFrom && u.TransDate <= DateTo && u.Qsupplied == 0 && u.SaccoCode == sacco);
-
-        return DeductionsExcel(DateFrom, DateTo);
-    }
-        [HttpPost]
-        public IActionResult SharesDeductions([Bind("County")] FilterVm filter)
-        {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            sacco = sacco ?? "";
-
-            productIntakeobj = _context.ProductIntake.Where(b => (b.ProductType.ToLower().Contains("share") || b.ProductType.ToLower().Contains("shares")))
-                .ToList();
-
-            return DeductionsPerCountyExcel(filter);
+        filter.Code = filter?.Code ?? "";
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        if(StrValues.Slopes == sacco)
+            filter.Code = filter.Code == "Store" ? "AGROVET" : filter.Code;
+        IQueryable<ProductIntake> productIntakes = _context.ProductIntake.Where(n => n.SaccoCode == sacco && n.Description != "Transport" 
+        && n.TransactionType == TransactionType.Deduction && n.TransDate >= filter.DateFrom && n.TransDate <= filter.DateTo 
+        && n.ProductType.ToUpper().Equals(filter.Code.ToUpper()));
+        var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+        if (user.AccessLevel == AccessLevel.Branch) {
+            productIntakes = productIntakes.Where(i => i.Branch == saccoBranch);
+            suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
         }
-        public IActionResult DeductionsPerCountyExcel(FilterVm filter)
+
+        var intakes = await productIntakes.OrderBy(i => i.Sno).ToListAsync();
+        using (var workbook = new XLWorkbook())
         {
-            using (var workbook = new XLWorkbook())
+            var worksheet = workbook.Worksheets.Add("productIntakeobj");
+            var currentRow = 1;
+            var company = _context.DCompanies.FirstOrDefault(u => u.Name == sacco);
+            worksheet.Cell(currentRow, 2).Value = company.Name;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Adress;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Town;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Email;
+
+            currentRow = 5;
+            worksheet.Cell(currentRow, 2).Value =$"Suppliers {filter.Code} Deductions Report For: {filter.DateTo.GetValueOrDefault().ToString("dd/MM/yyy")}";
+
+            currentRow = 6;
+            worksheet.Cell(currentRow, 1).Value = "SNo";
+            worksheet.Cell(currentRow, 2).Value = "Name";
+            worksheet.Cell(currentRow, 3).Value = "TransDate";
+            worksheet.Cell(currentRow, 4).Value = "ProductType";
+            worksheet.Cell(currentRow, 5).Value = "Amount";
+            worksheet.Cell(currentRow, 6).Value = "Remarks";
+            worksheet.Cell(currentRow, 7).Value = "Station";
+            decimal? totalDeductions = 0;
+            intakes.ForEach(s =>
             {
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-                var worksheet = workbook.Worksheets.Add("productIntakeobj");
-                var currentRow = 1;
-                companyobj = _context.DCompanies.Where(u => u.Name == sacco);
-                foreach (var emp in companyobj)
+                var supplier = suppliers.FirstOrDefault(i => i.Sno.ToUpper().Equals(s.Sno.ToUpper()));
+                if(supplier != null)
                 {
-                    worksheet.Cell(currentRow, 2).Value = emp.Name;
                     currentRow++;
-                    worksheet.Cell(currentRow, 2).Value = emp.Adress;
-                    currentRow++;
-                    worksheet.Cell(currentRow, 2).Value = emp.Town;
-                    currentRow++;
-                    worksheet.Cell(currentRow, 2).Value = emp.Email;
+                    totalDeductions += s.DR;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(currentRow, 1).Value = s.Sno;
+                    worksheet.Cell(currentRow, 2).Value = supplier?.Names ?? "";
+                    worksheet.Cell(currentRow, 3).Value = s.TransDate;
+                    worksheet.Cell(currentRow, 4).Value = s.ProductType;
+                    worksheet.Cell(currentRow, 5).Value = s.DR;
+                    worksheet.Cell(currentRow, 6).Value = s.Remarks;
+                    worksheet.Cell(currentRow, 7).Value = s.Branch;
                 }
-                currentRow = 5;
-                var enddate = productIntakeobj.FirstOrDefault();
-                worksheet.Cell(currentRow, 2).Value = "Suppliers Shares  Contribution Report: ";
-
-                var pos = _context.DCompanies.Where(n => n.Province == filter.County).ToList()
-                    .Select(m=>m.Name).ToList();
-                foreach(var po in pos)
-                {
-                    currentRow = 6;
-                    worksheet.Cell(currentRow, 1).Value = "SNo";
-                    worksheet.Cell(currentRow, 2).Value = "Name";
-                    worksheet.Cell(currentRow, 3).Value = "TransDate";
-                    worksheet.Cell(currentRow, 4).Value = "Shares Type";
-                    worksheet.Cell(currentRow, 5).Value = "Amount";
-                    worksheet.Cell(currentRow, 6).Value = "Remarks";
-                    worksheet.Cell(currentRow, 7).Value = "Station";
-                    decimal? sum2 = 0;
-                    //var checkshares = _context.DShares.Where(c=>c.SaccoCode== po 
-                    //&& (c.Type.ToLower().Contains("share") || c.Type.ToLower().Contains("shares"))).ToList();
-                    productIntakeobj = productIntakeobj.Where(b => b.SaccoCode == po
-                    && (b.ProductType.ToLower().Contains("share") || b.ProductType.ToLower().Contains("shares"))
-                    && (b.Branch != "" || b.Branch != null)).OrderBy(p => p.Branch).ToList();
-                    var branches = productIntakeobj.GroupBy(b => b.Branch).ToList();
-                    //var branches = checkshares.GroupBy(b => b.Branch).ToList();
-                    branches.ForEach(s =>
-                    {
-                        var branchname = s.FirstOrDefault();
-                        currentRow++;
-                        if (branchname.Branch != "") { 
-                        worksheet.Cell(currentRow, 1).Value = branchname.Branch;
-
-                        //var supplierslist = productIntakeobj.Where(k =>k.SaccoCode==po && k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
-                        //.OrderBy(h => h.Sno).ToList();
-                        var dedutciontype = _context.DDcodes.Where(b => b.Dcode == po 
-                        && (b.Description.ToLower().Contains("share") || b.Description.ToLower().Contains("shares"))).ToList()
-                            .GroupBy(d => d.Description).ToList();
-
-                        dedutciontype.ForEach(w =>
-                        {
-                            var deduction = w.FirstOrDefault();
-                            decimal? sum = 0;
-                            currentRow++;
-                            worksheet.Cell(currentRow, 2).Value = deduction.Description;
-
-                            decimal totalded = 0;
-
-                            var sharescalc = _context.DShares.Where(d=>d.SaccoCode == po && d.Type.ToUpper().Equals(deduction.Description.ToUpper()))
-                            .Select(f=>f.Sno.ToUpper()).Distinct().ToList();
-
-                            var productin = _context.ProductIntake.Where(d => d.SaccoCode == po && d.ProductType.ToUpper().Equals(deduction.Description.ToUpper()))
-                            .Select(f => f.Sno.ToUpper()).Distinct().ToList();
-
-                            var suppliers = _context.DSuppliers.Where(v=>v.Scode == po && (sharescalc.Contains(v.Sno.ToUpper())) 
-                            && (productin.Contains(v.Sno.ToUpper()))).Distinct().ToList()
-                            .GroupBy(n => n.Sno).ToList();
-
-                            //var suppliers = supplierslist
-                            //.Where(r => r.ProductType.ToUpper().Equals(deduction.Description.ToUpper()))
-                            //.GroupBy(n=>n.Sno).ToList();
-                            suppliers.ForEach(v =>
-                            {
-                                var emp = v.FirstOrDefault();
-                                var sharesamount = _context.DShares.Where(d => d.SaccoCode == po
-                                && d.Type.ToUpper().Equals(deduction.Description.ToUpper()) && d.Sno.ToUpper().Equals(emp.Sno.ToUpper())).ToList().Sum(n => n.Amount);
-
-                                var productinamount = _context.ProductIntake.Where(d => d.SaccoCode == po 
-                                && d.ProductType.ToUpper().Equals(deduction.Description.ToUpper()) && d.Sno.ToUpper().Equals(emp.Sno.ToUpper())).ToList().Sum(n => n.DR);
-
-                                totalded = (decimal)(productinamount + sharesamount);
-
-                                var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
-                                if (TransporterExist > 0)
-                                {
-                                    currentRow++;
-                                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
-                                    worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                                    var TName = _context.DSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == po);
-                                    worksheet.Cell(currentRow, 2).Value = TName?.Names ?? "";
-                                    worksheet.Cell(currentRow, 3).Value = emp.Regdate;
-                                    worksheet.Cell(currentRow, 4).Value = deduction.Description.ToUpper();
-                                    worksheet.Cell(currentRow, 5).Value = totalded;
-                                    worksheet.Cell(currentRow, 6).Value = deduction.Description.ToUpper();
-                                    worksheet.Cell(currentRow, 7).Value = emp.Branch;
-                                    sum += totalded;
-
-                                }
-                            });
-
-                            currentRow++;
-                            worksheet.Cell(currentRow, 1).Value = "Total " + deduction.Description + " Amount: ";
-                            worksheet.Cell(currentRow, 2).Value = sum;
-                            sum2 += sum;
-                        });
-                        }
-                    });
-                
-                    currentRow++;
-                    currentRow++;
-                    worksheet.Cell(currentRow, 1).Value = "Grand Total Amount: ";
-                    worksheet.Cell(currentRow, 2).Value = sum2;
-                }
-                using (var stream = new MemoryStream())
-                    {
-                        workbook.SaveAs(stream);
-                        var content = stream.ToArray();
-                        return File(content,
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            "Suppliers Deductions.xlsx");
-                    }
-               
+            });
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = "Total Amount: ";
+            worksheet.Cell(currentRow, 5).Value = totalDeductions;
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                return File(content,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Suppliers Deductions.xlsx");
             }
         }
+    }
 
-        [HttpPost]
+    [HttpPost]
+    public IActionResult SharesDeductions([Bind("County")] FilterVm filter)
+    {
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+        sacco = sacco ?? "";
+
+        productIntakeobj = _context.ProductIntake.Where(b => (b.ProductType.ToLower().Contains("share") || b.ProductType.ToLower().Contains("shares")))
+            .ToList();
+
+        return DeductionsPerCountyExcel(filter);
+    }
+        
+    public IActionResult DeductionsPerCountyExcel(FilterVm filter)
+    {
+        using (var workbook = new XLWorkbook())
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var worksheet = workbook.Worksheets.Add("productIntakeobj");
+            var currentRow = 1;
+            companyobj = _context.DCompanies.Where(u => u.Name == sacco);
+            foreach (var emp in companyobj)
+            {
+                worksheet.Cell(currentRow, 2).Value = emp.Name;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = emp.Adress;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = emp.Town;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = emp.Email;
+            }
+            currentRow = 5;
+            var enddate = productIntakeobj.FirstOrDefault();
+            worksheet.Cell(currentRow, 2).Value = "Suppliers Shares  Contribution Report: ";
+
+            var pos = _context.DCompanies.Where(n => n.Province == filter.County).ToList()
+                .Select(m=>m.Name).ToList();
+            foreach(var po in pos)
+            {
+                currentRow = 6;
+                worksheet.Cell(currentRow, 1).Value = "SNo";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "TransDate";
+                worksheet.Cell(currentRow, 4).Value = "Shares Type";
+                worksheet.Cell(currentRow, 5).Value = "Amount";
+                worksheet.Cell(currentRow, 6).Value = "Remarks";
+                worksheet.Cell(currentRow, 7).Value = "Station";
+                decimal? sum2 = 0;
+                //var checkshares = _context.DShares.Where(c=>c.SaccoCode== po 
+                //&& (c.Type.ToLower().Contains("share") || c.Type.ToLower().Contains("shares"))).ToList();
+                productIntakeobj = productIntakeobj.Where(b => b.SaccoCode == po
+                && (b.ProductType.ToLower().Contains("share") || b.ProductType.ToLower().Contains("shares"))
+                && (b.Branch != "" || b.Branch != null)).OrderBy(p => p.Branch).ToList();
+                var branches = productIntakeobj.GroupBy(b => b.Branch).ToList();
+                //var branches = checkshares.GroupBy(b => b.Branch).ToList();
+                branches.ForEach(s =>
+                {
+                    var branchname = s.FirstOrDefault();
+                    currentRow++;
+                    if (branchname.Branch != "") { 
+                    worksheet.Cell(currentRow, 1).Value = branchname.Branch;
+
+                    //var supplierslist = productIntakeobj.Where(k =>k.SaccoCode==po && k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
+                    //.OrderBy(h => h.Sno).ToList();
+                    var dedutciontype = _context.DDcodes.Where(b => b.Dcode == po 
+                    && (b.Description.ToLower().Contains("share") || b.Description.ToLower().Contains("shares"))).ToList()
+                        .GroupBy(d => d.Description).ToList();
+
+                    dedutciontype.ForEach(w =>
+                    {
+                        var deduction = w.FirstOrDefault();
+                        decimal? sum = 0;
+                        currentRow++;
+                        worksheet.Cell(currentRow, 2).Value = deduction.Description;
+
+                        decimal totalded = 0;
+
+                        var sharescalc = _context.DShares.Where(d=>d.SaccoCode == po && d.Type.ToUpper().Equals(deduction.Description.ToUpper()))
+                        .Select(f=>f.Sno.ToUpper()).Distinct().ToList();
+
+                        var productin = _context.ProductIntake.Where(d => d.SaccoCode == po && d.ProductType.ToUpper().Equals(deduction.Description.ToUpper()))
+                        .Select(f => f.Sno.ToUpper()).Distinct().ToList();
+
+                        var suppliers = _context.DSuppliers.Where(v=>v.Scode == po && (sharescalc.Contains(v.Sno.ToUpper())) 
+                        && (productin.Contains(v.Sno.ToUpper()))).Distinct().ToList()
+                        .GroupBy(n => n.Sno).ToList();
+
+                        //var suppliers = supplierslist
+                        //.Where(r => r.ProductType.ToUpper().Equals(deduction.Description.ToUpper()))
+                        //.GroupBy(n=>n.Sno).ToList();
+                        suppliers.ForEach(v =>
+                        {
+                            var emp = v.FirstOrDefault();
+                            var sharesamount = _context.DShares.Where(d => d.SaccoCode == po
+                            && d.Type.ToUpper().Equals(deduction.Description.ToUpper()) && d.Sno.ToUpper().Equals(emp.Sno.ToUpper())).ToList().Sum(n => n.Amount);
+
+                            var productinamount = _context.ProductIntake.Where(d => d.SaccoCode == po 
+                            && d.ProductType.ToUpper().Equals(deduction.Description.ToUpper()) && d.Sno.ToUpper().Equals(emp.Sno.ToUpper())).ToList().Sum(n => n.DR);
+
+                            totalded = (decimal)(productinamount + sharesamount);
+
+                            var TransporterExist = _context.DSuppliers.Where(u => u.Sno == emp.Sno).Count();
+                            if (TransporterExist > 0)
+                            {
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
+                                worksheet.Cell(currentRow, 1).Value = emp.Sno;
+                                var TName = _context.DSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == po);
+                                worksheet.Cell(currentRow, 2).Value = TName?.Names ?? "";
+                                worksheet.Cell(currentRow, 3).Value = emp.Regdate;
+                                worksheet.Cell(currentRow, 4).Value = deduction.Description.ToUpper();
+                                worksheet.Cell(currentRow, 5).Value = totalded;
+                                worksheet.Cell(currentRow, 6).Value = deduction.Description.ToUpper();
+                                worksheet.Cell(currentRow, 7).Value = emp.Branch;
+                                sum += totalded;
+
+                            }
+                        });
+
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = "Total " + deduction.Description + " Amount: ";
+                        worksheet.Cell(currentRow, 2).Value = sum;
+                        sum2 += sum;
+                    });
+                    }
+                });
+                
+                currentRow++;
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "Grand Total Amount: ";
+                worksheet.Cell(currentRow, 2).Value = sum2;
+            }
+            using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Suppliers Deductions.xlsx");
+                }
+               
+        }
+    }
+
+    [HttpPost]
     public JsonResult DeductionsPdf([FromBody] FilterVm filter)
     {
         return Json(new
@@ -3242,102 +3311,7 @@ namespace EasyPro.Controllers
             }
         }
     }
-    public IActionResult DeductionsExcel(DateTime dateFrom, DateTime dateTo)
-    {
-        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-        if (string.IsNullOrEmpty(loggedInUser))
-            return Redirect("~/");
-        using (var workbook = new XLWorkbook())
-        {
-            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var worksheet = workbook.Worksheets.Add("productIntakeobj");
-            var currentRow = 1;
-            var company = _context.DCompanies.FirstOrDefault(u => u.Name == sacco);
-            worksheet.Cell(currentRow, 2).Value = company.Name;
-            currentRow++;
-            worksheet.Cell(currentRow, 2).Value = company.Adress;
-            currentRow++;
-            worksheet.Cell(currentRow, 2).Value = company.Town;
-            currentRow++;
-            worksheet.Cell(currentRow, 2).Value = company.Email;
 
-            IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
-            IQueryable<DSupplier> dSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco);
-            currentRow = 5;
-           // var enddate = productIntakeobj.FirstOrDefault();
-            worksheet.Cell(currentRow, 2).Value = "Suppliers Deductions Report For: " + dateTo.ToString("dd/MM/yyy");
-
-            currentRow = 6;
-            worksheet.Cell(currentRow, 1).Value = "SNo";
-            worksheet.Cell(currentRow, 2).Value = "Name";
-            worksheet.Cell(currentRow, 3).Value = "TransDate";
-            worksheet.Cell(currentRow, 4).Value = "ProductType";
-            worksheet.Cell(currentRow, 5).Value = "Amount";
-            worksheet.Cell(currentRow, 6).Value = "Remarks";
-            worksheet.Cell(currentRow, 7).Value = "Station";
-            decimal? sum2 = 0;
-            var getlistofintakes = productIntakes.Where(n => n.SaccoCode == sacco && n.Description != "Transport" && n.TransactionType == TransactionType.Deduction && n.TransDate >= dateFrom && n.TransDate <= dateTo).ToList().OrderBy(p => p.Branch).ToList();
-                //productIntakeobj = productIntakeobj.Where(n=>n.SaccoCode == sacco && n.).OrderBy(p => p.Branch).ToList();
-            var branches = getlistofintakes.GroupBy(b => b.Branch).ToList();
-            branches.ForEach(s =>
-            {
-
-                var branchname = s.FirstOrDefault();
-                currentRow++;
-                worksheet.Cell(currentRow, 1).Value = branchname.Branch;
-
-                var supplierslist = getlistofintakes.Where(k => k.Branch.ToUpper().Equals(branchname.Branch.ToUpper()))
-                .OrderBy(h => h.Sno).ToList();
-                var dedutciontype = supplierslist.GroupBy(d => d.ProductType).ToList();
-                dedutciontype.ForEach(w =>
-                {
-                    var deduction = w.FirstOrDefault();
-                    decimal? sum = 0;
-                    
-                    currentRow++;
-                    worksheet.Cell(currentRow, 2).Value = deduction.ProductType;
-                    var suppliers = supplierslist.Where(r => r.ProductType.ToUpper().Equals(deduction.ProductType.ToUpper())).ToList().OrderBy(m=>m.Sno).ToList();
-                    foreach (var emp in suppliers)
-                    {
-                        var TransporterExist = dSuppliers.Where(u => u.Sno == emp.Sno && u.Branch.ToUpper().Equals(branchname.Branch.ToUpper())).ToList();
-                        if (TransporterExist != null)
-                        {
-                            currentRow++;
-                            worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
-                            worksheet.Cell(currentRow, 1).Value = emp.Sno;
-                            var TName = dSuppliers.FirstOrDefault(u => u.Sno == emp.Sno && u.Scode == sacco);
-                            worksheet.Cell(currentRow, 2).Value = TName?.Names ?? "";
-                            worksheet.Cell(currentRow, 3).Value = emp.TransDate;
-                            worksheet.Cell(currentRow, 4).Value = emp.ProductType;
-                            worksheet.Cell(currentRow, 5).Value = emp.DR;
-                            worksheet.Cell(currentRow, 6).Value = emp.Remarks;
-                            worksheet.Cell(currentRow, 7).Value = emp.Branch;
-                            sum += emp.DR;
-
-                        }
-                    }
-
-                    currentRow++;
-                    worksheet.Cell(currentRow, 1).Value = "Total " + deduction.ProductType + " Amount: ";
-                    worksheet.Cell(currentRow, 2).Value = sum;
-                    sum2 += sum;
-                });
-
-            });
-            currentRow++;
-            currentRow++;
-            worksheet.Cell(currentRow, 1).Value = "Grand Total Amount: ";
-            worksheet.Cell(currentRow, 2).Value = sum2;
-            using (var stream = new MemoryStream())
-            {
-                workbook.SaveAs(stream);
-                var content = stream.ToArray();
-                return File(content,
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    "Suppliers Deductions.xlsx");
-            }
-        }
-    }
     public IActionResult TDeductionsExcel()
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -3434,6 +3408,97 @@ namespace EasyPro.Controllers
             }
         }
     }
+
+    [HttpPost]
+    public async Task<IActionResult> DeductionSummary([Bind("DateFrom,DateTo")] FilterVm filter)
+    {
+        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+        if (string.IsNullOrEmpty(loggedInUser))
+            return Redirect("~/");
+        var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+        var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+        IQueryable<ProductIntake> productIntakes = _context.ProductIntake.Where(n => n.SaccoCode == sacco && n.Description != "Transport" 
+        && n.TransactionType == TransactionType.Deduction && n.TransDate >= filter.DateFrom && n.TransDate <= filter.DateTo);
+        var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
+        var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+        if (user.AccessLevel == AccessLevel.Branch) {
+            productIntakes = productIntakes.Where(i => i.Branch == saccoBranch);
+            suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+        }
+
+        var intakes =await productIntakes.OrderBy(i => i.Sno).ToListAsync();
+        using (var workbook = new XLWorkbook())
+        {
+            var worksheet = workbook.Worksheets.Add("productIntakeobj");
+            var currentRow = 1;
+            var company = _context.DCompanies.FirstOrDefault(u => u.Name == sacco);
+            worksheet.Cell(currentRow, 2).Value = company.Name;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Adress;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Town;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Email;
+
+            currentRow = 5;
+            worksheet.Cell(currentRow, 2).Value =$"Suppliers {filter.Code} Deductions Report For: {filter.DateTo.GetValueOrDefault().ToString("dd/MM/yyy")}";
+
+            currentRow = 6;
+            worksheet.Cell(currentRow, 1).Value = "SNo";
+            worksheet.Cell(currentRow, 2).Value = "Name";
+            worksheet.Cell(currentRow, 3).Value = "TransDate";
+            worksheet.Cell(currentRow, 4).Value = "ProductType";
+            worksheet.Cell(currentRow, 5).Value = "Amount";
+            worksheet.Cell(currentRow, 6).Value = "Station";
+            decimal? totalDeductions = 0;
+            
+            var groupedDeductionsByType = productIntakes.ToList().GroupBy(i => i.ProductType).ToList();
+            groupedDeductionsByType.ForEach(d =>
+            {
+                var groupeddeductionsByFarmer = d.GroupBy(i => i.Sno).ToList();
+                decimal? typeDeductions = 0;
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = d.Key;
+                groupeddeductionsByFarmer.ForEach(i =>
+                {
+                    var supplier = suppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(i.Key.ToUpper()));
+                    if (supplier != null)
+                    {
+                        var deduction = i.FirstOrDefault();
+                        currentRow++;
+                        typeDeductions += i.Sum(s => s.DR);
+                        worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "@";
+                        worksheet.Cell(currentRow, 1).Value = i.Key;
+                        worksheet.Cell(currentRow, 2).Value = supplier?.Names ?? "";
+                        worksheet.Cell(currentRow, 3).Value = filter.DateTo;
+                        worksheet.Cell(currentRow, 4).Value = deduction.ProductType;
+                        worksheet.Cell(currentRow, 5).Value = i.Sum(s => s.DR);
+                        worksheet.Cell(currentRow, 6).Value = deduction.Branch;
+                    }
+                });
+
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = "Totals ";
+                worksheet.Cell(currentRow, 5).Value = typeDeductions;
+                totalDeductions += typeDeductions;
+            });
+
+            currentRow++;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = "Grand Total";
+            worksheet.Cell(currentRow, 5).Value = totalDeductions;
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                return File(content,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Suppliers Deductions Summary.xlsx");
+            }
+        }
+    }
+
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult ExportAllSuppliers(string County)
@@ -3522,5 +3587,6 @@ namespace EasyPro.Controllers
             }
         }
     }
+
 }
 }

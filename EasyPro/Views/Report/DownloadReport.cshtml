@@ -110,16 +110,63 @@
     <div class="row"></div>
     <br />
     <div class="row">
-
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Farmers Deduction Report</h3>
+                    <h3 class="card-title">Farmers Deduction Summary</h3>
+                </div>
+
+                <div class="card-body register-card-body">
+                    <div class="form-row">
+                        <form asp-controller="Report" asp-antiforgery="true" asp-action="DeductionSummary" method="post">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateFrom" class="control-label"></label>
+                                        <input id="supplier_summary_ded_from" asp-for="DateFrom" class="form-control" type="date" />
+                                        <span asp-validation-for="DateFrom" class="text-danger"></span>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success">Export to Excel</button>
+                                </div>
+                                
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="DateTo" class="control-label"></label>
+                                        <input id="supplier_summary_ded_to" asp-for="DateTo" class="form-control" type="date" />
+                                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                                    </div>
+
+                                    <a id="supplier_summary_ded_pdf" class="btn btn-info">Export to PDF</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Farmers Report By Deduction Type</h3>
                 </div>
 
                 <div class="card-body register-card-body">
                     <div class="form-row">
                         <form asp-controller="Report" asp-antiforgery="true" asp-action="Deductions" method="post">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label asp-for="Code" class="control-label"></label>
+                                        <select asp-for="Code" class="form-control" asp-items="@ViewBag.deductions"></select>
+                                        <span asp-validation-for="Code" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 col-xs-12">
+                                    
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-sm-6 col-xs-12">
                                     <div class="form-group">
@@ -146,6 +193,9 @@
                 </div>
             </div>
         </div>
+    </div>
+    <br />
+    <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="card">
                 <div class="card-header">
@@ -169,7 +219,10 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            
         </div>
+    </div>
     <br />
     <hr />
     <div class="row"></div>
@@ -194,6 +247,8 @@
             $("#supplier_ded_to").val(today);
             $("#branch_sup_intake_from").val(today);
             $("#branch_sup_intake_to").val(today);
+            $("#supplier_summary_ded_from").val(today);
+            $("#supplier_summary_ded_to").val(today);
 
             $('#active_supplier_pdf').on('click', function () {
                 let from = $("#active_supplier_from").val();
