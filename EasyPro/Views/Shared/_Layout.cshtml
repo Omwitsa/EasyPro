@@ -331,14 +331,14 @@
                                                 <a asp-controller="Usergroups" asp-action="Index">UserGroups</a>
                                             </li>
                                             @*<li>
-                                                <a asp-controller="Counties" asp-action="Index">Counties</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="SubCounties" asp-action="Index">SubCounties</a>
-                                            </li>
-                                            <li>
-                                                <a asp-controller="Wards" asp-action="Index">Wards</a>
-                                            </li>*@
+                                                    <a asp-controller="Counties" asp-action="Index">Counties</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="SubCounties" asp-action="Index">SubCounties</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="Wards" asp-action="Index">Wards</a>
+                                                </li>*@
                                             <li>
                                                 <a asp-controller="DLocations" asp-action="Index">Locations</a>
                                             </li>
@@ -532,11 +532,11 @@
                         </div>
                         <div id="file" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                
+
                                 <li>
                                     <a asp-controller="SupplierEnquiry" asp-action="Index">Supplier Enquiry</a>
                                 </li>
-                                  
+
                                 <li>
                                     <a asp-controller="SupplierEnquiry" asp-action="Transporters">Transporters Enquiry</a>
                                 </li>
@@ -553,13 +553,13 @@
                                         <a asp-controller="Flmd" asp-action="Index">FLMD</a>
                                     </li>
                                 }
-                                
-                                    <li>
-                                        <a asp-controller="Acs" asp-action="Index">ACS</a>
-                                    </li>
-                                
+
+                                <li>
+                                    <a asp-controller="Acs" asp-action="Index">ACS</a>
+                                </li>
+
                             </ul>
-                        </div> 
+                        </div>
                         <div id="registration" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 @if (ViewBag.RFarmers)
@@ -570,9 +570,9 @@
                                 }
                                 @if (ViewBag.RTransporter)
                                 {
-                                <li>
-                                    <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="DTransporters" asp-action="Index">Transporter</a>
+                                    </li>
                                 }
                                 @if (ViewBag.RImportS)
                                 {
@@ -586,13 +586,13 @@
                                         <a asp-controller="Venders" asp-action="Index">Vendors</a>
                                     </li>
                                 }
-                                    @if (ViewBag.RCustomer)
+                                @if (ViewBag.RCustomer)
                                 {
                                     <li>
                                         <a asp-controller="Customers" asp-action="Index">Customers</a>
                                     </li>
                                 }
-                                
+
 
                             </ul>
                         </div>
@@ -658,21 +658,21 @@
                                 }
                                 @if (ViewBag.DedFarmer)
                                 {
-                                <li>
-                                    <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="ProductIntakes" asp-action="DeductionList">Farmer</a>
+                                    </li>
                                 }
                                 @if (ViewBag.DedTransport)
                                 {
-                                <li>
-                                    <a asp-controller="ProductIntakes" asp-action="TDeductionList">Transporter</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="ProductIntakes" asp-action="TDeductionList">Transporter</a>
+                                    </li>
                                 }
                                 @if (ViewBag.DedStaff)
                                 {
-                                <li>
-                                    <a asp-controller="ProductIntakes" asp-action="StaffDeductionList">Staff</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="ProductIntakes" asp-action="StaffDeductionList">Staff</a>
+                                    </li>
                                 }
                                 @if (ViewBag.TransporterAssign)
                                 {
@@ -687,15 +687,15 @@
                             <ul class="notika-main-menu-dropdown">
                                 @if (ViewBag.ProdIntakeRole)
                                 {
-                                <li>
-                                    <a asp-controller="ProductIntakes" asp-action="Index">Product Intake</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="ProductIntakes" asp-action="Index">Product Intake</a>
+                                    </li>
                                 }
                                 @if (ViewBag.CorrectionRole)
                                 {
-                                <li>
-                                    <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="ProductIntakes" asp-action="CorrectionList">Intake Correction</a>
+                                    </li>
                                 }
                                 @if (ViewBag.ImportIntakeRole)
                                 {
@@ -707,7 +707,7 @@
                                 @if (ViewBag.activityRole)
                                 {
                                     <li>
-                                    <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
+                                        <a asp-controller="Dispatches" asp-action="BranchIndex">Branch Dispatch</a>
                                     </li>
                                     <li>
                                         <a asp-controller="MilkBalancing" asp-action="Index">Transporter Milk Balancing</a>
@@ -761,12 +761,12 @@
 
                                 @if (ViewBag.SupplierStatementRole)
                                 {
-                                <li>
-                                    <a asp-controller="ProductIntakes" asp-action="PrintSupplierStatement">Print Suppliers Statement</a>
-                                </li>
-                                <li>
+                                    <li>
+                                        <a asp-controller="ProductIntakes" asp-action="PrintSupplierStatement">Print Suppliers Statement</a>
+                                    </li>
+                                    <li>
                                         <a asp-controller="ProductIntakes" asp-action="PrintSupPayslip">Print Suppliers Payslip</a>
-                                </li>
+                                    </li>
                                 }
                                 @if (ViewBag.TransporterStatementRole)
                                 {
@@ -776,13 +776,13 @@
                                 }
                                 @if (ViewBag.CorrectionRole)
                                 {
-                                <li>
+                                    <li>
                                         <a asp-controller="ProductIntakes" asp-action="ChangeTransporter">Change Transporter</a>
-                                </li>
+                                    </li>
                                 }
                             </ul>
                         </div>
-                        
+
                         <div id="coffee" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 @if (ViewBag.Millers)
@@ -805,7 +805,7 @@
                                 }
                                 @if (ViewBag.Milling)
                                 {
-                                     <li>
+                                    <li>
                                         <a asp-controller="DeliveryNotes" asp-action="Index">Delivery Note</a>
                                     </li>
                                     <li>
@@ -816,8 +816,8 @@
                                         <a asp-controller="MillerProductsDetails" asp-action="Index">Milling Products</a>
                                     </li>
                                     @*<li>
-                                        <a asp-controller="Milling_Products" asp-action="Index">Milling Products</a>
-                                    </li>*@
+                                            <a asp-controller="Milling_Products" asp-action="Index">Milling Products</a>
+                                        </li>*@
                                 }
                                 @if (ViewBag.Marketing)
                                 {
@@ -849,33 +849,33 @@
                                 }
                                 @if (ViewBag.JournalPostingRole)
                                 {
-                                <li>
-                                    <a asp-controller="Accounting" asp-action="JournalPosting">Journal Posting</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="Accounting" asp-action="JournalPosting">Journal Posting</a>
+                                    </li>
                                 }
                                 @if (ViewBag.GlinquiryRole)
                                 {
-                                <li>
-                                    <a asp-controller="Accounting" asp-action="GLInquiry">GL Inquiry</a>
-                                </li>
-                                @if (ViewBag.BudgettingsRole)
-                                {
-                                <li>
-                                    <a asp-controller="Accounting" asp-action="Budget">Budgettings</a>
-                                </li>
-                                }
+                                    <li>
+                                        <a asp-controller="Accounting" asp-action="GLInquiry">GL Inquiry</a>
+                                    </li>
+                                    @if (ViewBag.BudgettingsRole)
+                                    {
+                                        <li>
+                                            <a asp-controller="Accounting" asp-action="Budget">Budgettings</a>
+                                        </li>
+                                    }
                                     @if (ViewBag.JournalListingRole)
-                                {
-                                <li>
-                                    <a asp-controller="Accounting" asp-action="JournalListing">Journal Listing</a>
-                                </li>
-                                }
+                                    {
+                                        <li>
+                                            <a asp-controller="Accounting" asp-action="JournalListing">Journal Listing</a>
+                                        </li>
+                                    }
                                     @if (ViewBag.TrialBalanceRole)
-                                {
-                                <li>
-                                    <a asp-controller="Accounting" asp-action="TrialBalance">Trial Balance</a>
-                                </li>
-                                }
+                                    {
+                                        <li>
+                                            <a asp-controller="Accounting" asp-action="TrialBalance">Trial Balance</a>
+                                        </li>
+                                    }
                                     @if (ViewBag.IncomeStatementRole)
                                     {
                                         <li>
@@ -883,53 +883,53 @@
                                         </li>
                                     }
                                     @if (ViewBag.BalanceSheetRole)
-                                {
-                                <li>
-                                    <a asp-controller="Accounting" asp-action="BalanceSheet">Balance Sheet</a>
-                                </li>
-                                }
+                                    {
+                                        <li>
+                                            <a asp-controller="Accounting" asp-action="BalanceSheet">Balance Sheet</a>
+                                        </li>
+                                    }
                                     @if (ViewBag.PayrollRole)
                                     {
                                         <li>
                                             <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
                                         </li>
                                     }
-                                @if (ViewBag.BillsRole)
-                                {
-                                <li>
-                                    <a asp-controller="AccountPayables" asp-action="GetBills">Bills</a>
-                                </li>
-                                }
+                                    @if (ViewBag.BillsRole)
+                                    {
+                                        <li>
+                                            <a asp-controller="AccountPayables" asp-action="GetBills">Bills</a>
+                                        </li>
+                                    }
                                     @if (ViewBag.RefundsRole)
-                                {
-                                    <li>
-                                        <a asp-controller="AccountPayables" asp-action="GetRefunds">Refunds</a>
-                                 </li>
-                                                            }
+                                    {
+                                        <li>
+                                            <a asp-controller="AccountPayables" asp-action="GetRefunds">Refunds</a>
+                                        </li>
+                                    }
                                 }
                                 @if (ViewBag.CustomerInvoicesRole)
                                 {
-                                <li>
-                                    <a asp-controller="AccountReceivables" asp-action="GetInvoices">Customer Invoices</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="AccountReceivables" asp-action="GetInvoices">Customer Invoices</a>
+                                    </li>
                                 }
                                 @if (ViewBag.CreditNotesRole)
                                 {
-                                <li>
-                                    <a asp-controller="AccountReceivables" asp-action="GetCreditNotes">Credit Notes</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="AccountReceivables" asp-action="GetCreditNotes">Credit Notes</a>
+                                    </li>
                                 }
                                 @if (ViewBag.VendorProductsRole)
                                 {
-                                <li>
-                                    <a asp-controller="VProducts" asp-action="Index">Vendor Products</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="VProducts" asp-action="Index">Vendor Products</a>
+                                    </li>
                                 }
                                 @if (ViewBag.CustomerProductsRole)
                                 {
-                                <li>
-                                    <a asp-controller="CProducts" asp-action="Index">Customer Products</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="CProducts" asp-action="Index">Customer Products</a>
+                                    </li>
                                 }
                                 @if (ViewBag.JournalListingRole)
                                 {
@@ -947,8 +947,8 @@
                                         <a asp-controller="DBranchProducts" asp-action="Index">Products</a>
                                     </li>
                                     @*<li>
-                                        <a asp-controller="ValueChain" asp-action="Index">Value Chain</a>
-                                    </li>*@
+                                            <a asp-controller="ValueChain" asp-action="Index">Value Chain</a>
+                                        </li>*@
                                 }
                                 @if (ViewBag.SetPrice)
                                 {
@@ -998,23 +998,23 @@
                                     </li>
                                 }
                                 @*@if (ViewBag.SetCounties)
-                                {
-                                    <li>
-                                        <a asp-controller="Counties" asp-action="Index">Counties</a>
-                                    </li>
-                                }
-                                @if (ViewBag.SetSubCounties)
-                                {
-                                    <li>
-                                        <a asp-controller="SubCounties" asp-action="Index">SubCounties</a>
-                                    </li>
-                                }
-                                @if (ViewBag.SetWards)
-                                {
-                                    <li>
-                                        <a asp-controller="Wards" asp-action="Index">Wards</a>
-                                    </li>
-                                }*@
+                                    {
+                                        <li>
+                                            <a asp-controller="Counties" asp-action="Index">Counties</a>
+                                        </li>
+                                    }
+                                    @if (ViewBag.SetSubCounties)
+                                    {
+                                        <li>
+                                            <a asp-controller="SubCounties" asp-action="Index">SubCounties</a>
+                                        </li>
+                                    }
+                                    @if (ViewBag.SetWards)
+                                    {
+                                        <li>
+                                            <a asp-controller="Wards" asp-action="Index">Wards</a>
+                                        </li>
+                                    }*@
                                 @if (ViewBag.SetLocation)
                                 {
                                     <li>
@@ -1082,35 +1082,35 @@
                             <ul class="notika-main-menu-dropdown">
                                 @if (ViewBag.staffRole)
                                 {
-                                <li>
-                                    <a asp-controller="Departments" asp-action="Index">Departments</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="Departments" asp-action="Index">Departments</a>
+                                    </li>
                                 }
-                                 @if (ViewBag.staffRole)
+                                @if (ViewBag.staffRole)
                                 {
-                                <li>
+                                    <li>
                                         <a asp-controller="DeductionType" asp-action="Index">Deduction Types</a>
-                                </li>
+                                    </li>
                                 }
-                                 @if (ViewBag.staffRole)
+                                @if (ViewBag.staffRole)
                                 {
-                                <li>
-                                    <a asp-controller="Dranges" asp-action="Index">Ranges</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="Dranges" asp-action="Index">Ranges</a>
+                                    </li>
                                 }
-                                 @if (ViewBag.staffRole)
+                                @if (ViewBag.staffRole)
                                 {
-                                <li>
-                                    <a asp-controller="EntitlementTypes" asp-action="Index">Entitlement Types</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="EntitlementTypes" asp-action="Index">Entitlement Types</a>
+                                    </li>
                                 }
-                                 @if (ViewBag.staffRole)
+                                @if (ViewBag.staffRole)
                                 {
-                                <li>
-                                    <a asp-controller="EmpBenefits" asp-action="Index">Employee Benefits</a>
-                                </li>
+                                    <li>
+                                        <a asp-controller="EmpBenefits" asp-action="Index">Employee Benefits</a>
+                                    </li>
                                 }
-                                 @if (ViewBag.staffRole)
+                                @if (ViewBag.staffRole)
                                 {
                                     <li>
                                         <a asp-controller="Employees" asp-action="Index">Employees</a>
@@ -1145,8 +1145,8 @@
                                     <a asp-controller="Report" asp-action="DownloadPReport">Payroll</a>
                                 </li>
                                 @*<li>
-                                    <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
-                                </li>*@
+                                        <a asp-controller="PayrollReprt" asp-action="DefaultIndex">Payroll</a>
+                                    </li>*@
                                 <li>
                                     <a asp-controller="Report" asp-action="DownloadTransportersBalReport">Transporters Balancing</a>
                                 </li>

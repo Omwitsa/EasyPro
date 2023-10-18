@@ -34,6 +34,7 @@ namespace EasyPro.Provider
             //var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             IQueryable<DPreSet> dPreSets = _context.d_PreSets;
             IQueryable<DShare> dShares = _context.DShares;
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
             var checkrecords = dPreSets.FirstOrDefault(e => e.Sno.ToUpper().Equals(filter.Code.ToUpper()) && e.saccocode == filter.Sacco
                 && e.BranchCode == filter.Branch && e.Deduction.ToUpper().Equals("SHARES"));
             if (wherefrom)
@@ -45,24 +46,11 @@ namespace EasyPro.Provider
                 
                 if (checkrecords != null)
                 {
-                    checkrecords.Sno = checkrecords.Sno;
-                    checkrecords.Deduction = checkrecords.Deduction;
-                    checkrecords.Remark = checkrecords.Remark;
-                    checkrecords.StartDate = checkrecords.StartDate;
-                    checkrecords.Rate = checkrecords.Rate;
                     checkrecords.Stopped = filter.shares;
                     checkrecords.Auditdatetime = DateTime.Now;
                     checkrecords.AuditId = filter.LoggedInUser;
-                    checkrecords.Rated = checkrecords.Rated;
                     checkrecords.BranchCode = filter.Branch;
                     checkrecords.saccocode = filter.Sacco;
-                    checkrecords.Status = 0;
-                    checkrecords.Status2 = 0;
-                    checkrecords.Status3 = 0;
-                    checkrecords.Status4 = 0;
-                    checkrecords.Status5 = 0;
-                    checkrecords.Status6 = 0;
-                    _context.Update(checkrecords);
                 }
                 else
                 {
@@ -85,33 +73,26 @@ namespace EasyPro.Provider
             }
             else
             {
-                if (checkrecords != null)
+                var getsupplier = dSuppliers.FirstOrDefault(m => m.Sno.ToUpper().Equals(filter.Code.ToUpper()) && m.Scode == filter.Sacco
+                && m.Branch == filter.Branch);
+                if(getsupplier != null)
                 {
-                    var checkifexceedmaxshares = dShares.Where(m => m.SaccoCode == filter.Sacco && m.Branch == filter.Branch
-                && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(filter.Code.ToUpper())).ToList();
-                    if (checkifexceedmaxshares.Sum(x => x.Amount) >= 20000)
+                    if (checkrecords != null)
                     {
-                        checkrecords.Sno = checkrecords.Sno;
-                        checkrecords.Deduction = checkrecords.Deduction;
-                        checkrecords.Remark = checkrecords.Remark;
-                        checkrecords.StartDate = checkrecords.StartDate;
-                        checkrecords.Rate = checkrecords.Rate;
-                        checkrecords.Stopped = true;
-                        checkrecords.Auditdatetime = DateTime.Now;
-                        checkrecords.AuditId = filter.LoggedInUser;
-                        checkrecords.Rated = checkrecords.Rated;
-                        checkrecords.BranchCode = filter.Branch;
-                        checkrecords.saccocode = filter.Sacco;
-                        checkrecords.Status = 0;
-                        checkrecords.Status2 = 0;
-                        checkrecords.Status3 = 0;
-                        checkrecords.Status4 = 0;
-                        checkrecords.Status5 = 0;
-                        checkrecords.Status6 = 0;
-                        _context.Update(checkrecords);
+                        var checkifexceedmaxshares = dShares.Where(m => m.SaccoCode == filter.Sacco && m.Branch == filter.Branch
+                            && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(filter.Code.ToUpper())).ToList();
+                        if (checkifexceedmaxshares.Sum(x => x.Amount) >= 20000)
+                        {
+                            checkrecords.Stopped = true;
+                            checkrecords.Auditdatetime = DateTime.Now;
+                            checkrecords.AuditId = filter.LoggedInUser;
+                            checkrecords.BranchCode = filter.Branch;
+                            checkrecords.saccocode = filter.Sacco;
+
+                            getsupplier.Shares = false;
+                        }
                     }
                 }
-                    
             }
             
         }
