@@ -1107,7 +1107,13 @@
                                 @if (ViewBag.staffRole)
                                 {
                                     <li>
-                                        <a asp-controller="EmpBenefits" asp-action="Index">Employee Benefits</a>
+                                        <a asp-controller="EmpDeduction" asp-action="Index">Deductions</a>
+                                    </li>
+                                }
+                                 @if (ViewBag.staffRole)
+                                {
+                                    <li>
+                                        <a asp-controller="EmpBenefits" asp-action="Index">Benefits</a>
                                     </li>
                                 }
                                 @if (ViewBag.staffRole)

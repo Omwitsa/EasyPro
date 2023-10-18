@@ -1,26 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using EasyPro.Constants;
+using EasyPro.Models;
+using EasyPro.Utils;
+using EasyPro.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using EasyPro.Models;
-using AspNetCoreHero.ToastNotification.Abstractions;
-using EasyPro.Utils;
-using Microsoft.AspNetCore.Http;
-using EasyPro.Constants;
-using EasyPro.ViewModels;
-using Grpc.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasyPro.Controllers
 {
-    public class EmpBenefitsController : Controller
+    public class EmpDeductionController : Controller
     {
         private readonly MORINGAContext _context;
         private readonly INotyfService _notyf;
         private Utilities utilities;
-        public EmpBenefitsController(MORINGAContext context, INotyfService notyf)
+        public EmpDeductionController(MORINGAContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
@@ -36,7 +35,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var productIntakes = await _context.EmpBenefits.Where(c => c.SaccoCode == sacco).ToListAsync();
+            var productIntakes = await _context.EmpDeductions.Where(c => c.SaccoCode == sacco).ToListAsync();
             var intakes = new List<EmpBenefitDedVM>();
             foreach (var intake in productIntakes)
             {
@@ -48,7 +47,7 @@ namespace EasyPro.Controllers
                         Id = intake.Id,
                         EmpNo = intake.EmpNo,
                         Name = emploeyeename.Surname + " " + emploeyeename.Othernames,
-                        Type = intake.EntType,
+                        Type = intake.DeductionType,
                         Amount = intake.Amount
                     });
                 }
@@ -93,9 +92,9 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var entitlements = await _context.EntitlementType.Where(e => e.SaccoCode == sacco)
+            var deductions = await _context.DeductionType.Where(e => e.SaccoCode == sacco)
                 .Select(e => e.Name).ToListAsync();
-            ViewBag.entitlements = new SelectList(entitlements);
+            ViewBag.deductions = new SelectList(deductions);
             var employees = await _context.Employees.Where(e => e.SaccoCode == sacco).ToListAsync();
             ViewBag.employees = new SelectList(employees, "EmpNo", "Othernames");
         }
@@ -105,7 +104,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,EmpNo,EntType,Amount,Auditdate,AuditId,SaccoCode")] EmpBenefit empBenefit)
+        public async Task<IActionResult> Create([Bind("Id,EmpNo,DeductionType,Amount,Auditdate,AuditId,SaccoCode")] EmpDeduction deduction)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -114,33 +113,33 @@ namespace EasyPro.Controllers
             await SetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            if (string.IsNullOrEmpty(empBenefit.EmpNo))
+            if (string.IsNullOrEmpty(deduction.EmpNo))
             {
                 _notyf.Error("Sorry, Kindly provide employee");
-                return View(empBenefit);
+                return View(deduction);
             }
-            if (string.IsNullOrEmpty(empBenefit.EntType))
+            if (string.IsNullOrEmpty(deduction.DeductionType))
             {
-                _notyf.Error("Sorry, Kindly provide entintlement");
-                return View(empBenefit);
+                _notyf.Error("Sorry, Kindly provide duductions");
+                return View(deduction);
             }
-            if(_context.EmpBenefits.Any(b => b.EmpNo == empBenefit.EmpNo 
-            && b.EntType == empBenefit.EntType && b.SaccoCode == sacco))
+            if (_context.EmpDeductions.Any(b => b.EmpNo == deduction.EmpNo
+            && b.DeductionType == deduction.DeductionType && b.SaccoCode == sacco))
             {
-                _notyf.Error("Sorry, Employee already entintled for the benefit");
-                return View(empBenefit);
+                _notyf.Error("Sorry, Employee deduction already exist");
+                return View(deduction);
             }
 
             if (ModelState.IsValid)
             {
-                empBenefit.Auditdate = DateTime.Now;
-                empBenefit.AuditId = loggedInUser;
-                empBenefit.SaccoCode = sacco;
-                _context.Add(empBenefit);
+                deduction.Auditdate = DateTime.Now;
+                deduction.AuditId = loggedInUser;
+                deduction.SaccoCode = sacco;
+                _context.Add(deduction);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(empBenefit);
+            return View(deduction);
         }
 
         // GET: EmpBenefits/Edit/5
@@ -156,12 +155,12 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var empBenefit = await _context.EmpBenefits.FindAsync(id);
-            if (empBenefit == null)
+            var empDeduction = await _context.EmpDeductions.FindAsync(id);
+            if (empDeduction == null)
             {
                 return NotFound();
             }
-            return View(empBenefit);
+            return View(empDeduction);
         }
 
         // POST: EmpBenefits/Edit/5
@@ -169,7 +168,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,EmpNo,EntType,Amount,Auditdate,AuditId,SaccoCode")] EmpBenefit empBenefit)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,EmpNo,DeductionType,Amount,Auditdate,AuditId,SaccoCode")] EmpDeduction deduction)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -178,38 +177,38 @@ namespace EasyPro.Controllers
             await SetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            if (id != empBenefit.Id)
+            if (id != deduction.Id)
             {
                 return NotFound();
             }
 
-            if (string.IsNullOrEmpty(empBenefit.EmpNo))
+            if (string.IsNullOrEmpty(deduction.EmpNo))
             {
                 _notyf.Error("Sorry, Kindly provide employee");
-                return View(empBenefit);
+                return View(deduction);
             }
-            if (string.IsNullOrEmpty(empBenefit.EntType))
+            if (string.IsNullOrEmpty(deduction.DeductionType))
             {
-                _notyf.Error("Sorry, Kindly provide entintlement");
-                return View(empBenefit);
+                _notyf.Error("Sorry, Kindly provide deduction");
+                return View(deduction);
             }
-            if (_context.EmpBenefits.Any(b => b.EmpNo == empBenefit.EmpNo
-            && b.EntType == empBenefit.EntType && b.SaccoCode == sacco && b.Id != empBenefit.Id))
+            if (_context.EmpDeductions.Any(b => b.EmpNo == deduction.EmpNo
+            && b.DeductionType == deduction.DeductionType && b.SaccoCode == sacco && b.Id != deduction.Id))
             {
-                _notyf.Error("Sorry, Employee already entintled for the benefit");
-                return View(empBenefit);
+                _notyf.Error("Sorry, Employee deduction already exist");
+                return View(deduction);
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(empBenefit);
+                    _context.Update(deduction);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!EmpBenefitExists(empBenefit.Id))
+                    if (!EmpDeductionExists(deduction.Id))
                     {
                         return NotFound();
                     }
@@ -220,7 +219,7 @@ namespace EasyPro.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(empBenefit);
+            return View(deduction);
         }
 
         // GET: EmpBenefits/Delete/5
@@ -237,7 +236,7 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            var empBenefit = await _context.EmpBenefits
+            var empBenefit = await _context.EmpDeductions
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (empBenefit == null)
             {
@@ -258,16 +257,15 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var empBenefit = await _context.EmpBenefits.FindAsync(id);
-            _context.EmpBenefits.Remove(empBenefit);
+            var deduction = await _context.EmpDeductions.FindAsync(id);
+            _context.EmpDeductions.Remove(deduction);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool EmpBenefitExists(long id)
+        private bool EmpDeductionExists(long id)
         {
-            return _context.EmpBenefits.Any(e => e.Id == id);
+            return _context.EmpDeductions.Any(e => e.Id == id);
         }
-
     }
 }
