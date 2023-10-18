@@ -11,18 +11,23 @@ using EasyPro.Constants;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using EasyPro.ViewModels;
+using EasyPro.ViewModels.FarmersVM;
+using EasyPro.Provider;
+using EasyPro.Models.BosaModels;
 
 namespace EasyPro.Controllers
 {
     public class DSuppliersController : Controller
     {
         private readonly MORINGAContext _context;
+        private readonly BosaDbContext _bosaDbContext;
         private readonly INotyfService _notyf;
         private Utilities utilities;
 
-        public DSuppliersController(MORINGAContext context, INotyfService notyf)
+        public DSuppliersController(MORINGAContext context, INotyfService notyf, BosaDbContext bosaDbContext)
         {
             _context = context;
+            _bosaDbContext = bosaDbContext;
             _notyf = notyf;
             utilities = new Utilities(context);
         }
@@ -464,7 +469,6 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Supplier code cannot be empty");
                 return NotFound();
             }
-
             var dSupplierExists = _context.DSuppliers.Any(i => i.Sno == dSupplier.Sno
             && i.Scode == sacco && i.Branch == saccoBranch);
             if (dSupplierExists)
@@ -492,7 +496,22 @@ namespace EasyPro.Controllers
                 _context.Add(dSupplier);
 
                 if (StrValues.Elburgon == sacco)
-                    deductshares(dSupplier.Sno, dSupplier.Shares);
+                {
+                    SharesFilter filter = new SharesFilter()
+                    {
+                        Code = dSupplier.Sno,
+                        Sacco = sacco,
+                        Branch = saccoBranch,
+                        LoggedInUser = loggedInUser,
+                        shares = dSupplier.Shares
+                    };
+                    bool wherefrom = true;
+                    var statement = new SupplierShares(_context, _bosaDbContext);
+                    await statement.deductshares(filter, wherefrom);
+                }
+
+               // if (StrValues.Elburgon == sacco)
+               //     deductshares(dSupplier.Sno, dSupplier.Shares);
 
                 await _context.SaveChangesAsync();
                 _notyf.Success("The Supplier saved successfully");
@@ -576,10 +595,10 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-            //if (dSupplier.Shares)
-            //    dSupplier.Shares = false;
-            //else
-            //    dSupplier.Shares = true;
+           // if (dSupplier.Shares)
+           //   dSupplier.Shares = false;
+           // else
+           //     dSupplier.Shares = true;
 
             return View(dSupplier);
         }
@@ -619,7 +638,22 @@ namespace EasyPro.Controllers
                     _context.Update(dSupplier);
 
                     if (StrValues.Elburgon == sacco)
-                        deductshares(dSupplier.Sno, dSupplier.Shares);
+                    {
+                        SharesFilter filter = new SharesFilter()
+                        {
+                            Code = dSupplier.Sno,
+                            Sacco = sacco,
+                            Branch = dSupplier.Branch,
+                            LoggedInUser = loggedInUser,
+                            shares = dSupplier.Shares
+                        };
+                        bool wherefrom = true;
+                        var statement = new SupplierShares(_context, _bosaDbContext);
+                        await statement.deductshares(filter, wherefrom);
+                    }
+
+                    //if (StrValues.Elburgon == sacco)
+                    //    deductshares(dSupplier.Sno, dSupplier.Shares);
 
                     await _context.SaveChangesAsync();
                     _notyf.Success("The Supplier edited successfully");

@@ -1135,6 +1135,22 @@ namespace EasyPro.Controllers
             if (!string.IsNullOrEmpty(productIntake.MornEvening))
                 transport = transports.FirstOrDefault(t => t.Morning == productIntake.MornEvening);
 
+            if (StrValues.Elburgon == sacco)
+            {
+                SharesFilter filter = new SharesFilter()
+                { 
+                    Code = productIntake.Sno,
+                    Sacco = sacco,
+                    Branch = saccoBranch,
+                    LoggedInUser = loggedInUser,
+                    shares = false
+                };
+                bool wherefrom = false;
+                var statement = new SupplierShares(_context, _bosaDbContext);
+                await statement.deductshares(filter, wherefrom);
+            }
+                
+
             var transNo = transporters.FirstOrDefault(t => t.CertNo.Trim().ToUpper().Equals(vehicleNo.Trim().ToUpper()))?.TransCode ?? "";
             if (StrValues.Slopes == sacco)
             {
@@ -1154,7 +1170,7 @@ namespace EasyPro.Controllers
                 productIntake.Balance = productIntake.Balance - productIntake.DR;
 
                 decimal kgsToEnter = (decimal)productIntake.Qsupplied;
-                if (sacco == "ELBURGON PROGRESSIVE DAIRY FCS")
+                if (StrValues.Elburgon == sacco )
                 {
                     kgsToEnter = 0;
                 }
@@ -2159,6 +2175,21 @@ namespace EasyPro.Controllers
             if (StrValues.Elburgon != sacco)
             {
                 await calcDefaultdeductions(collection);
+            }
+
+            if (StrValues.Elburgon == sacco)
+            {
+                SharesFilter filter = new SharesFilter()
+                {
+                    Code = productIntake.Sno,
+                    Sacco = sacco,
+                    Branch = saccoBranch,
+                    LoggedInUser = loggedInUser,
+                    shares = false
+                };
+                bool wherefrom = false;
+                var statement = new SupplierShares(_context, _bosaDbContext);
+                await statement.deductshares(filter, wherefrom);
             }
 
             var activeAssignments = await _context.DTransports.Where(t => t.Active && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) && t.saccocode == sacco).ToListAsync();

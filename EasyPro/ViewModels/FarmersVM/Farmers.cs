@@ -25,6 +25,14 @@ namespace EasyPro.ViewModels.FarmersVM
         public string Sacco { get; set; }
     }
 
+    public class SharesFilter
+    {
+        public string Code { get; set; }
+        public bool shares { get; set; }
+        public string Branch { get; set; }
+        public string LoggedInUser { get; set; }
+        public string Sacco { get; set; }
+    }
     public class TransporterChangeVm
     {
         public string Code { get; set; }
