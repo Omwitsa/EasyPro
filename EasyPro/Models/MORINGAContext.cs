@@ -19,6 +19,7 @@ namespace EasyPro.Models
         }
 
         public virtual DbSet<AgClose> AgCloses { get; set; }
+        public virtual DbSet<EmployeesPayroll> EmployeesPayroll { get; set; }
         public virtual DbSet<AgClosingStock> AgClosingStocks { get; set; }
         public virtual DbSet<AgLpo> AgLpos { get; set; }
         public virtual DbSet<AgMoringaProduct> AgMoringaProducts { get; set; }

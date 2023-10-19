@@ -29,9 +29,6 @@ namespace EasyPro.Provider
         }
         public async Task deductshares(SharesFilter filter, bool wherefrom)
         {
-            //var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            //var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            //var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             IQueryable<DPreSet> dPreSets = _context.d_PreSets;
             IQueryable<DShare> dShares = _context.DShares;
             IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
