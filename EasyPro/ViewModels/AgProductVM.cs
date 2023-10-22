@@ -5,6 +5,16 @@ using System.Threading.Tasks;
 
 namespace EasyPro.ViewModels
 {
+    public class AgReceiptVM
+    {
+        public DateTime? TDate { get; set; }
+        public string PCode { get; set; }
+        public string Remarks { get; set; }
+        public decimal Qua { get; set; }
+        public decimal? Amount { get; set; }
+        public string SNo { get; set; }
+        public string InvoiceNo { get; set; }
+    }
     public class AgProductVM
     {
         public string Code { get; set; }

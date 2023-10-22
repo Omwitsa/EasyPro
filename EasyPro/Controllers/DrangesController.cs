@@ -162,6 +162,9 @@ namespace EasyPro.Controllers
                         return View(drange);
                     }
 
+                    drange.SaccoCode = sacco;
+                    drange.Auditid = loggedInUser;
+                    drange.Audittime = DateTime.Now;
                     _context.Update(drange);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Range Edited successfully");

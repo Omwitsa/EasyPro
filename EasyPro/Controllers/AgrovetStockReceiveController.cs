@@ -35,6 +35,8 @@ namespace EasyPro.Controllers
             DateTime startDate = new DateTime(Now.Year, Now.Month, 1);
             DateTime enDate = startDate.AddMonths(1).AddDays(-1);
 
+            SetIntakeInitialValues();
+
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var agProducts = await _context.AgProducts4s.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
@@ -48,6 +50,16 @@ namespace EasyPro.Controllers
             if (user.AccessLevel == AccessLevel.Branch)
                 agProducts = agProducts.Where(s => s.Branch == saccobranch).ToList();
             return View(agProducts);
+        }
+        private void  SetIntakeInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            IQueryable<AgProducts4> agProducts = _context.AgProducts4s;
+            var products = agProducts
+                .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch).ToList();
+            ViewBag.products = new SelectList(products, "SupplierId", "SupplierId");
         }
 
         public IActionResult DefaultIndex()
@@ -90,7 +102,7 @@ namespace EasyPro.Controllers
                 agProductsReceive = agProductsReceive.Where(i => i.Branch == saccobranch).ToList();
 
             if (!string.IsNullOrEmpty(product))
-                agProductsReceive = agProductsReceive.Where(r => r.PCode == product).ToList();
+                agProductsReceive = agProductsReceive.Where(r => r.SupplierId == product).ToList();
 
             agProductsReceive = agProductsReceive.OrderByDescending(i => i.DateEntered).ToList();
             return Json(agProductsReceive);

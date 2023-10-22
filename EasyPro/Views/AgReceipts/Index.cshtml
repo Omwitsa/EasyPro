@@ -51,21 +51,63 @@
                     <a asp-action="Create" class="btn btn-primary">Add New</a>
                 </div>
             </div>
+            <div class="row">
+
+                <div class="col-sm-2 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">----</label>
+                        <select id="condition" class="form-control">
+                            <option></option>
+                            <option>SNo</option>
+                            <option>Product Name</option>
+                            <option>InvoiceNo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class=" col-sm-4 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">----</label>
+                        <input id="filter" autocomplete="off" placeholder="Search" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-sm-2 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">DateFrom</label>
+                        <input id="firstdate" type="date" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-sm-2 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">DateTo</label>
+                        <input id="enddate" type="date" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <label class="control-label">----</label>
+                    <a id="excel_report" class="btn btn-primary"><i class="glyphicon glyphicon-user"></i>Download Report</a>
+                </div>
+            </div>
             <div class="bsc-tbl-hvr table-border-style">
                 <div class="divScroll">
                     <div class="table-responsive">
                         <table class="table table-hover" id="customers">
+                            <tr id="com"><th></th><th></th><th colspan="4" id="company"></th></tr>
+                            <tr id="htitl"><th></th><th></th> <th colspan="4"> <strong>STORE SALES REPORT</strong></th></tr>
+                            <tr id="hstartd"><th></th><th></th><th colspan="4" id="sema"></th>  </tr>
+                            <tr id="huser"><th></th><th></th><th colspan="4" hidden id="user"></th>  </tr>
+                            <tr id="her"><th colspan="7"><hr /></th></tr>
                             <thead>
                                 <tr>
+                                    <th>
+                                        Date
+                                    </th>
                                     <th>
                                         Code
                                     </th>
                                     <th>
                                         Name
                                     </th>
-                                    <th>
-                                        Date
-                                    </th>
+
                                     <th>
                                         @Html.DisplayNameFor(model => model.Qua)
                                     </th>
@@ -75,50 +117,122 @@
                                     <th>
                                         @Html.DisplayNameFor(model => model.SNo)
                                     </th>
-
+                                    <th>
+                                       Invoice No
+                                    </th>
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.PCode)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Remarks)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.TDate)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Qua)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Amount)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.SNo)
-                                        </td>
-
-                                        <td>
-                                            @*<a asp-action="Edit" asp-route-id="@item.RId">Edit</a> |
-                                <a asp-action="Details" asp-route-id="@item.RId">Details</a> |
-                                <a asp-action="Delete" asp-route-id="@item.RId">Delete</a>*@
-                                        </td>
-                                    </tr>
-                                }
+                            <tbody id="intakes">
                             </tbody>
                         </table>
                     </div>
                 </div>
-                
-            </div>
+
             </div>
         </div>
     </div>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#firstdate").val(today);
+            $("#enddate").val(today);
+            $("#com").hide();
+            $("#htitl").hide();
+            $("#hstartd").hide();
+            $("#huser").hide();
+            $("#her").hide();
+            getSelectedDateIntakes();
+
+            $('#condition').click(function () {
+                getSelectedDateIntakes();
+            });
+            $('#filter').on('keyup', function () {
+                getSelectedDateIntakes();
+            });
+            $('#firstdate').on('keyup', function () {
+                getSelectedDateIntakes();
+            });
+            $('#enddate').on('keyup', function () {
+                getSelectedDateIntakes();
+            });
+            function getSelectedDateIntakes() {
+                var date1 = $("#firstdate").val();
+                var date2 = $("#enddate").val();
+                var condition = $("#condition").val();
+                var product = $("#filter").val();
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2 + "&condition=" + condition+ "&product=" + product,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            populateIntake(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+
+            }
+
+            $('#excel_report').on('click', function () {
+                heading();
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `Sales Report ${date}`;
+                $('#customers').table2excel({ filename: fileName, fileext: ".xls" });
+            });
+
+            function heading()
+            {
+                var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = $("#firstdate").val();
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#enddate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
+                var usa = "Printed By  :" + user ;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array();
+                let itemTableRows2 = new Array();
+                itemTableRow.push(`${company}`);
+                $('#company').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema').html(itemTableRows1);
+                itemTableRows2.push(`${usa}`);
+                $('#user').html(itemTableRows2);
+            }
+          
+            function populateIntake(intakes) {
+                let itemTableRows = new Array();
+                intakes.forEach(i => {
+
+                    var ddate = i.TDate;
+                    var dd1 = new Date(ddate).toLocaleDateString();
+                    itemTableRows.push(`<tr>
+                                <td>${dd1}</td>
+                                <td>${i.PCode}</td>
+                                <td>${i.Remarks}</td>
+                                <td>${i.Qua}</td>
+                                <td>${i.Amount}</td>
+                                <td>${i.SNo}</td>
+                                <td>${i.InvoiceNo}</td>
+                            </tr>`)
+                });
+
+                $('#intakes').html(itemTableRows);
+            }
+        });
+</script>
+            }
 
 
 
-    

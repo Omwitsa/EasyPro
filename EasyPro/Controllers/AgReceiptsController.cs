@@ -80,9 +80,9 @@ namespace EasyPro.Controllers
             if (user.AccessLevel == AccessLevel.Branch)
             {
                 agproducts = agproducts.Where(t => t.Branch == saccobranch).ToList();
-                productintake = productintake.Where(i => i.Branch== saccobranch).ToList();
+                productintake = productintake.Where(i => i.Branch == saccobranch).ToList();
             }
-                
+
             var productNames = agproducts.Select(b => b.PName);
             ViewBag.agproductsall = new SelectList(productNames, "");
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
@@ -92,7 +92,8 @@ namespace EasyPro.Controllers
             ViewBag.productintake = productintake;
             var employees = _context.Employees.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToList();
             var staffs = new List<EmployeeDetVm>();
-            employees.ForEach(e => {
+            employees.ForEach(e =>
+            {
                 staffs.Add(new EmployeeDetVm
                 {
                     Details = e.Surname + " " + e.Othernames + "(" + e.EmpNo + ")",
@@ -129,14 +130,14 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly Farmers Number");
                     return Json("");
                 }
-                
+
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
                 var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
-                if(sacco == "USWET UMOJA DAIRIES FCS")
+                if (sacco == "USWET UMOJA DAIRIES FCS")
                 {
                     var checkamount = intakes.Sum(b => b.DR);
-                   if(net< checkamount)
+                    if (net < checkamount)
                     {
                         _notyf.Error("Sorry, Farmers NetPay is less than Amount of Product.");
                         return Json("");
@@ -144,7 +145,7 @@ namespace EasyPro.Controllers
                 }
 
                 var products = await _context.AgProducts.Where(p => p.saccocode == sacco).ToListAsync();
-                foreach(var intake in intakes)
+                foreach (var intake in intakes)
                 {
                     intake.Sno = intake?.Sno ?? "";
                     intake.Description = intake?.Description ?? "";
@@ -276,7 +277,7 @@ namespace EasyPro.Controllers
                 double rno = Convert.ToInt32(receipt1.RNo);
                 return Json(new
                 {
-                    rno = (rno + 1),
+                    rno = (rno),
                     receiptDetails
                 });
             }
@@ -385,24 +386,25 @@ namespace EasyPro.Controllers
                 MornEvening = productIntake.MornEvening,
                 SaccoCode = productIntake.SaccoCode,
                 Branch = saccoBranch,
-                
+
             };
             string cummkgs = string.Format("{0:.###}", productIntake.DR);
             decimal MornEvening = (decimal)(productIntake.DR - productIntake.CR);
             var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(intake.SaccoCode.ToUpper()));
-            var receiptDetails = new {
-                         companies.Name,
-                         companies.Adress,
-                         companies.Town,
-                         companies.PhoneNo,
-                         saccoBranch = intake.Branch,
-                         intake.Sno,
-                         supName = supplier.Names,
-                         intake.Qsupplied,
-                         cummkgs,
-                         loggedInUser,
-                         MornEvening,
-                };    //= await GetReceiptDetails(intake, loggedInUser);
+            var receiptDetails = new
+            {
+                companies.Name,
+                companies.Adress,
+                companies.Town,
+                companies.PhoneNo,
+                saccoBranch = intake.Branch,
+                intake.Sno,
+                supName = supplier.Names,
+                intake.Qsupplied,
+                cummkgs,
+                loggedInUser,
+                MornEvening,
+            };    //= await GetReceiptDetails(intake, loggedInUser);
 
             return Json(new
             {
@@ -516,8 +518,8 @@ namespace EasyPro.Controllers
             if (items != null)
             {
                 // Start printing your items.
-                var agReceiptsvalues = _context.AgReceipts.Where(k=>k.TDate== items.TransDate 
-                && k.SNo.ToUpper().Equals(items.Sno.ToUpper()) && k.RNo==R).ToList();
+                var agReceiptsvalues = _context.AgReceipts.Where(k => k.TDate == items.TransDate
+                && k.SNo.ToUpper().Equals(items.Sno.ToUpper()) && k.RNo == R).ToList();
                 DateTime startDate = new DateTime(items.TransDate.Year, items.TransDate.Month, 1);
                 DateTime enDate = startDate.AddMonths(1).AddDays(-1);
 
@@ -558,7 +560,7 @@ namespace EasyPro.Controllers
 
                 var datet = items.TransDate.ToString("dd/MM/yyy");
                 string sno = items.Sno.PadRight(10);
-                if(sno.ToUpper()!="CASH" && sno.ToUpper() != "STAFF")
+                if (sno.ToUpper() != "CASH" && sno.ToUpper() != "STAFF")
                 {
                     graphics.DrawString("CheckOff Agrovet Receipt".PadRight(15), new Font("Times New Roman", 12), new SolidBrush(Color.Black), startX, startY + offset);
                     offset = offset + (int)fontHeight + 5;
@@ -570,7 +572,7 @@ namespace EasyPro.Controllers
                     offset = offset + (int)fontHeight + 5;
                 }
 
-                if (sno.ToUpper() == "CASH" )
+                if (sno.ToUpper() == "CASH")
                 {
                     graphics.DrawString("Agrovet Cash Sales Receipt".PadRight(15), new Font("Times New Roman", 12), new SolidBrush(Color.Black), startX, startY + offset);
                     offset = offset + (int)fontHeight + 5;
@@ -581,7 +583,7 @@ namespace EasyPro.Controllers
                     graphics.DrawString("Agrovet Staff Sales Receipt".PadRight(15), new Font("Times New Roman", 12), new SolidBrush(Color.Black), startX, startY + offset);
                     offset = offset + (int)fontHeight + 5;
                 }
-                graphics.DrawString("Date"+ items.TransDate, new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
+                graphics.DrawString("Date" + items.TransDate, new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
                 string HName = "Name".PadLeft(16);
@@ -591,7 +593,8 @@ namespace EasyPro.Controllers
                 graphics.DrawString(Heading, new Font("Times New Roman", 8), new SolidBrush(Color.Black), startX, startY + offset);
                 offset = offset + (int)fontHeight + 5;
 
-                agReceiptsvalues.ForEach(i => {
+                agReceiptsvalues.ForEach(i =>
+                {
                     string pname = string.Format("{0:.###}", i.Remarks).PadLeft(8);
                     string BQnty = string.Format("{0:.###}", i.Qua).PadLeft(12);
                     string Amt = string.Format("{0:.###}", i.Amount).PadLeft(14);
@@ -674,7 +677,7 @@ namespace EasyPro.Controllers
                     t.CrAccNo = t.CrAccNo;
                     if (string.IsNullOrEmpty(t.Sno))
                         t.Sno = "cash";
-                    
+
                     var cashchecker = false;
                     if (cash == "")
                         cashchecker = true;
@@ -821,8 +824,8 @@ namespace EasyPro.Controllers
             IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
             IQueryable<AgReceipt> agReceipts = _context.AgReceipts;
             var todaysIntake = dSuppliers.FirstOrDefault(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco && L.Branch == saccoBranch);
-            var storeamount = agReceipts.Where(n => n.saccocode == sacco && n.Branch == saccoBranch && n.SNo.ToUpper().Equals(sno.ToUpper()) 
-            && n.TDate >= startDate && n.TDate <= endDate).Sum(s=>s.Amount);
+            var storeamount = agReceipts.Where(n => n.saccocode == sacco && n.Branch == saccoBranch && n.SNo.ToUpper().Equals(sno.ToUpper())
+            && n.TDate >= startDate && n.TDate <= endDate).Sum(s => s.Amount);
             return Json(new { todaysIntake, storeamount });
         }
 
@@ -914,6 +917,63 @@ namespace EasyPro.Controllers
             };
             return View(agrovetsales);
         }
+
+        [HttpPost]
+        public JsonResult SuppliedProducts(DateTime date1, DateTime date2,string condition, string product)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+
+            var startingdate = date2;
+            var startDate = new DateTime(date1.Year, date1.Month, 1);
+            var endDate = startDate.AddDays(-1);
+            IQueryable<AgReceipt> agReceipts = _context.AgReceipts;
+
+            var products = new List<AgReceiptVM>();
+
+            var agProductsReceive = agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
+            && i.TDate >= date1 && i.TDate <= date2 && i.Branch == saccobranch).ToList().OrderByDescending(b => b.RId).ToList();
+
+            if (!string.IsNullOrEmpty(product))
+            {
+                if (!string.IsNullOrEmpty(condition))
+                {
+                    if (condition == "InvoiceNo")
+                    {
+                        agProductsReceive = agProductsReceive.Where(i => i.RNo.ToUpper().Contains(product.ToUpper())).ToList();
+                    }
+                    if (condition == "SNo")
+                    {
+                        agProductsReceive = agProductsReceive.Where(i => i.SNo.ToUpper().Contains(product.ToUpper())).ToList();
+                    }
+                    if (condition == "Product Name")
+                    {
+                        agProductsReceive = agProductsReceive.Where(i => i.Remarks.ToUpper().Contains(product.ToUpper())).ToList();
+                    }
+                }
+            }
+
+            agProductsReceive.ForEach(j =>
+            {
+                decimal quantity = (decimal)j.Qua;
+                if (j.Amount < 0)
+                    quantity = quantity * -1;
+
+                products.Add(new AgReceiptVM
+                {
+                    TDate = j.TDate,
+                    PCode = j.PCode,
+                    Remarks = j.Remarks,
+                    Qua = quantity,
+                    Amount = j.Amount,
+                    SNo = j.SNo,
+                    InvoiceNo = j.RNo
+                });
+            });
+            return Json(products);
+        }
+
 
         // POST: AgReceipts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.

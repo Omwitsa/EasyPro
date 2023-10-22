@@ -42,15 +42,18 @@
         <div class="form-element-list mg-t-30">
             <form asp-action="Create">
                 <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
-
-                    </div>
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <h1 style="text-align-last:center">Stock Receive Report</h1>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <label class="control-label">Supplier Name</label>
+                        <select id="product" class="chzn-select form-control" asp-items="@ViewBag.products">
+                            <option value=""></option>
+                        </select>
                     </div>
                 </div>
 
@@ -67,36 +70,31 @@
                             <input id="enddate" type="date" class="form-control" />
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xs-12">
-                        <label class="control-label">Product</label>
-                        <select id="product" class="chzn-select form-control" asp-items="@ViewBag.products">
-                            <option value=""></option>
-                        </select>
-                    </div>
+
                     <div class="col-sm-2 col-xs-12">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <label class="control-label">---</label>
+                        <div class="form-group">
+                            <label class="control-label">--------------</label>
                             <a id="showtable" class="btn btn-warning">Show</a>
                         </div>
                     </div>
-
-                </div>
-                <div class="row">
-                        <div class="col-sm-4 col-xs-12">
-                            <label class="control-label">--</label>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">---------------</label>
                             <a id="excel_report" class="btn btn-success w3-circle">Export Excel</a>
                         </div>
-                        <div class="col-sm-2 col-xs-12">
-
-                        </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <label class="control-label">--</label>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">---------------</label>
                             <a id="print_report" class="btn btn-success w3-circle">Print Report</a>
                         </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <label class="control-label">---</label>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">---------------</label>
                             <a asp-controller="AgrovetStockReceive" asp-action="DefaultIndex" class="btn btn-info">Back</a>
                         </div>
+                    </div>
                 </div>
                 <div class="bsc-tbl-hvr table-border-style">
                     <div class="table-responsive">
@@ -152,7 +150,7 @@
             $("#htitl").hide();
             $("#hstartd").hide();
             $("#huser").hide();
-            $("#her").hide(); 
+            $("#her").hide();
 
             $('#excel_report').on('click', function () {
                 heading();
@@ -203,12 +201,11 @@
             $("#showtable").click(function () {
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
-                var zone = $("#zone").val();
-                zone = zone ? zone : "";
+                var product = $("#product").val();
                 $.ajax(
                     {
                         type: 'POST',
-                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2 + "&product" + product,
+                        url: "suppliedProducts?date1=" + date1 + "&date2=" + date2 + "&product=" + product,
                         contentType: 'application/json',
                         success: function (response) {
                             populateIntake(response)

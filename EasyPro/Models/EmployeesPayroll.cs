@@ -10,6 +10,7 @@ namespace EasyPro.Models
         public string EmpNo { get; set; }
         public decimal? Allowance { get; set; }
         public decimal? Basic { get; set; }
+        public decimal? OtherAllowance { get; set; }
         public decimal? Gross { get; set; }
         public decimal? NHIF { get; set; }
         public decimal? NSSF { get; set; }

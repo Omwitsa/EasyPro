@@ -49,12 +49,14 @@ namespace EasyPro.Controllers
                         Name = emploeyepayroll.Surname + " " + emploeyepayroll.Othernames,
                         Basic = intake.Basic,
                         Allowance = intake.Allowance,
+                        OtherAllowance = intake.OtherAllowance,
                         Gross = intake.Gross,
                         NHIF = intake.NHIF,
                         NSSF = intake.NSSF,
                         PAYE = intake.PAYE,
                         OTHERS = intake.OTHERS,
                         STORE = intake.STORE,
+                        OTHERDED = intake.OTHERDED,
                         TOTALDED = intake.TOTALDED,
                         NETPAY = intake.NETPAY,
                         ENDINGMONTH = intake.ENDINGMONTH,
@@ -136,7 +138,7 @@ namespace EasyPro.Controllers
             if (ModelState.IsValid)
             {
                 var employees = _context.Employees.Where(m => m.SaccoCode == sacco).ToList();
-                var getbefits = _context.EmpBenefits.Where(n => n.SaccoCode == sacco).ToList();
+                var getbefitsforall = _context.EmpBenefits.Where(n => n.SaccoCode == sacco).ToList();
                 var employeesded = _context.EmployeesDed.Where(m => m.saccocode == sacco
                 && m.Date >= startDate && m.Date <= monthsLastDate).ToList();
                 var employeesdeductions = _context.EmpDeductions.Where(m => m.SaccoCode == sacco).ToList();
@@ -144,25 +146,32 @@ namespace EasyPro.Controllers
                 groupemployees.ForEach(s => {
                     var getdefaultdeductions = employeesdeductions.Where(n => n.EmpNo == s.Key).ToList();
                     var getdeductamount = employeesded.Where(m => m.Empno == s.Key).ToList();
+                    var getbefits = getbefitsforall.Where(m => m.EmpNo == s.Key).ToList();
 
-                    var Basic = getbefits.Where(b => b.EntType.Contains("basic")).Sum(v => v.Amount);
-                    var Allowance = getbefits.Where(b => b.EntType.Contains("allowance")).Sum(v => v.Amount);
-                    var NHIF = getdefaultdeductions.Where(b => b.DeductionType.Contains("NHIF")).Sum(v => v.Amount);
-                    var NSSF = getdefaultdeductions.Where(b => b.DeductionType.Contains("NSSF")).Sum(v => v.Amount);
-                    var PAYE = getdefaultdeductions.Where(b => b.DeductionType.Contains("PAYE")).Sum(v => v.Amount);
+                    var Basic = getbefits.Where(b => b.EntType.ToLower().Contains("basic")).Sum(v => v.Amount);
+                    var Allowance = getbefits.Where(b => b.EntType.ToLower().Contains("allowance")).Sum(v => v.Amount);
+                   
+                    var NHIF = getdefaultdeductions.Where(b => b.DeductionType.ToUpper().Contains("NHIF")).Sum(v => v.Amount);
+                    var NSSF = getdefaultdeductions.Where(b => b.DeductionType.ToUpper().Contains("NSSF")).Sum(v => v.Amount);
+                    var PAYE = getdefaultdeductions.Where(b => b.DeductionType.ToUpper().Contains("PAYE")).Sum(v => v.Amount);
                     var STORE = getdeductamount.Where(X => X.Deduction == "Store").Sum(v => v.Amount);
                     var OTHERS = getdeductamount.Where(X => X.Deduction != "Store").Sum(v => v.Amount);
-                    var dcodes = getdefaultdeductions.Where(c => c.DeductionType.ToLower().Contains("basic") || c.DeductionType.Contains("PAYE") ||
-                    c.DeductionType.ToLower().Contains("allowance") || c.DeductionType.Contains("NHIF") || c.DeductionType.Contains("NSSF"))
+                    var dcodes = getdefaultdeductions.Where(c => c.DeductionType.ToUpper().Contains("PAYE") || c.DeductionType.ToUpper().Contains("NHIF") 
+                    || c.DeductionType.ToUpper().Contains("NSSF"))
                     .Select(c => c.DeductionType.ToLower()).ToList();
 
-                    var OTHER = getdeductamount.Where(X => !dcodes.Contains(X.Deduction)).Sum(v => v.Amount);
-                    var Gross = Basic + Allowance;
+                    var otherallowa = getbefits.Where(c => c.EntType.ToLower().Contains("basic") ||
+                   c.EntType.ToLower().Contains("allowance") ).Select(c => c.EntType.ToLower()).ToList();
+
+                    var OtherAllowance = getbefits.Where(b => !otherallowa.Contains(b.EntType.ToLower())).Sum(v => v.Amount);
+                    var OTHER = getdeductamount.Where(X => !dcodes.Contains(X.Deduction.ToLower())).Sum(v => v.Amount);
+                    var Gross = Basic + Allowance+ OtherAllowance;
                     var TOTALDED = NHIF + NSSF + PAYE + STORE + OTHERS + OTHER;
                     _context.EmployeesPayroll.Add( new EmployeesPayroll {
                         EmpNo = s.Key,
                         Basic = Basic,
                         Allowance = Allowance,
+                        OtherAllowance= OtherAllowance,
                         Gross = Gross,
                         NHIF = NHIF,
                         NSSF = NSSF,
