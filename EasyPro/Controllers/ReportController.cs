@@ -591,7 +591,7 @@ namespace EasyPro.Controllers
                 var transNos = transporters.Where(t => t.TraderRate < 1 && t.CertNo != "KIAMARIGA" && t.CertNo != "KDK 015D")
                     .Select(t => t.TransCode.ToUpper()).ToList();
                 var transporterPayroll = dTransportersPayRolls.Where(t => transNos.Contains(t.Code.ToUpper()));
-                var transportersNet = transporterPayroll.Sum(t => t.NetPay) + 5952.65M;
+                var transportersNet = transporterPayroll.Sum(t => t.NetPay);
                 currentRow++;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORTERS";
