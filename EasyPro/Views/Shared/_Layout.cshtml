@@ -499,6 +499,12 @@
                         @if (ViewBag.accountsRole)
                         {
                             <li>
+                                <a data-toggle="tab" href="#trade"><i class="notika-icon notika-form"></i>Receivable / Payable</a>
+                            </li>
+                        }
+                        @if (ViewBag.accountsRole)
+                        {
+                            <li>
                                 <a data-toggle="tab" href="#accounts"><i class="notika-icon notika-form"></i>Accounts</a>
                             </li>
                         }
@@ -580,20 +586,6 @@
                                         <a asp-controller="ExcelUpload" asp-action="SuppliersImportIndex">Import Suppliers Excell</a>
                                     </li>
                                 }
-                                @if (ViewBag.RVendor)
-                                {
-                                    <li>
-                                        <a asp-controller="Venders" asp-action="Index">Vendors</a>
-                                    </li>
-                                }
-                                @if (ViewBag.RCustomer)
-                                {
-                                    <li>
-                                        <a asp-controller="Customers" asp-action="Index">Customers</a>
-                                    </li>
-                                }
-
-
                             </ul>
                         </div>
                         <div id="store" class="tab-pane notika-tab-menu-bg animated flipInX">
@@ -839,6 +831,58 @@
                                 }
                             </ul>
                         </div>
+                        <div id="trade" class="tab-pane notika-tab-menu-bg animated flipInX">
+                            <ul class="notika-main-menu-dropdown">
+                                @if (ViewBag.BillsRole)
+                                {
+                                    <li>
+                                        <a asp-controller="AccountPayables" asp-action="GetBills">Bills</a>
+                                    </li>
+                                }
+                                @if (ViewBag.RefundsRole)
+                                {
+                                    <li>
+                                        <a asp-controller="AccountPayables" asp-action="GetRefunds">Refunds</a>
+                                    </li>
+                                }
+                                @if (ViewBag.CustomerInvoicesRole)
+                                {
+                                    <li>
+                                        <a asp-controller="AccountReceivables" asp-action="GetInvoices">Customer Invoices</a>
+                                    </li>
+                                }
+                                @if (ViewBag.CreditNotesRole)
+                                {
+                                    <li>
+                                        <a asp-controller="AccountReceivables" asp-action="GetCreditNotes">Credit Notes</a>
+                                    </li>
+                                }
+                                @if (ViewBag.VendorProductsRole)
+                                {
+                                    <li>
+                                        <a asp-controller="VProducts" asp-action="Index">Vendor Products</a>
+                                    </li>
+                                }
+                                @if (ViewBag.CustomerProductsRole)
+                                {
+                                    <li>
+                                        <a asp-controller="CProducts" asp-action="Index">Customer Products</a>
+                                    </li>
+                                }
+                                @if (ViewBag.RVendor)
+                                {
+                                    <li>
+                                        <a asp-controller="Venders" asp-action="Index">Vendors</a>
+                                    </li>
+                                }
+                                @if (ViewBag.RCustomer)
+                                {
+                                    <li>
+                                        <a asp-controller="Customers" asp-action="Index">Customers</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
                         <div id="accounts" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
                                 @if (ViewBag.ChartsofAccRole)
@@ -894,42 +938,6 @@
                                             <a asp-controller="DPayrolls" asp-action="Index">Payroll</a>
                                         </li>
                                     }
-                                    @if (ViewBag.BillsRole)
-                                    {
-                                        <li>
-                                            <a asp-controller="AccountPayables" asp-action="GetBills">Bills</a>
-                                        </li>
-                                    }
-                                    @if (ViewBag.RefundsRole)
-                                    {
-                                        <li>
-                                            <a asp-controller="AccountPayables" asp-action="GetRefunds">Refunds</a>
-                                        </li>
-                                    }
-                                }
-                                @if (ViewBag.CustomerInvoicesRole)
-                                {
-                                    <li>
-                                        <a asp-controller="AccountReceivables" asp-action="GetInvoices">Customer Invoices</a>
-                                    </li>
-                                }
-                                @if (ViewBag.CreditNotesRole)
-                                {
-                                    <li>
-                                        <a asp-controller="AccountReceivables" asp-action="GetCreditNotes">Credit Notes</a>
-                                    </li>
-                                }
-                                @if (ViewBag.VendorProductsRole)
-                                {
-                                    <li>
-                                        <a asp-controller="VProducts" asp-action="Index">Vendor Products</a>
-                                    </li>
-                                }
-                                @if (ViewBag.CustomerProductsRole)
-                                {
-                                    <li>
-                                        <a asp-controller="CProducts" asp-action="Index">Customer Products</a>
-                                    </li>
                                 }
                                 @if (ViewBag.JournalListingRole)
                                 {

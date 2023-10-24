@@ -29,5 +29,6 @@ namespace EasyPro.Models
 		public DateTime? CreatedDate { get; set; }
 		public DateTime? ModifiedDate { get; set; }
 		public string SaccoCode { get; set; }
+		public string Branch { get; set; }
 	}
 }

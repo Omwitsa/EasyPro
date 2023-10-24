@@ -31,7 +31,13 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            return View(await _context.Bills.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var bills = await _context.Bills.Where(b => b.SaccoCode == sacco).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                bills = bills.Where(i => i.Branch == saccoBranch).ToList();
+            return View(bills);
         }
 
         public IActionResult CreateBill()
@@ -64,7 +70,7 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            bill.SaccoCode = sacco;
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var product = _context.VProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(bill.Ref.ToUpper()) && p.SaccoCode == sacco);
             var vender = _context.Venders.FirstOrDefault(v => v.Name.ToUpper().Equals(bill.Vender.ToUpper()) && v.SaccoCode == sacco);
             var tax = _context.Taxes.FirstOrDefault(t => t.Name.ToUpper().Equals(product.VenderTax.ToUpper())
@@ -80,7 +86,8 @@ namespace EasyPro.Controllers
                 Transactionno = $"{loggedInUser}{DateTime.Now}",
                 SaccoCode = sacco,
                 DrAccNo = product.ARGlAccount,
-                CrAccNo = vender.APGlAccount
+                CrAccNo = vender.APGlAccount,
+                Branch = saccoBranch
             });
 
             _context.Gltransactions.Add(new Gltransaction
@@ -94,8 +101,11 @@ namespace EasyPro.Controllers
                 Transactionno = $"{loggedInUser}{DateTime.Now}",
                 SaccoCode = sacco,
                 DrAccNo = product.ARGlAccount,
-                CrAccNo = tax.GlAccount
+                CrAccNo = tax.GlAccount,
+                Branch = saccoBranch
             });
+            bill.SaccoCode = sacco;
+            bill.Branch = saccoBranch;
             _context.Bills.Add(bill);
             _context.SaveChanges();
             return RedirectToAction(nameof(GetBills));
@@ -107,7 +117,13 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            return View(await _context.Refunds.ToListAsync());
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var refunds = await _context.Refunds.Where(r => r.SaccoCode == sacco).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                refunds = refunds.Where(i => i.Branch == saccoBranch).ToList();
+            return View(refunds);
         }
 
         public IActionResult CreateRefund()
@@ -129,8 +145,7 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            refund.SaccoCode = sacco;
-
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var product = _context.VProducts.FirstOrDefault(p => p.Name.ToUpper().Equals(refund.Ref.ToUpper()) && p.SaccoCode == sacco);
             var vender = _context.Venders.FirstOrDefault(v => v.Name.ToUpper().Equals(refund.Vendor.ToUpper()) && v.SaccoCode == sacco);
             var tax = _context.Taxes.FirstOrDefault(t => t.Name.ToUpper().Equals(product.VenderTax.ToUpper())
@@ -146,7 +161,8 @@ namespace EasyPro.Controllers
                 Transactionno = $"{loggedInUser}{DateTime.Now}",
                 SaccoCode = sacco,
                 DrAccNo = vender.APGlAccount,
-                CrAccNo = product.ARGlAccount
+                CrAccNo = product.ARGlAccount,
+                Branch = saccoBranch
             });
 
             _context.Gltransactions.Add(new Gltransaction
@@ -160,9 +176,12 @@ namespace EasyPro.Controllers
                 Transactionno = $"{loggedInUser}{DateTime.Now}",
                 SaccoCode = sacco,
                 DrAccNo = tax.GlAccount,
-                CrAccNo = product.ARGlAccount
+                CrAccNo = product.ARGlAccount,
+                Branch= saccoBranch
             });
 
+            refund.SaccoCode = sacco;
+            refund.Branch = saccoBranch;
             _context.Refunds.Add(refund);
             _context.SaveChanges();
             return RedirectToAction(nameof(GetRefunds));
