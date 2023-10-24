@@ -185,11 +185,11 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var transporters = _context.DTransporters.Where(t => t.TransCode == dTransport.TransCode && t.Active && t.ParentT == sacco);
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-            {
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //{
                 transporters = transporters.Where(t => t.Tbranch == saccoBranch);
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-            }
+            //}
                 
             if (!transporters.Any())
             {
@@ -222,6 +222,8 @@ namespace EasyPro.Controllers
             {
                 dTransport.saccocode = sacco;
                 dTransport.Branch = saccoBranch;
+                dTransport.Auditdatetime = DateTime.Now;
+                dTransport.Auditid = loggedInUser;
                 _context.Add(dTransport);
                 _context.SaveChanges();
 

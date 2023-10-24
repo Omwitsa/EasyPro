@@ -54,6 +54,7 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
+            ViewBag.slopes = StrValues.Slopes == sacco;
             ViewBag.isElburgon = StrValues.Elburgon == sacco;
             //if(StrValues.Elburgon != sacco)
            // {
@@ -191,8 +192,9 @@ namespace EasyPro.Controllers
                 ViewBag.agrovet = 0;
                 ViewBag.bonus = 0;
                 ViewBag.shares = 0;
+            ViewBag.slopes = StrValues.Slopes == sacco;
             //}
- 
+
             return View();
         }
 

@@ -14,6 +14,7 @@ using EasyPro.ViewModels.EnquiryVM;
 using System.Collections.Generic;
 using static EasyPro.ViewModels.AccountingVm;
 using System.Globalization;
+using Syncfusion.EJ2.Linq;
 
 namespace EasyPro.Controllers
 {
@@ -320,7 +321,7 @@ namespace EasyPro.Controllers
                 sno = dTransporters.FirstOrDefault(t => t.CertNo == sno)?.TransCode ?? "";
 
             var intakes = productIntakes.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
-           .Equals(sacco.ToUpper()) && (i.TransDate >= date1 && i.TransDate <= date2)).ToList().OrderBy(m=>m.TransDate).ToList();
+           .Equals(sacco.ToUpper()) && (i.TransDate >= date1 && i.TransDate <= date2)).ToList();
             if (StrValues.Slopes == sacco)
             { 
                 var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
@@ -356,18 +357,20 @@ namespace EasyPro.Controllers
             DateTime now = DateTime.Now;
             var startDate = new DateTime(now.Year, now.Month, 1);
             var enDate = startDate.AddMonths(1).AddDays(-1);
-            var resultsget = _context.ProductIntake.OrderByDescending(i => i.TransDate)
+            var transassign = _context.DTransports.Where(u=> u.Branch == saccobranch && u.Active == true && u.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
+            var getintakes = _context.ProductIntake
+                        .Where(u => u.SaccoCode == sacco && u.Branch == saccobranch && u.TransDate >= date1 
+                        && u.TransDate <= date2 ).ToList();
+            var resultsget = getintakes.OrderByDescending(i => i.TransDate)
                         .Where(i => i.SaccoCode == sacco && i.Branch == saccobranch
                     && i.TransDate >= date1 && i.TransDate <= date2).ToList();
             var transExist = _context.DTransporters.Any(u => u.TransCode == sno && u.Active == true && u.ParentT == sacco);
             if (transExist)
             {
-                var transassign = _context.DTransports
-                    .Where(u => u.TransCode == sno && u.Branch == saccobranch && u.Active == true && u.saccocode.ToUpper().Equals(sacco.ToUpper()));
-                foreach (var snoo in transassign)
+                var transports = transassign.Where(u => u.TransCode == sno ).ToList();
+                foreach (var snoo in transports)
                 {
-                    var sumkgspersupplier = _context.ProductIntake
-                        .Where(u => u.SaccoCode == sacco && u.Branch == saccobranch && u.TransDate >= date1 && u.TransDate <= date2 && u.Sno == snoo.Sno.ToString())
+                    var sumkgspersupplier = getintakes.Where(u=> u.Sno == snoo.Sno.ToString())
                         .Sum(i => i.CR);
                     var all = _context.DTmpTransEnqueries;
                     DTmpTransEnqueryobj.sacco = sacco;

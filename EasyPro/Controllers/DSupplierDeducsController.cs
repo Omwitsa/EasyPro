@@ -103,10 +103,12 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Create([Bind("Id,Sno,DateDeduc,Description,Amount,Period,StartDate,EndDate,Auditid,Auditdatetime,Yyear,Remarks,Branch,Bonus,Status1,Status2,Status3,Status4,Status5,Status6,Branchcode")] DSupplierDeduc dSupplierDeduc)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            var dSupplier1 = _context.DSupplierDeducs.Where(i => i.Sno == dSupplierDeduc.Sno).Count();
+            var dSupplier1 = _context.DSupplierDeducs.Where(i => i.Sno == dSupplierDeduc.Sno ).Count();
             if (dSupplier1 != 0)
             {
                 GetInitialValues();
@@ -116,6 +118,8 @@ namespace EasyPro.Controllers
 
             if (ModelState.IsValid)
             {
+                dSupplierDeduc.Branch = saccobranch;
+                dSupplierDeduc.Auditid = loggedInUser;
                 _context.Add(dSupplierDeduc);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
