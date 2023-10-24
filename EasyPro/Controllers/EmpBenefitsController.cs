@@ -204,6 +204,9 @@ namespace EasyPro.Controllers
             {
                 try
                 {
+                    empBenefit.Auditdate = DateTime.Now;
+                    empBenefit.AuditId = loggedInUser;
+                    empBenefit.SaccoCode = sacco;
                     _context.Update(empBenefit);
                     await _context.SaveChangesAsync();
                 }

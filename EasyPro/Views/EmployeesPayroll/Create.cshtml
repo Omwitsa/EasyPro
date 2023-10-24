@@ -1,0 +1,39 @@
+﻿@model EasyPro.Models.EmployeesPayroll
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create</h2>
+
+<h4>EmployeesPayroll</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label asp-for="ENDINGMONTH" class="control-label"></label>
+                        <input required asp-for="ENDINGMONTH" class="form-control" type="date" />
+                        <span asp-validation-for="ENDINGMONTH" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <button type="submit" class="btn btn-success">Process</button>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <a asp-action="Index" class="btn btn-primary">Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

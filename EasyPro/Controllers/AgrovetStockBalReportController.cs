@@ -107,8 +107,8 @@ namespace EasyPro.Controllers
 
                         var detailstore = GetReceipts(productNow.PCode, sacco, b.Key, date1, startingdate, endDate);
 
-                        decimal open = (decimal)((detailstore.pro_buyy) - (detailstore.positive_pro_sell - detailstore.negatives_pro_sell)
-                        + detailstore.dispatchlasttoBranch - detailstore.dispatchlastfromBranch);
+                        decimal open = (decimal)((detailstore.pro_buyy) - (detailstore.positive_pro_sell - detailstore.negatives_pro_sell));
+                        open = open + (decimal)((detailstore.dispatchlasttoBranch - detailstore.dispatchlastfromBranch));
                         decimal dispatch = (decimal)(detailstore.dispatchthismonthtoBranch - detailstore.dispatchthismonthfromBranch);
                         decimal correctbal = (decimal)detailstore.receiptthatmonth + open + dispatch;
                         decimal saleskgs = (decimal)(detailstore.positive_agProductsales - detailstore.negative_agProductsales);

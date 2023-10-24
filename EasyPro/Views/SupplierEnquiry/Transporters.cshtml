@@ -211,30 +211,35 @@
             $("#enddate").val(today);
 
             $("#showtable").click(function () {
-                $('#totalQty').val('');
-                $('#netpay').val('');
-                $('#totaldeductions').val('')
-                $('#grosspay').val('')
-                var sno = $("#sno").val().toUpperCase();
-                var date1 = $("#firstdate").val();
-                var date2 = $("#enddate").val();
-                $.ajax(
-                    {
-                    type: 'POST',
-                    url: "SuppliedProductsTransporter?sno=" + sno + "&date1=" + date1 + "&date2=" + date2 + "",
-                    contentType: 'application/json',
-                    data: JSON.stringify(),
-                    success: function (response) {
-                       populateIntake(response)
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
-                    // ...
-                });
+                getintakesdetails();
+                // $('#totalQty').val('');
+                // $('#netpay').val('');
+                // $('#totaldeductions').val('')
+                // $('#grosspay').val('')
+                // var sno = $("#sno").val().toUpperCase();
+                // var date1 = $("#firstdate").val();
+                // var date2 = $("#enddate").val();
+                // $.ajax(
+                //     {
+                //     type: 'POST',
+                //     url: "SuppliedProductsTransporter?sno=" + sno + "&date1=" + date1 + "&date2=" + date2 + "",
+                //     contentType: 'application/json',
+                //     data: JSON.stringify(),
+                //     success: function (response) {
+                //        populateIntake(response)
+                //     },
+                //     failure: function (response) {
+                //     }
+                // }).then(function () {
+                //     // ...
+                // });
             });
 
             $('#sno').on('change', function () {
+                getintakesdetails();
+            });
+
+            function getintakesdetails() {
                 let isSlopes = '@ViewBag.slopes' === 'True';
                 var transporters = @Html.Raw(Json.Serialize(ViewBag.transporters));
                 var selectVal = $("#sno").val().toUpperCase();
@@ -243,7 +248,7 @@
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();
                 var selectTransporters = transporters.filter(p => p.TransCode === selectVal);
-                if (isSlopes){
+                if (isSlopes) {
                     selectTransporters = transporters.filter(p => p.CertNo === selectVal);
                 }
 
@@ -271,8 +276,7 @@
                         // ...
                     });
                 }
-            });
-
+            }
             function populateIntake(intakes) {
                 let selectVal = $("#sno").val().toUpperCase();
                 let itemTableRows = new Array();
