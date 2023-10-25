@@ -85,7 +85,8 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             await SetInitialValues();
-            return View();
+
+            return View(new EmpDeduction { IsstandingOrder = true});
         }
 
         private async Task SetInitialValues()
@@ -104,7 +105,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,EmpNo,DeductionType,Amount,Auditdate,AuditId,SaccoCode")] EmpDeduction deduction)
+        public async Task<IActionResult> Create(EmpDeduction deduction)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))

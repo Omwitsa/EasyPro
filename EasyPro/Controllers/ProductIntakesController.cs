@@ -1987,7 +1987,7 @@ namespace EasyPro.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateStaffDeduction([Bind("Id,Empno, Date, Deduction, Amount, Remarks, AuditId, saccocode")] EmployeesDed employeesDed)
+        public async Task<IActionResult> CreateStaffDeduction(EmployeesDed employeesDed)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -2028,6 +2028,19 @@ namespace EasyPro.Controllers
                 employeesDed.saccocode = sacco;
                 employeesDed.Empno = employeesDed.Empno;
                 _context.Add(employeesDed);
+
+                _context.EmpDeductions.Add(new EmpDeduction
+                {//EmpNo,Date, DeductionType, Amount, Auditdate, AuditId, SaccoCode,IsstandingOrder
+                    EmpNo = employeesDed.Empno,
+                    Date = employeesDed.Date,
+                    DeductionType = employeesDed.Deduction,
+                    Amount = (decimal)employeesDed.Amount,
+                    Auditdate = DateTime.Now,
+                    AuditId = loggedInUser,
+                    SaccoCode = sacco,
+                    IsstandingOrder = false,
+                });
+
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(StaffDeductionList));

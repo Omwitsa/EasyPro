@@ -230,8 +230,8 @@ namespace EasyPro.Controllers
                 var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
                 var suppliersdeliveries = transporterIntakes.Sum(i => i.ActualKg);
                 var transIntakes = await GetTransporterIntakes(filter.TCode, filter.Date, filter.Individual);
-                var productIntakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate 
-                && i.TransDate <= monthsLastDate).ToListAsync();
+                var productIntakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate 
+                && i.TransDate <= monthsLastDate).ToList();
                 var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
                 if (user.AccessLevel == AccessLevel.Branch)
                 {
@@ -244,7 +244,7 @@ namespace EasyPro.Controllers
                 transIntakes.ForEach(i =>
                 {
                     var supplierIntakes = productIntakes.Where(s => s.Sno == i.Sno);
-                    var supplier = suppliers.FirstOrDefault(s => s.Sno == i.Sno);
+                    var supplier = suppliers.FirstOrDefault(s => s.Sno.Trim().ToUpper().Equals(i.Sno.Trim().ToUpper()));
                     intakes.Add(new
                     {
                         i.Sno,

@@ -10,6 +10,18 @@
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
+                    <div class="col-sm-8 col-xs-12">
+
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Date" class="control-label"></label>
+                            <input type="date" id="transDate" asp-for="Date" class="form-control" />
+                            <span asp-validation-for="Date" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Employee</label>
@@ -17,6 +29,11 @@
                                 <option value=""></option>
                             </select>
                             <span asp-validation-for="EmpNo" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Amount" class="control-label"></label>
+                            <input asp-for="Amount" class="form-control" />
+                            <span asp-validation-for="Amount" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-sm-6 col-xs-12">
@@ -27,18 +44,12 @@
                             </select>
                             <span asp-validation-for="DeductionType" class="text-danger"></span>
                         </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="Amount" class="control-label"></label>
-                            <input asp-for="Amount" class="form-control" />
-                            <span asp-validation-for="Amount" class="text-danger"></span>
+                            <label value="Is Default Deduction?" class="control-label">
+                                <input asp-for="IsstandingOrder" type="checkbox" />@Html.DisplayNameFor(model => model.IsstandingOrder)
+                                <span asp-validation-for="IsstandingOrder" class="text-danger"></span>
+                            </label>
                         </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
                     </div>
                 </div>
 
@@ -61,6 +72,8 @@
     }
     <script type="text/javascript">
         $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#transDate").val(today);
             $(".chzn-select").chosen();
         });
     </script>

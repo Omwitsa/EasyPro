@@ -84,7 +84,22 @@
                                         @Html.DisplayNameFor(model => model.PAYE)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.OTHERS)
+                                        @Html.DisplayNameFor(model => model.STORE)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.ADVANCE)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.LOAN)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.MILKRECOVERY)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.SAVINGS)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.OTHERDED)
                                     </th>
                                     <th>
                                         @Html.DisplayNameFor(model => model.TOTALDED)
@@ -103,50 +118,65 @@
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.EmpNo)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Name)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Basic)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Allowance)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.OtherAllowance)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Gross)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.NHIF)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.NSSF)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.PAYE)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.OTHERS)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.TOTALDED)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.NETPAY)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.ENDINGMONTH)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.User)
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.EmpNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Basic)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Allowance)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.OtherAllowance)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Gross)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.NHIF)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.NSSF)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PAYE)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.STORE)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ADVANCE)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.LOAN)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.MILKRECOVERY)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.SAVINGS)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.OTHERDED)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TOTALDED)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.NETPAY)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ENDINGMONTH)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.User)
+                                        </td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>

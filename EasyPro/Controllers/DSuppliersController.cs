@@ -498,7 +498,9 @@ namespace EasyPro.Controllers
 
             if (ModelState.IsValid)
             {
+                dSupplier.Sno = dSupplier.Sno.Trim();
                 dSupplier.Approval = false;
+                dSupplier.Branch = saccoBranch;
                 dSupplier.Scode = sacco;
                 _context.Add(dSupplier);
 
@@ -618,6 +620,7 @@ namespace EasyPro.Controllers
         public async Task<IActionResult> Edit(long id, DSupplier dSupplier)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             sacco = sacco ?? "";
             ViewBag.isElburgon = StrValues.Elburgon == sacco;
@@ -633,10 +636,10 @@ namespace EasyPro.Controllers
             {
                 try
                 {
-                    dSupplier.Sno = dSupplier.Sno;
+                    dSupplier.Sno = dSupplier.Sno.Trim();
                     dSupplier.Regdate = dSupplier.Regdate;
                     dSupplier.Trader = false;
-                    //dSupplier.Approval = false;
+                    dSupplier.Branch = saccobranch;
                     dSupplier.Br = "A";
                     dSupplier.Freezed = "0";
                     dSupplier.Mass = "0";

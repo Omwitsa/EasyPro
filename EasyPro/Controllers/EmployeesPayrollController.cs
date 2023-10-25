@@ -54,8 +54,11 @@ namespace EasyPro.Controllers
                         NHIF = intake.NHIF,
                         NSSF = intake.NSSF,
                         PAYE = intake.PAYE,
-                        OTHERS = intake.OTHERS,
                         STORE = intake.STORE,
+                        ADVANCE = intake.ADVANCE,
+                        LOAN = intake.LOAN,
+                        MILKRECOVERY = intake.MILKRECOVERY,
+                        SAVINGS = intake.SAVINGS,
                         OTHERDED = intake.OTHERDED,
                         TOTALDED = intake.TOTALDED,
                         NETPAY = intake.NETPAY,
@@ -154,19 +157,25 @@ namespace EasyPro.Controllers
                     var NHIF = getdefaultdeductions.Where(b => b.DeductionType.ToUpper().Contains("NHIF")).Sum(v => v.Amount);
                     var NSSF = getdefaultdeductions.Where(b => b.DeductionType.ToUpper().Contains("NSSF")).Sum(v => v.Amount);
                     var PAYE = getdefaultdeductions.Where(b => b.DeductionType.ToUpper().Contains("PAYE")).Sum(v => v.Amount);
-                    var STORE = getdeductamount.Where(X => X.Deduction == "Store").Sum(v => v.Amount);
-                    var OTHERS = getdeductamount.Where(X => X.Deduction != "Store").Sum(v => v.Amount);
+                    var STORE = getdefaultdeductions.Where(X => X.DeductionType.ToUpper().Contains("STORE")).Sum(v => v.Amount);
+                    var ADVANCE = getdefaultdeductions.Where(X => X.DeductionType.ToUpper().Contains("ADVANCE")).Sum(v => v.Amount);
+                    var LOAN = getdefaultdeductions.Where(X => X.DeductionType.ToUpper().Contains("LOAN")).Sum(v => v.Amount);
+                    var MILKRECOVERY = getdefaultdeductions.Where(X => X.DeductionType.ToUpper().Contains("RECOVERY")).Sum(v => v.Amount);
+                    var SAVINGS = getdefaultdeductions.Where(X => X.DeductionType.ToUpper().Contains("SAVING")).Sum(v => v.Amount);
+                    //var OTHERS = getdeductamount.Where(X => X.Deduction.ToUpper().Contains("STORE")).Sum(v => v.Amount);
                     var dcodes = getdefaultdeductions.Where(c => c.DeductionType.ToUpper().Contains("PAYE") || c.DeductionType.ToUpper().Contains("NHIF") 
-                    || c.DeductionType.ToUpper().Contains("NSSF"))
+                    || c.DeductionType.ToUpper().Contains("NSSF") || c.DeductionType.ToUpper().Contains("STORE") || c.DeductionType.ToUpper().Contains("ADVANCE")
+                    || c.DeductionType.ToUpper().Contains("LOAN") || c.DeductionType.ToUpper().Contains("RECOVERY") || c.DeductionType.ToUpper().Contains("SAVING"))
                     .Select(c => c.DeductionType.ToLower()).ToList();
 
                     var otherallowa = getbefits.Where(c => c.EntType.ToLower().Contains("basic") ||
                    c.EntType.ToLower().Contains("allowance") ).Select(c => c.EntType.ToLower()).ToList();
 
                     var OtherAllowance = getbefits.Where(b => !otherallowa.Contains(b.EntType.ToLower())).Sum(v => v.Amount);
-                    var OTHER = getdeductamount.Where(X => !dcodes.Contains(X.Deduction.ToLower())).Sum(v => v.Amount);
+
+                    var OTHER = getdefaultdeductions.Where(X => !dcodes.Contains(X.DeductionType.ToLower())).Sum(v => v.Amount);
                     var Gross = Basic + Allowance+ OtherAllowance;
-                    var TOTALDED = NHIF + NSSF + PAYE + STORE + OTHERS + OTHER;
+                    var TOTALDED = NHIF + NSSF + PAYE + STORE + ADVANCE + LOAN + MILKRECOVERY + SAVINGS + OTHER;
                     _context.EmployeesPayroll.Add( new EmployeesPayroll {
                         EmpNo = s.Key,
                         Basic = Basic,
@@ -177,7 +186,11 @@ namespace EasyPro.Controllers
                         NSSF = NSSF,
                         PAYE = PAYE,
                         STORE = STORE,
-                        OTHERS = OTHERS,
+                        ADVANCE = ADVANCE,
+                        LOAN = LOAN,
+                        MILKRECOVERY = MILKRECOVERY,
+                        SAVINGS = SAVINGS,
+                        //OTHERS = OTHERS,
                         OTHERDED = OTHER,
                         TOTALDED = TOTALDED,
                         NETPAY = Gross- TOTALDED,

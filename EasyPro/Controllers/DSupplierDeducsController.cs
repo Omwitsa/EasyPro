@@ -31,11 +31,18 @@ namespace EasyPro.Controllers
         // GET: DSupplierDeducs
         public async Task<IActionResult> Index()
         {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            return View(await _context.DSupplierDeducs.ToListAsync());
+            var deductions = _context.DSupplierDeducs.Where(m=>m.Branchcode == sacco).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                deductions = deductions.Where(b=>b.Branch== saccobranch).ToList();
+
+                return View(deductions);
         }
 
         // GET: DSupplierDeducs/Details/5

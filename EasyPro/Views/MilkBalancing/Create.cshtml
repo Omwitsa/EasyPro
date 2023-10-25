@@ -247,6 +247,7 @@
                     contentType: 'application/json',
                     data: JSON.stringify(filter),
                     success: function (response) {
+                        debugger
                         suppliedItems = response.intakes ? response.intakes : [];
                         $("#actual").val(response.suppliersdeliveries);
                         populateDetailsTable();
@@ -300,6 +301,7 @@
 
             function populateDetailsTable() {
                 let itemTableRows = new Array();
+                debugger
                 let totalQnty = 0;
                 $("#balance").empty();
                 suppliedItems.forEach(j => {
