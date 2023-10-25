@@ -50,24 +50,28 @@ namespace EasyPro.Provider
             decimal? grossPay = 0;
             if(filter.Sacco == StrValues.Slopes)
             {
-                var dailyGroupedIntakes = intakes.GroupBy(i => i.Remarks).ToList();
-                dailyGroupedIntakes.ForEach(i =>
+                var dailyGroupedIntakes = intakes.GroupBy(i => i.TransDate).ToList();
+                dailyGroupedIntakes.ForEach(d =>
                 {
-                    var intake = i.FirstOrDefault();
-                    var price = intake.Ppu;
-                    var qty = i.Sum(p => p.Qsupplied);
-                    var payable = qty * price;
-                    decimal? subsidy = 0;
-                    supplies.Add(new
+                    var invoiceGroupedIntakes = d.GroupBy(i => i.Remarks).ToList();
+                    invoiceGroupedIntakes.ForEach(i =>
                     {
-                        date = intake.TransDate,
-                        qnty = qty,
-                        price,
-                        intake.Remarks,
-                        subsidy,
-                        payable
+                        var intake = i.FirstOrDefault();
+                        var price = intake.Ppu;
+                        var qty = i.Sum(p => p.Qsupplied);
+                        var payable = qty * price;
+                        decimal? subsidy = 0;
+                        supplies.Add(new
+                        {
+                            date = intake.TransDate,
+                            qnty = qty,
+                            price,
+                            intake.Remarks,
+                            subsidy,
+                            payable
+                        });
+                        totalKgs += qty;
                     });
-                    totalKgs += qty;
                 });
             }
             else
@@ -216,22 +220,26 @@ namespace EasyPro.Provider
                 var qty = s.Sum(p => p.Qsupplied);
                 var supplies = new List<dynamic>();
 
-                var dailyGroupedIntakes = s.GroupBy(i => i.Remarks).ToList();
-                dailyGroupedIntakes.ForEach(i =>
+                var dailyGroupedIntakes = intakes.GroupBy(i => i.TransDate).ToList();
+                dailyGroupedIntakes.ForEach(d =>
                 {
-                    var intake = i.FirstOrDefault();
-                    var price = intake.Ppu;
-                    var qty = i.Sum(p => p.Qsupplied);
-                    var payable = qty * price;
-                    decimal? subsidy = 0;
-                    supplies.Add(new
+                    var invoiceGroupedIntakes = d.GroupBy(i => i.Remarks).ToList();
+                    invoiceGroupedIntakes.ForEach(i =>
                     {
-                        date = intake.TransDate,
-                        qnty = qty,
-                        price,
-                        intake.Remarks,
-                        subsidy,
-                        payable
+                        var intake = i.FirstOrDefault();
+                        var price = intake.Ppu;
+                        var invQnty = i.Sum(p => p.Qsupplied);
+                        var payable = invQnty * price;
+                        decimal? subsidy = 0;
+                        supplies.Add(new
+                        {
+                            date = intake.TransDate,
+                            qnty = invQnty,
+                            price,
+                            intake.Remarks,
+                            subsidy,
+                            payable
+                        });
                     });
                 });
 

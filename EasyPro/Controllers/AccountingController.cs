@@ -54,7 +54,8 @@ namespace EasyPro.Controllers
             try
             {
                 var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+                var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
                 transactions.ForEach(t =>
                 {
                     t.AuditId = loggedInUser;
@@ -64,6 +65,7 @@ namespace EasyPro.Controllers
                     t.TransDescript = t?.TransDescript ?? "";
                     t.Transactionno = $"{loggedInUser}{DateTime.Now}";
                     t.SaccoCode = sacco;
+                    t.Branch = saccoBranch;
                 });
                 await _context.Gltransactions.AddRangeAsync(transactions);
                 await _context.SaveChangesAsync();

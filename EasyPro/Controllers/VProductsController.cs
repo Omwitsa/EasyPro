@@ -85,7 +85,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Type,Category,Ref,BarCode,Price,Cost,Notes,VenderTax,ARGlAccount,APGlAccount,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] VProduct vProduct)
+        public async Task<IActionResult> Create([Bind("Id,Name,Type,Category,Ref,BarCode,Price,Cost,Notes,VenderTax,APGlAccount,ContraAccount,Closed")] VProduct vProduct)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
@@ -129,7 +129,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Type,Category,Ref,BarCode,Price,Cost,Notes,VenderTax,ARGlAccount,APGlAccount,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] VProduct vProduct)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Type,Category,Ref,BarCode,Price,Cost,Notes,VenderTax,APGlAccount,ContraAccount,Closed")] VProduct vProduct)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))

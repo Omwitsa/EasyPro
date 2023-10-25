@@ -10,6 +10,9 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.Utils;
 using Microsoft.AspNetCore.Http;
 using EasyPro.Constants;
+using EasyPro.ViewModels;
+using NPOI.SS.Formula.Functions;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace EasyPro.Controllers
 {
@@ -85,13 +88,40 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Type,Category,Ref,BarCode,Price,CustomerTax,Cost,Notes,ARGlAccount,APGlAccount,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] CProduct cProduct)
+        public async Task<IActionResult> Create([Bind("Id,Name,Type,Category,Ref,BarCode,Price,CustomerTax,Cost,Notes,ARGlAccount,ContraAccount,Closed")] CProduct cProduct)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
+            SetInitialValues();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            cProduct.Price = cProduct?.Price ?? 0;
+            if (string.IsNullOrEmpty(cProduct.Name))
+            {
+                _notyf.Error("Sorry, Kindly provide product name");
+                return View(cProduct);
+            }
+            if (cProduct.Price < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide Price");
+                return View(cProduct);
+            }
+            if (string.IsNullOrEmpty(cProduct.ARGlAccount))
+            {
+                _notyf.Error("Sorry, Kindly provide Gl Account");
+                return View(cProduct);
+            }
+            if (string.IsNullOrEmpty(cProduct.ContraAccount))
+            {
+                _notyf.Error("Sorry, Kindly provide Contra Account");
+                return View(cProduct);
+            }
+            if (_context.CProducts.Any(g => g.SaccoCode == sacco && g.Name.ToUpper().Equals(cProduct.Name.ToUpper())))
+            {
+                _notyf.Error("Sorry, Product already exist");
+                return View(cProduct);
+            }
             if (ModelState.IsValid)
             {
                 cProduct.Id = Guid.NewGuid();
@@ -129,18 +159,44 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Type,Category,Ref,BarCode,Price,CustomerTax,Cost,Notes,ARGlAccount,APGlAccount,Closed,Personnel,CreatedDate,ModifiedDate,SaccoCode")] CProduct cProduct)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Type,Category,Ref,BarCode,Price,CustomerTax,Cost,Notes,ARGlAccount,ContraAccount,Closed")] CProduct cProduct)
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            SetInitialValues();
             if (id != cProduct.Id)
             {
                 return NotFound();
             }
-
+            cProduct.Price = cProduct?.Price ?? 0;
+            if (string.IsNullOrEmpty(cProduct.Name))
+            {
+                _notyf.Error("Sorry, Kindly provide product name");
+                return View(cProduct);
+            }
+            if (cProduct.Price < 1)
+            {
+                _notyf.Error("Sorry, Kindly provide Price");
+                return View(cProduct);
+            }
+            if (string.IsNullOrEmpty(cProduct.ARGlAccount))
+            {
+                _notyf.Error("Sorry, Kindly provide Gl Account");
+                return View(cProduct);
+            }
+            if (string.IsNullOrEmpty(cProduct.ContraAccount))
+            {
+                _notyf.Error("Sorry, Kindly provide Contra Account");
+                return View(cProduct);
+            }
+            if (_context.CProducts.Any(g => g.SaccoCode == sacco && g.Name.ToUpper().Equals(cProduct.Name.ToUpper()) && g.Id != cProduct.Id))
+            {
+                _notyf.Error("Sorry, Product already exist");
+                return View(cProduct);
+            }
             if (ModelState.IsValid)
             {
                 try
@@ -204,6 +260,184 @@ namespace EasyPro.Controllers
         private bool CProductExists(Guid id)
         {
             return _context.CProducts.Any(e => e.Id == id);
+        }
+
+        public async Task<IActionResult> ReceivedItems()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            return View(await _context.ReceivedItems.Where(p => p.Saccocode == sacco).ToListAsync());
+        }
+
+        public IActionResult AddItem()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            SetItemInitialValues();
+            return View();
+        }
+
+        // POST: CProducts/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddItem([Bind("Product,Quantity")] ReceivedItem item)
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            SetItemInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            if (string.IsNullOrEmpty(item.Product))
+            {
+                _notyf.Error("Sorry, Kindly provide product");
+                return View(item);
+            }
+            if (item.Quantity < 0.01M)
+            {
+                _notyf.Error("Sorry, Kindly provide quantity");
+                return View(item);
+            }
+
+            var inventory = _context.Inventory.FirstOrDefault(i => i.Product == item.Product && i.Saccocode == sacco && i.Branch == saccoBranch);
+            if(inventory == null)
+                _context.Inventory.Add(new Inventory
+                {
+                    Product = item.Product,
+                    Quantity = item.Quantity,
+                    Saccocode = sacco,
+                    Branch = saccoBranch,
+                    AuditId = loggedInUser,
+                    TransDate = DateTime.Today,
+                    AuditDate = DateTime.Now
+                });
+            else
+            {
+                inventory.Quantity += item.Quantity;
+                inventory.AuditId = loggedInUser;
+                inventory.AuditDate = DateTime.Now;
+            }
+
+            if (ModelState.IsValid)
+            {
+                item.Saccocode = sacco;
+                item.Branch = saccoBranch;
+                item.AuditId = loggedInUser;
+                item.TransDate = DateTime.Today;
+                item.AuditDate = DateTime.Now;
+                _context.Add(item);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(ReceivedItems));
+            }
+            return View(item);
+        }
+
+        private void SetItemInitialValues()
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var products = _context.CProducts.Where(c => c.SaccoCode == sacco)
+                .Select(C => C.Name).ToList();
+            ViewBag.products = new SelectList(products);
+            var types = new string[] { "Cash", "Mpesa" };
+            ViewBag.types = new SelectList(types);
+        }
+
+        public async Task<IActionResult> SoldItems()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            return View(await _context.SoldItems.Where(p => p.Saccocode == sacco).ToListAsync());
+        }
+
+        public IActionResult SellItem()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            SetItemInitialValues();
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SellItem([Bind("Product,Quantity,PaymentMode,TransDate")] SoldItem item)
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            SetItemInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            if (string.IsNullOrEmpty(item.Product))
+            {
+                _notyf.Error("Sorry, Kindly provide product");
+                return View(item);
+            }
+            if (item.Quantity < 0.01M)
+            {
+                _notyf.Error("Sorry, Kindly provide quantity");
+                return View(item);
+            }
+
+            var product = _context.CProducts.FirstOrDefault(p => p.Name == item.Product && p.SaccoCode == sacco);
+            if (product == null)
+            {
+                _notyf.Error("Sorry, Product does not exist");
+                return View(item);
+            }
+            var inventory = _context.Inventory.FirstOrDefault(i => i.Product == item.Product && i.Saccocode == sacco && i.Branch == saccoBranch);
+            if (inventory == null)
+                inventory = new Inventory();
+            inventory.Quantity = inventory?.Quantity ?? 0;
+            inventory.Quantity -= item.Quantity;
+            if (inventory.Quantity < 0)
+            {
+                _notyf.Error("Sorry, Kindly check on your stock");
+                return View(item);
+            }
+
+            decimal? amount = item.Quantity * product.Price;
+            _context.Gltransactions.Add(new Gltransaction
+            {
+                AuditId = loggedInUser,
+                TransDate = item.TransDate.GetValueOrDefault(),
+                AuditTime = DateTime.Now,
+                Source = "",
+                TransDescript = "Yoghurt",
+                Transactionno = $"{loggedInUser}{DateTime.Now}",
+                SaccoCode = sacco,
+                Branch = saccoBranch,
+                Amount = (decimal)amount,
+                DrAccNo = product.ContraAccount,
+                CrAccNo = product.ARGlAccount,
+            });
+
+            if (ModelState.IsValid)
+            {
+                item.Saccocode = sacco;
+                item.Branch = saccoBranch;
+                item.AuditId = loggedInUser;
+                item.AuditDate = DateTime.Now;
+                item.Amount = amount;
+                item.UnitPrice = product.Price;
+                _context.Add(item);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(SoldItems));
+            }
+            return View(item);
         }
     }
 }

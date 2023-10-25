@@ -85,7 +85,7 @@ namespace EasyPro.Controllers
                 Transactionno = $"{loggedInUser}{DateTime.Now}",
                 SaccoCode = sacco,
                 DrAccNo = customer.ARGlAccount,
-                CrAccNo = product.APGlAccount,
+                CrAccNo = product.ContraAccount,
                 Branch = saccoBranch
             });
 
@@ -101,7 +101,7 @@ namespace EasyPro.Controllers
                 SaccoCode = sacco,
                 Branch = saccoBranch,
                 DrAccNo = tax.GlAccount,
-                CrAccNo = product.APGlAccount
+                CrAccNo = product.ContraAccount
             });
 
             invoice.SaccoCode = sacco;
@@ -160,7 +160,7 @@ namespace EasyPro.Controllers
                 TransDescript = "Credit Note",
                 Transactionno = $"{loggedInUser}{DateTime.Now}",
                 SaccoCode = sacco,
-                DrAccNo = product.APGlAccount,
+                DrAccNo = product.ContraAccount,
                 Branch = saccoBranch,
                 CrAccNo = customer.ARGlAccount
             });
@@ -176,7 +176,7 @@ namespace EasyPro.Controllers
                 Transactionno = $"{loggedInUser}{DateTime.Now}",
                 SaccoCode = sacco,
                 Branch = saccoBranch,
-                DrAccNo = product.APGlAccount,
+                DrAccNo = product.ContraAccount,
                 CrAccNo = tax.GlAccount
             });
 

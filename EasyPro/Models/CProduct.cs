@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace EasyPro.Models
 {
@@ -14,7 +15,9 @@ namespace EasyPro.Models
 		public string CustomerTax { get; set; }
 		public decimal? Cost { get; set; }
 		public string Notes { get; set; }
-		public string APGlAccount { get; set; }
+		[Display(Name = "GlAccount")]
+		public string ARGlAccount { get; set; }
+		public string ContraAccount { get; set; }
 		public bool Closed { get; set; }
 		public string Personnel { get; set; }
 		public DateTime? CreatedDate { get; set; }

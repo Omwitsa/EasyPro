@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace EasyPro.Models
 {
@@ -14,8 +16,10 @@ namespace EasyPro.Models
 		public decimal? Cost { get; set; }
 		public string Notes { get; set; }
 		public string VenderTax { get; set; }
-		public string ARGlAccount { get; set; }
-		public bool Closed { get; set; }
+        [Display(Name = "GlAccount")]
+        public string APGlAccount { get; set; }
+        public string ContraAccount { get; set; }
+        public bool Closed { get; set; }
 		public string Personnel { get; set; }
 		public DateTime? CreatedDate { get; set; }
 		public DateTime? ModifiedDate { get; set; }

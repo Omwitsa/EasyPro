@@ -1,0 +1,73 @@
+﻿@model IEnumerable<EasyPro.Models.SoldItem>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="normal-table-list mg-t-30">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <h3 class="text-danger fa-bold">Sold Items</h3>
+                </div>
+                <div class="col-sm-4 col-xs-4">
+                </div>
+                <div class="col-sm-4 col-xs-4 text-right">
+                    <a asp-action="SellItem" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
+
+            <div class="bsc-tbl-hvr table-border-style">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Product)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Quantity)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.PaymentMode)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TransDate)
+                                </th>
+                                @*<th></th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Product)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Quantity)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PaymentMode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TransDate)
+                                    </td>
+                                    @*<td>
+                                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                    </td>*@
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+}
