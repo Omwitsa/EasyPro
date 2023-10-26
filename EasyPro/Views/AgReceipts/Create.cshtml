@@ -53,7 +53,6 @@
                     </div>
                 </div>
             </div>
-            <hr />
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
@@ -274,28 +273,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <hr />
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
                         <a id="next" class="btn btn-success">Next</a>
@@ -524,6 +501,11 @@
                     let print = $('#print').prop('checked');
                     let sms = $('#sms').prop('checked');
                     let net = $('#Net').val();
+                    let rno = $('#RNo').val();
+                    if (rno === "") {
+                        alert("Sorry, Kindly Provide the Receipt No.");
+                        return;
+                    }
                     $.ajax({
                         type: 'POST',
                         url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&isCash=" + isCash + "&sms=" + sms + "&print=" + print + "&net=" + net,
@@ -544,14 +526,13 @@
                             saleItems = new Array();
                             populateTable();
                             populateDetailsTable();
+                            gettransaction();
                         },
                         failure: function (response) {
                         }
                     }).then(function () {
                        
                     });
-                    debugger
-                    gettransaction();
                 });
 
                 function populateDetailsTable() {
@@ -573,16 +554,6 @@
             function gettransaction(){
                 let TDate = $('#TDate').val();
                 let InvoiceNo = $('#RNo').val();
-                // if (isStaff == true) {
-                //     SNo = $('#staffNo').val();
-                // }
-                // if (isTransport == true) {
-                //     SNo = $('#tsno').val();
-                // }
-                // if (isCash == true) {
-                //     SNo = 'CASH';
-                // }
-                debugger
                 $.ajax({
                     type: 'POST',
                     url: "getsalesforthis?InvoiceNo=" + InvoiceNo + "&TDate=" + TDate,
@@ -599,7 +570,6 @@
             }
             function getsalesforthisresponse(saleItems){
                 let itemTableRows = new Array();
-                debugger
                 saleItems.forEach(i => {
                     var ddate = i.TDate;
                     var dd1 = new Date(ddate).toLocaleDateString();
@@ -659,13 +629,14 @@
             }
 
             $('#tsno').on('keyup', function () {
-                var products = @Html.Raw(Json.Serialize(Model.DTransporter));
-                var selectVal = $("#tsno").val().toUpperCase();
-                var selectProducts = products.filter(p => p.TransCode === selectVal);
-                if (selectProducts[0]) {
-                    $("#tname").val(selectProducts[0].TransName);
-                    sumtotalkgsT();
-                }
+                // var products = @Html.Raw(Json.Serialize(Model.DTransporter));
+                // var selectVal = $("#tsno").val().toUpperCase();
+                // var selectProducts = products.filter(p => p.TransCode === selectVal);
+                // if (selectProducts[0]) {
+                //     $("#tname").val(selectProducts[0].TransName);
+                //     sumtotalkgsT();
+                // }
+                getSelectedDateTransporterIntakes();
             });
             function sumtotalkgsT() {
                 let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
@@ -690,6 +661,26 @@
                 var selectVal = $("#sno").val().toUpperCase();
                 getSelectedDateIntakes();
             });
+            function getSelectedDateTransporterIntakes() {
+                var sno = $('#tsno').val().toUpperCase();
+                var date = $('#TDate').val();
+                debugger
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "selectedDateTransporterIntake?sno=" + sno + "&date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#tname").val(response.todaysIntake);
+                            let net = response.gross - response.deductions;
+                            $("#TNet").val(net.toFixed(2));
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
             function getSelectedDateIntakes() {
                 var zone = $('#zone').val();
                 var sno = $('#sno').val().toUpperCase();
@@ -702,8 +693,13 @@
                         url: "selectedDateIntake?sno=" + sno + "&date=" + date,
                         contentType: 'application/json',
                         success: function (response) {
-                            $("#names").val(response);
-                            sumtotalkgs();
+                            //$("#names").val(response);
+                            $("#names").val(response.todaysIntake);
+                            $("#Gross").val(response.gross.toFixed(2));
+                            $("#Deductions").val(response.deductions.toFixed(2));
+                            let net = response.gross - response.deductions;
+                            $("#Net").val(net.toFixed(2));
+                            ///sumtotalkgs();
                         },
                         failure: function (response) {
                         }
