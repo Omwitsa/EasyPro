@@ -17,7 +17,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="DName" class="control-label">Name</label>
-                                <select class="chzn-select form-control" asp-for="DName" asp-items="@ViewBag.debtorsnames">
+                                <select class="chzn-select form-control" id="name" asp-for="DName" asp-items="@ViewBag.debtorsnames">
                                     <option value=""></option>
                                 </select>
                                 <span asp-validation-for="DName" class="text-danger"></span>
@@ -48,7 +48,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Dispatchkgs" class="control-label">Dispatch kgs</label>
-                                <input asp-for="Dispatchkgs" class="form-control" />
+                                <input asp-for="Dispatchkgs" id="dispatch" class="form-control" />
                                 <span asp-validation-for="Dispatchkgs" class="text-danger"></span>
                             </div>
                         </div>
@@ -59,7 +59,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Remarks" class="control-label"></label>
-                                <input id="intake" asp-for="Remarks" class="form-control" />
+                                <input id="remarks" asp-for="Remarks" class="form-control" />
                                 <span asp-validation-for="Remarks" class="text-danger"></span>
                             </div>
                         </div>
@@ -67,7 +67,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-
+                                
                             </div>
                         </div>
                     </div>
@@ -75,7 +75,8 @@
                 <hr />
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Save</button>
+                        @*<button type="submit" class="btn btn-success">Save</button>*@
+                        <a id="save" class="btn btn-success">Save</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a asp-action="Index" class="btn btn-primary">Back to List</a>
@@ -101,21 +102,52 @@
                 getSelectedDateIntakes();
             });
 
+            $('#save').on('click', function () {
+                var dispatch = {
+                    dname: $("#name").val(),
+                    transdate: $("#date").val(),
+                    dispatchkgs: $("#dispatch").val(),
+                    tintake: $("#intake").val(),
+                    remarks: $("#remarks").val(),
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: "save",
+                    contentType: 'application/json',
+                    data: JSON.stringify(dispatch),
+                    success: function (response) {
+                        response = response ? response : {};
+                        if (response.success) {
+                            $("#name").val('');
+                            $("#dispatch").val('');
+                            $("#remarks").val('');
+                            $("#intake").val(response.todaysIntake);
+                        }
+                    },
+                    failure: function (response) {
+                        
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+
             function getSelectedDateIntakes() {
                 var date = $('#date').val();
                 $.ajax(
-                    {
-                        type: 'GET',
-                        url: "selectedDateIntake?date=" + date,
-                        contentType: 'application/json',
-                        success: function (response) {
-                            $("#intake").val(response);
-                        },
-                        failure: function (response) {
-                        }
-                    }).then(function () {
+                {
+                    type: 'GET',
+                    url: "selectedDateIntake?date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        $("#intake").val(response);
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
 
-                    });
+                });
             }
         });
     </script>

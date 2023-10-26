@@ -208,7 +208,7 @@ namespace EasyPro.Controllers
                 if (dispatch.TIntake < dispatch.Dispatchkgs)
                 {
                     _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
-                    return View();
+                    return View(dispatch);
                 }
 
                 if (ModelState.IsValid)
@@ -234,9 +234,15 @@ namespace EasyPro.Controllers
                         CrAccNo = debtor.AccCr,
                         Branch = saccoBranch
                     });
+
+                    var todaysIntake = await GetTodaysIntake(dispatch.Transdate);
                     _context.SaveChanges();
                     _notyf.Success("Dispatch saved successfully");
-                    return RedirectToAction(nameof(Index));
+                    return View(new Dispatch
+                    {
+                        Transdate = dispatch.Transdate,
+                        TIntake = todaysIntake,
+                    });
                 }
             }
             catch (Exception ex)
@@ -244,6 +250,71 @@ namespace EasyPro.Controllers
                 return View(dispatch);
             }
             return View(dispatch);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> Save([FromBody] Dispatch dispatch)
+        {
+            try
+            {
+                var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+                utilities.SetUpPrivileges(this);
+                GetInitialValues();
+                var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+                var locations = await _context.Dispatch.Where(i => i.DName == dispatch.DName && i.Dcode == sacco && i.Transdate == dispatch.Transdate).ToListAsync();
+                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+                if (user.AccessLevel == AccessLevel.Branch)
+                    locations = locations.Where(s => s.Branch.ToUpper().Equals(saccoBranch.ToUpper())).ToList();
+
+                if (dispatch.TIntake < dispatch.Dispatchkgs)
+                {
+                    _notyf.Error("Sorry, Dispatch amount cannot be greater than stock");
+                    return Json(new
+                    {
+                        success = false
+                    });
+                }
+
+                dispatch.auditid = loggedInUser;
+                dispatch.Dcode = sacco;
+                dispatch.Branch = saccoBranch;
+                _context.Dispatch.Add(dispatch);
+
+                var debtor = _context.DDebtors.FirstOrDefault(d => d.Dname.Trim().ToUpper().Equals(dispatch.DName.ToUpper()) && d.Dcode == sacco);
+                _context.Gltransactions.Add(new Gltransaction
+                {
+                    AuditId = loggedInUser,
+                    TransDate = dispatch.Transdate,
+                    Amount = (decimal)(debtor.Price * dispatch.Dispatchkgs),
+                    AuditTime = DateTime.Now,
+                    DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
+                    Source = dispatch.DName,
+                    TransDescript = "Sales",
+                    Transactionno = $"{loggedInUser}{DateTime.Now}",
+                    SaccoCode = sacco,
+                    DrAccNo = debtor.AccDr,
+                    CrAccNo = debtor.AccCr,
+                    Branch = saccoBranch
+                });
+
+                _context.SaveChanges();
+                var todaysIntake = await GetTodaysIntake(dispatch.Transdate);
+                _notyf.Success("Dispatch saved successfully");
+                return Json(new
+                {
+                    success = true,
+                    todaysIntake
+                });
+            }
+            catch (Exception)
+            {
+                _notyf.Error("Sorry, An error occurred");
+                return Json(new
+                {
+                    success = false
+                });
+            }
         }
 
         // GET: Dispatches/Edit/5
