@@ -1112,10 +1112,10 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            var count = _context.AgReceipts
+            var count = await _context.AgReceipts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch)
                 .OrderByDescending(u => u.RNo)
-                .Select(b => b.RNo);
+                .Select(b => b.RNo).ToListAsync();
 
             var selectedno = count.FirstOrDefault();
             double num = Convert.ToInt32(selectedno);
@@ -1130,32 +1130,32 @@ namespace EasyPro.Controllers
                 SBal = 0,
                 TDate = DateTime.Today,
             };
-
+            GetInitialValuesAsync();
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-            var transporters = await _context.DTransporters.Where(s => s.ParentT == sacco).ToListAsync();
-            var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
-            var products = await _context.AgProducts.Where(p => p.saccocode == sacco).ToListAsync();
-            var intakes = await _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-            && u.TransDate >= startDate && u.TransDate <= endDate).ToListAsync();
+            //var transporters = await _context.DTransporters.Where(s => s.ParentT == sacco).ToListAsync();
+            //var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
+            var products = await _context.AgProducts.Where(p => p.saccocode == sacco && p.Branch == saccobranch).ToListAsync();
+            //var intakes = await _context.ProductIntake.Where(u => u.SaccoCode.ToUpper().Equals(sacco.ToUpper())
+            //&& u.TransDate >= startDate && u.TransDate <= endDate).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
             {
-                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
-                suppliers = suppliers.Where(s => s.Branch == saccobranch).ToList();
-                products = products.Where(p => p.Branch == saccobranch).ToList();
-                intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
+                //transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
+                //suppliers = suppliers.Where(s => s.Branch == saccobranch).ToList();
+                //products = products.Where(p => p.Branch == saccobranch).ToList();
+                //intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
             }
 
-            var productNames = products.Select(b => b.PName);
-            ViewBag.agproductsall = new SelectList(productNames, "");
+            //var productNames = products.Select(b => b.PName);
+            //ViewBag.agproductsall = new SelectList(productNames, "");
             var agrovetsales = new Agrovetsales
             {
                 AgReceipt = receipt,
-                DTransporter = transporters,
-                DSuppliers = suppliers,
+                //DTransporter = transporters,
+                //DSuppliers = suppliers,
                 AgProductobj = products,
-                ProductIntake = intakes
+                //ProductIntake = intakes
             };
             return View(agrovetsales);
 
