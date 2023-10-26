@@ -3,6 +3,40 @@
 @{
     ViewData["Title"] = "Create";
 }
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f6;
+        }
+
+        #customers tr:hover {
+            background-color: #c3d8eb;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1110px;
+        height: 130px;
+        overflow: auto;
+    }
+</style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
@@ -198,6 +232,14 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                                            <div class="nk-int-st">
+                                                <label class="control-label">Staff No</label>
+                                                <input id="staffNo" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -259,8 +301,6 @@
                         <a id="next" class="btn btn-success">Next</a>
                     </div>
                 </div>
-
-                <hr />
                 <div class="bsc-tbl-hvr table-border-style">
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -281,15 +321,27 @@
                 @*<hr />*@
                 @*<h5 class="text-center text-danger">Make Payement</h5>*@
                 <div class="row">
-                    <div class="col-sm-4 col-xs-12">
+                     <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <input id="print" type="checkbox" />
+                            <label for="print" class="control-label">Print</label>
+                        </div>
+                     </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <input id="sms" type="checkbox" />
+                            <label for="sms" class="control-label">SMS</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="form-group">
                                 <label class="control-label">Total Amount</label>
                                 <input id="Amnttopay" class="form-control" readonly />
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xs-12">
+                    <div class="col-sm-2 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Receive Amount</label>
@@ -307,20 +359,6 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <input id="print" type="checkbox" />
-                            <label for="print" class="control-label">Print</label>
-                        </div>
-                        <div class="form-group">
-                            <input id="sms" type="checkbox" />
-                            <label for="sms" class="control-label">SMS</label>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    </div>
-                </div>
                 <hr />
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
@@ -330,7 +368,44 @@
                         <a id="save1" class="btn btn-success">Save</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        @if(!ViewBag.slopes){
                         <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                        }
+                       
+                    </div>
+                </div>
+                <div class="bsc-tbl-hvr table-border-style">
+
+                    <div class="table-responsive">
+                        <div class="divScroll">
+                            <table class="table table-hover" id="customers">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                           Date
+                                        </th>
+                                        <th>
+                                           Name
+                                        </th>
+                                        <th>
+                                            Quantity
+                                        </th>
+                                        <th>
+                                            Amount
+                                        </th>
+                                        <th>
+                                            InvoiceNo
+                                        </th>
+                                        <th>
+                                            Member No
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statement">
+                                    
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -347,6 +422,8 @@
             $(".chzn-select").chosen();
             let isStaff = false;
             let isCash = false;
+            let isCheckoff = false;
+            let isTransport = false;
             let hasSend = true;
             let saleItems = new Array();
             $("#pname").val("");
@@ -370,6 +447,8 @@
                 if ($(this).prop("checked") && $(this).attr('id') == 'cash') {
                     isStaff = false;
                     isCash = true;
+                    isCheckoff = false;
+                    isTransport = false;
                     $('#cash_details').show();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
@@ -382,6 +461,8 @@
                 if ($(this).prop("checked") && $(this).attr('id') == 'checkOff') {
                     isStaff = false;
                     isCash = false;
+                    isCheckoff = true;
+                    isTransport = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').show();
                     $('#transpoterDetails').hide();
@@ -394,6 +475,8 @@
                 if ($(this).prop("checked") && $(this).attr('id') == 'transporter') {
                     isStaff = false;
                     isCash = false;
+                    isCheckoff = false;
+                    isTransport = true;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
                     $('#staffDetails').hide();
@@ -406,6 +489,8 @@
                 if ($(this).prop("checked") && $(this).attr('id') == 'staff') {
                     isStaff = true;
                     isCash = false;
+                    isCheckoff = false;
+                    isTransport = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
@@ -465,6 +550,8 @@
                     }).then(function () {
                        
                     });
+                    debugger
+                    gettransaction();
                 });
 
                 function populateDetailsTable() {
@@ -483,6 +570,52 @@
                 }
             });
 
+            function gettransaction(){
+                let TDate = $('#TDate').val();
+                let InvoiceNo = $('#RNo').val();
+                // if (isStaff == true) {
+                //     SNo = $('#staffNo').val();
+                // }
+                // if (isTransport == true) {
+                //     SNo = $('#tsno').val();
+                // }
+                // if (isCash == true) {
+                //     SNo = 'CASH';
+                // }
+                debugger
+                $.ajax({
+                    type: 'POST',
+                    url: "getsalesforthis?InvoiceNo=" + InvoiceNo + "&TDate=" + TDate,
+                    contentType: 'application/json',
+                    data: JSON.stringify(saleItems),
+                    success: function (response) {
+                        getsalesforthisresponse(response);
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+
+                });
+            }
+            function getsalesforthisresponse(saleItems){
+                let itemTableRows = new Array();
+                debugger
+                saleItems.forEach(i => {
+                    var ddate = i.TDate;
+                    var dd1 = new Date(ddate).toLocaleDateString();
+                    itemTableRows.push(`<tr>
+                                                    <td>${dd1}</td>
+                                                    <td>${i.Remarks}</td>
+                                                    <td>${i.Qua}</td>
+                                                    <td>${i.Amount}</td>
+                                                    <td>${i.RNo}</td>
+                                                    <td>${i.Sno1}</td>
+                                        </tr>`
+                    );
+                });
+
+                $('#statement').html(itemTableRows);
+            }
             $('#pname').on('change', function () {
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
                 var selectVal = $("#pname").val();
@@ -545,19 +678,10 @@
                 selectProducts.forEach(p => {
                     sumDr += p.DR;
                     sumCr += p.CR;
-                })
+                });
                 totalsum = sumCr - sumDr;
                 $("#TNet").val(totalsum);
             }
-        @*$('#sno').on('keyup', function () {
-            var products = @Html.Raw(Json.Serialize(Model.DSuppliers));
-            var selectVal = parseInt($("#sno").val());
-            var selectProducts = products.filter(p => p.Sno === selectVal);
-            if (selectProducts[0]) {
-            $("#names").val(selectProducts[0].Names);
-            sumtotalkgs();
-            }
-            });*@
             $('#zone').change(function () {
                     var selectVal = $("#sno").val().toUpperCase();
                     getSelectedDateIntakes();
@@ -570,11 +694,12 @@
                 var zone = $('#zone').val();
                 var sno = $('#sno').val().toUpperCase();
                 var mevng = $('#mevng').val();
+                var date = $('#TDate').val();
 
                 $.ajax(
                     {
                         type: 'GET',
-                        url: "selectedDateIntake?sno=" + sno,
+                        url: "selectedDateIntake?sno=" + sno + "&date=" + date,
                         contentType: 'application/json',
                         success: function (response) {
                             $("#names").val(response);

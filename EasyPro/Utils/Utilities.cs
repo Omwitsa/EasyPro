@@ -122,13 +122,13 @@ namespace EasyPro.Utils
 
                 _context.Usergroups.Add(val);
                 _context.SaveChanges();
-
+                
                 usergroup = _context.Usergroups.FirstOrDefault(u => u.GroupName.Equals(group)
                        && u.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
             }
             //end 
-            
-           
+            controller.ViewBag.slopes = StrValues.Slopes == sacco;
+
             controller.ViewBag.sacco = sacco;
             controller.ViewBag.filesRole = usergroup.Files;
             controller.ViewBag.accountsRole = usergroup.Accounts;

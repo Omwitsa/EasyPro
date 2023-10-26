@@ -608,7 +608,15 @@
                                 @if (ViewBag.productSalesRole)
                                 {
                                     <li>
-                                        <a asp-controller="AgReceipts" asp-action="Index">Product Sales</a>
+                                        
+                                        @if (ViewBag.slopes)
+                                        {
+                                            <a asp-controller="AgReceipts" asp-action="Create">Product Sales</a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="AgReceipts" asp-action="Index">Product Sales</a>
+                                        }
                                     </li>
                                 }
                                 @if (ViewBag.salesReturnRole)

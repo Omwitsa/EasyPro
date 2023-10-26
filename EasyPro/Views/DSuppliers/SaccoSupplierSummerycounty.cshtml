@@ -12,7 +12,7 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label asp-for="County" class="control-label"></label>
-                            <select asp-for="County" class="form-control" asp-items="@ViewBag.counties">
+                            <select id="showtable" asp-for="County" class="form-control" asp-items="@ViewBag.counties">
                                 <option value="" disabled selected hidden>Please Choose...</option>
                             </select>
                             <span asp-validation-for="County" class="text-danger"></span>
@@ -27,74 +27,51 @@
             <div class="bsc-tbl-hvr table-border-style">
                 <div class="table-responsive">
                     <div>
-                        <strong>Total Suppliers:</strong>
+                        @* <strong>Total Suppliers:</strong>
                         <span>@Model.TotalSupplies</span>
                         &nbsp; &nbsp; &nbsp;
                         <strong>Male:</strong>
                         <span>@Model.TotalMale</span>
                         &nbsp; &nbsp; &nbsp;
                         <strong>Female</strong>
-                        <span>@Model.TotalFemale</span>
+                        <span>@Model.TotalFemale</span> *@
                     </div>
-                    @foreach (var county in Model.countySuppliers)
-                    {
-                        <div>
-                            <hr />
-                            <strong>County:</strong>
-                            <span>@county.County</span>
-                            &nbsp; &nbsp; &nbsp;
-                            <strong>Total Suppliers:</strong>
-                            <span>@county.TotalSupplies</span>
-                            &nbsp; &nbsp; &nbsp;
-                            <strong>Male:</strong>
-                            <span>@county.TotalMale</span>
-                            &nbsp; &nbsp; &nbsp;
-                            <strong>Female:</strong>
-                            <span>@county.TotalFemale</span>
-                        </div> <hr />
+                    @* @foreach (var county in Model.countySuppliers)
+                    { *@
+                    <div class="row">
+                        <hr />
+                        <strong>County:</strong>
+                        <span><input id="suplc" /></span>
+                        <strong>Suppliers:</strong>
+                        <span><input id="supl" /></span>
+                        <strong>Male:</strong>
+                        <span><input id="suplm" /></span>
+                        <strong>Female:</strong>
+                        <span><input id="suplf" /></span>
+                    </div> <hr />
 
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        POs
-                                    </th>
-                                    <th>
-                                        Suppliers
-                                    </th>
-                                    <th>
-                                        Male
-                                    </th>
-                                    <th>
-                                        Female
-                                    </th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="geeks">
-                                @foreach (var sacco in county.suppliers)
-                                {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => sacco.Sacco)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => sacco.Suppliers)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => sacco.Male)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => sacco.Female)
-                                        </td>
-                                        <td>
-                                            <a asp-action="SaccoSuppliersdetails" asp-route-id="@sacco.Sacco">Details</a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    POs
+                                </th>
+                                <th>
+                                    Suppliers
+                                </th>
+                                <th>
+                                    Male
+                                </th>
+                                <th>
+                                    Female
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="geeks">
+                        </tbody>
+                    </table>
+                    @* } *@
                 </div>
             </div>
         </div>
@@ -102,6 +79,54 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            $("#showtable").on('change', function () {
+                getSelectedDateIntakes1();
+            });
+            function getSelectedDateIntakes1() {
+                var county = $('#showtable').val();
+
+                $.ajax(
+                    {
+                        type: 'post',
+                        url: "getcountydetails?county=" + county,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            populateIntake(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
+            function populateIntake(intake) {
+                let itemTableRows = new Array();
+                var county = intake.county;
+                var allsup = intake.supplierSummery.TotalSupplies;
+                var malesup = intake.supplierSummery.TotalMale;
+                var femalesup = intake.supplierSummery.TotalFemale;
+                $("#suplc").val(county);
+                $("#supl").val(allsup);
+                $("#suplm").val(malesup);
+                $("#suplf").val(femalesup);
+                intake.saccoSuppliers.forEach(i => {
+                    itemTableRows.push(`<tr>
+                                                    <td>${i.Sacco}</td>
+                                                    <td>${i.Suppliers}</td>
+                                                    <td>${i.Male.toFixed(2)}</td>
+                                                    <td>${i.Female.toFixed(2)}</td>
+                                        </tr>`)
+                });
+
+                $('#geeks').html(itemTableRows);
+
+            }
+        });
+    </script>
 }
 

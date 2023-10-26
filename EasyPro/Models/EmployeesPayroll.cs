@@ -15,7 +15,7 @@ namespace EasyPro.Models
         public decimal? NHIF { get; set; }
         public decimal? NSSF { get; set; }
         public decimal? PAYE { get; set; }
-        public decimal? OTHERS { get; set; }
+        //public decimal? OTHERS { get; set; }
         public decimal? STORE { get; set; }
         public decimal? OTHERDED { get; set; }
         public decimal? TOTALDED { get; set; }
@@ -24,5 +24,9 @@ namespace EasyPro.Models
         public DateTime? auditdatetime { get; set; }
         public string Audituser { get; set; }
         public string SaccoCode { get; set; }
+        public decimal? ADVANCE { get; set; }
+        public decimal? LOAN { get; set; }
+        public decimal? MILKRECOVERY { get; set; }
+        public decimal? SAVINGS { get; set; }
     }
 }

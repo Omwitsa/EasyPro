@@ -40,7 +40,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">Staff Name</label>
-                                    <select required  id="name" asp-for="EmployeesDed.Empno" class="form-control" asp-items="@ViewBag.staffs"></select>
+                                    <select required id="name" asp-for="EmployeesDed.Empno" class="chzn-select form-control" asp-items="@ViewBag.staffs"></select>
                                 </div>
                             </div>
                         </div>
@@ -52,7 +52,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="EmployeesDed.Deduction" class="control-label"></label>
-                                    <select id="Deduction" required asp-for="EmployeesDed.Deduction" class="form-control" asp-items="@ViewBag.Description"></select>
+                                    <select id="Deduction" required asp-for="EmployeesDed.Deduction" class="chzn-select form-control" asp-items="@ViewBag.Description"></select>
                                     <span asp-validation-for="EmployeesDed.Deduction" class="text-danger"></span>
                                 </div>
                             </div>
@@ -105,8 +105,8 @@
             $("#name").val("");
             $("#Deduction").val("");
             $("#amount").val("0");
-                        
-         });
+            $(".chzn-select").chosen();
+        });
     </script>
 }
 

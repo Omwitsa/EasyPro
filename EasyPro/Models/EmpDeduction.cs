@@ -8,8 +8,10 @@ namespace EasyPro.Models
         public string EmpNo { get; set; }
         public string DeductionType { get; set; }
         public decimal? Amount { get; set; }
+        public DateTime? Date { get; set; }
         public DateTime? Auditdate { get; set; }
         public string AuditId { get; set; }
         public string SaccoCode { get; set; }
+        public bool IsstandingOrder { get; set; }
     }
 }
