@@ -600,9 +600,10 @@ namespace EasyPro.Controllers
                 var tradersNos = transporters.Where(t => t.TraderRate > 0)
                     .Select(t => t.TransCode.ToUpper()).ToList();
                 var traderPayroll = dTransportersPayRolls.Where(t => tradersNos.Contains(t.Code.ToUpper()));
+                var totalTradersTrans = traderPayroll.Sum(t => t.GrossPay) - traderPayroll.Sum(t => t.Subsidy);
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRADERS TRANS";
-                worksheet.Cell(currentRow, 2).Value = traderPayroll.Sum(t => t.Subsidy);
+                worksheet.Cell(currentRow, 2).Value = totalTradersTrans;
 
                 var transporter = transporters.FirstOrDefault(t => t.CertNo == "KIAMARIGA");
                 var kiamariga = dTransportersPayRolls.Where(p => p.Code.ToUpper().Equals(transporter.TransCode.ToUpper()));
@@ -618,14 +619,14 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 1).Value = "KDK 015D";
                 worksheet.Cell(currentRow, 2).Value = tankerNet;
 
-                var totalTransCost = transportersNet + traderPayroll.Sum(t => t.Subsidy) + kiamarigaNet
+                var totalTransCost = transportersNet + totalTradersTrans + kiamarigaNet
                     + tankerNet;
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORT COST";
                 worksheet.Cell(currentRow, 4).Value = totalTransCost;
 
-                var totalTradersFee = traderPayroll.Sum(t => t.GrossPay) - traderPayroll.Sum(t => t.Subsidy);
+                var totalTradersFee = traderPayroll.Sum(t => t.Subsidy);
                 currentRow++;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRADERS FEES";
