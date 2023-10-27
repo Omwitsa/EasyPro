@@ -19,7 +19,6 @@
                     </div>
                 </div>
             </div>
-            <hr />
             <form asp-action="CreateReversal">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
@@ -233,41 +232,10 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                @*<label asp-for="AgReceipt.Branch" class="control-label"></label>
-                                <select id="bname" asp-for="AgReceipt.Branch" class="form-control" asp-items="@ViewBag.branches">
-                                    <option value="" disabled selected hidden>Please select</option>
-                                </select>
-                                <span asp-validation-for="AgReceipt.Branch" class="text-danger"></span>*@
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <hr />
-
-                <div class="row">
                     <div class="col-sm-4 col-xs-12">
                         <a id="next" class="btn btn-success">Next</a>
                     </div>
                 </div>
-
-                <hr />
                 <div class="bsc-tbl-hvr table-border-style">
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -285,7 +253,6 @@
                         </table>
                     </div>
                 </div>
-                <hr />
                 <h5 class="text-center text-danger">Make Payement</h5>
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
@@ -300,7 +267,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Receive Amount</label>
-                                <input id="ttolpaid" class="form-control"readonly />
+                                <input id="ttolpaid" class="form-control" readonly />
                             </div>
                         </div>
                     </div>
@@ -322,7 +289,10 @@
                         <a id="save1" class="btn btn-success">Save</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                        @if (!ViewBag.slopes)
+                        {
+                            <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                        }
                     </div>
                 </div>
             </form>
@@ -334,12 +304,12 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-<script type="text/javascript">
-    $(function () {
-        $(".chzn-select").chosen();
-        let saleItems = new Array();
-        let isStaff = false;
-        let isCash = false;
+    <script type="text/javascript">
+        $(function () {
+            $(".chzn-select").chosen();
+            let saleItems = new Array();
+            let isStaff = false;
+            let isCash = false;
             $("#pname").val("");
             $("#sname").val("");
             $('#cash').prop('unchecked');
@@ -429,6 +399,11 @@
                     let print = $('#print').prop('checked');
                     let sms = $('#sms').prop('checked');
                     let net = $('#Net').val();
+                    let rno = $('#RNo').val();
+                    if (rno ==="") {
+                        alert("Sorry, Kindly Provide the Receipt No.");
+                        return;
+                    }
                     $.ajax({
 
                         type: 'POST',
@@ -458,16 +433,16 @@
                     });
                 });
 
-               function populateDetailsTable() {
+                function populateDetailsTable() {
                     let itemTableRows = new Array();
                     saleItems.forEach(j => {
                         drAmt = j.isdebit ? j.amount : 0;
                         crAmt = j.isdebit ? 0 : j.amount;
                         itemTableRows.push(`<tr>
-				        <td>${j.glAcc}</td>
-                        <td>${drAmt}</td>
-                        <td>${crAmt}</td>
-			        </tr>`);
+                                <td>${j.glAcc}</td>
+                                <td>${drAmt}</td>
+                                <td>${crAmt}</td>
+                            </tr>`);
                     });
 
                     $('#details').html(itemTableRows);
@@ -475,8 +450,8 @@
             });
             $('#pname').on('change', function () {
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
-                 var selectVal = $("#pname").val();
-                 var selectProducts = products.filter(p => p.PName.trim() === selectVal);
+                var selectVal = $("#pname").val();
+                var selectProducts = products.filter(p => p.PName.trim() === selectVal);
                 if (selectProducts[0]) {
                     $("#pcode").val(selectProducts[0].PCode);
                     $("#qnty").val("1");
@@ -517,15 +492,28 @@
             }
 
             $('#tsno').on('keyup', function () {
-                var products = @Html.Raw(Json.Serialize(Model.DTransporter));
-                var selectVal = $("#tsno").val().toUpperCase();
-                var selectProducts = products.filter(p => p.TransCode.toUpperCase() === selectVal);
-                if (selectProducts[0]) {
-                    $("#tname").val(selectProducts[0].TransName);
-                    sumtotalkgsT();
-                }
+                getSelectedDateTransporterIntakes();
             });
+            function getSelectedDateTransporterIntakes() {
+                var sno = $('#tsno').val().toUpperCase();
+                var date = $('#TDate').val();
+                debugger
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "selectedDateTransporterIntake?sno=" + sno + "&date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#tname").val(response.todaysIntake);
+                            let net = response.gross - response.deductions;
+                            $("#TNet").val(net.toFixed(2));
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
 
+                    });
+            }
             function sumtotalkgsT() {
                 let products = @Html.Raw(Json.Serialize(Model.ProductIntake));
                 var selectVal = $("#tsno").val().toUpperCase();
@@ -538,37 +526,43 @@
                     sumDr += p.DR;
                     sumCr += p.CR;
                 })
-                totalsum = sumCr-sumDr;
+                totalsum = sumCr - sumDr;
                 $("#TNet").val(totalsum);
             }
             $('#zone').change(function () {
                 var selectVal = $("#sno").val().toUpperCase();
-            getSelectedDateIntakes();
-        });
-        $('#sno').on('keyup',function () {
-            var selectVal = $("#sno").val().toUpperCase();
-            getSelectedDateIntakes();
-        });
-        function getSelectedDateIntakes() {
-            var zone = $('#zone').val();
-            var sno = $('#sno').val().toUpperCase();
-            var mevng = $('#mevng').val();
+                getSelectedDateIntakes();
+            });
+            $('#sno').on('keyup', function () {
+                var selectVal = $("#sno").val().toUpperCase();
+                getSelectedDateIntakes();
+            });
+            function getSelectedDateIntakes() {
+                var zone = $('#zone').val();
+                var sno = $('#sno').val().toUpperCase();
+                var mevng = $('#mevng').val();
+                var date = $('#TDate').val();
 
-            $.ajax(
-                {
-                    type: 'GET',
-                    url: "selectedDateIntake?sno=" + sno,
-                    contentType: 'application/json',
-                    success: function (response) {
-                        $("#names").val(response);
-                        sumtotalkgs();
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "selectedDateIntake?sno=" + sno + "&date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            //$("#names").val(response);
+                            $("#names").val(response.todaysIntake);
+                            $("#Gross").val(response.gross.toFixed(2));
+                            $("#Deductions").val(response.deductions.toFixed(2));
+                            let net = response.gross - response.deductions;
+                            $("#Net").val(net.toFixed(2));
+                            ///sumtotalkgs();
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
 
-                });
-        }
+                    });
+            }
 
             function sumtotalkgs() {
                 let products = @Html.Raw(Json.Serialize(ViewBag.productintake));
@@ -606,7 +600,7 @@
                 //     document.getElementById('qnty').focus();
                 //     return false;
                 // }
-                // return true;
+                 return true;
             }
 
             $('#ttolpaid').on('keyup', function () {
@@ -628,13 +622,13 @@
                 saleItems.forEach(i => {
                     Amnttopay += i.DR;
                     itemTableRows.push(`<tr>
-                                            <td>${i.pcode}</td>
-                                            <td>${i.pname}</td>
-                                            <td>${i.Qsupplied}</td>
-                                            <td>${i.sprice}</td>
-                                            <td>${i.totalamnt}</td>
-                                            <td>${i.Sno}</td>
-                                        </tr>`);
+                                                    <td>${i.pcode}</td>
+                                                    <td>${i.pname}</td>
+                                                    <td>${i.Qsupplied}</td>
+                                                    <td>${i.sprice}</td>
+                                                    <td>${i.totalamnt}</td>
+                                                    <td>${i.Sno}</td>
+                                                </tr>`);
                 });
 
                 $('#details').html(itemTableRows);
@@ -648,10 +642,10 @@
                     drAmt = j.isdebit ? j.amount : 0;
                     crAmt = j.isdebit ? 0 : j.amount;
                     itemTableRows.push(`<tr>
-                            <td>${j.glAcc}</td>
-                            <td>${drAmt}</td>
-                            <td>${crAmt}</td>
-                        </tr>`);
+                                    <td>${j.glAcc}</td>
+                                    <td>${drAmt}</td>
+                                    <td>${crAmt}</td>
+                                </tr>`);
                 });
 
                 $('#details').html(itemTableRows);
@@ -664,15 +658,15 @@
                         url: "getProductBal?pname=" + pname,
                         contentType: 'application/json',
                         success: function (response) {
-                            var soldProducts = saleItems.filter(p => p.Description.trim() === pname);
-                            soldProducts.forEach(p => response.OBal -= p.Qsupplied);
-                            if (response.OBal > 0) {
+                             var soldProducts = saleItems.filter(p => p.Description.trim() === pname);
+                             soldProducts.forEach(p => response.OBal -= p.Qsupplied);
+                            // if (response.OBal > 0) {
                                 getSoldItems();
-                            }
-                            else {
-                                alert("Sorry, Kindly check on your stock balance");
-                            }
-                            $("#sbal").val(response.OBal);
+                            // }
+                            // else {
+                            //     alert("Sorry, Kindly check on your stock balance");
+                            // }
+                             $("#sbal").val(response.OBal);
                         },
                         failure: function (response) {
                         }
@@ -682,7 +676,7 @@
             }
 
             function getSoldItems() {
-
+                
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));
                 if (!checkbal()) {
                     return;
@@ -732,7 +726,7 @@
                 }
             }
         });
-</script>
+    </script>
 }
 
 
