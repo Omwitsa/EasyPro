@@ -340,12 +340,7 @@ namespace EasyPro.Controllers
                 suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
                 transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
             }
-            else
-            {
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
-                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
-            }
-
+         
             ViewBag.suppliers = suppliers.Select(s => new DSupplier
             {
                 Sno = s.Sno,

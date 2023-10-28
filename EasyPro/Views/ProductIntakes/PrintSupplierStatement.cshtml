@@ -102,7 +102,9 @@
                 <hr />
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a id="print" class="btn btn-success">Print</a>
+                        <a id="print" class="btn btn-success">Print
+                            <img id="statement_loading" src="~/Images/Loading.gif" alt="Loading" width="50" height="30">
+                        </a>
                     </div>
                 </div>
             </form>
@@ -117,6 +119,7 @@
     <script type="text/javascript">
         $(function () {
             $(".chzn-select").chosen();
+            $('#statement_loading').hide();
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
             $('#sno').on('keyup', function () {
@@ -157,6 +160,7 @@
             });
             
             $('#print').on('click', function () {
+                $('#statement_loading').show();
                 var branch = $("#branch").val();
                 var date = $("#date").val();
                 var name = $("#name").val();
@@ -186,6 +190,7 @@
                         contentType: 'application/json',
                         data: JSON.stringify(filter),
                         success: function (response) {
+                            $('#statement_loading').hide();
                             $("#branch").val('');
                             $("#date").val('');
                             $("#sno").val('');
@@ -342,7 +347,6 @@
                                                 *************************</br>
                                                 Net Pay Kshs: ${response.netPay}</br>`;
                 }
-
                 
                 var content = `<div class="row" id="printMe">
                                         <div class="col-xs-12 text-center">

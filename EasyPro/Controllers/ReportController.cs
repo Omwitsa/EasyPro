@@ -544,8 +544,7 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(filter.DateTo.GetValueOrDefault().Year, filter.DateTo.GetValueOrDefault().Month, 1);
             var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            var payrolls = _context.DPayrolls.Where(p => p.EndofPeriod >= startDate && p.EndofPeriod <= monthsLastDate
-                && p.SaccoCode == sacco).ToList();
+            var payrolls = _context.DPayrolls.Where(p => p.EndofPeriod == monthsLastDate && p.SaccoCode == sacco).ToList();
             var dTransportersPayRolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == sacco && p.EndPeriod == monthsLastDate).ToList();
             var transporters = _context.DTransporters.Where(t => t.ParentT == sacco).ToList();
             if (user.AccessLevel == AccessLevel.Branch)
@@ -588,14 +587,14 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 4).Value = farmersPayables;
 
                 // Transport section
-                var kiamaringaOrTanker = transporters.Where(t => t.TraderRate < 1 && (t.CertNo == "KIAMARIGA" || t.CertNo == "KDK 015D"))
+                var transNos = transporters.Where(t => t.TraderRate < 1 && t.CertNo != "KIAMARIGA" && t.CertNo != "KDK 015D")
                     .Select(t => t.TransCode.ToUpper()).ToList();
-                var transporterPayroll = dTransportersPayRolls.Where(t => !kiamaringaOrTanker.Contains(t.Code.ToUpper()));
-                var transportersNet = transporterPayroll.Where(t => t.NetPay > 0).Sum(t => t.NetPay);
+                var transporterPayroll = dTransportersPayRolls.Where(t => transNos.Contains(t.Code.ToUpper()));
+                var transporterAmount = transporterPayroll.Sum(t => t.GrossPay) - transporterPayroll.Sum(t => t.Subsidy);
                 currentRow++;
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORTERS";
-                worksheet.Cell(currentRow, 2).Value = transportersNet;
+                worksheet.Cell(currentRow, 2).Value = transporterAmount;
 
                 var tradersNos = transporters.Where(t => t.TraderRate > 0)
                     .Select(t => t.TransCode.ToUpper()).ToList();
@@ -607,20 +606,20 @@ namespace EasyPro.Controllers
 
                 var transporter = transporters.FirstOrDefault(t => t.CertNo == "KIAMARIGA");
                 var kiamariga = dTransportersPayRolls.Where(p => p.Code.ToUpper().Equals(transporter.TransCode.ToUpper()));
-                var kiamarigaNet = kiamariga.Where(t => t.NetPay > 0).Sum(t => t.NetPay);
+                var kiamarigaAmount = kiamariga.Sum(t => t.GrossPay) - kiamariga.Sum(t => t.Subsidy);
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "KIAMARIGA TRANS";
-                worksheet.Cell(currentRow, 2).Value = kiamarigaNet;
+                worksheet.Cell(currentRow, 2).Value = kiamarigaAmount;
 
                 var tranKdk = transporters.FirstOrDefault(t => t.CertNo == "KDK 015D");
                 var tranKdks = dTransportersPayRolls.Where(p => p.Code.ToUpper().Equals(tranKdk.TransCode.ToUpper()));
-                var tankerNet = tranKdks.Where(t => t.NetPay > 0).Sum(t => t.NetPay);
+                var tankerAmount = tranKdks.Sum(t => t.GrossPay) - tranKdks.Sum(t => t.Subsidy);
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "KDK 015D";
-                worksheet.Cell(currentRow, 2).Value = tankerNet;
+                worksheet.Cell(currentRow, 2).Value = tankerAmount;
 
-                var totalTransCost = transportersNet + totalTradersTrans + kiamarigaNet
-                    + tankerNet;
+                var totalTransCost = transporterAmount + totalTradersTrans + kiamarigaAmount
+                    + tankerAmount;
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "TRANSPORT COST";
@@ -687,17 +686,23 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 1).Value = "AI";
                 worksheet.Cell(currentRow, 2).Value = ai;
 
-                decimal? kiinga = payrolls.Sum(t => t.KIIGA);  //2800;
+                decimal? kiinga = payrolls.Sum(t => t.KIIGA);
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "KIIGA";
-                worksheet.Cell(currentRow, 2).Value = kiinga;  
+                worksheet.Cell(currentRow, 2).Value = kiinga;
 
+                decimal? milkRecovery = payrolls.Sum(t => t.MILK_RECOVERY);  
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "MILK RECOVERY";
+                worksheet.Cell(currentRow, 2).Value = milkRecovery;
+
+                var kiroha = payrolls.Sum(t => t.KIROHA);
                 var deductions = payrolls.Sum(t => t.NOV_OVPMNT) + saccoShares + saccoSavings + store + societyAdvance + instantAdvance 
-                    + normalLoan + ai + kiinga + payrolls.Sum(t => t.KIROHA) + societyShares;
+                    + normalLoan + ai + kiinga + kiroha + societyShares + milkRecovery;
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "KIROHA DAIRY";
-                worksheet.Cell(currentRow, 2).Value = payrolls.Sum(t => t.KIROHA);
+                worksheet.Cell(currentRow, 2).Value = kiroha;
                 worksheet.Cell(currentRow, 4).Value = deductions;
                 
                 var netPay = totalPayment - deductions;

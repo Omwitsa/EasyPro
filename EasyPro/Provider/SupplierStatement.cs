@@ -186,31 +186,27 @@ namespace EasyPro.Provider
         {
             filter.Code = filter.Code ?? "";
             filter.Branch = filter.Branch ?? "";
-
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
+            IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake.Where(i => i.SaccoCode == filter.Sacco && i.Branch.ToUpper().Equals(filter.Branch.ToUpper())
+            && i.TransDate >= startDate && i.TransDate <= endDate);
+
+            IQueryable<DTransporter> transporters = _context.DTransporters.Where(t => t.ParentT == filter.Sacco && t.Tbranch == filter.Branch);
+            var transporter = await transporters.FirstOrDefaultAsync(t => t.TransCode == filter.Code);
+            if (StrValues.Slopes == filter.Sacco)
+                transporter = await transporters.FirstOrDefaultAsync(t => t.CertNo == filter.Code);
+
+            var price = await _context.DPrices.FirstOrDefaultAsync(p => p.SaccoCode == filter.Sacco);
+            var transporterIntakeDates = productIntakeslist.Where(i => i.ProductType.ToUpper().Equals(price.Products.ToUpper()) && i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()))
+                .Select(i => i.Auditdatetime);
+
+            var intakes = await productIntakeslist.Where(i => transporterIntakeDates.Contains(i.Auditdatetime)
+            && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
+                .OrderBy(i => i.TransDate).ToListAsync();
 
             var suppliers = await _context.DSuppliers.Where(s => s.Scode == filter.Sacco && s.Branch == filter.Branch).ToListAsync();
-            var transporter = await _context.DTransporters.FirstOrDefaultAsync(t => t.TransCode == filter.Code && t.ParentT == filter.Sacco && t.Tbranch == filter.Branch);
-            if (StrValues.Slopes == filter.Sacco)
-            {
-                transporter = await _context.DTransporters.FirstOrDefaultAsync(t => t.CertNo == filter.Code && t.ParentT == filter.Sacco && t.Tbranch == filter.Branch);
-                filter.Code = transporter?.TransCode ?? "";
-            }
-
-            var transporterSuppliers = await _context.DTransports.Where(s => s.TransCode == filter.Code && s.saccocode == filter.Sacco && s.Branch == filter.Branch)
-                .Select(s => s.Sno.ToUpper()).ToListAsync();
-
-            var productIntakeslist = await _context.ProductIntake.Where(i => transporterSuppliers.Contains(i.Sno.ToUpper()) && i.SaccoCode == filter.Sacco
-            && i.TransDate >= startDate && i.TransDate <= endDate && i.Branch.ToUpper().Equals(filter.Branch.ToUpper()))
-                .ToListAsync();
-
-            var intakes = productIntakeslist.Where(i => (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
-                .OrderBy(i => i.TransDate).ToList();
-
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
-
             var supplierGroupedIntakes = intakes.GroupBy(i => i.Sno).ToList();
             var transpoterIntakes = new List<dynamic>();
             supplierGroupedIntakes.ForEach(s =>
@@ -220,7 +216,7 @@ namespace EasyPro.Provider
                 var qty = s.Sum(p => p.Qsupplied);
                 var supplies = new List<dynamic>();
 
-                var dailyGroupedIntakes = intakes.GroupBy(i => i.TransDate).ToList();
+                var dailyGroupedIntakes = s.GroupBy(i => i.TransDate).ToList();
                 dailyGroupedIntakes.ForEach(d =>
                 {
                     var invoiceGroupedIntakes = d.GroupBy(i => i.Remarks).ToList();

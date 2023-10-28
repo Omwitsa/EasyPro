@@ -80,7 +80,9 @@
                 <hr />
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a id="print" class="btn btn-success">Print</a>
+                        <a id="print" class="btn btn-success">Print
+                            <img id="payslip_loading" src="~/Images/Loading.gif" alt="Loading" width="50" height="30">
+                        </a>
                     </div>
                 </div>
             </form>
@@ -96,6 +98,7 @@
         $(function () {
             let standingOrders = @Html.Raw(Json.Serialize(ViewBag.standingOrders));
             $(".chzn-select").chosen();
+            $('#payslip_loading').hide();
             var today = new Date().toISOString().split('T')[0];
             $("#date").val(today);
             $('#sno').on('keyup', function () {
@@ -124,6 +127,7 @@
             });
 
             $('#print').on('click', function () {
+                $('#payslip_loading').show();
                 var date = $("#date").val();
                 var name = $("#name").val();
                 var code = $("#sno").val();
@@ -151,6 +155,7 @@
                         contentType: 'application/json',
                         data: JSON.stringify(filter),
                         success: function (response) {
+                            $('#payslip_loading').hide();
                             $("#date").val('');
                             $("#sno").val('');
                             var content = '';
