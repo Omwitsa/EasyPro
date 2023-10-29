@@ -11,6 +11,7 @@ using EasyPro.Constants;
 using Microsoft.AspNetCore.Http;
 using System;
 using Syncfusion.EJ2.Spreadsheet;
+using Syncfusion.EJ2.Linq;
 
 namespace EasyPro.Controllers
 {
@@ -80,14 +81,19 @@ namespace EasyPro.Controllers
         private void GetInitialValues()
         {
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
 
             var Descriptionname = _context.DDcodes.Where(d => d.Dcode == sacco).Select(b => b.Description).ToList();
             ViewBag.Description = new SelectList(Descriptionname);
 
 
-            var brances = _context.DBranch.Select(b => b.Bname).ToList();
-            ViewBag.brances = new SelectList(brances);
+            var brances = _context.DBranch.Where(m=>m.Bcode == sacco).ToList();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                brances = brances.Where(n=>n.Bname==saccoBranch).ToList();
+
+            ViewBag.brances = new SelectList(brances.Select(b => b.Bname).ToList());
 
             List<SelectListItem> gender = new()
             {

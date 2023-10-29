@@ -95,6 +95,7 @@
                                 <tr id="htitl"><th></th> <th colspan="4"> <strong>STORE STOCK ANALYSIS REPORT</strong></th></tr>
                                 <tr id="hstartd"><th></th><th colspan="4" id="sema"></th>  </tr>
                                 <tr id="huser"><th></th><th colspan="4" hidden id="user"></th>  </tr>
+                                <tr id="companyname"><th></th><th colspan="4">Amtech Technologies ltd</th>  </tr>
                                 <tr id="her"><th colspan="7"><hr /></th></tr>
                                 <tr>
                                     <th>Date</th>
@@ -144,6 +145,7 @@
             $("#htitl").hide();
             $("#hstartd").hide();
             $("#huser").hide();
+            $("#companyname").hide();
             $("#her").hide();
              $('#excel_report').on('click', function () {
                  heading();
@@ -178,6 +180,7 @@
                 $("#hstartd").show();
                 $("#huser").show();
                 $("#her").show();
+                $("#companyname").show();
                 heading();
                 var divToPrint = document.getElementById("customers");
                 newWin = window.open("");
@@ -189,6 +192,7 @@
                 $("#hstartd").hide();
                 $("#huser").hide();
                 $("#her").hide();
+                $("#companyname").hide();
             });
 
             $("#showtable").click(function () {

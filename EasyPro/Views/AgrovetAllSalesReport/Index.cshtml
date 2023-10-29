@@ -63,7 +63,12 @@
                                     </select>
                                 </div>
                                 <div class="col-sm-2 col-xs-12">
-                                    
+                                    <label class="control-label">Sales Type</label>
+                                    <select id="salestype" class="chzn-select form-control">
+                                        <option value="0">ALL</option>
+                                        <option value="1">OUTWARDS</option>
+                                        <option value="2">INWARDS</option>
+                                    </select>
                                 </div>
                                 <div class="col-sm-2 col-xs-12">
                                 </div>
@@ -108,6 +113,7 @@
                                                             <tr id="htitl"><th></th> <th colspan="4"> <strong>All Sales Report</strong></th></tr>
                                                             <tr id="hstartd"><th></th><th colspan="4" id="sema"></th>  </tr>
                                                             <tr id="huser"><th></th><th colspan="4" hidden id="user"></th>  </tr>
+                                                            <tr id="companyname"><th></th><th colspan="4">Amtech Technologies ltd</th>  </tr>
                                                             <tr><th colspan="7"><hr /></th></tr>
                                                             <tr>
                                                                 <th>Date</th>
@@ -129,6 +135,8 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-sm-4 col-xs-12">
+                                                        <label class="control-label">Total Quantity</label>
+                                                        <input id="totalquntity" class="form-control" readonly />
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                         <label class="control-label">Total Sales</label>
@@ -165,6 +173,7 @@
                                                             <tr id="htitl1"><th></th> <th colspan="4"> <strong>All Sales Summary Report</strong></th></tr>
                                                             <tr id="hstartd1"><th></th><th colspan="4" id="sema1"></th>  </tr>
                                                             <tr id="huser1"><th></th><th colspan="4" hidden id="user1"></th>  </tr>
+                                                            <tr id="companyname1"><th></th><th colspan="4">Amtech Technologies ltd</th>  </tr>
                                                             <tr><th colspan="7"><hr /></th></tr>
                                                             <tr>
                                                                 <th>Date</th>
@@ -181,6 +190,8 @@
 
                                                 <div class="row">
                                                     <div class="col-sm-4 col-xs-12">
+                                                        <label class="control-label">Total Quantity</label>
+                                                        <input id="totquntity" class="form-control" readonly />
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                         <label class="control-label">Total Sales</label>
@@ -217,6 +228,7 @@
                                                             <tr id="htitl2"><th></th> <th colspan="4"> <strong>All Sales Detailed Summary Report</strong></th></tr>
                                                             <tr id="hstartd2"><th></th><th colspan="4" id="sema2"></th>  </tr>
                                                             <tr id="huser2"><th></th><th colspan="4" hidden id="user2"></th>  </tr>
+                                                            <tr id="companyname2"><th></th><th colspan="4">Amtech Technologies ltd</th>  </tr>
                                                             <tr><th colspan="7"><hr /></th></tr>
                                                             <tr>
                                                                 <th>Date</th>
@@ -232,6 +244,7 @@
 
                                                 <div class="row">
                                                     <div class="col-sm-4 col-xs-12">
+                                                        
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                         <label class="control-label">Total Sales</label>
@@ -275,16 +288,20 @@
             $("#htitl2").hide();
             $("#hstartd2").hide();
             $("#huser2").hide();
+            $("#companyname").hide();
+            $("#companyname1").hide();
+            $("#companyname2").hide();
 
             $("#showtable").click(function () {
                 var startDate = $("#firstdate").val();
                 var endDate = $("#enddate").val();
+                var salestype = $("#salestype").val();
                 var zone = $("#zone").val() ? $("#zone").val() : "";
                 var product = $("#product").val() ? $("#product").val() : "";
                 $.ajax(
                     {
                         type: 'POST',
-                        url: `allSalesreport?startDate=${startDate}&endDate=${endDate}&product=${product}`,
+                        url: `allSalesreport?startDate=${startDate}&endDate=${endDate}&product=${product}&salestype=${salestype}`,
                         contentType: 'application/json',
                         success: function (response) {
                             populateReports(response)
@@ -371,6 +388,7 @@
                 $("#htitl").show();
                 $("#hstartd").show();
                 $("#huser").show();
+                $("#companyname").show();
                 heading();
                 var divToPrint = document.getElementById("tbl_rep_report");
                 newWin = window.open("");
@@ -381,12 +399,14 @@
                 $("#htitl").hide();
                 $("#hstartd").hide();
                 $("#huser").hide();
+                $("#companyname").hide();
             });
             $('#print_report1').on('click', function () {
                 $("#com1").show();
                 $("#htitl1").show();
                 $("#hstartd1").show();
                 $("#huser1").show();
+                $("#companyname1").show();
                 heading1();
                 var divToPrint = document.getElementById("tbl_summary");
                 newWin = window.open("");
@@ -397,12 +417,14 @@
                 $("#htitl1").hide();
                 $("#hstartd1").hide();
                 $("#huser1").hide();
+                $("#companyname1").hide();
             });
             $('#print_reportdetailed').on('click', function () {
                 $("#com2").show();
                 $("#htitl2").show();
                 $("#hstartd2").show();
                 $("#huser2").show();
+                $("#companyname2").show();
                 heading2();
                 var divToPrint = document.getElementById("tbl_summarydetailedre");
                 newWin = window.open("");
@@ -413,6 +435,7 @@
                 $("#htitl2").hide();
                 $("#hstartd2").hide();
                 $("#huser2").hide();
+                $("#companyname2").hide();
             });
 
             $('#excel_summerydetailed').on('click', function () {
@@ -430,12 +453,13 @@
             $("#showSummery").click(function () {
                 var startDate = $("#firstdate").val();
                 var endDate = $("#enddate").val();
+                var salestype = $("#salestype").val();
                 var zone = $("#zone").val() ? $("#zone").val() : "";
                 var product = $("#product").val() ? $("#product").val() : "";
                 $.ajax(
                     {
                         type: 'POST',
-                        url: `allSalesSummary?startDate=${startDate}&endDate=${endDate}&product=${product}`,
+                        url: `allSalesSummary?startDate=${startDate}&endDate=${endDate}&product=${product}&salestype=${salestype}`,
                         contentType: 'application/json',
                         success: function (response) {
                             response = response ? response : []
@@ -450,12 +474,13 @@
             $("#showSummery2").click(function () {
                 var startDate = $("#firstdate").val();
                 var endDate = $("#enddate").val();
+                var salestype = $("#salestype").val();
                 var zone = $("#zone").val() ? $("#zone").val() : "";
                 var product = $("#product").val() ? $("#product").val() : "";
                 $.ajax(
                     {
                         type: 'POST',
-                        url: `allSalesSummaryDetailed?startDate=${startDate}&endDate=${endDate}&product=${product}`,
+                        url: `allSalesSummaryDetailed?startDate=${startDate}&endDate=${endDate}&product=${product}&salestype=${salestype}`,
                         contentType: 'application/json',
                         success: function (response) {
                             response = response ? response : []
@@ -473,8 +498,15 @@
                 $('#Tselling').val('0');
                 $('#TPL').val('0');
                 let Tselling = 0;
+                let quntity = 0;
+                let totalquntity = 0;
                 intakes.forEach(i => {
                     Tselling += i.Amount;
+                    quntity = i.Qua;
+                    if (i.Amount < 0) {
+                        quntity = quntity * -1;
+                    }
+                    totalquntity += quntity;
                     let type = "All";
                     let dd1 = new Date(i.TDate).toLocaleDateString();
                     itemTableRows.push(`<tr>
@@ -483,7 +515,7 @@
                                 <td>${i.PCode}</td>
                                 <td>${i.Remarks}</td>
                                 <td>'${i.SNo}</td>
-                                <td>${i.Qua}</td>
+                                <td>${quntity}</td>
                                 <td>${i.Amount}</td>
                                 <td>${i.Transby}</td>
                                 <td>${i.UserId}</td>
@@ -493,6 +525,7 @@
                 });
 
                 $('#Tselling').val(Tselling);
+                $('#totalquntity').val(totalquntity);
                 $('#tbl_rep_details').html(itemTableRows);
             }
 
@@ -501,22 +534,30 @@
                 $('#Tbuying').val('0');
                 $('#Tselling').val('0');
                 $('#TPL').val('0');
+                let quntity = 0;
+                let totalquntity = 0;
                 let Tselling = 0;
                 summary.forEach(i => {
                     i.sno = i.sno ? i.sno : "";
                     i.product = i.product ? i.product : "";
+                    quntity = i.quantity;
+                    if (i.amount < 0) {
+                        quntity = quntity * -1;
+                    }
+                    totalquntity += quntity;
                     Tselling += i.amount;
                     let dd1 = new Date(i.date).toLocaleDateString();
                     itemTableRows.push(`<tr>
                                 <td>${dd1}</td>
                                 <td>${i.product}</td>
                                 <td>${i.productName}</td>
-                                <td>${i.quantity}</td>
+                                <td>${quntity}</td>
                                 <td>${i.amount}</td>
                             </tr>`)
                 });
 
                 $('#Tsell').val(Tselling);
+                $('#totquntity').val(totalquntity);
                 $('#tbl_sum_details').html(itemTableRows);
             }
 

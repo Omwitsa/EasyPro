@@ -104,6 +104,7 @@
                                 <tr id="htitl"><th></th> <th colspan="4"> <strong>STORE PRODUCT RECEIVE REPORT</strong></th></tr>
                                 <tr id="hstartd"><th></th><th colspan="4" id="sema"></th>  </tr>
                                 <tr id="huser"><th></th><th colspan="4" hidden id="user"></th>  </tr>
+                                <tr id="companyname"><th></th><th colspan="4">Amtech Technologies ltd</th>  </tr>
                                 <tr id="her"><th colspan="7"><hr /></th></tr>
 
                                 <tr>
@@ -151,6 +152,7 @@
             $("#hstartd").hide();
             $("#huser").hide();
             $("#her").hide();
+            $("#companyname").hide();
 
             $('#excel_report').on('click', function () {
                 heading();
@@ -169,6 +171,7 @@
                 var date20 = new Date(date2).toLocaleDateString();
                 var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
                 var usa = "Printed By  :" + user ;
+                var com = ;
                 //$("#sema").val(sm);
                 let itemTableRows1 = new Array();
                 let itemTableRow = new Array();
@@ -186,6 +189,7 @@
                 $("#hstartd").show();
                 $("#huser").show();
                 $("#her").show();
+                $("#companyname").show();
                 heading();
                 var divToPrint = document.getElementById("customers");
                 newWin = window.open("");
@@ -197,7 +201,9 @@
                 $("#hstartd").hide();
                 $("#huser").hide();
                 $("#her").hide();
+                $("#companyname").hide();
             });
+
             $("#showtable").click(function () {
                 var date1 = $("#firstdate").val();
                 var date2 = $("#enddate").val();

@@ -169,7 +169,7 @@ namespace EasyPro.Controllers
                     if (string.IsNullOrEmpty(cash))
                         cashchecker = true;
 
-                    var product = products.FirstOrDefault(p => p.PName.ToUpper().Equals(intake.Description.ToUpper()));
+                    var product = products.FirstOrDefault(p => p.PName.ToUpper().Equals(intake.Description.ToUpper()) );
                     
 
                     if (product != null)
@@ -296,7 +296,7 @@ namespace EasyPro.Controllers
 
                 if (StrValues.Slopes == sacco)
                     receipts = receipts.OrderByDescending(m => m.RId).ToList();
-                
+                GetInitialValuesAsync();
                 var receipt1 = receipts.FirstOrDefault();
                 double rno = Convert.ToInt32(receipt1.RNo);
                 return Json(new

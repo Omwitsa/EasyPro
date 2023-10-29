@@ -41,13 +41,27 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="normal-table-list mg-t-30">
             <div class="row">
-                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                <div class="col-sm-4 col-xs-7">
                     <h3 class="text-danger fa-bold">Employees Payroll</h3>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                <div class="col-sm-2 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">Ending Month</label>
+                        <input id="startDate" type="date" class="form-control" />
+                    </div>
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                
+                <div class="col-sm-2 col-xs-3">
+                    <label class="control-label">---------</label>
                     <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </div>
+                <div class="col-sm-2 col-xs-2">
+                    <label class="control-label">--------</label>
+                    <a id="excel_report" class="btn btn-success w3-circle">Export Excel</a>
+                </div>
+                <div class="col-sm-2 col-xs-2">
+                    <label class="control-label">--------</label>
+                    <a id="print_report" class="btn btn-success w3-circle">Print Report</a>
                 </div>
             </div>
             <div class="bsc-tbl-hvr table-border-style">
@@ -55,135 +69,208 @@
                     <div class="table-responsive">
                         <table class="table table-hover" id="customers">
                             <thead>
+                                <tr id="com"><th></th><th colspan="4" id="company"></th></tr>
+                                <tr id="htitl"><th></th> <th colspan="4"> <strong>STAFF PAYROLL REPORT</strong></th></tr>
+                                <tr id="hstartd"><th></th><th colspan="4" id="sema"></th>  </tr>
+                                <tr id="huser"><th></th><th colspan="4" hidden id="user"></th>  </tr>
+                                <tr id="companyname"><th></th><th colspan="4">Amtech Technologies ltd</th>  </tr>
+                                <tr id="her"><th colspan="7"><hr /></th></tr>
                                 <tr>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.EmpNo)
+                                        EmpNo
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Name)
+                                        Emp Name
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Basic)
+                                       Basic Salary
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Allowance)
+                                        Allowance
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.OtherAllowance)
+                                        Other Allowance
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Gross)
+                                        Gross
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.NHIF)
+                                        NHIF
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.NSSF)
+                                       NSSF
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.PAYE)
+                                       PAYE
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.STORE)
+                                        STORE
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.ADVANCE)
+                                        ADVANCE
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.LOAN)
+                                       LOAN
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.MILKRECOVERY)
+                                        MILKRECOVERY
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.SAVINGS)
+                                       SAVINGS
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.OTHERDED)
+                                       OTHER DEDUCTIONS
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.TOTALDED)
+                                        TOTAL DEDUCTIONS
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.NETPAY)
+                                       NETPAY
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.ENDINGMONTH)
+                                        ENDING MONTH
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.User)
+                                        User
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.EmpNo)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Name)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Basic)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Allowance)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.OtherAllowance)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Gross)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.NHIF)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.NSSF)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.PAYE)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.STORE)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.ADVANCE)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.LOAN)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.MILKRECOVERY)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.SAVINGS)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.OTHERDED)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.TOTALDED)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.NETPAY)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.ENDINGMONTH)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.User)
-                                        </td>
-                                    </tr>
-                                }
+                            <tbody id="intakes">
+                               
                             </tbody>
                         </table>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 col-xs-12">
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <label class="control-label">Total Amount</label>
+                        <input value="0" id="Tsell" class="form-control" readonly />
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#startDate").val(today);
+            $("#com").hide();
+            $("#htitl").hide();
+            $("#hstartd").hide();
+            $("#huser").hide();
+            $("#her").hide();
+            $("#companyname").hide();
+            getpayroll();
+            $('#startDate').on('change', function () {
+                getpayroll();
+            });
+            function heading() {
+                var company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = $("#firstdate").val();
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#enddate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = "FROM  :" + date10 + "  TO  :" + date20;
+                var usa = "Printed By  :" + user;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array();
+                let itemTableRows2 = new Array();
+                itemTableRow.push(`${company}`);
+                $('#company').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema').html(itemTableRows1);
+                itemTableRows2.push(`${usa}`);
+                $('#user').html(itemTableRows2);
+            }
+            $('#excel_report').on('click', function () {
+                heading();
 
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `Staff Payroll Report ${date}`;
+                $('#customers').table2excel({ filename: fileName, fileext: ".xls" });
+            });
+            $('#print_report').on('click', function () {
+                $("#com").show();
+                $("#htitl").show();
+                $("#hstartd").show();
+                $("#huser").show();
+                $("#her").show();
+                $("#companyname").show();
+                heading();
+                var divToPrint = document.getElementById("customers");
+                newWin = window.open("");
+                newWin.document.write(divToPrint.outerHTML);
+                newWin.print();
+                newWin.close();
+                $("#com").hide();
+                $("#htitl").hide();
+                $("#hstartd").hide();
+                $("#huser").hide();
+                $("#her").hide();
+                $("#companyname").hide();
+            });
+            function getpayroll() {
+                var startDate = $("#startDate").val();
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: `getPayroll?endDate=${startDate}`,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            response = response ? response : []
+                            populateSummary(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+            }
+            function populateSummary(summary) {
+                let itemTableRows = new Array();
+                $('#Tsell').val('0');
+                let Tselling = 0;
+                summary.forEach(i => {
+                    Tselling +=i.NETPAY;
+                    let dd1 = new Date(i.ENDINGMONTH).toLocaleDateString();
+                    itemTableRows.push(`<tr>
+                                <td>${i.EmpNo}</td>
+                                <td>${i.Name}</td>
+                                <td>${i.Basic}</td>
+                                <td>${i.Allowance}</td>
+                                <td>${i.OtherAllowance}</td>
+                                <td>${i.Gross}</td>
+                                <td>${i.NHIF}</td>
+                                <td>${i.NSSF}</td>
+                                <td>${i.PAYE}</td>
+                                <td>${i.STORE}</td>
+                                <td>${i.ADVANCE}</td>
+                                <td>${i.LOAN}</td>
+                                <td>${i.MILKRECOVERY}</td>
+                                <td>${i.SAVINGS}</td>
+                                <td>${i.OTHERDED}</td>
+                                <td>${i.TOTALDED}</td>
+                                <td>${i.NETPAY}</td>
+                                <td>${dd1}</td>
+                                <td>${i.User}</td>
+                            </tr>`)
+                });
+
+                $('#Tsell').val(Tselling);
+                $('#intakes').html(itemTableRows);
+            }
+        });
+    </script>
+    }

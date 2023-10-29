@@ -56,9 +56,9 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            IQueryable<AgProducts4> agProducts = _context.AgProducts4s;
-            var products = agProducts
-                .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch).ToList();
+            IQueryable<AgSupplier1> agSupplier1s = _context.AgSupplier1s;
+            var products = agSupplier1s
+                .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList().Distinct();
             ViewBag.products = new SelectList(products, "SupplierId", "SupplierId");
         }
 

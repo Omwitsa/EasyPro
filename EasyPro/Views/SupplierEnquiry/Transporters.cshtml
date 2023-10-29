@@ -238,7 +238,12 @@
             $('#sno').on('change', function () {
                 getintakesdetails();
             });
-
+            // $('#firstdate').on('keyup', function () {
+            //     getintakesdetails();
+            // });
+            // $('#enddate').on('keyup', function () {
+            //     getintakesdetails();
+            // });
             function getintakesdetails() {
                 let isSlopes = '@ViewBag.slopes' === 'True';
                 var transporters = @Html.Raw(Json.Serialize(ViewBag.transporters));

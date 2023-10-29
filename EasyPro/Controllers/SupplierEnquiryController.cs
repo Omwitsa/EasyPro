@@ -350,13 +350,14 @@ namespace EasyPro.Controllers
             if (StrValues.Slopes == sacco)
                 sno = dTransporters.FirstOrDefault(t => t.CertNo == sno)?.TransCode ?? "";
 
-            var intakes = productIntakes.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
+            var intakeslist = productIntakes.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
            .Equals(sacco.ToUpper()) && (i.TransDate >= date1 && i.TransDate <= date2)).ToList();
             
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
-               intakes = intakes.OrderByDescending(n => n.TransDate).Where(i => i.Branch == saccobranch).ToList();
-           
+                intakeslist = intakeslist.Where(i => i.Branch == saccobranch).ToList();
+
+            var intakes = intakeslist.OrderByDescending(n => n.TransDate).ToList();
             var grosspay = (intakes.Where(K => (K.Description == "Transport" || K.Description == "SUBSIDY")).Sum(s => s.CR) - intakes.Where(K => (K.Description == "Transport" || K.Description == "SUBSIDY")).Sum(s => s.DR));
             var deductions = (intakes.Where(K => K.Description != "Transport" && K.Description != "SUBSIDY").Sum(s => s.DR) - intakes.Where(K => K.Description != "Transport" && K.Description != "SUBSIDY").Sum(s => s.CR));
             decimal? bal = 0;
