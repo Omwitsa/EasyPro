@@ -58,7 +58,7 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             IQueryable<AgSupplier1> agSupplier1s = _context.AgSupplier1s;
             var products = agSupplier1s
-                .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList().Distinct();
+                .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList().Distinct().OrderBy(m=>m.ContactPerson).ToList();
             ViewBag.products = new SelectList(products, "CompanyName", "CompanyName");
         }
 
