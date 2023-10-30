@@ -33,9 +33,16 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
+           
+            return View();
+            //return View(await _context.EmpBenefits.Where(i=>i.SaccoCode==sacco).ToListAsync());
+        }
+        [HttpPost]
+        public JsonResult getPayroll(DateTime endDate)
+        {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var productIntakes = await _context.EmployeesPayroll.Where(c => c.SaccoCode == sacco).ToListAsync();
+            var productIntakes =  _context.EmployeesPayroll.Where(c => c.SaccoCode == sacco && c.ENDINGMONTH == endDate).ToList();
             var intakes = new List<EmpEmployeePayrollVM>();
             foreach (var intake in productIntakes)
             {
@@ -67,10 +74,9 @@ namespace EasyPro.Controllers
                     });
                 }
             }
-            return View(intakes);
-            //return View(await _context.EmpBenefits.Where(i=>i.SaccoCode==sacco).ToListAsync());
-        }
 
+            return Json(intakes.OrderBy(b=>b.EmpNo).ToList());
+        }
         // GET: EmpBenefits/Details/5
         public async Task<IActionResult> Details(long? id)
         {

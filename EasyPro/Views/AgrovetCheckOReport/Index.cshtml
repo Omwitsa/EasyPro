@@ -67,7 +67,12 @@
                                     <input id="Sno" class="form-control" />
                                 </div>
                                 <div class="col-sm-2 col-xs-12">
-                                    
+                                    <label class="control-label">Sales Type</label>
+                                    <select id="salestype" class="chzn-select form-control">
+                                        <option value="0">ALL</option>
+                                        <option value="1">OUTWARDS</option>
+                                        <option value="2">INWARDS</option>
+                                    </select>
                                 </div>
                                 <div class="col-sm-2 col-xs-12">
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -109,6 +114,7 @@
                                                             <tr id="htitl"><th></th> <th colspan="4"> <strong>STORE CHECKOFF SALES REPORT</strong></th></tr>
                                                             <tr id="hstartd"><th></th><th colspan="4" id="sema"></th>  </tr>
                                                             <tr id="huser"><th></th><th colspan="4" hidden id="user"></th>  </tr>
+                                                            <tr id="companyname"><th></th><th colspan="4">Amtech Technologies ltd</th>  </tr>
                                                             <tr id="her"><th colspan="7"><hr /></th></tr>
 
                                                             <tr>
@@ -131,6 +137,8 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-sm-4 col-xs-12">
+                                                        <label class="control-label">Total Quantity</label>
+                                                        <input value="0" id="totalquntity" class="form-control" readonly />
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                         <label class="control-label">Total SPrice</label>
@@ -168,6 +176,7 @@
                                                             <tr id="htitl1"><th></th> <th colspan="4"> <strong>STORE CHECKOFF SUMMARY SALES REPORT</strong></th></tr>
                                                             <tr id="hstartd1"><th></th><th colspan="4" id="sema1"></th>  </tr>
                                                             <tr id="huser1"><th></th><th colspan="4" hidden id="user1"></th>  </tr>
+                                                            <tr id="companyname1"><th></th><th colspan="4">Amtech Technologies ltd</th>  </tr>
                                                             <tr id="her1"><th colspan="7"><hr /></th></tr>
                                                             <tr>
                                                                 <th>Date</th>
@@ -185,6 +194,8 @@
 
                                                 <div class="row">
                                                     <div class="col-sm-4 col-xs-12">
+                                                        <label class="control-label">Total Quantity</label>
+                                                        <input value="0" id="totquntity" class="form-control" readonly />
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                         <label class="control-label">Total SPrice</label>
@@ -221,22 +232,28 @@
             $("#hstartd").hide();
             $("#huser").hide();
             $("#her").hide();
+            $("#companyname").hide();
             $("#com1").hide();
             $("#htitl1").hide();
             $("#hstartd1").hide();
             $("#huser1").hide();
+            $("#company1").hide();
+            $("#company").hide();
             $("#her1").hide();
+            
+            $("#companyname1").hide();
 
             $("#showtable").click(function () {
                 var startDate = $("#firstdate").val();
                 var endDate = $("#enddate").val();
+                var salestype = $("#salestype").val();
                 var zone = $("#zone").val() ? $("#zone").val() : "";
                 var product = $("#product").val() ? $("#product").val() : "";
                 var sno = $("#Sno").val() ? $("#Sno").val() : "";
                 $.ajax(
                     {
                         type: 'POST',
-                        url: `checkOffReport?startDate=${startDate}&endDate=${endDate}&product=${product}&sno=${sno}`,
+                        url: `checkOffReport?startDate=${startDate}&endDate=${endDate}&product=${product}&sno=${sno}&salestype=${salestype}`,
                         contentType: 'application/json',
                         success: function (response) {
                             populateReports(response)
@@ -305,6 +322,7 @@
                 $("#hstartd").show();
                 $("#huser").show();
                 $("#her").show();
+                $("#companyname").show();
                 heading();
                 var divToPrint = document.getElementById("tb_check_off_report");
                 newWin = window.open("");
@@ -316,6 +334,7 @@
                 $("#hstartd").hide();
                 $("#huser").hide();
                 $("#her").hide();
+                $("#companyname").hide();
             });
             $('#print_report1').on('click', function () {
                 $("#com1").show();
@@ -323,6 +342,7 @@
                 $("#hstartd1").show();
                 $("#huser1").show();
                 $("#her1").show();
+                $("#companyname1").show();
                 heading1();
                 var divToPrint = document.getElementById("tb_check_off_summary");
                 newWin = window.open("");
@@ -334,6 +354,7 @@
                 $("#hstartd1").hide();
                 $("#huser1").hide();
                 $("#her1").hide();
+                $("#companyname1").hide();
             });
             $('#excel_summery').on('click', function () {
 
@@ -345,13 +366,14 @@
             $("#showSummery").click(function () {
                 var startDate = $("#firstdate").val();
                 var endDate = $("#enddate").val();
+                var salestype = $("#salestype").val();
                 var zone = $("#zone").val() ? $("#zone").val() : "";
                 var product = $("#product").val() ? $("#product").val() : "";
                 var sno = $("#Sno").val() ? $("#Sno").val() : "";
                 $.ajax(
                     {
                         type: 'POST',
-                        url: `checkOffSummary?startDate=${startDate}&endDate=${endDate}&product=${product}&sno=${sno}`,
+                        url: `checkOffSummary?startDate=${startDate}&endDate=${endDate}&product=${product}&sno=${sno}&salestype=${salestype}`,
                         contentType: 'application/json',
                         success: function (response) {
                             response = response ? response : []
@@ -369,9 +391,16 @@
                 $('#Tbuying').val('0');
                 $('#Tselling').val('0');
                 $('#TPL').val('0');
+                let quntity = 0;
+                let totalquntity = 0;
                 let Tselling = 0;
                 intakes.forEach(i => {
                     Tselling += i.Amount;
+                    quntity = i.Qua;
+                    if (i.Amount < 0) {
+                        quntity = quntity * -1;
+                    }
+                    totalquntity += quntity;
                     let type = "CheckOff";
                     let dd1 = new Date(i.TDate).toLocaleDateString();
                     itemTableRows.push(`<tr>
@@ -380,7 +409,7 @@
                             <td>${i.PCode}</td>
                             <td>${i.Remarks}</td>
                             <td>'${i.SNo}</td>
-                            <td>${i.Qua}</td>
+                            <td>${quntity}</td>
                             <td>${i.Amount}</td>
                             <td>${i.Transby}</td>
                             <td>${i.UserId}</td>
@@ -391,6 +420,7 @@
                 });
 
                 $('#Tselling').val(Tselling);
+                $('#totalquntity').val(totalquntity);
                 $('#check_off_rep_details').html(itemTableRows);
             }
 
@@ -399,10 +429,17 @@
                 $('#Tbuying').val('0');
                 $('#Tsell').val('0');
                 $('#TPL').val('0');
+                let quntity = 0;
+                let totalquntity = 0;
                 let Tselling = 0;
                 summary.forEach(i => {
                     i.sno = i.sno ? i.sno : "";
                     i.product = i.product ? i.product : "";
+                    quntity = i.quantity;
+                    if (i.amount < 0) {
+                        quntity = quntity * -1;
+                    }
+                    totalquntity += quntity;
                     Tselling += i.amount;
                     let dd1 = new Date(i.date).toLocaleDateString();
                     itemTableRows.push(`<tr>
@@ -410,12 +447,13 @@
                         <td>${i.product}</td>
                         <td>${i.productName}</td>
                         <td>'${i.sno}</td>
-                        <td>${i.quantity}</td>
+                        <td>${quntity}</td>
                         <td>${i.amount}</td>
                     </tr>`)
                 });
 
                 $('#Tsell').val(Tselling);
+                $('#totquntity').val(totalquntity);
                 $('#check_off_sum_details').html(itemTableRows);
             }
         });
