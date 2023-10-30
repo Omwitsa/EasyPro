@@ -59,7 +59,7 @@ namespace EasyPro.Controllers
             IQueryable<AgSupplier1> agSupplier1s = _context.AgSupplier1s;
             var products = agSupplier1s
                 .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList().Distinct();
-            ViewBag.products = new SelectList(products, "SupplierId", "SupplierId");
+            ViewBag.products = new SelectList(products, "CompanyName", "CompanyName");
         }
 
         public IActionResult DefaultIndex()
