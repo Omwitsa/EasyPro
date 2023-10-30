@@ -516,11 +516,11 @@
                             $("#RNo").val(response.rno);
                             if (print) {
                                 var content = generateHTML(response, saleItems);
-                                printJS({
-                                    printable: content,
-                                    type: 'raw-html',
-                                    style: '#printMe { font-size: 12px; }'
-                                });
+                                    printJS({
+                                        printable: content,
+                                        type: 'raw-html',
+                                        style: '#printMe { font-size: 12px; }'
+                                    });
                             }
                             clearafthersave();
                             saleItems = new Array();

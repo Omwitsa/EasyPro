@@ -76,9 +76,9 @@ namespace EasyPro.Controllers
             //IQueryable<AgProducts4> agProducts4s = _context.AgProducts4s;
             //IQueryable<Drawnstock> drawnstocks = _context.Drawnstocks;
 
-            var agReceipts = _context.AgReceipts.Where(n => n.saccocode == saccobranch).ToList();
-            var agProducts4s = _context.AgProducts4s.Where(n => n.saccocode == saccobranch).ToList();
-            var drawnstocks = _context.Drawnstocks.Where(n => n.saccocode == saccobranch).ToList();
+            var agReceipts = _context.AgReceipts.Where(n => n.saccocode == sacco).ToList();
+            var agProducts4s = _context.AgProducts4s.Where(n => n.saccocode == sacco).ToList();
+            var drawnstocks = _context.Drawnstocks.Where(n => n.saccocode == sacco).ToList();
 
             //var agProductsReceive = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1 && i.TDate <= date2).ToList();
             var agProductsReceive = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
@@ -115,7 +115,10 @@ namespace EasyPro.Controllers
 
                     while (startingdate <= date2)
                     {
+                        if(productNow.PCode== "274")
+                        {
 
+                        }
                         var detailstore = GetReceipts(productNow.PCode, sacco, b.Key, date1, startingdate, endDate, getIndividualagReceipts, getIndividualagProducts4s, getIndividualdrawnstocks);
 
                         decimal open = (decimal)((detailstore.pro_buyy) - (detailstore.positive_pro_sell - detailstore.negatives_pro_sell));
@@ -169,31 +172,38 @@ namespace EasyPro.Controllers
             var saccobranch = key;
 
 
-            var pro_buyy = getIndividualagProducts4s.Where(i => i.DateEntered <= endDate && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(g => g.Qin);
+            var pro_buyy = getIndividualagProducts4s.Where(i => i.DateEntered <= endDate && i.Branch == key
+            && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(g => g.Qin);
 
-            var positive_pro_sell = getIndividualagReceipts.Where(i => i.TDate <= endDate && i.Amount >= 0 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Qua);
+            var positive_pro_sell = getIndividualagReceipts.Where(i => i.TDate <= endDate && i.Amount >= 0 
+            && i.PCode.ToUpper().Equals(pCode.ToUpper()) && i.Branch == key).Sum(d => d.Qua);
 
-            var dispatchlastfromBranch = getIndividualdrawnstocks.Where(i => i.BranchF == saccobranch &&
+            var dispatchlastfromBranch = getIndividualdrawnstocks.Where(i => i.BranchF == key &&
              i.Date <= endDate && i.Productid.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
 
-            var dispatchlasttoBranch = getIndividualdrawnstocks.Where(i =>i.Date <= endDate && i.Productid.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
+            var dispatchlasttoBranch = getIndividualdrawnstocks.Where(i =>i.Date <= endDate && i.Branch == key
+            && i.Productid.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
 
-            var negatives_pro_sell = getIndividualagReceipts.Where(i => i.TDate <= endDate && i.Amount < 0 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Qua);
+            var negatives_pro_sell = getIndividualagReceipts.Where(i => i.TDate <= endDate && i.Amount < 0 
+            && i.PCode.ToUpper().Equals(pCode.ToUpper()) && i.Branch == key).Sum(d => d.Qua);
 
-            var receiptthatmonth = getIndividualagProducts4s.Where(i => i.DateEntered >= date1  && i.DateEntered <= date2 
+            var receiptthatmonth = getIndividualagProducts4s.Where(i => i.DateEntered >= date1  
+            && i.DateEntered <= date2 && i.Branch == key
             && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(g => g.Qin);
 
             var positive_agProductsales = getIndividualagReceipts.Where(i => i.TDate >= date1
-            && i.TDate <= date2 && i.Amount >= 0 && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(n => n.Qua);
+            && i.TDate <= date2 && i.Amount >= 0 && i.Branch == key && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(n => n.Qua);
 
             var negative_agProductsales = getIndividualagReceipts.Where(i => i.TDate >= date1
-            && i.TDate <= date2 && i.Amount < 0  && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(n => n.Qua);
+            && i.TDate <= date2 && i.Amount < 0 && i.Branch == key && i.PCode.ToUpper().Equals(pCode.ToUpper())).Sum(n => n.Qua);
 
-            var dispatchthismonthfromBranch = getIndividualdrawnstocks.Where(i => i.BranchF == saccobranch
-             && i.Date >= date1 && i.Date <= date2 && i.Productid.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
+            var dispatchthismonthfromBranch = getIndividualdrawnstocks.Where(i => i.BranchF == key
+             && i.Date >= date1 && i.Date <= date2 && i.Productid.ToUpper().Equals(pCode.ToUpper()))
+                .Sum(d => d.Quantity);
 
-            var dispatchthismonthtoBranch = getIndividualdrawnstocks.Where(i => i.Branch == saccobranch
-             && i.Date >= date1 && i.Date <= date2 && i.Productid.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
+            var dispatchthismonthtoBranch = getIndividualdrawnstocks.Where(i => i.Branch == key
+             && i.Date >= date1 && i.Date <= date2 && i.Productid.ToUpper().Equals(pCode.ToUpper()))
+                .Sum(d => d.Quantity);
 
             return new
             {

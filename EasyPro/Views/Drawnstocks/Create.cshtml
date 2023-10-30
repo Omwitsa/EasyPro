@@ -36,7 +36,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Drawnstock.Priceeach" class="control-label">Selling Price</label>
-                                <input readonly asp-for="Drawnstock.Priceeach" class="form-control" />
+                                <input readonly id="sprice" asp-for="Drawnstock.Priceeach" class="form-control" />
                                 <span asp-validation-for="Drawnstock.Priceeach" class="text-danger"></span>
                             </div>
                         </div>
@@ -47,7 +47,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Drawnstock.Productname" class="control-label">Product name</label>
-                                <select asp-for="Drawnstock.Productname" id="pname" class="form-control" asp-items="@ViewBag.agproductsall" required></select>
+                                <select asp-for="Drawnstock.Productname" id="pname" class="chzn-select form-control" asp-items="@ViewBag.agproductsall" required></select>
                                 <option value=""></option>
                                 <span asp-validation-for="Drawnstock.Productname" class="text-danger"></span>
                             </div>
@@ -57,7 +57,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Branch From</label>
-                                <select asp-for="Drawnstock.BranchF" id="branch" class="form-control" asp-items="@ViewBag.brances" required></select>
+                                <select asp-for="Drawnstock.BranchF" id="branch" class="chzn-select form-control" asp-items="@ViewBag.brances" required></select>
                                 <option value=""></option>
                                 <span asp-validation-for="Drawnstock.BranchF" class="text-danger"></span>
                             </div>
@@ -67,7 +67,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Branch To</label>
-                                <select asp-for="Drawnstock.Branch" id="branch" class="form-control" asp-items="@ViewBag.brances" required></select>
+                                <select asp-for="Drawnstock.Branch" id="branch" class="chzn-select form-control" asp-items="@ViewBag.brances" required></select>
                                 <option value=""></option>
                                 <span asp-validation-for="Drawnstock.Branch" class="text-danger"></span>
                             </div>
@@ -125,6 +125,7 @@
             $("#date").val(today); 
             $("#pname").val("");
             $("#branch").val("");
+            $(".chzn-select").chosen();
             let saleItems = new Array();
             $('#pname').on('change', function () {
                 var products = @Html.Raw(Json.Serialize(Model.AgProductobj));

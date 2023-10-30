@@ -981,7 +981,7 @@ namespace EasyPro.Controllers
 
             var receiptNo = receipts.FirstOrDefault()?.RNo ?? "0";
 
-            double num = Convert.ToInt32(receiptNo);
+            double num = Convert.ToInt32(receiptNo) ;
             var receipt = new AgReceipt
             {
                 RNo = "" + (num + 1),
