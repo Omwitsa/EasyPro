@@ -26,7 +26,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="PName" class="control-label">Name</label>
-                                <input asp-for="PName" required class="form-control" readonly/>
+                                <input asp-for="PName" required class="form-control" />
                                 <span asp-validation-for="PName" class="text-danger"></span>
                             </div>
                         </div>
@@ -46,7 +46,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="SupplierId" class="control-label">Supplier</label>
-                                <select asp-for="SupplierId" id="pname" class="form-control" asp-items="@ViewBag.suppliers" required></select>
+                                <select asp-for="SupplierId" id="pname" class="chzn-select form-control" asp-items="@ViewBag.suppliers" required></select>
                                 <span asp-validation-for="SupplierId" class="text-danger"></span>
                             </div>
                         </div>
@@ -154,7 +154,7 @@
             $("#pname").val("");
             $("#draccno").val("");
             $("#craccno").val("");
-
+            $(".chzn-select").chosen();
 
             $('#pname').on('change', function () {
                 var selectVal = $("#pname").val().toUpperCase();
