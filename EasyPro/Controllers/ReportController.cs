@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
+using Syncfusion.EJ2.Diagrams;
 using Syncfusion.EJ2.Linq;
 using System;
 using System.Collections.Generic;
@@ -1371,16 +1372,7 @@ namespace EasyPro.Controllers
     }
 
     [HttpPost]
-    public IActionResult SalesReport([Bind("DateFrom,DateTo,Debtor")] FilterVm filter)
-    {
-        var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-        if (string.IsNullOrEmpty(loggedInUser))
-            return Redirect("~/");
-        
-        return SalesReportExcel(filter);
-    }
-
-    public IActionResult SalesReportExcel(FilterVm filter)
+    public async Task<IActionResult> SalesReport([Bind("DateFrom,DateTo,Debtor")] FilterVm filter)
     {
         var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
         if (string.IsNullOrEmpty(loggedInUser))
@@ -1391,17 +1383,14 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var worksheet = workbook.Worksheets.Add("Gltransaction");
             var currentRow = 1;
-            companyobj = _context.DCompanies.Where(u => u.Name == sacco);
-            foreach (var emp in companyobj)
-            {
-                worksheet.Cell(currentRow, 2).Value = emp.Name;
-                currentRow++;
-                worksheet.Cell(currentRow, 2).Value = emp.Adress;
-                currentRow++;
-                worksheet.Cell(currentRow, 2).Value = emp.Town;
-                currentRow++;
-                worksheet.Cell(currentRow, 2).Value = emp.Email;
-            }
+            var company = _context.DCompanies.FirstOrDefault(u => u.Name == sacco);
+            worksheet.Cell(currentRow, 2).Value = company.Name;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Adress;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Town;
+            currentRow++;
+            worksheet.Cell(currentRow, 2).Value = company.Email;
 
             currentRow = 5;
             worksheet.Cell(currentRow, 2).Value = $"{filter.Debtor} Sales Report";
@@ -1412,26 +1401,22 @@ namespace EasyPro.Controllers
             worksheet.Cell(currentRow, 3).Value = "Price";
             worksheet.Cell(currentRow, 4).Value = "Amount";
 
-            var sales = _context.Gltransactions.Where(u => u.SaccoCode == sacco
-            && u.TransDescript == "Sales" && u.TransDate >= filter.DateFrom && u.TransDate <= filter.DateTo
-            && (string.IsNullOrEmpty(filter.Debtor) || u.Source.ToUpper().Equals(filter.Debtor.ToUpper())))
-                .OrderByDescending(u => u.Id);
-            foreach (var sale in sales)
+            var dispatches = await _context.Dispatch.Where(d => d.DName.ToUpper().Equals(filter.Debtor.ToUpper())
+                && d.Dcode.ToUpper().Equals(sacco.ToUpper()) && d.Transdate >= filter.DateFrom
+                && d.Transdate <= filter.DateTo).ToListAsync();
+            var debtors = await _context.DDebtors.Where(d => d.Dcode == sacco).ToListAsync();
+            foreach (var dispatch in dispatches)
             {
+                var debtor = debtors.FirstOrDefault(d => d.Dname.ToUpper().Equals(dispatch.DName.ToUpper()));
+                var salesAmount = dispatch.Dispatchkgs * debtor.Price;
                 currentRow++;
-                var dispatch = _context.Dispatch.FirstOrDefault(d => d.DName.ToUpper().Equals(sale.Source.ToUpper())
-                && d.Dcode.ToUpper().Equals(sale.SaccoCode.ToUpper()) && d.Transdate >= filter.DateFrom
-                && d.Transdate <= filter.DateTo);
-
-                var debtor = _context.DDebtors.FirstOrDefault(d => d.Dcode == sacco && d.Dname.ToUpper().Equals(sale.Source.ToUpper()));
-
-                worksheet.Cell(currentRow, 1).Value = sale.TransDate;
+                worksheet.Cell(currentRow, 1).Value = dispatch.Transdate;
                 worksheet.Cell(currentRow, 2).Value = dispatch.Dispatchkgs;
                 worksheet.Cell(currentRow, 3).Value = debtor.Price;
-                worksheet.Cell(currentRow, 4).Value = sale.Amount;
+                worksheet.Cell(currentRow, 4).Value = salesAmount;
 
-                totalAmount += (dispatch.Dispatchkgs);
-                totalQuantity += (sale.Amount);
+                totalAmount += dispatch.Dispatchkgs;
+                totalQuantity += salesAmount;
             }
             currentRow++;
             worksheet.Cell(currentRow, 1).Value = "Total";
@@ -1449,7 +1434,7 @@ namespace EasyPro.Controllers
         }
     }
 
-    [HttpPost]
+        [HttpPost]
     public JsonResult BranchIntakePdf([FromBody] FilterVm filter)
     {
         return Json(new

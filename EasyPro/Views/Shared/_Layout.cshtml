@@ -767,9 +767,12 @@
                                     <li>
                                         <a asp-controller="ProductIntakes" asp-action="PrintSupplierStatement">Print Suppliers Statement</a>
                                     </li>
-                                    <li>
-                                        <a asp-controller="ProductIntakes" asp-action="PrintSupPayslip">Print Suppliers Payslip</a>
-                                    </li>
+                                    @if (ViewBag.slopes)
+                                    {
+                                        <li>
+                                            <a asp-controller="ProductIntakes" asp-action="PrintSupPayslip">Print Suppliers Payslip</a>
+                                        </li>
+                                    }
                                 }
                                 @if (ViewBag.TransporterStatementRole)
                                 {
@@ -777,7 +780,7 @@
                                         <a asp-controller="ProductIntakes" asp-action="PrintTransporterStatement">Print Transporters Statement</a>
                                     </li>
                                 }
-                                @if (ViewBag.CorrectionRole)
+                                @if (ViewBag.CorrectionRole && ViewBag.slopes)
                                 {
                                     <li>
                                         <a asp-controller="ProductIntakes" asp-action="ChangeTransporter">Change Transporter</a>
@@ -966,7 +969,7 @@
                                         </li>
                                     }
                                 }
-                                @if (ViewBag.JournalListingRole)
+                                @if (ViewBag.JournalListingRole && ViewBag.slopes)
                                 {
                                     <li>
                                         <a asp-controller="Accounting" asp-action="SpecialPrice">Special Price</a>
