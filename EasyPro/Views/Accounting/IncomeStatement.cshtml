@@ -66,7 +66,7 @@
                                                             <div class="bsc-tbl-hvr table-border-style">
                                                                 <div id="gen_summary_Collection"></div>
                                                                 <div class="table-responsive">
-                                                                    <table class="table table-hover">
+                                                                    <table class="table table-hover" id="tbl_rep_gen_summary">
                                                                         <thead>
                                                                             <tr>
                                                                                 <th>
@@ -108,7 +108,7 @@
                                                             <div class="bsc-tbl-hvr table-border-style">
                                                                 <div id="gen_detailed_Collection"></div>
                                                                 <div class="table-responsive">
-                                                                    <table class="table table-hover">
+                                                                    <table class="table table-hover" id="tbl_general_detailed">
                                                                         <thead>
                                                                             <tr>
                                                                                 <th>
@@ -367,11 +367,25 @@
                 buildGeneralSummaryStat();
             });
 
-            //$('#excel_summery').on('click', function () {
-            //    let date = new Date().toLocaleDateString('en-GB');
-            //    let fileName = `Cash Summery ${date}`;
-            //    $('#tbl_summary').table2excel({ filename: fileName, fileext: ".xls" });
-            //});
+            $('#excel_rep_gen_summary').on('click', function () {
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `Statement Summary ${date}`;
+                $('#tbl_rep_gen_summary').table2excel({
+                    filename: fileName, 
+                    fileext: ".xls",
+                    name: "Statement Summary",
+                });
+            });
+
+            $('#excel_general_detailed').on('click', function () {
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = `Statement Detailed ${date}`;
+                $('#tbl_general_detailed').table2excel({
+                    filename: fileName, 
+                    fileext: ".xls",
+                    name: "Statement Detailed",
+                });
+            });
             
             //$('#fromDate').on('change', function () {
             //    buildIncomeStatement();
@@ -447,6 +461,12 @@
                 var expense = 0;
                 var dr = 0;
                 var cr = 0;
+                itemTableRows.push(`<tr>
+                    <td><h3>TOTAL LITRES</h3></td>
+                    <td>${totalKgs.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                    <td colspan="3"></td>
+                </tr>`);
+
                 itemTableRows.push(`<tr>
                     <td colspan="6"><h3>Income</h3></td>
                 </tr>`);
@@ -536,6 +556,12 @@
                 let itemTableRows = new Array();
                 var income = 0;
                 var expense = 0;
+                itemTableRows.push(`<tr>
+                    <td><h3>TOTAL LITRES</h3></td>
+                    <td>${totalKgs.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                    <td colspan="2"></td>
+                </tr>`);
+
                 itemTableRows.push(`<tr>
                     <td colspan="4"><h3>Income</h3></td>
                 </tr>`);

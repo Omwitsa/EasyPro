@@ -145,20 +145,38 @@
                 var mevng = $('#mevng').val();
                 var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
                 var transporterSummery = response.transporters.map(s => {
-                    return `<tr>
-                                <td>${s.Sno}</td>
-                                <td>${s.qnty}</td>
-                                <td>${s.payable}</td>
-                            </tr>`;
+                    let summaryContent = `<tr>
+                                        <td>${s.Sno}</td>
+                                        <td>${s.qnty}</td>
+                                        <td>${s.payable}</td>
+                                    </tr>`;
+
+                    if (isSlopes) {
+                        let transDate = new Date(s.TransDate).toLocaleDateString();
+                        summaryContent = `<tr>
+                                            <td>${transDate}</td>
+                                            <td></td>
+                                            <td>${s.qnty}</td>
+                                        </tr>`;
+                    }
+                    return summaryContent;
                 });
                 var strTransporterSummery = transporterSummery.join('');
+                let summaryHeaders = `<tr>
+                                <th> SNO </th>
+                                <th> QNTY </th>
+                                <th> PAYABLE </th>
+                            </tr>`;
+                if(isSlopes){
+                    summaryHeaders = `<tr>
+                                        <th> DATE </th>
+                                        <th></th>
+                                        <th> QNTY </th>
+                                    </tr>`;
+                }
                 var htmlTransporterSummery = `<table>
                                     <thead>
-                                        <tr>
-                                            <th> SNO </th>
-                                            <th> QNTY </th>
-                                            <th> PAYABLE </th>
-                                        </tr>
+                                        ${summaryHeaders}
                                     </thead>
 
                                             <tbody>${strTransporterSummery}</tbody>
@@ -174,7 +192,7 @@
                                                     </tr>`;
                 });
                 var strDeductionSummery = deductionSummery.join('');
-                var htmlDeductionSummery = `<table>
+                let htmlDeductionSummery = `<table>
                                             <thead>
                                                 <tr>
                                                     <th> DATE </th>
@@ -185,6 +203,26 @@
 
                                             <tbody>${strDeductionSummery}</tbody>
                                            </table>`;
+                let otherDetails = "";
+                if (!isSlopes){
+                    otherDetails = `Subsidy : ${response.subsidy.toFixed(2)}</br>
+                                    Gross Pay Kshs: ${response.grossPay.toFixed(2)}</br>
+                                    *************************</br>
+                                    DEDUCTIONS</br>
+                                    *************************</br>
+                                    ${htmlDeductionSummery}</br>
+                                    *************************</br>
+                                    Total Deductions Kshs: ${response.totalDeductions.toFixed(2)}</br>
+                                    *************************</br>
+                                    Net Pay Kshs: ${response.netPay.toFixed(2)}</br>
+                                    *************************</br>
+                                    BANK DETAILS</br>
+                                    *************************</br>
+                                    Bank Name: ${response.transporter.Bcode}</br>
+                                    Bank Branch: ${response.transporter.Bbranch}</br>
+                                    Acc No.: ${response.transporter.Accno}</br>
+                                    *************************`;
+                }
 
                 var content = `<div class="row" id="printMe">
                                                 <div class="col-xs-12 text-center">
@@ -203,23 +241,7 @@
                                                         ${htmlTransporterSummery}</br>
                                                         *************************</br>
                                                         Total Kgs: ${response.totalKgs.toFixed(2)}</br>
-                                                        Subsidy : ${response.subsidy.toFixed(2)}</br>
-                                                        Gross Pay Kshs: ${response.grossPay.toFixed(2)}</br>
-                                                        *************************</br>
-                                                        DEDUCTIONS</br>
-                                                        *************************</br>
-                                                        ${htmlDeductionSummery}</br>
-                                                        *************************</br>
-                                                        Total Deductions Kshs: ${response.totalDeductions.toFixed(2)}</br>
-                                                        *************************</br>
-                                                        Net Pay Kshs: ${response.netPay.toFixed(2)}</br>
-                                                        *************************</br>
-                                                        BANK DETAILS</br>
-                                                        *************************</br>
-                                                        Bank Name: ${response.transporter.Bcode}</br>
-                                                        Bank Branch: ${response.transporter.Bbranch}</br>
-                                                        Acc No.: ${response.transporter.Accno}</br>
-                                                        *************************
+                                                        ${otherDetails}
                                                     </h5>
                                                     <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
                                                         **************************

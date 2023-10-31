@@ -73,7 +73,6 @@ namespace EasyPro.Controllers
                 productIntakes = productIntakes.Where(i => i.Branch == saccobranch).ToList();
                 transporterIntakes = transporterIntakes.Where(s => s.Branch == saccobranch).ToList();
             }
-                
 
             var intakes = transporterIntakes.GroupBy(i => i.Date).ToList();
             intakes.ForEach(i =>
