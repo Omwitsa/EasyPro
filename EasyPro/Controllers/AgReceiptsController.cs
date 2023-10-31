@@ -290,7 +290,7 @@ namespace EasyPro.Controllers
 
                 var receiptDetails = await GetReceiptDetails(intakes);
                 //PrintP(intakes, RNo);
-
+                var receiptDetails1 = receiptDetails;
                 var receipts = _context.AgReceipts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).OrderByDescending(u => u.RNo).ToList(); 
 
@@ -302,7 +302,8 @@ namespace EasyPro.Controllers
                 return Json(new
                 {
                     rno = (rno),
-                    receiptDetails
+                    receiptDetails,
+                    receiptDetails1
                 });
             }
             catch (Exception e)
