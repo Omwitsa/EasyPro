@@ -765,19 +765,22 @@
                                 @if (ViewBag.SupplierStatementRole)
                                 {
                                     <li>
-                                        <a asp-controller="ProductIntakes" asp-action="PrintSupplierStatement">Print Suppliers Statement</a>
+                                        <a asp-controller="ProductIntakes" asp-action="PrintSupplierStatement">Farmers Statement</a>
                                     </li>
                                     @if (ViewBag.slopes)
                                     {
                                         <li>
-                                            <a asp-controller="ProductIntakes" asp-action="PrintSupPayslip">Print Suppliers Payslip</a>
+                                            <a asp-controller="ProductIntakes" asp-action="PrintSupPayslip">Farmers Payslip</a>
+                                        </li>
+                                        <li>
+                                            <a asp-controller="ProductIntakes" asp-action="PrintTransporterPayslip">Transporters Payslip</a>
                                         </li>
                                     }
                                 }
                                 @if (ViewBag.TransporterStatementRole)
                                 {
                                     <li>
-                                        <a asp-controller="ProductIntakes" asp-action="PrintTransporterStatement">Print Transporters Statement</a>
+                                        <a asp-controller="ProductIntakes" asp-action="PrintTransporterStatement">Transporters Statement</a>
                                     </li>
                                 }
                                 @if (ViewBag.CorrectionRole && ViewBag.slopes)

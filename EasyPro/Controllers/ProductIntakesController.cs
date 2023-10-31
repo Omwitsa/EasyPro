@@ -34,6 +34,7 @@ using Syncfusion.EJ2.Linq;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using EasyPro.Models.BosaModels;
 using DocumentFormat.OpenXml.Drawing;
+using static System.Net.WebRequestMethods;
 
 namespace EasyPro.Controllers
 {
@@ -595,6 +596,97 @@ namespace EasyPro.Controllers
                 banksPayslip,
                 price,
                 company,
+            });
+        }
+
+        public async Task<IActionResult> PrintTransporterPayslip()
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
+
+            var codes = transporters.Select(t => t.CertNo).ToList();
+            ViewBag.codes = new SelectList(codes);
+            ViewBag.transporters = transporters.Select(s => new DTransporter
+            {
+                TransName = s.TransName,
+                TransCode = s.TransCode,
+                CertNo = s.CertNo
+            }).ToList();
+
+            var standingOrders = _context.StandingOrder.Where(o => o.SaccoCode == sacco)
+                .Select(o => new StandingOrder
+                {
+                    Sno = o.Sno,
+                    Paid = o.Paid,
+                    Description = o.Description,
+                }).ToList();
+            ViewBag.standingOrders = standingOrders;
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> PrintTransporterPayslip([FromBody] StatementFilter filter)
+        {
+            utilities.SetUpPrivileges(this);
+            filter.Code = filter?.Code ?? "";
+            filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            filter.Branch = filter?.Branch ?? HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            filter.LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            var transporter = _context.DTransporters.FirstOrDefault(s => s.CertNo.ToUpper().Equals(filter.Code.ToUpper()) && s.ParentT == filter.Sacco && s.Tbranch == filter.Branch);
+            if (transporter == null)
+                transporter = new DTransporter
+                {
+                    CertNo = "",
+                    TransCode = "",
+                    TransName = ""
+                };
+            var payrolls = await _context.DTransportersPayRolls.Where(p => p.Code.ToUpper().Equals(transporter.TransCode.ToUpper())
+            && p.EndPeriod == endDate && p.SaccoCode == filter.Sacco).ToListAsync();
+            var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco);
+            var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
+            company.SupStatementNote = company?.SupStatementNote ?? "";
+
+            var loanTypes = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode && t.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToListAsync();
+            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper())).ToListAsync();
+            loans.ForEach(l =>
+            {
+                var loanType = loanTypes.FirstOrDefault(t => t.LoanCode == l.LoanCode);
+                var loanBal = loanBals.FirstOrDefault(s => s.LoanNo == l.LoanNo);
+                l.LoanCode = loanType?.LoanType ?? "";
+                l.Balance = loanBal?.Balance ?? 0;
+            });
+
+            var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()) && s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
+            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper())).ToListAsync();
+            shares.ForEach(s =>
+            {
+                s.Paid = 0;
+                if (s.Sharescode == "S03" && s.Amount < 5500)
+                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
+                if (s.Sharescode != "S03" && s.Amount >= 5500)
+                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
+            });
+            return Json(new
+            {
+                payrolls,
+                price,
+                company,
+                transporter,
+                loans,
+                shares
             });
         }
 

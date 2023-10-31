@@ -1,0 +1,286 @@
+﻿<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="form-element-list mg-t-30">
+            <form asp-action="PrintTransporterPayslip">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 cmp-tb-hd">
+                        <h2>Print Transporter Payslip</h2>
+                    </div>
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" id="zone1">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                        </div>
+                    </div>
+                </div>
+                <hr />
+              
+                <div class="row" id="farmer_section">
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Transporter</label>
+                                    <select id="transCode" class="chzn-select form-control" asp-items="@ViewBag.codes" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">Names</label>
+                                    <input id="name" readonly class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                     <div class="col-sm-4 col-xs-12">
+                        <div class="form-group ic-cmp-int float-lb floating-lb">
+                            <div class="nk-int-st">
+                                <div class="form-group">
+                                    <label class="control-label">End Month Date</label>
+                                    <input id="date" type="date" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a id="print" class="btn btn-success">
+                            Print
+                            <img id="payslip_loading" src="~/Images/Loading.gif" alt="Loading" width="50" height="30">
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            let standingOrders = @Html.Raw(Json.Serialize(ViewBag.standingOrders));
+            $(".chzn-select").chosen();
+            $('#payslip_loading').hide();
+            var today = new Date().toISOString().split('T')[0];
+            $("#date").val(today);
+
+            $('#transCode').on('change', function (){
+                var transCode = $("#transCode").val();
+                var transporters = @Html.Raw(Json.Serialize(ViewBag.transporters));
+                var selectTransporters = transporters.filter(p => p.CertNo === transCode);
+                if (selectTransporters[0]) {
+                    $("#name").val(selectTransporters[0].TransName);
+                }
+            });
+
+            $('#print').on('click', function () {
+                $('#payslip_loading').show();
+                var date = $("#date").val();
+                var name = $("#name").val();
+                var code = $("#transCode").val();
+                var filter = {
+                    date: date,
+                    code: code,
+                    name: name
+                };
+
+                if (code && date) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "",
+                        contentType: 'application/json',
+                        data: JSON.stringify(filter),
+                        success: function (response) {
+                            $('#payslip_loading').hide();
+                            $("#date").val('');
+                            $("#name").val('');
+                            var content = generateHTML(response, filter);;
+                            printJS({
+                                printable: content,
+                                type: 'raw-html',
+                                style: '.blueText {color:blue;}; #printMe { font-size: 11px; }'
+                            });
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+                }
+            });
+            
+            function generateHTML(response, filter) {
+                let mevng = $('#mevng').val();
+                response.transporter = response.transporter ? response.transporter : {};
+                let date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                let saccoLoans = response.loans.map(l => {
+                    return `<tr>
+                                        <td>${l.LoanCode}</td>
+                                        <td>${l.Amount}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>${l.Balance}</td>
+                                    </tr>`;
+                });
+                var strSaccoLoans = saccoLoans.join('');
+                let saccoShares = response.shares.map(l => {
+                    return `<tr>
+                                                <td>${l.Remarks}</td>
+                                                <td>${l.Paid}</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>${l.Amount}</td>
+                                            </tr>`;
+                });
+                var strSaccoShares = saccoShares.join('');
+                let transporterPayslip = response.payrolls.map(s => {
+                    s.GrossPay = s.GrossPay ? s.GrossPay : 0;
+                    s.Subsidy = s.Subsidy ? s.Subsidy : 0;
+                    s.QntySup = s.QntySup ? s.QntySup : 0;
+                    let totalPrice = s.GrossPay - s.Subsidy;
+                    let subsidyRaw = "";
+                    if (s.Subsidy) {
+                        subsidyRaw = `<tr>
+                                                <td>SUBSIDY</td>
+                                                <td>${s.QntySup}</td>
+                                                <td></td>
+                                                <td>${response.transporter.Rate}</td>
+                                                <td></td>
+                                                <td>${s.Subsidy}</td>
+                                            </tr>`;
+                    }
+                    let advanceRaw = "";
+                    if (s.Advance) {
+                        advanceRaw = `<tr>
+                                                <td>ADVANCE</td>
+                                                <td>${s.Advance}</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>`;
+                    }
+                    //let normalLoanRaw = "";
+                    //if (s.Fsa) {
+                    //    normalLoanRaw = ` <tr>
+                    //                    <td>NORMAL LOAN</td>
+                    //                    <td>${s.Fsa}</td>
+                    //                    <td></td>
+                    //                    <td></td>
+                    //                    <td></td>
+                    //                    <td></td>
+                    //                </tr>`;
+                    //}
+                    debugger
+                    let paidOrders = standingOrders.filter(p => p.Sno === s.Code && p.Description == "Society Shares");
+                    paidOrders = paidOrders ? paidOrders : [];
+                    paidOrders[0] = paidOrders[0] ? paidOrders[0] : {};
+                    paidOrders[0].Paid = paidOrders[0].Paid ? paidOrders[0].Paid : 0;
+
+                    return `<tr>
+                                        <td>KGs</td>
+                                        <td>${s.QntySup}</td>
+                                        <td></td>
+                                        <td>${response.transporter.Rate}</td>
+                                        <td></td>
+                                        <td>${totalPrice}</td>
+                                    </tr>
+                                    ${subsidyRaw}
+                                    <tr>
+                                        <td>TOTAL</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>${s.GrossPay}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>STORES</td>
+                                        <td>${s.Agrovet}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    ${advanceRaw}
+                                    ${strSaccoLoans}
+                                    <tr>
+                                        <td>SOCIETY SHARES</td>
+                                        <td>${s.Hshares}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>${paidOrders[0].Paid}</td>
+                                    </tr>
+                                    ${strSaccoShares}
+                                    *************************</br>
+                                    <tr>
+                                        <td>TOTAL DED</td>
+                                        <td>${s.Totaldeductions}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>NET PAY</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>${s.NetPay}</td>
+                                    </tr>
+                                            `;
+                });
+
+                var strTransporterPayslip = transporterPayslip.join('');
+                var htmlTransPayslip = `<table>
+                                            <thead>
+                                                <tr> </tr>
+                                            </thead>
+
+                                            <tbody>${strTransporterPayslip}</tbody>
+                                           </table>`;
+
+                let curDate = new Date().toLocaleDateString('en-GB');
+                var content = `<div class="row" id="printMe">
+                                                        <div class="col-xs-12 text-center">
+                                                             <h4>
+                                                                ${response.company.Name}</br>
+                                                                Payment slip for ${date}
+                                                              </h4>
+                                                             <h5>
+                                                                *************************</br>
+                                                                DATE: ${curDate}</br>
+                                                                NAME: ${response.transporter.CertNo}</br>
+                                                                CODE: ${response.transporter.TransCode}</br>
+                                                                BANK: ${response.transporter.Bcode}</br>
+                                                                ${htmlTransPayslip}</br>
+                                                                *************************</br>
+                                                            </h5>
+                                                            <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                                                **************************
+                                                            <hr>
+                                                        </div>
+                                                   </div>`;
+
+                return content;
+            }
+        });
+    </script>
+}
+

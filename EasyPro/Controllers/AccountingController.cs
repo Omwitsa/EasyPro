@@ -615,7 +615,8 @@ namespace EasyPro.Controllers
                 && !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")
                 && !g.GlAccName.ToUpper().Equals("STORE")).ToListAsync();
                 var debtors = await _context.DDebtors.Where(p => p.Dcode == sacco).ToListAsync();
-                var dispatches = await _context.Dispatch.Where(p => p.Dcode == sacco).ToListAsync();
+                var dispatches = await _context.Dispatch.Where(p => p.Dcode == sacco && p.Transdate >= filter.FromDate 
+                && p.Transdate <= filter.ToDate).ToListAsync();
                 var journalListings = await GetIncomeStatement(filter, glsetups);
                 var incomes = journalListings.Where(a => a.Group == "INCOME").ToList().GroupBy(a => a.TransDescript).ToList();
                 var income = new List<Votehead>();

@@ -41,12 +41,20 @@
                             </a>
                         </div>
                     </div>
+
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label"></label>
+                            <a id="excel_special_price" class="btn btn-success">Export Excel</a>
+                        </div>
+                    </div>
+
                 </div>
             </form>
 
             <div class="bsc-tbl-hvr table-border-style">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="tbl_special_price">
                         <thead>
                             <tr>
                                 <th> Name </th>
@@ -76,6 +84,17 @@
             var today = new Date().toISOString().split('T')[0];
             $("#fromDate").val(today);
             $("#toDate").val(today);
+
+            $('#excel_special_price').on('click', function () {
+                var isFarmer = $('#isFarmer').is(':checked');
+                let date = new Date().toLocaleDateString('en-GB');
+                let fileName = isFarmer ? `Farmers Special Price ${date}` : `Traders Special Price ${date}`;
+                $('#tbl_special_price').table2excel({
+                    filename: fileName,
+                    fileext: ".xls",
+                    name: "Special Price",
+                });
+            });
             $("#showtable").click(function (){
                 $('#special_price_loading').show();
                 var fromDate = $("#fromDate").val();
@@ -113,7 +132,7 @@
                 specialPrices.forEach(j => {
                     itemTableRows.push(`<tr>
                         <td>${j.Name}</td>
-                        <td>${j.Code}</td>
+                        <td>'${j.Code}</td>
                         <td>${j.Quantity.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                         <td>${j.Rate.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                         <td>${j.Amount.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
@@ -124,8 +143,10 @@
                 });
 
                 itemTableRows.push(`<tr>
-                    <td colspan="2">Totals</td>
-                    <td colspan="2">${totalKgs.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                    <td>Totals</td>
+                    <td></td>
+                    <td>${totalKgs.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                    <td></td>
                     <td>${totalAmount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
                 </tr>`);
 

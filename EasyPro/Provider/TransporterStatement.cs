@@ -59,14 +59,14 @@ namespace EasyPro.Provider
                 var intakes = await productIntakes.Where(i => transporterFarmers.Contains(i.Sno) && i.CR > 0).ToListAsync();
                 intakes = intakes.OrderBy(i => i.Sno).ToList();
                 var supplierGroupedIntakes = intakes.GroupBy(i => i.Sno).ToList();
-                supplierGroupedIntakes.ForEach(async i =>
+                supplierGroupedIntakes.ForEach(i =>
                 {
                     var intake = i.FirstOrDefault();
                     var transport = transports.FirstOrDefault(t => t.Sno == intake.Sno);
                     //get correct kgs
-                    var getsumkgs = await productIntakes.Where(i => i.Sno.ToUpper().Equals(intake.Sno.ToUpper()) && (i.TransactionType == TransactionType.Intake
+                    var getsumkgs = productIntakes.Where(i => i.Sno.ToUpper().Equals(intake.Sno.ToUpper()) && (i.TransactionType == TransactionType.Intake
                         || i.TransactionType == TransactionType.Correction) && i.SaccoCode == filter.Sacco
-                        && i.Branch == filter.Branch).SumAsync(n => n.Qsupplied);
+                        && i.Branch == filter.Branch).Sum(n => n.Qsupplied);
 
                     decimal? rate = 0;
                     if (transport != null)
