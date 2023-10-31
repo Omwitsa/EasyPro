@@ -66,9 +66,14 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var transporterIntakes = await _context.d_TransporterIntake.Where(i => i.Posted != "Posted"
             && i.SaccoCode == sacco).ToListAsync();
+            var productIntakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
+            {
+                productIntakes = productIntakes.Where(i => i.Branch == saccobranch).ToList();
                 transporterIntakes = transporterIntakes.Where(s => s.Branch == saccobranch).ToList();
+            }
+                
 
             var intakes = transporterIntakes.GroupBy(i => i.Date).ToList();
             intakes.ForEach(i =>
@@ -76,10 +81,12 @@ namespace EasyPro.Controllers
                 var transGroups = i.GroupBy(t => t.TransCode).ToList();
                 transGroups.ForEach(async t =>
                 {
+                    // && i.TransDate == date
                     var intake = t.FirstOrDefault();
+                    var dateIntakes = productIntakes.Where(d => d.TransDate == intake.Date).ToList();
                     bool Individual = false;
                     var qty = t.Sum(t => t.ActualKg);
-                    var savedIntakes = await GetTransporterIntakes(intake.TransCode, intake.Date, Individual);
+                    var savedIntakes = await GetTransporterIntakes(intake.TransCode, Individual, dateIntakes);
                     var supplies = savedIntakes.Sum(s => s.Qsupplied);
                     var variance = supplies - qty;
                     _context.TransportersBalancings.Add(new TransportersBalancing
@@ -230,7 +237,6 @@ namespace EasyPro.Controllers
                 && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
                 var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
                 var suppliersdeliveries = transporterIntakes.Sum(i => i.ActualKg);
-                var transIntakes = await GetTransporterIntakes(filter.TCode, filter.Date, filter.Individual);
                 var productIntakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate 
                 && i.TransDate <= monthsLastDate).ToList();
                 var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
@@ -241,6 +247,8 @@ namespace EasyPro.Controllers
                     suppliers = suppliers.Where(s => s.Branch == saccobranch).ToList();
                 }
 
+                var dateIntakes = productIntakes.Where(i => i.TransDate == filter.Date).ToList();
+                var transIntakes = await GetTransporterIntakes(filter.TCode, filter.Individual, dateIntakes);
                 var intakes = new List<dynamic>();
                 transIntakes.ForEach(i =>
                 {
@@ -271,20 +279,17 @@ namespace EasyPro.Controllers
             }
         }
 
-        private async Task<IEnumerable<ProductIntake>> GetTransporterIntakes(string transCode, DateTime? date, bool Individual)
+        private async Task<IEnumerable<ProductIntake>> GetTransporterIntakes(string transCode, bool Individual, List<ProductIntake> intakes)
         {
             transCode = transCode ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            
             IQueryable<DTransport> dTransports = _context.DTransports.Where(t => t.saccocode == sacco);
-            var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate == date).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
-            {
-                intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
                 dTransports = dTransports.Where(t => t.Branch == saccobranch);
-            }
            
             var transIntakes = intakes.Where(s => (s.Description == "Intake" || s.Description == "Correction"));
             if (Individual == false)
