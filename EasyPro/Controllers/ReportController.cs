@@ -2035,6 +2035,7 @@ namespace EasyPro.Controllers
             worksheet.Cell(currentRow, 8).Value = "Vehicle";
             worksheet.Cell(currentRow, 9).Value = "Receipt No.";
             worksheet.Cell(currentRow, 10).Value = "Cumlative";
+            worksheet.Cell(currentRow, 11).Value = "Invoice No.";
 
             var farmerIntakes = await intakes.Where(i => i.Description != "Transport").ToListAsync();
             var transporterIntakes = await intakes.Where(i => i.Sno.ToUpper().Contains("T")).ToListAsync();
@@ -2046,6 +2047,7 @@ namespace EasyPro.Controllers
                 var transcode = transporterIntakes.FirstOrDefault(i => i.Auditdatetime == intake.Auditdatetime)?.Sno ?? "";
                 var transporter = transporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transcode.ToUpper()));
                 var supplier = suppliers.FirstOrDefault(u => u.Sno == intake.Sno);
+                var remarks = StrValues.Slopes == sacco ? intake.Remarks : "";
                 if (supplier != null)
                 {
                     var cumlative = farmerIntakes.Where(i => i.Sno.ToUpper().Equals(supplier.Sno.ToUpper())).Sum(i => i.Qsupplied);
@@ -2061,6 +2063,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 8).Value = transporter?.CertNo ?? "";
                     worksheet.Cell(currentRow, 9).Value = intake.Id;
                     worksheet.Cell(currentRow, 10).Value = cumlative;
+                    worksheet.Cell(currentRow, 11).Value = remarks;
 
                     sum += (intake.Qsupplied);
                 }

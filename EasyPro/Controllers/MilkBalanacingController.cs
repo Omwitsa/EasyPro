@@ -189,12 +189,12 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()) && s.Tbranch == saccobranch).ToList();
+            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            //if(user.AccessLevel == AccessLevel.Branch)
-            var TransportersList = transporters.OrderBy(b => b.TransName).ToList();
+            if (user.AccessLevel == AccessLevel.Branch)
+                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
 
-            ViewBag.agproductsall = TransportersList;
+            ViewBag.agproductsall = transporters;
             var transporterNames = transporters.Select(t => t.TransName).ToList();
             if (StrValues.Slopes == sacco)
                 transporterNames = transporters.Select(t => t.CertNo).ToList();
@@ -205,6 +205,7 @@ namespace EasyPro.Controllers
             else
                 ViewBag.checkiftoenable = 0;
         }
+
 
         [HttpPost]
         public async Task<JsonResult> GetSuppliedItems([FromBody] ProductBalancingFilterVm filter)

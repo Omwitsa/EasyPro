@@ -392,17 +392,19 @@
                 response.transpoterIntakes.forEach(i => {
                     i.supplier = i.supplier ? i.supplier : {};
                     var supplierSummery = i.supplies.map(s => {
+                        let remarks = isSlopes ? s.Remarks : "";
                         let transDate = new Date(s.date).toLocaleDateString('en-GB');
                         return `<tr>
                                     <td>${transDate}</td>
                                     <td></td>
                                     <td>${s.qnty}</td>
                                     <td></td>
-                                    <td>${s.Remarks}</td>
+                                    <td>${remarks}</td>
                                 </tr>`;
                         });
 
                     let strSupplierSummery = supplierSummery.join('');
+                    let remarks = isSlopes ? "<th> INVOIVE NO. </th>" : "";
                     let htmlSupplierSummery = `<table>
                     <thead>
                         <tr>
@@ -410,7 +412,7 @@
                             <th></th>
                             <th> KGS </th>
                             <th></th>
-                            <th> INVOIVE NO. </th>
+                            ${remarks}
                         </tr>
                     </thead>
 
