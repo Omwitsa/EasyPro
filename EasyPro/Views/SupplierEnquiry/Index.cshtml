@@ -282,6 +282,7 @@
 
             function getSelectedDateIntakes() {
                 var suppliers = @Html.Raw(Json.Serialize(ViewBag.suppliers));
+                $('#intakes').html("");
                 var selectVal =  $("#sno").val();
                 var zoneVal = $("#zone").val();
                 var sno = $("#sno").val();

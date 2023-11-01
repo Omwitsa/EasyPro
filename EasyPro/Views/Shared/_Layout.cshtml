@@ -68,9 +68,13 @@
                 <span><i class="notika-icon notika-logout"></i>@ViewBag.sacco</span>
                 @*<span><i class="notika-icon notika-logout"></i>@ViewBag.branch</span>*@
             </a>
+             <a class="nav-item dropdown">
 
+             </a>
+            <a class="nav-m-auto">
+                <span>Branch: @ViewBag.Loggedinbranch</span>
+            </a>
             <div class="w3-right w3-hide-small">
-                <a href="#projects" class="w3-bar-item w3-button">Projects</a>
                 <a href="#about" class="w3-bar-item w3-button">About us</a>
                 <a href="#contact" class="w3-bar-item w3-button">Contact</a>
                 <a asp-controller="Home" asp-action="Login">

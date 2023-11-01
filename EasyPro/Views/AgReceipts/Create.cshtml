@@ -898,8 +898,10 @@
                     url: "getProductBal?pname=" + pname,
                     contentType: 'application/json',
                     success: function (response) {
+                        debugger
                         var soldProducts = saleItems.filter(p => p.Description.trim() === pname);
                         soldProducts.forEach(p => response.OBal -= p.Qsupplied);
+                        debugger
                         if(response.OBal > 0){
                             getSoldItems();
                         }

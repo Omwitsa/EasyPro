@@ -82,9 +82,22 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 if (string.IsNullOrEmpty(loggedInUser))
                     return Redirect("~/");
+            ViewBag.Totalshares = 0;
+            return View();
+        }
+        [HttpPost]
+        public JsonResult getsharesreport(DateTime date1)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
             decimal TotalShare = 0;
-            var dsupplier =await _context.DSuppliers.Where(n => n.Scode == sacco).ToListAsync();
-            var dShares = await _context.DShares.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
+            IQueryable<DShare> dShares1 = _context.DShares;
+            var dsupplier = dSuppliers.Where(n => n.Scode == sacco).ToList();
+            var dShares = dShares1.Where(i => i.SaccoCode==sacco && i.TransDate <= date1).ToList();
             var groupedBranchShares = dShares.GroupBy(s => s.Branch).ToList();
             var shares = new List<SharesReportVM>();
             foreach (var branchShare in groupedBranchShares)
@@ -99,7 +112,7 @@ namespace EasyPro.Controllers
                         var YearOfCompletion = 0;
                         if (StrValues.Elburgon == sacco)
                         {
-                            if(s.Sum(b => b.Amount) >= 20000)
+                            if (s.Sum(b => b.Amount) >= 20000)
                             {
                                 DateTime getdateofcomplition = (DateTime)s.OrderByDescending(f => f.TransDate).FirstOrDefault().TransDate;
                                 YearOfCompletion = getdateofcomplition.Year;
@@ -120,9 +133,9 @@ namespace EasyPro.Controllers
                     }
                 });
             }
-            
-            ViewBag.Totalshares = TotalShare ;
-            return View(shares);
+
+            ViewBag.Totalshares = TotalShare;
+            return Json(shares);
         }
         // GET: SharesCategories/Details/5
         public async Task<IActionResult> Details(long? id)

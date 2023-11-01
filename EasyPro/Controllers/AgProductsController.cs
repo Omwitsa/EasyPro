@@ -36,11 +36,8 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             GetInitialValues();
-            var products = await _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+            var products = await _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch)
                 .OrderBy(p => p.PName).ToListAsync();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                products = products.Where(p => p.Branch == saccobranch).ToList();
             return View(products);
         }
         // GET: AgProducts
@@ -53,11 +50,8 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             //GetInitialValues();
-            var products = await _context.ag_Products45.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+            var products = await _context.ag_Products45.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch)
                 .OrderBy(p => p.p_name).ToListAsync();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                products = products.Where(p => p.Branch == saccobranch).ToList();
             //.("dd/MM/yyy")
             return View(products);
         }
@@ -74,10 +68,6 @@ namespace EasyPro.Controllers
 
             var agsuppliers = _context.AgSupplier1s.Where(L => L.saccocode == sacco).ToList();
             ViewBag.agsuppliers = agsuppliers;
-
-
-
-
         }
 
         // GET: AgProducts/Details/5
@@ -142,10 +132,7 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
 
             IQueryable<AgProduct> agProducts = _context.AgProducts;
-            var products = agProducts.Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            //if (user.AccessLevel == AccessLevel.Branch)
-            products = products.Where(s => s.Branch == saccobranch).ToList();
+            var products = agProducts.Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccobranch).ToList();
             ViewBag.productslist = new SelectList(products, "PCode", "PName");
 
             var agsuppliers = agProducts.Where(L => L.saccocode == sacco && L.Branch == saccobranch).ToList();
@@ -207,9 +194,6 @@ namespace EasyPro.Controllers
             }
             if (checktheproducttoupdate != null)
             {
-                //p_code, p_name, S_No, Qin, Qout, Date_Entered, Last_D_Updated, user_id, audit_date, o_bal,
-                //SupplierID, Serialized, unserialized, seria, pprice, sprice, Branch, DRACCNO, CRACCNO, AI, Expirydate, Run, 
-                //process1, process2, Remarks, saccocode
 
                 checktheproducttoupdate.PCode = productIntake.p_code;
                 checktheproducttoupdate.PName = checktheproducttoupdate.PName;
@@ -228,6 +212,7 @@ namespace EasyPro.Controllers
                 checktheproducttoupdate.Craccno = checktheproducttoupdate.Craccno;
                 checktheproducttoupdate.saccocode = sacco;
                 _context.AgProducts.Update(checktheproducttoupdate);
+
             }
 
             var collection = new ag_Products45

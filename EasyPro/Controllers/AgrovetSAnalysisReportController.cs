@@ -58,7 +58,8 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
-            var SalesAnalysis = await _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1 && i.TDate <= date2).ToListAsync();
+            var SalesAnalysis = await _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) 
+            && i.TDate >= date1 && i.TDate <= date2).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 SalesAnalysis = SalesAnalysis.Where(i => i.Branch == saccobranch).ToList();

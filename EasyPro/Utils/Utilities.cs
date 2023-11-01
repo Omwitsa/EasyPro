@@ -11,6 +11,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EasyPro.Utils
 {
@@ -24,6 +25,8 @@ namespace EasyPro.Utils
         public void SetUpPrivileges(Controller controller)
         {
             var sacco = controller.HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var Loggedinbranch = controller.HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = controller.HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var group = controller.HttpContext.Session.GetString(StrValues.UserGroup) ?? "";
             IQueryable<Usergroup> usergroupslist = _context.Usergroups;
             var usergroup = usergroupslist.FirstOrDefault(u => u.GroupName.Equals(group)
@@ -130,6 +133,12 @@ namespace EasyPro.Utils
             controller.ViewBag.slopes = StrValues.Slopes == sacco;
 
             controller.ViewBag.sacco = sacco;
+            //var branch =_context.DBranch.Where(n=>n.Bcode==sacco).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    branch = branch.Where(n => n.Bname.ToUpper().Equals(Loggedinbranch.ToUpper())).ToList(); 
+            //controller.ViewBag.Loggedinbranch = new SelectList(branch.Select(m=>m.Bname));
+            controller.ViewBag.Loggedinbranch = Loggedinbranch;
             controller.ViewBag.filesRole = usergroup.Files;
             controller.ViewBag.accountsRole = usergroup.Accounts;
             controller.ViewBag.transactionsRole = usergroup.Registration;
