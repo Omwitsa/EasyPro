@@ -16,6 +16,9 @@ using Stripe;
 using EasyPro.Models.BosaModels;
 using Syncfusion.EJ2.Diagrams;
 using EasyPro.IProvider;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using NPOI.SS.Formula.Functions;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace EasyPro.Controllers
 {
@@ -138,6 +141,8 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
             var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
+            var nextMonthStartDate = startDate.AddMonths(1);
+            var nextMonthLastDate = nextMonthStartDate.AddMonths(1).AddDays(-1);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             IQueryable<DPayroll> payrolls = _context.DPayrolls
@@ -300,6 +305,7 @@ namespace EasyPro.Controllers
             var listSaccoLoans = new List<SaccoLoans>();
             var listSaccoShares = new List<SaccoShares>();
             var dPayrolls = new List<DPayroll>();
+            var curriedForwardProducts = new List<ProductIntake>();
             intakes.ForEach(async p =>
             {
                 var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
@@ -355,7 +361,7 @@ namespace EasyPro.Controllers
                         subsidy =0;
                     }
 
-                   if (supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate))
+                   if (grossPay > 0 && (supplier.TransCode == "Weekly" || (supplier.TransCode == "Monthly" && period.EndDate == monthsLastDate)))
                     {
                         //var netPay = grossPay - (debits + Tot);
                         var payroll = new DPayroll
@@ -404,210 +410,552 @@ namespace EasyPro.Controllers
                         };
 
                         decimal? netPay = grossPay;
-                        var regis = (registration.Sum(s => s.DR) - registration.Sum(s => s.CR));
-                        if(StrValues.Slopes == sacco)
+                        decimal? carriedForwardValue = 0;
+                        var carryfw = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
+                        payroll.CurryForward = carryfw;
+                        if (StrValues.Slopes == sacco)
                         {
-                            payroll.Registration = netPay > regis ? regis : netPay;
-                            payroll.Registration = payroll.Registration > 0 ? payroll.Registration : 0;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && carryfw > 0 && netPay < carryfw)
+                            {
+                                payroll.CurryForward = netPay;
+                                carriedForwardValue = carryfw - netPay;
+                            }
+                            if (netPay < 0 && carryfw > 0)
+                            {
+                                payroll.CurryForward = 0;
+                                carriedForwardValue = carryfw;
+                            }
                         }
-                        else
+
+                        netPay -= carryfw;
+                        if (netPay < 0 && carryfw > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Carry Forward",
+                                DR = carriedForwardValue,
+                            });
+
+                        var regis = (registration.Sum(s => s.DR) - registration.Sum(s => s.CR));
+                        payroll.Registration = regis;
+                        if (StrValues.Slopes == sacco)
                         {
-                            payroll.Registration = regis;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && regis > 0 && netPay < regis)
+                            {
+                                payroll.Registration = netPay;
+                                carriedForwardValue = regis - netPay;
+                            }
+                            if (netPay < 0 && regis > 0)
+                            {
+                                payroll.Registration = 0;
+                                carriedForwardValue = regis;
+                            }
                         }
                         
                         netPay -= regis;
 
+                        if (netPay < 0 && regis > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Registration",
+                                DR = carriedForwardValue,
+                            });
+
+                        
                         var shar = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
+                        payroll.Hshares = shar;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.Hshares = netPay > shar ? shar : netPay;
-                            payroll.Hshares = payroll.Hshares > 0 ? payroll.Hshares : 0;
-                        }
-                        else
-                        {
-                            payroll.Hshares = shar;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && shar > 0 && netPay < shar)
+                            {
+                                payroll.Hshares = netPay;
+                                carriedForwardValue = shar - netPay;
+                            }
+                            if (netPay < 0 && regis > 0)
+                            {
+                                payroll.Hshares = 0;
+                                carriedForwardValue = shar;
+                            }
                         }
                             
                         netPay -= shar;
+                        if (netPay < 0 && shar > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Society Shares",
+                                DR = carriedForwardValue,
+                            });
 
-                        payroll.KIIGA = netPay > kiiga.Sum(s => s.DR) ? kiiga.Sum(s => s.DR) : netPay;
-                        payroll.KIIGA = payroll.KIIGA > 0 ? payroll.KIIGA : 0;
-                        netPay -= kiiga.Sum(s => s.DR);
-                        
-                        payroll.KIROHA = netPay > kiroha.Sum(s => s.DR) ? kiroha.Sum(s => s.DR) : netPay;
-                        payroll.KIROHA = payroll.KIROHA > 0 ? payroll.KIROHA : 0;
-                        netPay -= (kiroha.Sum(s => s.DR)- kiroha.Sum(s => s.CR));
+                        var kiigaContrib = kiiga.Sum(s => s.DR) - kiiga.Sum(s => s.CR);
+                        payroll.KIIGA = kiigaContrib;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && kiigaContrib > 0 && netPay < kiigaContrib)
+                        {
+                            payroll.KIIGA = netPay;
+                            carriedForwardValue = kiigaContrib - netPay;
+                        }
+                        if (netPay < 0 && kiigaContrib > 0)
+                        {
+                            payroll.KIIGA = 0;
+                            carriedForwardValue = kiigaContrib;
+                        }
+
+                        netPay -= kiigaContrib;
+                        if (netPay < 0 && regis > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "KIIGA",
+                                DR = carriedForwardValue,
+                            });
+
+                        var kirohaContrib = kiroha.Sum(s => s.DR) - kiroha.Sum(s => s.CR);
+                        payroll.KIROHA = kirohaContrib;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && kirohaContrib > 0 && netPay < kirohaContrib)
+                        {
+                            payroll.KIROHA = netPay;
+                            carriedForwardValue = kirohaContrib - netPay;
+                        }
+                        if (netPay < 0 && kirohaContrib > 0)
+                        {
+                            payroll.KIROHA = 0;
+                            carriedForwardValue = kirohaContrib;
+                        }
+
+                        netPay -= kirohaContrib;
+                        if (netPay < 0 && regis > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "KIROHA DAIRY",
+                                DR = carriedForwardValue,
+                            });
 
                         var AIs = (ai.Sum(s => s.DR) - ai.Sum(s => s.CR));
+                        payroll.AI = AIs;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.AI = netPay > AIs ? AIs : netPay;
-                            payroll.AI = payroll.AI > 0 ? payroll.AI : 0;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && AIs > 0 && netPay < AIs)
+                            {
+                                payroll.AI = netPay;
+                                carriedForwardValue = AIs - netPay;
+                            }
+                            if (netPay < 0 && AIs > 0)
+                            {
+                                payroll.AI = 0;
+                                carriedForwardValue = AIs;
+                            }
                         }
-                        else
-                        {
-                            payroll.AI = AIs;
-                        }
-                            
+                           
                         netPay -= AIs;
+                        if (netPay < 0 && AIs > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Ai",
+                                DR = carriedForwardValue,
+                            });
 
                         var agro = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
+                        payroll.Agrovet = agro;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.Agrovet = netPay > agro ? agro : netPay;
-                            payroll.Agrovet = payroll.Agrovet > 0 ? payroll.Agrovet : 0;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && agro > 0 && netPay < agro)
+                            {
+                                payroll.Agrovet = netPay;
+                                carriedForwardValue = agro - netPay;
+                            }
+                            if (netPay < 0 && agro > 0)
+                            {
+                                payroll.Agrovet = 0;
+                                carriedForwardValue = agro;
+                            }
                         }
-                        else
-                        {
-                            payroll.Agrovet = agro;
-                        }
-                            
+                        
                         netPay -= agro;
+                        if (netPay < 0 && agro > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Agrovet",
+                                DR = carriedForwardValue,
+                            });
 
-                        payroll.NOV_OVPMNT = netPay > overpayment.Sum(s => s.DR) ? overpayment.Sum(s => s.DR) : netPay;
-                        payroll.NOV_OVPMNT = payroll.NOV_OVPMNT > 0 ? payroll.NOV_OVPMNT : 0;
-                        netPay -= (overpayment.Sum(s => s.DR)- overpayment.Sum(s => s.CR));
-
-                        var carryfw = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
-                        if (StrValues.Slopes == sacco)
+                        var novContrib = overpayment.Sum(s => s.DR) - overpayment.Sum(s => s.DR);
+                        payroll.NOV_OVPMNT = novContrib;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && novContrib > 0 && netPay < novContrib)
                         {
-                            payroll.CurryForward = netPay > carryfw ? carryfw : netPay;
-                            payroll.CurryForward = payroll.CurryForward > 0 ? payroll.CurryForward : 0;
+                            payroll.NOV_OVPMNT = netPay;
+                            carriedForwardValue = novContrib - netPay;
                         }
-                        else
+                        if (netPay < 0 && agro > 0)
                         {
-                            payroll.CurryForward = carryfw;
+                            payroll.NOV_OVPMNT = 0;
+                            carriedForwardValue = novContrib;
                         }
-                           
-                        netPay -= carryfw;
 
+                        if (netPay < 0 && novContrib > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "NOV OVERPAYMENT",
+                                DR = carriedForwardValue,
+                            });
+                        
+                       
                         var adva = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
+                        payroll.Advance = adva;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.Advance = netPay > adva ? adva : netPay;
-                            payroll.Advance = payroll.Advance > 0 ? payroll.Advance : 0;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && adva > 0 && netPay < adva)
+                            {
+                                payroll.Advance = netPay;
+                                carriedForwardValue = adva - netPay;
+                            }
+                            if (netPay < 0 && adva > 0)
+                            {
+                                payroll.Advance = 0;
+                                carriedForwardValue = adva;
+                            }
                         }
-                        else
-                        {
-                            payroll.Advance = adva;
-                        }
-                           
+                        
                         netPay -= adva;
+                        if (netPay < 0 && adva > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Advance",
+                                DR = carriedForwardValue,
+                            });
 
-                        payroll.INST_ADVANCE = netPay > instantAdvance.Sum(s => s.DR) ? instantAdvance.Sum(s => s.DR) : netPay;
-                        payroll.INST_ADVANCE = payroll.INST_ADVANCE > 0 ? payroll.INST_ADVANCE : 0;
-                        netPay -= (instantAdvance.Sum(s => s.DR)- instantAdvance.Sum(s => s.CR));
+                        var insAdv = instantAdvance.Sum(s => s.DR) - instantAdvance.Sum(s => s.CR);
+                        payroll.INST_ADVANCE = insAdv;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && insAdv > 0 && netPay < insAdv)
+                        {
+                            payroll.INST_ADVANCE = netPay;
+                            carriedForwardValue = insAdv - netPay;
+                        }
+                        if (netPay < 0 && insAdv > 0)
+                        {
+                            payroll.INST_ADVANCE = 0;
+                            carriedForwardValue = insAdv;
+                        }
 
-                        var trans = (transport.Sum(s => s.DR));
+                        if (netPay < 0 && insAdv > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "INST ADV",
+                                DR = carriedForwardValue,
+                            });
+
+                        var trans = transport.Sum(s => s.DR) - transport.Sum(s => s.CR);
+                        payroll.Transport = trans;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.Transport = netPay > trans ? trans : netPay;
-                            payroll.Transport = payroll.Transport > 0 ? payroll.Transport : 0;
-                        }
-                        else
-                        {
-                            payroll.Transport = trans;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && trans > 0 && netPay < trans)
+                            {
+                                payroll.Transport = netPay;
+                                carriedForwardValue = trans - netPay;
+                            }
+                            if (netPay < 0 && trans > 0)
+                            {
+                                payroll.Transport = 0;
+                                carriedForwardValue = trans;
+                            }
                         }
                             
                         netPay -= trans;
-                        
+                        if (netPay < 0 && trans > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Transport",
+                                DR = carriedForwardValue,
+                            });
+
                         var clini = (clinical.Sum(s => s.DR) - clinical.Sum(s => s.CR));
+                        payroll.CLINICAL = clini;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.CLINICAL = netPay > clini ? clini : netPay;
-                            payroll.CLINICAL = payroll.CLINICAL > 0 ? payroll.CLINICAL : 0;
-                        }
-                        else
-                        {
-                            payroll.CLINICAL = clini;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && clini > 0 && netPay < clini)
+                            {
+                                payroll.CLINICAL = netPay;
+                                carriedForwardValue = clini - netPay;
+                            }
+                            if (netPay < 0 && clini > 0)
+                            {
+                                payroll.CLINICAL = 0;
+                                carriedForwardValue = clini;
+                            }
                         }
                            
                         netPay -= clini;
+                        if (netPay < 0 && clini > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Clinical",
+                                DR = carriedForwardValue,
+                            });
 
                         var Tract = (tractor.Sum(s => s.DR) - tractor.Sum(s => s.CR));
+                        payroll.Tractor = Tract;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.Tractor = netPay > Tract ? Tract : netPay;
-                            payroll.Tractor = payroll.Tractor > 0 ? payroll.Tractor : 0;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && Tract > 0 && netPay < Tract)
+                            {
+                                payroll.Tractor = netPay;
+                                carriedForwardValue = Tract - netPay;
+                            }
+                            if (netPay < 0 && Tract > 0)
+                            {
+                                payroll.Tractor = 0;
+                                carriedForwardValue = Tract;
+                            }
                         }
-                        else
-                        {
-                            payroll.Tractor = Tract;
-                        }
-                           
+                          
                         netPay -= Tract;
+                        if (netPay < 0 && Tract > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Tractor",
+                                DR = carriedForwardValue,
+                            });
 
-                        payroll.extension = netPay > extension.Sum(s => s.DR) ? extension.Sum(s => s.DR) : netPay;
-                        payroll.extension = payroll.extension > 0 ? payroll.extension : 0;
-                        netPay -= (extension.Sum(s => s.DR)- extension.Sum(s => s.CR));
+                        var extensionDed = extension.Sum(s => s.DR) - extension.Sum(s => s.CR);
+                        payroll.extension = extensionDed;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && extensionDed > 0 && netPay < extensionDed)
+                        {
+                            payroll.extension = netPay;
+                            carriedForwardValue = extensionDed - netPay;
+                        }
+                        if (netPay < 0 && Tract > 0)
+                        {
+                            payroll.extension = 0;
+                            carriedForwardValue = extensionDed;
+                        }
 
-                        payroll.SMS = netPay > SMS.Sum(s => s.DR) ? SMS.Sum(s => s.DR) : netPay;
-                        payroll.SMS = payroll.SMS > 0 ? payroll.SMS : 0;
-                        netPay -= (SMS.Sum(s => s.DR)- SMS.Sum(s => s.CR));
+                        netPay -= extensionDed;
+                        if (netPay < 0 && extensionDed > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Extension Work",
+                                DR = carriedForwardValue,
+                            });
 
-                        payroll.Bonus = netPay > bonus.Sum(s => s.DR) ? bonus.Sum(s => s.DR) : netPay;
-                        payroll.Bonus = payroll.Bonus > 0 ? payroll.Bonus : 0;
-                        netPay -= (bonus.Sum(s => s.DR)- bonus.Sum(s => s.CR));
+                        var smsDed = SMS.Sum(s => s.DR) - SMS.Sum(s => s.CR);
+                        payroll.SMS = smsDed;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && smsDed > 0 && netPay < smsDed)
+                        {
+                            payroll.SMS = netPay;
+                            carriedForwardValue = smsDed - netPay;
+                        }
+                        if (netPay < 0 && smsDed > 0)
+                        {
+                            payroll.SMS = 0;
+                            carriedForwardValue = smsDed;
+                        }
 
-                        payroll.MIDPAY = netPay > MIDPAY.Sum(s => s.DR) ? MIDPAY.Sum(s => s.DR) : netPay;
-                        payroll.MIDPAY = payroll.MIDPAY > 0 ? payroll.MIDPAY : 0;
-                        netPay -= (MIDPAY.Sum(s => s.DR)- MIDPAY.Sum(s => s.CR));
+                        netPay -= smsDed;
+                        if (netPay < 0 && smsDed > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "SMS",
+                                DR = carriedForwardValue,
+                            });
+
+                        var bonusDed = bonus.Sum(s => s.DR) - bonus.Sum(s => s.CR);
+                        payroll.Bonus = bonusDed;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && bonusDed > 0 && netPay < bonusDed)
+                        {
+                            payroll.Bonus = netPay;
+                            carriedForwardValue = bonusDed - netPay;
+                        }
+                        if (netPay < 0 && bonusDed > 0)
+                        {
+                            payroll.Bonus = 0;
+                            carriedForwardValue = bonusDed;
+                        }
+
+                        netPay -= bonusDed;
+                        if (netPay < 0 && bonusDed > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Bonus",
+                                DR = carriedForwardValue,
+                            });
+
+                        var midPayDed = MIDPAY.Sum(s => s.DR) - MIDPAY.Sum(s => s.CR);
+                        payroll.MIDPAY = midPayDed;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && midPayDed > 0 && netPay < midPayDed)
+                        {
+                            payroll.Bonus = netPay;
+                            carriedForwardValue = midPayDed - netPay;
+                        }
+                        if (netPay < 0 && midPayDed > 0)
+                        {
+                            payroll.Bonus = 0;
+                            carriedForwardValue = midPayDed;
+                        }
+
+                        netPay -= midPayDed;
+                        if (netPay < 0 && midPayDed > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "midpay",
+                                DR = carriedForwardValue,
+                            });
 
                         var ECLO = (ECLOF.Sum(s => s.DR) - ECLOF.Sum(s => s.CR));
+                        payroll.ECLOF = ECLO;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.ECLOF = netPay > ECLO ? ECLO : netPay;
-                            payroll.ECLOF = payroll.ECLOF > 0 ? payroll.ECLOF : 0;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && ECLO > 0 && netPay < ECLO)
+                            {
+                                payroll.ECLOF = netPay;
+                                carriedForwardValue = ECLO - netPay;
+                            }
+                            if (netPay < 0 && ECLO > 0)
+                            {
+                                payroll.ECLOF = 0;
+                                carriedForwardValue = ECLO;
+                            }
                         }
-                        else
-                        {
-                            payroll.ECLOF = ECLO;
-                        }
-                            
+                          
                         netPay -= ECLO;
+                        if (netPay < 0 && ECLO > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Eclof",
+                                DR = carriedForwardValue,
+                            });
 
                         var Maendeleo = (saccoDed.Sum(s => s.DR) - saccoDed.Sum(s => s.CR));
+                        payroll.saccoDed = Maendeleo;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.saccoDed = netPay > Maendeleo ? Maendeleo : netPay;
-                            payroll.saccoDed = payroll.saccoDed > 0 ? payroll.saccoDed : 0;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && Maendeleo > 0 && netPay < Maendeleo)
+                            {
+                                payroll.saccoDed = netPay;
+                                carriedForwardValue = Maendeleo - netPay;
+                            }
+                            if (netPay < 0 && Maendeleo > 0)
+                            {
+                                payroll.saccoDed = 0;
+                                carriedForwardValue = Maendeleo;
+                            }
                         }
-                        else
-                        {
-                            payroll.saccoDed = Maendeleo;
-                        }
-                            
+                          
                         netPay -= Maendeleo;
+                        if (netPay < 0 && Maendeleo > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "MAENDELEO",
+                                DR = carriedForwardValue,
+                            });
 
-                        payroll.MILK_RECOVERY = netPay > milkRecovery.Sum(s => s.DR) ? milkRecovery.Sum(s => s.DR) : netPay;
-                        payroll.MILK_RECOVERY = payroll.MILK_RECOVERY > 0 ? payroll.MILK_RECOVERY : 0;
-                        netPay -= (milkRecovery.Sum(s => s.DR)- milkRecovery.Sum(s => s.CR));
+                        var milk_recovery = milkRecovery.Sum(s => s.DR) - milkRecovery.Sum(s => s.CR);
+                        payroll.MILK_RECOVERY = milk_recovery;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && milk_recovery > 0 && netPay < milk_recovery)
+                        {
+                            payroll.MILK_RECOVERY = netPay;
+                            carriedForwardValue = milk_recovery - netPay;
+                        }
+                        if (netPay < 0 && milk_recovery > 0)
+                        {
+                            payroll.MILK_RECOVERY = 0;
+                            carriedForwardValue = milk_recovery;
+                        }
+
+                        netPay -= milk_recovery;
+                        if (netPay < 0 && milk_recovery > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "MILK RECOVERY",
+                                DR = carriedForwardValue,
+                            });
 
                         var other = (Others.Sum(s => s.DR) - Others.Sum(s => s.CR));
+                        payroll.Others = other;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.Others = netPay > other ? other : netPay;
-                            payroll.Others = payroll.Others > 0 ? payroll.Others : 0;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && other > 0 && netPay < other)
+                            {
+                                payroll.Others = netPay;
+                                carriedForwardValue = other - netPay;
+                            }
+                            if (netPay < 0 && other > 0)
+                            {
+                                payroll.Others = 0;
+                                carriedForwardValue = other;
+                            }
                         }
-                        else
-                        {
-                            payroll.Others = other;
-                        }
-                           
+                         
                         netPay -= other;
+                        if (netPay < 0 && other > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Others",
+                                DR = carriedForwardValue,
+                            });
 
                         var memberLoans = loan.Sum(s => s.DR) - loan.Sum(s => s.CR);
+                        payroll.Fsa = memberLoans;
                         if (StrValues.Slopes == sacco)
                         {
-                            payroll.Fsa = netPay > memberLoans ? memberLoans : netPay;
-                            payroll.Fsa = payroll.Fsa > 0 ? payroll.Fsa : 0;
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && memberLoans > 0 && netPay < memberLoans)
+                            {
+                                payroll.Fsa = netPay;
+                                carriedForwardValue = memberLoans - netPay;
+                            }
+                            if (netPay < 0 && memberLoans > 0)
+                            {
+                                payroll.Fsa = 0;
+                                carriedForwardValue = memberLoans;
+                            }
                         }
-                        else
-                        {
-                            payroll.Fsa = memberLoans;
-                        }
-                           
+                       
                         netPay -= memberLoans;
+                        if (netPay < 0 && memberLoans > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = supplier.Sno,
+                                ProductType = "Loan",
+                                DR = carriedForwardValue,
+                            });
                         if (StrValues.Slopes == sacco)
                         {
                             var farmerLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper())).ToList();
@@ -633,11 +981,6 @@ namespace EasyPro.Controllers
                                     });
                                 }
                             });
-
-                            if (supplier.Sno == "04141")
-                            {
-
-                            }
 
                             var saccoStandingOrder = saccoStandingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper()));
                             if (saccoStandingOrder != null)
@@ -819,261 +1162,520 @@ namespace EasyPro.Controllers
                     }
 
                     var grossPay = amount + subsidy;
-                    var payRoll = new DTransportersPayRoll
+                    if(grossPay > 0)
                     {
-                        Code = transporter.TransCode,
-                        Amnt = amount,
-                        Subsidy = subsidy,
-                        GrossPay = grossPay,
-                        QntySup = (double?)p.Sum(s => s.Qsupplied),
-                        PhoneNo = transporter.Phoneno,
-                        Advance = 0,
-                        extension = 0,
-                        SMS = 0,
-                        CurryForward = 0,
-                        Others = 0,
-                        MIDPAY = 0,
-                        AI = 0,
-                        CLINICAL = 0,
-                        Tractor = 0,
-                        VARIANCE = 0,
-                        Agrovet = 0,
-                        Hshares = 0,
-                        Fsa = 0,
-                        Totaldeductions = 0,
-                        NetPay = 0,
-                        SACCO_SHARES = 0,
-                        SACCO_SAVINGS = 0,
-                        INST_ADVANCE = 0,
-                        BankName = transporter.Bcode,
-                        Yyear = period.EndDate.Year,
-                        Mmonth = period.EndDate.Month,
-                        AccNo = transporter.Accno,
-                        BBranch = transporter.Bbranch,
-                        EndPeriod = period.EndDate,
-                        Rate = 0,
-                        SaccoCode = sacco,
-                        AuditId = loggedInUser,
-                        Branch = transporter.Tbranch,
-                        ECLOF = 0,
-                        saccoDed = 0
-                    };
+                        var payRoll = new DTransportersPayRoll
+                        {
+                            Code = transporter.TransCode,
+                            Amnt = amount,
+                            Subsidy = subsidy,
+                            GrossPay = grossPay,
+                            QntySup = (double?)p.Sum(s => s.Qsupplied),
+                            PhoneNo = transporter.Phoneno,
+                            Advance = 0,
+                            extension = 0,
+                            SMS = 0,
+                            CurryForward = 0,
+                            Others = 0,
+                            MIDPAY = 0,
+                            AI = 0,
+                            CLINICAL = 0,
+                            Tractor = 0,
+                            VARIANCE = 0,
+                            Agrovet = 0,
+                            Hshares = 0,
+                            Fsa = 0,
+                            Totaldeductions = 0,
+                            NetPay = 0,
+                            SACCO_SHARES = 0,
+                            SACCO_SAVINGS = 0,
+                            INST_ADVANCE = 0,
+                            BankName = transporter.Bcode,
+                            Yyear = period.EndDate.Year,
+                            Mmonth = period.EndDate.Month,
+                            AccNo = transporter.Accno,
+                            BBranch = transporter.Bbranch,
+                            EndPeriod = period.EndDate,
+                            Rate = 0,
+                            SaccoCode = sacco,
+                            AuditId = loggedInUser,
+                            Branch = transporter.Tbranch,
+                            ECLOF = 0,
+                            saccoDed = 0
+                        };
 
-                    decimal? netPay = grossPay;
-
-                    var saccodeductions = (saccoDed.Sum(s => s.DR) - saccoDed.Sum(s => s.CR));
-
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.saccoDed = netPay > saccodeductions ? saccodeductions : netPay;
-                        payRoll.saccoDed = payRoll.saccoDed > 0 ? payRoll.saccoDed : 0;
-                    }
-                    else
-                    {
-                        payRoll.saccoDed = saccodeductions;
-                    }
-                        
-                    netPay -= saccodeductions;
-
-                    var eclofdeduction = (ECLOF.Sum(s => s.DR) - ECLOF.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.ECLOF = netPay > eclofdeduction ? eclofdeduction : netPay;
-                        payRoll.ECLOF = payRoll.ECLOF > 0 ? payRoll.ECLOF : 0;
-                    }
-                    else
-                    {
-                        payRoll.ECLOF = eclofdeduction;
-                    }
-                        
-                    netPay -= eclofdeduction;
-
-                    var variancededuction = (variance.Sum(s => s.DR) - variance.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.VARIANCE = netPay > variancededuction ? variancededuction : netPay;
-                        payRoll.VARIANCE = payRoll.VARIANCE > 0 ? payRoll.VARIANCE : 0;
-                    }
-                    else
-                    {
-                    payRoll.VARIANCE = variancededuction;
-                    }
-                        
-                    netPay -= variancededuction;
-
-                    var agrovetdeduction = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.Agrovet = netPay > agrovetdeduction ? agrovetdeduction : netPay;
-                        payRoll.Agrovet = payRoll.Agrovet > 0 ? payRoll.Agrovet : 0;
-                    }
-                    else
-                    {
-                        payRoll.Agrovet = agrovetdeduction;
-                    }
-
-                        
-                    netPay -= agrovetdeduction;
-
-                    var advancededuction = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.Advance = netPay > advancededuction ? advancededuction : netPay;
-                        payRoll.Advance = payRoll.Advance > 0 ? payRoll.Advance : 0;
-                    }
-                    else
-                    {
-                        payRoll.Advance = advancededuction;
-                    }
-                       
-                    netPay -= advancededuction;
-
-                    payRoll.INST_ADVANCE = netPay > instantAdvance.Sum(s => s.DR) ? instantAdvance.Sum(s => s.DR) : netPay;
-                    payRoll.INST_ADVANCE = payRoll.INST_ADVANCE > 0 ? payRoll.INST_ADVANCE : 0;
-                    netPay -= instantAdvance.Sum(s => s.DR);
-
-                    payRoll.extension = netPay > extension.Sum(s => s.DR) ? extension.Sum(s => s.DR) : netPay;
-                    payRoll.extension = payRoll.extension > 0 ? payRoll.extension : 0;
-                    netPay -= extension.Sum(s => s.DR);
-
-                    payRoll.SMS = netPay > SMS.Sum(s => s.DR) ? SMS.Sum(s => s.DR) : netPay;
-                    payRoll.SMS = payRoll.SMS > 0 ? payRoll.SMS : 0;
-                    netPay -= SMS.Sum(s => s.DR);
-
-                    var CurryForwarddeduction = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.CurryForward = netPay > CurryForwarddeduction ? CurryForwarddeduction : netPay;
-                        payRoll.CurryForward = payRoll.CurryForward > 0 ? payRoll.CurryForward : 0;
-                    }
-                    else
-                    {
+                        decimal? netPay = grossPay;
+                        decimal? carriedForwardValue = 0;
+                        var CurryForwarddeduction = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
                         payRoll.CurryForward = CurryForwarddeduction;
-                    }
-                        
-                    netPay -= CurryForwarddeduction;
-
-                    var midpaydeduction = (MIDPAY.Sum(s => s.DR) - MIDPAY.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.MIDPAY = netPay > midpaydeduction ? midpaydeduction : netPay;
-                        payRoll.MIDPAY = payRoll.MIDPAY > 0 ? payRoll.MIDPAY : 0;
-                    }
-                    else
-                    {
-                        payRoll.MIDPAY = midpaydeduction;
-                    }
-                        
-                    netPay -= midpaydeduction;
-
-                    var AIDeduction = (ai.Sum(s => s.DR) - ai.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.AI = netPay > AIDeduction ? AIDeduction : netPay;
-                        payRoll.AI = payRoll.AI > 0 ? payRoll.AI : 0;
-                    }
-                    else
-                    {
-                        payRoll.AI = AIDeduction;
-                    }
-                       
-                    netPay -= AIDeduction;
-
-                    var CLINICALdeduction = (clinical.Sum(s => s.DR) - clinical.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.CLINICAL = netPay > CLINICALdeduction ? CLINICALdeduction : netPay;
-                        payRoll.CLINICAL = payRoll.CLINICAL > 0 ? payRoll.CLINICAL : 0;
-                    }
-                    else
-                    {
-                        payRoll.CLINICAL = CLINICALdeduction;
-                    }
-                       
-                    netPay -= CLINICALdeduction;
-
-                    var tractordeduction = (tractor.Sum(s => s.DR) - tractor.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.Tractor = netPay > tractordeduction ? tractordeduction : netPay;
-                        payRoll.Tractor = payRoll.Tractor > 0 ? payRoll.Tractor : 0;
-                    }
-                    else
-                    {
-                        payRoll.Tractor = tractordeduction;
-                    }
-                       
-                    netPay -= tractordeduction;
-
-                    var societyShares = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.Hshares = netPay > societyShares ? societyShares : netPay;
-                        payRoll.Hshares = payRoll.Hshares > 0 ? payRoll.Hshares : 0;
-                    }
-                    else
-                    {
-                        payRoll.Hshares = societyShares;
-                    }
-                       
-                    netPay -= societyShares;
-
-                    var memberLoans = loan.Sum(s => s.DR);
-                    payRoll.Fsa = netPay > memberLoans ? memberLoans : netPay;
-                    payRoll.Fsa = payRoll.Fsa > 0 ? payRoll.Fsa : 0;
-                    netPay -= memberLoans;
-
-                    var Othersdedutcion = (Others.Sum(s => s.DR)- Others.Sum(s => s.CR));
-                    if (StrValues.Slopes == sacco)
-                    {
-                        payRoll.Others = netPay > Othersdedutcion ? Othersdedutcion : netPay;
-                        payRoll.Others = payRoll.Others > 0 ? payRoll.Others : 0;
-                    }
-                    else
-                    {
-                        payRoll.Others = Othersdedutcion;
-                    }
-                       
-                    netPay -= Othersdedutcion;
-
-                    if (StrValues.Slopes == sacco)
-                    {
-                        var transportersLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToList();
-                        transportersLoans.ForEach(l =>
+                        if (StrValues.Slopes == sacco)
                         {
-                            if (l.Balance > 0 && netPay > 0 && l.Installments > 0)
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && CurryForwarddeduction > 0 && netPay < CurryForwarddeduction)
                             {
-                                var installments = l.Balance < l.Installments ? l.Balance : l.Installments;
-                                installments = netPay > installments ? installments : netPay;
-                                payRoll.Fsa += installments;
-                                netPay -= installments;
-                                listSaccoLoans.Add(new SaccoLoans
-                                {
-                                    LoanNo = l.LoanNo,
-                                    LoanCode = l.LoanCode,
-                                    Sno = l.MemberNo,
-                                    Amount = installments,
-                                    TransDate = monthsLastDate,
-                                    AuditDate = DateTime.Now,
-                                    Saccocode = sacco,
-                                    AuditId = loggedInUser
-                                });
+                                payRoll.ECLOF = netPay;
+                                carriedForwardValue = CurryForwarddeduction - netPay;
                             }
-                        });
-
-                        var saccoStandingOrder = saccoStandingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()));
-                        if (saccoStandingOrder != null)
-                        {
-                            decimal? contributedShares = contribs.FirstOrDefault(s => s.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()) && s.Sharescode == shareCode)?.Amount ?? 0;
-                            if (contributedShares < maxShares)
+                            if (netPay < 0 && CurryForwarddeduction > 0)
                             {
-                                payRoll.SACCO_SHARES = netPay > saccoStandingOrder.Installment ? saccoStandingOrder.Installment : netPay;
-                                payRoll.SACCO_SHARES = payRoll.SACCO_SHARES > 0 ? payRoll.SACCO_SHARES : 0;
-                                var currentshares = contributedShares + saccoStandingOrder.Installment;
-                                if (currentshares > maxShares)
+                                payRoll.ECLOF = 0;
+                                carriedForwardValue = CurryForwarddeduction;
+                            }
+                        }
+
+                        netPay -= CurryForwarddeduction;
+                        if (netPay < 0 && CurryForwarddeduction > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Carry Forward",
+                                DR = carriedForwardValue,
+                            });
+
+                        var agrovetdeduction = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
+                        payRoll.Agrovet = agrovetdeduction;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && agrovetdeduction > 0 && netPay < agrovetdeduction)
+                            {
+                                payRoll.Agrovet = netPay;
+                                carriedForwardValue = agrovetdeduction - netPay;
+                            }
+                            if (netPay < 0 && agrovetdeduction > 0)
+                            {
+                                payRoll.Agrovet = 0;
+                                carriedForwardValue = agrovetdeduction;
+                            }
+                        }
+
+                        netPay -= agrovetdeduction;
+                        if (netPay < 0 && agrovetdeduction > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Agrovet",
+                                DR = carriedForwardValue,
+                            });
+
+                        var variancededuction = (variance.Sum(s => s.DR) - variance.Sum(s => s.CR));
+                        payRoll.VARIANCE = variancededuction;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && variancededuction > 0 && netPay < variancededuction)
+                            {
+                                payRoll.VARIANCE = netPay;
+                                carriedForwardValue = variancededuction - netPay;
+                            }
+                            if (netPay < 0 && variancededuction > 0)
+                            {
+                                payRoll.VARIANCE = 0;
+                                carriedForwardValue = variancededuction;
+                            }
+                        }
+
+                        netPay -= variancededuction;
+                        if (netPay < 0 && variancededuction > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Variance",
+                                DR = carriedForwardValue,
+                            });
+
+                        var instAdv = instantAdvance.Sum(s => s.DR) - instantAdvance.Sum(s => s.CR);
+                        payRoll.INST_ADVANCE = instAdv;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && instAdv > 0 && netPay < instAdv)
+                        {
+                            payRoll.INST_ADVANCE = netPay;
+                            carriedForwardValue = instAdv - netPay;
+                        }
+                        if (netPay < 0 && instAdv > 0)
+                        {
+                            payRoll.INST_ADVANCE = 0;
+                            carriedForwardValue = instAdv;
+                        }
+
+                        netPay -= instAdv;
+                        if (netPay < 0 && instAdv > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "INST ADV",
+                                DR = carriedForwardValue,
+                            });
+
+                        var advancededuction = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
+                        payRoll.Advance = advancededuction;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && advancededuction > 0 && netPay < advancededuction)
+                            {
+                                payRoll.Advance = netPay;
+                                carriedForwardValue = advancededuction - netPay;
+                            }
+                            if (netPay < 0 && advancededuction > 0)
+                            {
+                                payRoll.Advance = 0;
+                                carriedForwardValue = advancededuction;
+                            }
+                        }
+
+                        netPay -= advancededuction;
+                        if (netPay < 0 && advancededuction > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Advance",
+                                DR = carriedForwardValue,
+                            });
+
+                        var midpaydeduction = (MIDPAY.Sum(s => s.DR) - MIDPAY.Sum(s => s.CR));
+                        payRoll.MIDPAY = midpaydeduction;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && midpaydeduction > 0 && netPay < midpaydeduction)
+                            {
+                                payRoll.MIDPAY = netPay;
+                                carriedForwardValue = midpaydeduction - netPay;
+                            }
+                            if (netPay < 0 && midpaydeduction > 0)
+                            {
+                                payRoll.MIDPAY = 0;
+                                carriedForwardValue = midpaydeduction;
+                            }
+                        }
+
+                        netPay -= midpaydeduction;
+                        if (netPay < 0 && midpaydeduction > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Midpay",
+                                DR = carriedForwardValue,
+                            });
+
+                        var AIDeduction = (ai.Sum(s => s.DR) - ai.Sum(s => s.CR));
+                        payRoll.AI = AIDeduction;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && AIDeduction > 0 && netPay < AIDeduction)
+                            {
+                                payRoll.AI = netPay;
+                                carriedForwardValue = AIDeduction - netPay;
+                            }
+                            if (netPay < 0 && AIDeduction > 0)
+                            {
+                                payRoll.AI = 0;
+                                carriedForwardValue = AIDeduction;
+                            }
+                        }
+
+                        netPay -= AIDeduction;
+                        if (netPay < 0 && AIDeduction > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Ai",
+                                DR = carriedForwardValue,
+                            });
+
+                        var CLINICALdeduction = (clinical.Sum(s => s.DR) - clinical.Sum(s => s.CR));
+                        payRoll.CLINICAL = CLINICALdeduction;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && CLINICALdeduction > 0 && netPay < CLINICALdeduction)
+                            {
+                                payRoll.CLINICAL = netPay;
+                                carriedForwardValue = CLINICALdeduction - netPay;
+                            }
+                            if (netPay < 0 && CLINICALdeduction > 0)
+                            {
+                                payRoll.CLINICAL = 0;
+                                carriedForwardValue = CLINICALdeduction;
+                            }
+                        }
+
+                        netPay -= CLINICALdeduction;
+                        if (netPay < 0 && CLINICALdeduction > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Clinical",
+                                DR = carriedForwardValue,
+                            });
+
+                        var tractordeduction = (tractor.Sum(s => s.DR) - tractor.Sum(s => s.CR));
+                        payRoll.Tractor = tractordeduction;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && tractordeduction > 0 && netPay < tractordeduction)
+                            {
+                                payRoll.Tractor = netPay;
+                                carriedForwardValue = tractordeduction - netPay;
+                            }
+                            if (netPay < 0 && tractordeduction > 0)
+                            {
+                                payRoll.Tractor = 0;
+                                carriedForwardValue = tractordeduction;
+                            }
+                        }
+
+                        netPay -= tractordeduction;
+                        if (netPay < 0 && tractordeduction > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Tractor",
+                                DR = carriedForwardValue,
+                            });
+
+                        var societyShares = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
+                        payRoll.Hshares = societyShares;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && societyShares > 0 && netPay < societyShares)
+                            {
+                                payRoll.Tractor = netPay;
+                                carriedForwardValue = societyShares - netPay;
+                            }
+                            if (netPay < 0 && societyShares > 0)
+                            {
+                                payRoll.Tractor = 0;
+                                carriedForwardValue = societyShares;
+                            }
+                        }
+
+                        netPay -= societyShares;
+                        if (netPay < 0 && societyShares > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Society Shares",
+                                DR = carriedForwardValue,
+                            });
+
+                        var extensionDed = extension.Sum(s => s.DR) - extension.Sum(s => s.CR);
+                        payRoll.extension = extensionDed;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && extensionDed > 0 && netPay < extensionDed)
+                        {
+                            payRoll.extension = netPay;
+                            carriedForwardValue = extensionDed - netPay;
+                        }
+                        if (netPay < 0 && extensionDed > 0)
+                        {
+                            payRoll.extension = 0;
+                            carriedForwardValue = extensionDed;
+                        }
+
+                        netPay -= extensionDed;
+                        if (netPay < 0 && extensionDed > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Extension Work",
+                                DR = carriedForwardValue,
+                            });
+
+                        var smsDed = SMS.Sum(s => s.DR) - SMS.Sum(s => s.CR);
+                        payRoll.SMS = smsDed;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && smsDed > 0 && netPay < smsDed)
+                        {
+                            payRoll.SMS = netPay;
+                            carriedForwardValue = smsDed - netPay;
+                        }
+                        if (netPay < 0 && smsDed > 0)
+                        {
+                            payRoll.SMS = 0;
+                            carriedForwardValue = smsDed;
+                        }
+
+                        netPay -= smsDed;
+                        if (netPay < 0 && smsDed > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "SMS",
+                                DR = carriedForwardValue,
+                            });
+
+                        var saccodeductions = (saccoDed.Sum(s => s.DR) - saccoDed.Sum(s => s.CR));
+                        payRoll.saccoDed = saccodeductions;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && saccodeductions > 0 && netPay < saccodeductions)
+                            {
+                                payRoll.saccoDed = netPay;
+                                carriedForwardValue = saccodeductions - netPay;
+                            }
+                            if (netPay < 0 && saccodeductions > 0)
+                            {
+                                payRoll.saccoDed = 0;
+                                carriedForwardValue = saccodeductions;
+                            }
+                        }
+
+                        netPay -= saccodeductions;
+                        if (netPay < 0 && saccodeductions > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "MAENDELEO",
+                                DR = carriedForwardValue,
+                            });
+
+                        var eclofdeduction = (ECLOF.Sum(s => s.DR) - ECLOF.Sum(s => s.CR));
+                        payRoll.ECLOF = eclofdeduction;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && eclofdeduction > 0 && netPay < eclofdeduction)
+                            {
+                                payRoll.ECLOF = netPay;
+                                carriedForwardValue = eclofdeduction - netPay;
+                            }
+                            if (netPay < 0 && eclofdeduction > 0)
+                            {
+                                payRoll.ECLOF = 0;
+                                carriedForwardValue = eclofdeduction;
+                            }
+                        }
+
+                        netPay -= eclofdeduction;
+                        if (netPay < 0 && eclofdeduction > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Eclof",
+                                DR = carriedForwardValue,
+                            });
+
+                        var memberLoans = loan.Sum(s => s.DR) - loan.Sum(s => s.CR);
+                        payRoll.Fsa = memberLoans;
+                        carriedForwardValue = 0;
+                        if (netPay > 0 && memberLoans > 0 && netPay < memberLoans)
+                        {
+                            payRoll.ECLOF = netPay;
+                            carriedForwardValue = memberLoans - netPay;
+                        }
+                        if (netPay < 0 && memberLoans > 0)
+                        {
+                            payRoll.ECLOF = 0;
+                            carriedForwardValue = memberLoans;
+                        }
+
+                        netPay -= memberLoans;
+                        if (netPay < 0 && memberLoans > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Loan",
+                                DR = carriedForwardValue,
+                            });
+
+                        var Othersdedutcion = (Others.Sum(s => s.DR) - Others.Sum(s => s.CR));
+                        payRoll.Others = Othersdedutcion;
+                        if (StrValues.Slopes == sacco)
+                        {
+                            carriedForwardValue = 0;
+                            if (netPay > 0 && Othersdedutcion > 0 && netPay < Othersdedutcion)
+                            {
+                                payRoll.ECLOF = netPay;
+                                carriedForwardValue = Othersdedutcion - netPay;
+                            }
+                            if (netPay < 0 && Othersdedutcion > 0)
+                            {
+                                payRoll.ECLOF = 0;
+                                carriedForwardValue = Othersdedutcion;
+                            }
+                        }
+
+                        netPay -= Othersdedutcion;
+                        if (netPay < 0 && Othersdedutcion > 0)
+                            curriedForwardProducts.Add(new ProductIntake
+                            {
+                                Sno = transporter.TransCode,
+                                ProductType = "Others",
+                                DR = carriedForwardValue,
+                            });
+
+                        if (StrValues.Slopes == sacco)
+                        {
+                            var transportersLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToList();
+                            transportersLoans.ForEach(l =>
+                            {
+                                if (l.Balance > 0 && netPay > 0 && l.Installments > 0)
                                 {
-                                    payRoll.SACCO_SHARES = maxShares - contributedShares;
-                                    payRoll.SACCO_SAVINGS = saccoStandingOrder.Installment - payRoll.SACCO_SHARES;
+                                    var installments = l.Balance < l.Installments ? l.Balance : l.Installments;
+                                    installments = netPay > installments ? installments : netPay;
+                                    payRoll.Fsa += installments;
+                                    netPay -= installments;
+                                    listSaccoLoans.Add(new SaccoLoans
+                                    {
+                                        LoanNo = l.LoanNo,
+                                        LoanCode = l.LoanCode,
+                                        Sno = l.MemberNo,
+                                        Amount = installments,
+                                        TransDate = monthsLastDate,
+                                        AuditDate = DateTime.Now,
+                                        Saccocode = sacco,
+                                        AuditId = loggedInUser
+                                    });
+                                }
+                            });
+
+                            var saccoStandingOrder = saccoStandingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()));
+                            if (saccoStandingOrder != null)
+                            {
+                                decimal? contributedShares = contribs.FirstOrDefault(s => s.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()) && s.Sharescode == shareCode)?.Amount ?? 0;
+                                if (contributedShares < maxShares)
+                                {
+                                    payRoll.SACCO_SHARES = netPay > saccoStandingOrder.Installment ? saccoStandingOrder.Installment : netPay;
+                                    payRoll.SACCO_SHARES = payRoll.SACCO_SHARES > 0 ? payRoll.SACCO_SHARES : 0;
+                                    var currentshares = contributedShares + saccoStandingOrder.Installment;
+                                    if (currentshares > maxShares)
+                                    {
+                                        payRoll.SACCO_SHARES = maxShares - contributedShares;
+                                        payRoll.SACCO_SAVINGS = saccoStandingOrder.Installment - payRoll.SACCO_SHARES;
+                                        listSaccoShares.Add(new SaccoShares
+                                        {
+                                            SharesCode = savingsCode,
+                                            Sno = saccoStandingOrder.MemberNo,
+                                            Amount = payRoll.SACCO_SAVINGS,
+                                            TransDate = monthsLastDate,
+                                            AuditDate = DateTime.Now,
+                                            Saccocode = sacco,
+                                            AuditId = loggedInUser
+                                        });
+                                    }
+
+                                    if (payRoll.SACCO_SHARES > 0)
+                                        listSaccoShares.Add(new SaccoShares
+                                        {
+                                            SharesCode = shareCode,
+                                            Sno = saccoStandingOrder.MemberNo,
+                                            Amount = payRoll.SACCO_SHARES,
+                                            TransDate = monthsLastDate,
+                                            AuditDate = DateTime.Now,
+                                            Saccocode = sacco,
+                                            AuditId = loggedInUser
+                                        });
+                                }
+                                else
+                                {
+                                    payRoll.SACCO_SAVINGS = netPay > saccoStandingOrder.Installment ? saccoStandingOrder.Installment : netPay;
+                                    payRoll.SACCO_SAVINGS = payRoll.SACCO_SAVINGS > 0 ? payRoll.SACCO_SAVINGS : 0;
                                     listSaccoShares.Add(new SaccoShares
                                     {
                                         SharesCode = savingsCode,
@@ -1086,44 +1688,17 @@ namespace EasyPro.Controllers
                                     });
                                 }
 
-                                if (payRoll.SACCO_SHARES > 0)
-                                    listSaccoShares.Add(new SaccoShares
-                                    {
-                                        SharesCode = shareCode,
-                                        Sno = saccoStandingOrder.MemberNo,
-                                        Amount = payRoll.SACCO_SHARES,
-                                        TransDate = monthsLastDate,
-                                        AuditDate = DateTime.Now,
-                                        Saccocode = sacco,
-                                        AuditId = loggedInUser
-                                    });
+                                netPay -= saccoStandingOrder.Installment;
                             }
-                            else
-                            {
-                                payRoll.SACCO_SAVINGS = netPay > saccoStandingOrder.Installment ? saccoStandingOrder.Installment : netPay;
-                                payRoll.SACCO_SAVINGS = payRoll.SACCO_SAVINGS > 0 ? payRoll.SACCO_SAVINGS : 0;
-                                listSaccoShares.Add(new SaccoShares
-                                {
-                                    SharesCode = savingsCode,
-                                    Sno = saccoStandingOrder.MemberNo,
-                                    Amount = payRoll.SACCO_SAVINGS,
-                                    TransDate = monthsLastDate,
-                                    AuditDate = DateTime.Now,
-                                    Saccocode = sacco,
-                                    AuditId = loggedInUser
-                                });
-                            }
-
-                            netPay -= saccoStandingOrder.Installment;
                         }
-                    }
 
-                    payRoll.Totaldeductions = grossPay - netPay;
-                    if (StrValues.Slopes == sacco)
-                        payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
-                    //netPay -= debits;
-                    payRoll.NetPay = netPay;
-                    dTransportersPayRolls.Add(payRoll);
+                        payRoll.Totaldeductions = grossPay - netPay;
+                        if (StrValues.Slopes == sacco)
+                            payRoll.Totaldeductions = payRoll.Totaldeductions > grossPay ? grossPay : payRoll.Totaldeductions;
+                        //netPay -= debits;
+                        payRoll.NetPay = netPay;
+                        dTransportersPayRolls.Add(payRoll);
+                    }
                 }
             });
 
@@ -1133,7 +1708,62 @@ namespace EasyPro.Controllers
                 await _context.SaccoLoans.AddRangeAsync(listSaccoLoans);
             if(!_context.SaccoShares.Any(s => s.Saccocode == sacco && s.TransDate == monthsLastDate) && listSaccoShares.Any())
                 await _context.SaccoShares.AddRangeAsync(listSaccoShares);
+            if (!_context.ProductIntake.Any(i => i.TransDate == nextMonthLastDate && i.Description == "Carry Forward"))
+            {
+                curriedForwardProducts.ForEach(f =>
+                {
+                    // Credit last month
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = f.Sno,
+                        TransDate = monthsLastDate,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                        ProductType = f.ProductType,
+                        Qsupplied = 0,
+                        Ppu = 0,
+                        CR = f.DR,
+                        DR = 0,
+                        Balance = 0,
+                        Description = "Carry Forward",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = false,
+                        Remarks = "Carry Forward",
+                        AuditId = loggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = saccoBranch,
+                        SaccoCode = sacco,
+                        DrAccNo = "",
+                        CrAccNo = "",
+                        Posted = false
+                    });
 
+                    // Debit next month
+                    _context.ProductIntake.Add(new ProductIntake
+                    {
+                        Sno = f.Sno,
+                        TransDate = nextMonthLastDate,
+                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                        ProductType = f.ProductType,
+                        Qsupplied = 0,
+                        Ppu = 0,
+                        CR = 0,
+                        DR = f.DR,
+                        Balance = 0,
+                        Description = "Carry Forward",
+                        TransactionType = TransactionType.Deduction,
+                        Paid = false,
+                        Remarks = "Carry Forward",
+                        AuditId = loggedInUser,
+                        Auditdatetime = DateTime.Now,
+                        Branch = saccoBranch,
+                        SaccoCode = sacco,
+                        DrAccNo = "",
+                        CrAccNo = "",
+                        Posted = false
+                    });
+                });
+            }
+            
             await _context.SaveChangesAsync();
             _notyf.Success("Payroll processed successfully");
             return RedirectToAction(nameof(Index));
