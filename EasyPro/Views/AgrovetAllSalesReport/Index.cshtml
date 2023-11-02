@@ -57,12 +57,6 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-2 col-xs-12">
-                                    <label class="control-label">Product</label>
-                                    <select id="product" class="chzn-select form-control" asp-items="@ViewBag.products">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-2 col-xs-12">
                                     <label class="control-label">Sales Type</label>
                                     <select id="salestype" class="chzn-select form-control">
                                         <option value="0">ALL</option>
@@ -71,6 +65,23 @@
                                     </select>
                                 </div>
                                 <div class="col-sm-2 col-xs-12">
+                                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                                        <div class="nk-int-st">
+                                            <label class="control-label">Branch</label>
+                                            <select id="branchlist" class="chzn-select form-control" asp-items="@ViewBag.branches">
+                                                <option>ALL Branches</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2 col-xs-12">
+                                    <div class="form-group ic-cmp-int float-lb floating-lb">
+                                        <div class="nk-int-st">
+                                            <label class="control-label">Product</label>
+                                            <select id="product" class="form-control">
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-sm-2 col-xs-12">
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -97,7 +108,6 @@
                                                     <a id="excel_report" class="btn btn-success w3-circle">Export Excel</a>
                                                 </div>
                                                 <div class="col-sm-3 col-xs-12">
-
                                                 </div>
                                                 <div class="col-sm-3 col-xs-12">
                                                     <label class="control-label">--</label>
@@ -244,7 +254,6 @@
 
                                                 <div class="row">
                                                     <div class="col-sm-4 col-xs-12">
-                                                        
                                                     </div>
                                                     <div class="col-sm-4 col-xs-12">
                                                         <label class="control-label">Total Sales</label>
@@ -270,7 +279,7 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-<script type="text/javascript">
+    <script type="text/javascript">
         $(function () {
             $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
@@ -291,6 +300,32 @@
             $("#companyname").hide();
             $("#companyname1").hide();
             $("#companyname2").hide();
+            function getsharesreport() {
+                $("#product").empty();
+                var branch = $("#branchlist").val();
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: "getproductsreport?branch=" + branch,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            let products = response;
+                            $('#product').append($('<option>').val('').text(''));
+                            $.each(products, function () {
+                                $('#product').append($("<option />").val(this.PName).text(this.PName));
+                            });
+                            $('#product').chosen();
+                            $("#product").trigger("chosen:updated");
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+            }
+            $('#branchlist').on('change', function () {
+                getsharesreport();
+            });
 
             $("#showtable").click(function () {
                 var startDate = $("#firstdate").val();
@@ -298,10 +333,11 @@
                 var salestype = $("#salestype").val();
                 var zone = $("#zone").val() ? $("#zone").val() : "";
                 var product = $("#product").val() ? $("#product").val() : "";
+                var branchlist = $("#branchlist").val();
                 $.ajax(
                     {
                         type: 'POST',
-                        url: `allSalesreport?startDate=${startDate}&endDate=${endDate}&product=${product}&salestype=${salestype}`,
+                        url: `allSalesreport?startDate=${startDate}&endDate=${endDate}&product=${product}&salestype=${salestype}&branchlist=${branchlist}`,
                         contentType: 'application/json',
                         success: function (response) {
                             populateReports(response)
@@ -320,16 +356,15 @@
                 $('#tbl_rep_report').table2excel({ filename: fileName, fileext: ".xls" });
             });
 
-             function heading()
-            {
-                var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
-                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+            function heading() {
+                var company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var user = @Html.Raw(Json.Serialize(ViewBag.User));
                 var date1 = $("#firstdate").val();
                 var date10 = new Date(date1).toLocaleDateString();
                 var date2 = $("#enddate").val();
                 var date20 = new Date(date2).toLocaleDateString();
-                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
-                var usa = "Printed By  :" + user ;
+                var sm = "FROM  :" + date10 + "  TO  :" + date20;
+                var usa = "Printed By  :" + user;
                 //$("#sema").val(sm);
                 let itemTableRows1 = new Array();
                 let itemTableRow = new Array();
@@ -341,16 +376,15 @@
                 itemTableRows2.push(`${usa}`);
                 $('#user').html(itemTableRows2);
             }
-             function heading1()
-            {
-                var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
-                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+            function heading1() {
+                var company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var user = @Html.Raw(Json.Serialize(ViewBag.User));
                 var date1 = $("#firstdate").val();
                 var date10 = new Date(date1).toLocaleDateString();
                 var date2 = $("#enddate").val();
                 var date20 = new Date(date2).toLocaleDateString();
-                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
-                var usa = "Printed By  :" + user ;
+                var sm = "FROM  :" + date10 + "  TO  :" + date20;
+                var usa = "Printed By  :" + user;
                 //$("#sema").val(sm);
                 let itemTableRows1 = new Array();
                 let itemTableRow = new Array();
@@ -362,16 +396,15 @@
                 itemTableRows2.push(`${usa}`);
                 $('#user1').html(itemTableRows2);
             }
-            function heading2()
-            {
-                var  company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
-                var  user = @Html.Raw(Json.Serialize(ViewBag.User));
+            function heading2() {
+                var company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var user = @Html.Raw(Json.Serialize(ViewBag.User));
                 var date1 = $("#firstdate").val();
                 var date10 = new Date(date1).toLocaleDateString();
                 var date2 = $("#enddate").val();
                 var date20 = new Date(date2).toLocaleDateString();
-                var sm = "FROM  :" +  date10  + "  TO  :" + date20 ;
-                var usa = "Printed By  :" + user ;
+                var sm = "FROM  :" + date10 + "  TO  :" + date20;
+                var usa = "Printed By  :" + user;
                 //$("#sema").val(sm);
                 let itemTableRows1 = new Array();
                 let itemTableRow = new Array();
@@ -382,7 +415,7 @@
                 $('#sema2').html(itemTableRows1);
                 itemTableRows2.push(`${usa}`);
                 $('#user2').html(itemTableRows2);
-           }
+            }
             $('#print_report').on('click', function () {
                 $("#com").show();
                 $("#htitl").show();
@@ -456,10 +489,11 @@
                 var salestype = $("#salestype").val();
                 var zone = $("#zone").val() ? $("#zone").val() : "";
                 var product = $("#product").val() ? $("#product").val() : "";
+                var branchlist = $("#branchlist").val();
                 $.ajax(
                     {
                         type: 'POST',
-                        url: `allSalesSummary?startDate=${startDate}&endDate=${endDate}&product=${product}&salestype=${salestype}`,
+                        url: `allSalesSummary?startDate=${startDate}&endDate=${endDate}&product=${product}&salestype=${salestype}&branchlist=${branchlist}`,
                         contentType: 'application/json',
                         success: function (response) {
                             response = response ? response : []
@@ -477,10 +511,11 @@
                 var salestype = $("#salestype").val();
                 var zone = $("#zone").val() ? $("#zone").val() : "";
                 var product = $("#product").val() ? $("#product").val() : "";
+                var branchlist = $("#branchlist").val();
                 $.ajax(
                     {
                         type: 'POST',
-                        url: `allSalesSummaryDetailed?startDate=${startDate}&endDate=${endDate}&product=${product}&salestype=${salestype}`,
+                        url: `allSalesSummaryDetailed?startDate=${startDate}&endDate=${endDate}&product=${product}&salestype=${salestype}&branchlist=${branchlist}`,
                         contentType: 'application/json',
                         success: function (response) {
                             response = response ? response : []
@@ -510,18 +545,18 @@
                     let type = "All";
                     let dd1 = new Date(i.TDate).toLocaleDateString();
                     itemTableRows.push(`<tr>
-                                <td>${dd1}</td>
-                                <td>${i.RNo}</td>
-                                <td>${i.PCode}</td>
-                                <td>${i.Remarks}</td>
-                                <td>'${i.SNo}</td>
-                                <td>${quntity}</td>
-                                <td>${i.Amount}</td>
-                                <td>${i.Transby}</td>
-                                <td>${i.UserId}</td>
-                                <td>${i.Branch}</td>
-                                <td>${type}</td>
-                            </tr>`)
+                                                <td>${dd1}</td>
+                                                <td>${i.RNo}</td>
+                                                <td>${i.PCode}</td>
+                                                <td>${i.Remarks}</td>
+                                                <td>'${i.SNo}</td>
+                                                <td>${quntity}</td>
+                                                <td>${i.Amount}</td>
+                                                <td>${i.Transby}</td>
+                                                <td>${i.UserId}</td>
+                                                <td>${i.Branch}</td>
+                                                <td>${type}</td>
+                                            </tr>`)
                 });
 
                 $('#Tselling').val(Tselling);
@@ -548,12 +583,12 @@
                     Tselling += i.amount;
                     let dd1 = new Date(i.date).toLocaleDateString();
                     itemTableRows.push(`<tr>
-                                <td>${dd1}</td>
-                                <td>${i.product}</td>
-                                <td>${i.productName}</td>
-                                <td>${quntity}</td>
-                                <td>${i.amount}</td>
-                            </tr>`)
+                                                <td>${dd1}</td>
+                                                <td>${i.product}</td>
+                                                <td>${i.productName}</td>
+                                                <td>${quntity}</td>
+                                                <td>${i.amount}</td>
+                                            </tr>`)
                 });
 
                 $('#Tsell').val(Tselling);
@@ -571,20 +606,20 @@
                     Tselling += i.Total;
                     let dd1 = new Date(i.date).toLocaleDateString();
                     itemTableRows.push(`<tr>
-                                <td>${dd1}</td>
-                                <td>${i.Checkoff}</td>
-                                <td>${i.cash}</td>
-                                <td>${i.Total}</td>
-                            </tr>`)
+                                                <td>${dd1}</td>
+                                                <td>${i.Checkoff}</td>
+                                                <td>${i.cash}</td>
+                                                <td>${i.Total}</td>
+                                            </tr>`)
                 });
                 itemTableRows.push(`< tr >
-                              <td colspan="3"><h5>Total Sales:</h5></td>
-                               <td>${Tselling}</td>
-                          </tr >`);
+                                              <td colspan="3"><h5>Total Sales:</h5></td>
+                                               <td>${Tselling}</td>
+                                          </tr >`);
                 $('#Tselldetailed').val(Tselling);
                 $('#tbl_summarydetailed').html(itemTableRows);
             }
         });
-</script>
+    </script>
 }
 

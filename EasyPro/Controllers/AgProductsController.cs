@@ -91,7 +91,165 @@ namespace EasyPro.Controllers
 
             return View(agProduct);
         }
+        // GET: AgProducts/Create
+        public IActionResult CreateProductReturn()//Changeproduct
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            GetInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var product = _context.AgProducts
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()))
+                .OrderByDescending(u => Convert.ToInt32(u.PCode)).FirstOrDefault();
+            var num = 0;
+            if (product != null)
+                num = Convert.ToInt32(product.PCode);
 
+            return View(new AgProduct
+            {
+                PCode = "" + (num + 1),
+                OBal = 0,
+                Qin = 0,
+                Qout = 0,
+                Sprice = 0,
+                Pprice = 0,
+                DateEntered = DateTime.Today,
+                Expirydate = DateTime.Today
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateProductReturn(AgProduct agProduct)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            if (string.IsNullOrEmpty(loggedInUser))
+                return Redirect("~/");
+            utilities.SetUpPrivileges(this);
+            if (agProduct.Qin > 0)
+            {
+                _notyf.Error("Quantity to reverse can not be more than Zero.");
+                return View();
+            }
+            if (agProduct.Qin > agProduct.OBal)
+            {
+                _notyf.Error("Quantity to reverse can not be more than Stock you receive");
+                return View();
+            }
+            var checkproductExist = _context.AgProducts.FirstOrDefault(a => a.saccocode == sacco 
+            && a.PCode == agProduct.PCode && a.Branch == saccobranch);
+            if (ModelState.IsValid)
+            {
+                var bal = agProduct.Qin + checkproductExist.OBal;
+                var productbal = agProduct.Qin + checkproductExist.OBal;
+                var user = HttpContext.Session.GetString(StrValues.LoggedInUser);
+                checkproductExist.UserId = user;
+                checkproductExist.AuditDate = DateTime.Now;
+                checkproductExist.saccocode = sacco;
+                checkproductExist.Branch = saccobranch;
+                checkproductExist.Qin = bal;
+                checkproductExist.Qout = bal;
+                checkproductExist.OBal = bal;
+                checkproductExist.Pprice = agProduct.Pprice;
+                checkproductExist.Sprice = agProduct.Sprice;
+                _context.AgProducts4s.Add(new AgProducts4
+                {
+                    PName = agProduct.PName,
+                    PCode = agProduct.PCode,
+                    Qin = agProduct.Qin,
+                    Qout = agProduct.Qin,
+                    DateEntered = agProduct.DateEntered,
+                    LastDUpdated = agProduct.LastDUpdated,
+                    UserId = user,
+                    AuditDate = DateTime.Now,
+                    OBal = agProduct.Qin,
+                    SupplierId = agProduct.SupplierId,
+                    Pprice = agProduct.Pprice,
+                    Sprice = agProduct.Sprice,
+                    Branch = agProduct.Branch,
+                    Draccno = agProduct.Draccno,
+                    Craccno = agProduct.Craccno,
+                    Approved = true,
+                    saccocode = sacco
+                });
+
+                var getGLS = _context.AgSupplier1s.FirstOrDefault(g => g.CompanyName.ToUpper().Equals(agProduct.SupplierId.ToUpper())
+                && g.saccocode == sacco);
+                _context.Gltransactions.Add(new Gltransaction
+                {
+                    AuditId = loggedInUser,
+                    TransDate = (DateTime)agProduct.DateEntered,
+                    Amount = (decimal)(agProduct.Pprice * (decimal)agProduct.Qin),
+                    AuditTime = DateTime.Now,
+                    DocumentNo = "Stock Reversed" + agProduct.PCode,
+                    Source = getGLS.CompanyName,
+                    TransDescript = "Stock Receive",
+                    Transactionno = $"{loggedInUser}{DateTime.Now}",
+                    SaccoCode = sacco,
+                    DrAccNo = getGLS.AccDr,
+                    CrAccNo = getGLS.AccCr,
+                });
+                
+
+                await _context.SaveChangesAsync();
+                _notyf.Success("Stock Reversed Successfully");
+                return View();
+            }
+            return View(agProduct);
+        }
+
+        [HttpPost]
+        public JsonResult getstocklist(DateTime date, string pname)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var supplierdetails = _context.AgSupplier1s.Where(s => s.saccocode == sacco).ToList();
+            var products = _context.AgProducts4s
+               .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper()) && s.DateEntered == date 
+               && s.PName.ToUpper().Equals(pname.ToUpper()) && s.Branch == saccobranch && s.Approved).ToList();
+            
+            var product = products.FirstOrDefault();
+            var supplier = supplierdetails.FirstOrDefault(b =>
+            b.CompanyName.ToUpper().Equals(product.SupplierId.ToUpper()));
+            var stock = new
+            {
+                Code = product.PCode,
+                Supplier = supplier.CompanyName,
+                Qin = 0,
+                Obal = products.Sum(n => n.Qin),
+                BPrice = product.Pprice,
+                SPrice = product.Sprice,
+                Dr = supplier.AccDr,
+                Cr = supplier.AccCr
+            };
+            return Json(stock);
+        }
+
+        [HttpPost]
+        public JsonResult getstocknamelist(DateTime date)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var products = _context.AgProducts4s
+               .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper()) && s.DateEntered == date 
+               && s.Branch == saccoBranch && s.Approved).ToList();
+            var listofproducts = products.OrderBy(m=>m.PName).ToList().GroupBy(n=>n.PCode).ToList();
+            var stock = new List<dynamic>();
+            listofproducts.ForEach(i =>
+            {
+                var product = i.FirstOrDefault();
+                stock.Add(new
+                {
+                    Name = product.PName
+                });
+            });
+            return Json(stock);
+        }
         // GET: AgProducts/Create
         public IActionResult Create()//Changeproduct
         {

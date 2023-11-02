@@ -10,6 +10,7 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using EasyPro.ViewModels;
 using System.Collections.Generic;
 using System;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EasyPro.Controllers
 {
@@ -82,11 +83,12 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
                 if (string.IsNullOrEmpty(loggedInUser))
                     return Redirect("~/");
-            ViewBag.Totalshares = 0;
+            var branches = _context.DBranch.Where(v=>v.Bcode == sacco).ToList().Select(n=>n.Bname).ToList();
+            ViewBag.branches = new SelectList(branches, ""); 
             return View();
         }
         [HttpPost]
-        public JsonResult getsharesreport(DateTime date1)
+        public JsonResult getsharesreport(DateTime date1, string branch)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -98,6 +100,9 @@ namespace EasyPro.Controllers
             IQueryable<DShare> dShares1 = _context.DShares;
             var dsupplier = dSuppliers.Where(n => n.Scode == sacco).ToList();
             var dShares = dShares1.Where(i => i.SaccoCode==sacco && i.TransDate <= date1).ToList();
+            if(branch != "ALL Branches")
+                dShares = dShares.Where(h=>h.Branch ==  branch).ToList();
+
             var groupedBranchShares = dShares.GroupBy(s => s.Branch).ToList();
             var shares = new List<SharesReportVM>();
             foreach (var branchShare in groupedBranchShares)
@@ -134,7 +139,6 @@ namespace EasyPro.Controllers
                 });
             }
 
-            ViewBag.Totalshares = TotalShare;
             return Json(shares);
         }
         // GET: SharesCategories/Details/5

@@ -42,24 +42,36 @@
         <div class="form-element-list mg-t-30">
             <form asp-action="SharesIndex">
                 <div class="row">
+                    <div class="col-sm-9 col-xs-12" id="zone1">
+                        <h1 style="text-align-last:center">Shares Report</h1>
+                    </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Branch</label>
+                            <select id="branch" class="chzn-select form-control" asp-items="@ViewBag.branches">
+                                <option>ALL Branches</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-sm-2 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">DateFrom</label>
                             <input id="firstdate" type="date" class="form-control" />
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xs-12" id="zone1">
-                        <h1 style="text-align-last:center">Shares Report</h1>
-                    </div>
+                    <div class="col-sm-4 col-xs-12"></div>
                     <div class="col-sm-3 col-xs-12">
+                        <label class="control-label">---------------------</label>
                         <a id="excel_report" class="btn btn-success w3-circle">Export Excel</a>
                     </div>
                     <div class="col-sm-3 col-xs-12">
-                        <label class="control-label">--</label>
+                        <label class="control-label">---------------------</label>
                         <a id="print_report" class="btn btn-success w3-circle">Print Report</a>
                     </div>
                 </div>
-
+                
                 <div class="bsc-tbl-hvr table-border-style">
                     <div class="table-responsive">
                         <div class="divScroll">
@@ -90,9 +102,8 @@
                         </div>
                         <div class="col-sm-4 col-xs-12">
                             <div class="w3-text-blue e-bold">
-                                @ViewBag.Totalshares.ToString("#.##")
+                                <input id="amount" class="form-control" readonly />
                             </div>
-                            @*<input id="amount" class="form-control" readonly />*@
                         </div>
                     </div>
                 </div>
@@ -110,7 +121,8 @@
             $("#htitl").hide();
             $("#hstartd").hide();
             $("#huser").hide();
-
+            $("#amount").val(0);
+            $(".chzn-select").chosen();
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $('#firstdate').on('keyup', function () {
@@ -119,14 +131,22 @@
             $('#firstdate').on('click', function () {
                 getsharesreport();
             });
+            $('#branch').on('click', function () {
+                getsharesreport();
+            });
+            $('#branch').on('change', function () {
+                getsharesreport();
+            });
             getsharesreport();
             function getsharesreport() {
                 $('#intakes').html("");
+                $("#amount").val(0);
+                var branch = $("#branch").val();
                 var date1 = $("#firstdate").val();
                 $.ajax(
                     {
                         type: 'POST',
-                        url: "getsharesreport?date1=" + date1,
+                        url: "getsharesreport?date1=" + date1 + "&branch=" + branch,
                         contentType: 'application/json',
                         success: function (response) {
                             populateIntake(response)
@@ -140,8 +160,9 @@
             }
             function populateIntake(intakes) {
                 let itemTableRows = new Array();
+                var totalshares = 0;
                 intakes.forEach(i => {
-
+                    totalshares += i.Shares;
                     itemTableRows.push(`<tr>
                                             <td>${i.Sno}</td>
                                             <td>${i.Name}</td>
@@ -153,7 +174,7 @@
                                             <td>${i.Branch}</td>
                                          </tr>`)
                 });
-
+                $("#amount").val(totalshares.toFixed(2));
                 $('#intakes').html(itemTableRows);
             }
             function heading() {

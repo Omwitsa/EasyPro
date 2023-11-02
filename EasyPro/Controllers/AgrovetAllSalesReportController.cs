@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Spreadsheet;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
@@ -31,7 +32,7 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
-            await SetIntakeInitialValues();
+            SetIntakeInitialValues();
             DateTime Now = DateTime.Today;
             DateTime startDate = new DateTime(Now.Year, Now.Month, 1);
             DateTime enDate = startDate.AddMonths(1).AddDays(-1);
@@ -47,49 +48,45 @@ namespace EasyPro.Controllers
             SalesAnalysis = SalesAnalysis.OrderByDescending(s => s.RId).ToList();
             return View(SalesAnalysis);
         }
-
-        private async Task SetIntakeInitialValues()
+        [HttpPost]
+        public JsonResult getproductsreport( string branch)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var products =  _context.AgProducts
+               .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == branch).ToList();
+            return Json(products);
+        }
+        private void SetIntakeInitialValues()
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var products = await _context.AgProducts
-                .Where(s => s.saccocode.ToUpper().Equals(sacco.ToUpper()) && s.Branch == saccoBranch).ToListAsync();
-            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            //if (user.AccessLevel == AccessLevel.Branch)
-            //    products = products.Where(s => s.Branch == saccoBranch).ToList();
-            ViewBag.products = new SelectList(products, "PCode", "PName");
+            
+            var branches =  _context.DBranch.Where(v => v.Bcode == sacco).ToList().Select(n => n.Bname).ToList();
+            ViewBag.branches = new SelectList(branches);
         }
 
         [HttpPost]
-        public async Task<JsonResult> AllSalesreport(DateTime startDate, DateTime endDate, string product, int salestype)
+        public async Task<JsonResult> AllSalesreport(DateTime startDate, DateTime endDate, string product, int salestype, string branchlist)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
-            var Salescheckoff = await GetAgReceipts(startDate, endDate, product, salestype);
+            var Salescheckoff = await GetAgReceipts(startDate, endDate, product, salestype, branchlist);
             return Json(Salescheckoff.OrderByDescending(i => i.TDate).ToList());
         }
 
         [HttpPost]
-        public async Task<JsonResult> AllSalesSummary(DateTime startDate, DateTime endDate, string product, int salestype)
+        public async Task<JsonResult> AllSalesSummary(DateTime startDate, DateTime endDate, string product, int salestype, string branchlist)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
 
-            var Salescheckoff = await GetAgReceipts(startDate, endDate, product, salestype);
+            var Salescheckoff = await GetAgReceipts(startDate, endDate, product, salestype, branchlist);
             var groupedReports = Salescheckoff.OrderByDescending(i => i.TDate).ToList().GroupBy(i => i.TDate).ToList();
-            var productName = "";
-            if (!string.IsNullOrEmpty(product))
-            {
-                var products = await _context.AgProducts.Where(p => p.saccocode == sacco && p.PCode == product).ToListAsync();
-                if (user.AccessLevel == AccessLevel.Branch)
-                    products = products.Where(i => i.Branch == saccobranch).ToList();
-                productName = products.FirstOrDefault()?.PName ?? "";
-            }
 
             var summary = new List<dynamic>();
             groupedReports.ForEach(i =>
@@ -98,8 +95,8 @@ namespace EasyPro.Controllers
                 summary.Add(new
                 {
                     date = i.Key,
-                    product,
-                    productName,
+                    product = i.FirstOrDefault().PCode,
+                    productName = i.FirstOrDefault().Remarks,
                     quantity = correctquantity,
                     amount = i.Sum(r => r.Amount)
                 });
@@ -108,14 +105,14 @@ namespace EasyPro.Controllers
             return Json(summary);
         }
         [HttpPost]
-        public async Task<JsonResult> allSalesSummaryDetailed(DateTime startDate, DateTime endDate, string product, int salestype)
+        public async Task<JsonResult> allSalesSummaryDetailed(DateTime startDate, DateTime endDate, string product, int salestype,string branchlist)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
 
-            var Salescheckoff = await GetAgReceipts(startDate, endDate, product, salestype);
+            var Salescheckoff = await GetAgReceipts(startDate, endDate, product, salestype, branchlist);
             var groupedReports = Salescheckoff.OrderByDescending(i => i.TDate).ToList().GroupBy(i => i.TDate).ToList();
 
             var summary = new List<dynamic>();
@@ -132,20 +129,26 @@ namespace EasyPro.Controllers
 
             return Json(summary);
         }
-        private async Task<List<AgReceipt>> GetAgReceipts(DateTime startDate, DateTime endDate, string product, int salestype)
+        private async Task<List<AgReceipt>> GetAgReceipts(DateTime startDate, DateTime endDate, string product, int salestype, string branchlist)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
+
             var receipts = await _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
                && i.TDate >= startDate && i.TDate <= endDate).ToListAsync();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                receipts = receipts.Where(i => i.Branch == saccobranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            if (branchlist != "ALL Branches")
+                receipts = receipts.Where(i => i.Branch == branchlist).ToList();
+
+            //if (!string.IsNullOrEmpty(product))
+            //    receipts = receipts.Where(i => i.Remarks == branchlist).ToList();
 
             if (!string.IsNullOrEmpty(product))
-                receipts = receipts.Where(r => r.PCode == product).ToList();
+                receipts = receipts.Where(r => r.Remarks == product).ToList();
+
             if (salestype == 1)
                 receipts = receipts.Where(m => m.Amount > 0).ToList();
             if (salestype == 2)
