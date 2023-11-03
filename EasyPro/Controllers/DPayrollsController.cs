@@ -962,8 +962,12 @@ namespace EasyPro.Controllers
                                 ProductType = "Loan",
                                 DR = carriedForwardValue,
                             });
+                        
                         if (StrValues.Slopes == sacco)
                         {
+                            var advanceCode = "L01";
+                            var normalCode = "L02";
+                            var insAdvCode = "L03";
                             var farmerLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper())).ToList();
                             //var types = _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToList();
                             farmerLoans.ForEach(l =>
@@ -972,7 +976,12 @@ namespace EasyPro.Controllers
                                 {
                                     var installments = l.Balance < l.Installments ? l.Balance : l.Installments;
                                     installments = netPay > installments ? installments : netPay;
-                                    payroll.Fsa += installments;
+                                    if (l.LoanCode == normalCode)
+                                        payroll.Fsa += installments;
+                                    if (l.LoanCode == advanceCode)
+                                        payroll.Advance += installments;
+                                    if (l.LoanCode == insAdvCode)
+                                        payroll.INST_ADVANCE += installments;
                                     netPay -= installments;
                                     listSaccoLoans.Add(new SaccoLoans
                                     {
@@ -1618,6 +1627,9 @@ namespace EasyPro.Controllers
 
                         if (StrValues.Slopes == sacco)
                         {
+                            var advanceCode = "L01";
+                            var normalCode = "L02";
+                            var insAdvCode = "L03";
                             var transportersLoans = loans.Where(l => l.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToList();
                             transportersLoans.ForEach(l =>
                             {
@@ -1625,7 +1637,12 @@ namespace EasyPro.Controllers
                                 {
                                     var installments = l.Balance < l.Installments ? l.Balance : l.Installments;
                                     installments = netPay > installments ? installments : netPay;
-                                    payRoll.Fsa += installments;
+                                    if (l.LoanCode == normalCode)
+                                        payRoll.Fsa += installments;
+                                    if (l.LoanCode == advanceCode)
+                                        payRoll.Advance += installments;
+                                    if (l.LoanCode == insAdvCode)
+                                        payRoll.INST_ADVANCE += installments;
                                     netPay -= installments;
                                     listSaccoLoans.Add(new SaccoLoans
                                     {
