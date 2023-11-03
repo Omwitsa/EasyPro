@@ -42,6 +42,7 @@ namespace EasyPro.Models
         public decimal? AI { get; set; }
         public decimal? Tractor { get; set; }
         public decimal? VARIANCE { get; set; }
+        public decimal? MILK_RECOVERY { get; set; }
         public decimal? CurryForward { get; set; }
         public decimal? MIDPAY { get; set; }
         public decimal? SACCO_SHARES { get; set; }

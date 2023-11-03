@@ -756,7 +756,7 @@ namespace EasyPro.Controllers
                     worksheet.Cell(currentRow, 2).Value = kiinga;
                 }
 
-                decimal? milkRecovery = payrolls.Sum(t => t.MILK_RECOVERY);  
+                decimal? milkRecovery = payrolls.Sum(t => t.MILK_RECOVERY) + dTransportersPayRolls.Sum(t => t.MILK_RECOVERY); ;  
                 if(milkRecovery != 0)
                 {
                     currentRow++;
