@@ -350,31 +350,27 @@
                 
                 var content = `<div class="row" id="printMe">
                                         <div class="col-xs-12 text-center">
-                                             <h4>
+                                             <h5>
                                                 ${response.company.Name}</br>
                                                 Adress: ${response.company.Adress}</br>
                                                 Tell: ${response.company.PhoneNo}</br>
                                                 Town: ${response.company.Town}</br>
                                                 Branch: ${filter.branch}</br>
                                                 Detailed statement for ${date}
-                                              </h4>
-                                             <h5>
-                                                *************************</br>
-                                                Transporter: ${response.transporterName}</br>
-                                                *************************</br>
-                                                SNO: ${filter.code}</br>
-                                                Name: ${filter.name}</br>
-                                                *************************</br>
-                                                ${htmlSupplierSummery}</br>
-                                                *************************</br>
-                                                Total Kgs: ${response.totalKgs}</br>
-                                                ${grossPay}
-                                                ${totalShares}
-                                                ${farmerDeductions}
-                                                ${bankDetails}
-                                                *************************</br>
-                                                ${response.company.SupStatementNote}
-                                            </h5>
+                                              </h5>
+                                            Transporter: ${response.transporterName}</br>
+                                            SNO: ${filter.code}</br>
+                                            Name: ${filter.name}</br>
+                                            *************************</br>
+                                            ${htmlSupplierSummery}</br>
+                                            *************************</br>
+                                            Total Kgs: ${response.totalKgs}</br>
+                                            ${grossPay}
+                                            ${totalShares}
+                                            ${farmerDeductions}
+                                            ${bankDetails}
+
+                                            ${response.company.SupStatementNote}
                                             <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
                                                 **************************
                                             <hr>
@@ -422,21 +418,18 @@
                     let transCode = isSlopes ? response.transporter.CertNo : response.transporter.TransCode;
                     let currentContent = `<div class="row" id="printMe">
                         <div class="col-xs-12 text-center">
-                                <h6>
+                                <h5>
                                 ${response.company.Name}</br>
                                 Detailed statement for ${date}
-                                </h6>
-                                *************************</br>
+                                </h5>
                                 Transporter: ${response.transporter.TransName} (${transCode})</br>
-                                *************************</br>
                                 Name: ${i.supplier.Names} (${i.supplier.Sno})</br>
                                 *************************</br>
                                 ${htmlSupplierSummery}</br>
                                 *************************</br>
                                 Total Kgs: ${i.qnty}</br>
-                                *************************</br>
+
                             <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
-                            **************************
                             <hr>
                             **************************
                         </div>

@@ -445,7 +445,8 @@ namespace EasyPro.Controllers
 
             var loanTypes = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
             var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode && t.MemberNo.ToUpper().Equals(filter.Code.ToUpper())).ToListAsync();
-            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code).ToListAsync();
+            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code 
+            && l.TransDate == filter.Date).ToListAsync();
             loans.ForEach(l =>
             {
                 var loanType = loanTypes.FirstOrDefault(t => t.LoanCode == l.LoanCode);
@@ -455,7 +456,8 @@ namespace EasyPro.Controllers
             });
 
             var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(filter.Code.ToUpper()) && s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
-            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code).ToListAsync();
+            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code 
+            && l.TransDate == filter.Date).ToListAsync();
             shares.ForEach(s =>
             {
                 s.Paid = 0;
@@ -510,10 +512,10 @@ namespace EasyPro.Controllers
 
             var loanTypes = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
             var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode).ToListAsync();
-            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco).ToListAsync();
+            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.TransDate == filter.Date).ToListAsync();
 
             var shares = await _bosaDbContext.CONTRIB.Where(s => s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
-            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco).ToListAsync();
+            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.TransDate == filter.Date).ToListAsync();
             shares.ForEach(s =>
             {
                 s.Paid = 0;
@@ -660,7 +662,8 @@ namespace EasyPro.Controllers
 
             var loanTypes = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
             var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode && t.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToListAsync();
-            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper())).ToListAsync();
+            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco 
+            && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && l.TransDate == filter.Date).ToListAsync();
             loans.ForEach(l =>
             {
                 var loanType = loanTypes.FirstOrDefault(t => t.LoanCode == l.LoanCode);
@@ -670,7 +673,8 @@ namespace EasyPro.Controllers
             });
 
             var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()) && s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
-            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper())).ToListAsync();
+            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco 
+            && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && l.TransDate == filter.Date).ToListAsync();
             shares.ForEach(s =>
             {
                 s.Paid = 0;

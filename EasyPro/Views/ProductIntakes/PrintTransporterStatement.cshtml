@@ -225,29 +225,26 @@
                                     *************************</br>
                                     Bank Name: ${response.transporter.Bcode}</br>
                                     Bank Branch: ${response.transporter.Bbranch}</br>
-                                    Acc No.: ${response.transporter.Accno}</br>
-                                    *************************`;
+                                    Acc No.: ${response.transporter.Accno}</br>`;
                 }
 
                 var content = `<div class="row" id="printMe">
                                                 <div class="col-xs-12 text-center">
-                                                     <h4>
+                                                     <h5>
                                                         ${response.company.Name}</br>
                                                         Adress: ${response.company.Adress}</br>
                                                         Tell: ${response.company.PhoneNo}</br>
                                                         Town: ${response.company.Town}</br>
                                                         Branch: ${filter.branch}</br>
                                                         Transport Detailed statement for ${date}
-                                                      </h4>
-                                                     <h5>
-                                                        *************************</br>
-                                                        Name: ${filter.name} (${filter.code})</br>
-                                                        *************************</br>
-                                                        ${htmlTransporterSummery}</br>
-                                                        *************************</br>
-                                                        Total Kgs: ${response.totalKgs.toFixed(2)}</br>
-                                                        ${otherDetails}
-                                                    </h5>
+                                                      </h5>
+
+                                                    Name: ${filter.name} (${filter.code})</br>
+                                                    *************************</br>
+                                                    ${htmlTransporterSummery}</br>
+                                                    *************************</br>
+                                                    Total Kgs: ${response.totalKgs.toFixed(2)}</br>
+                                                    ${otherDetails}
                                                     <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
                                                         **************************
                                                     <hr>

@@ -99,7 +99,7 @@
                 if (code && date) {
                     $.ajax({
                         type: 'POST',
-                        url: "",
+                        url: "printTransporterPayslip",
                         contentType: 'application/json',
                         data: JSON.stringify(filter),
                         success: function (response) {
@@ -125,9 +125,11 @@
                 let mevng = $('#mevng').val();
                 response.transporter = response.transporter ? response.transporter : {};
                 let date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                let maxLength = 6;
                 let saccoLoans = response.loans.map(l => {
+                    let loanCode = l.LoanCode.length < maxLength ? l.LoanCode : l.LoanCode.substring(0, maxLength) + '...'
                     return `<tr>
-                                        <td>${l.LoanCode}</td>
+                                        <td>${loanCode}</td>
                                         <td>${l.Amount}</td>
                                         <td></td>
                                         <td></td>
@@ -137,8 +139,9 @@
                 });
                 var strSaccoLoans = saccoLoans.join('');
                 let saccoShares = response.shares.map(l => {
+                    let remarks = l.Remarks.length < maxLength ? l.Remarks : l.Remarks.substring(0, maxLength) + '...'
                     return `<tr>
-                                                <td>${l.Remarks}</td>
+                                                <td>${remarks}</td>
                                                 <td>${l.Paid}</td>
                                                 <td></td>
                                                 <td></td>
@@ -185,7 +188,6 @@
                     //                    <td></td>
                     //                </tr>`;
                     //}
-                    debugger
                     let paidOrders = standingOrders.filter(p => p.Sno === s.Code && p.Description == "Society Shares");
                     paidOrders = paidOrders ? paidOrders : [];
                     paidOrders[0] = paidOrders[0] ? paidOrders[0] : {};
@@ -219,7 +221,7 @@
                                     ${advanceRaw}
                                     ${strSaccoLoans}
                                     <tr>
-                                        <td>SOCIETY SHARES</td>
+                                        <td>SOCIETY</td>
                                         <td>${s.Hshares}</td>
                                         <td></td>
                                         <td></td>
@@ -227,7 +229,6 @@
                                         <td>${paidOrders[0].Paid}</td>
                                     </tr>
                                     ${strSaccoShares}
-                                    *************************</br>
                                     <tr>
                                         <td>TOTAL DED</td>
                                         <td>${s.Totaldeductions}</td>
@@ -259,19 +260,16 @@
                 let curDate = new Date().toLocaleDateString('en-GB');
                 var content = `<div class="row" id="printMe">
                                                         <div class="col-xs-12 text-center">
-                                                             <h4>
+                                                             <h5>
                                                                 ${response.company.Name}</br>
                                                                 Payment slip for ${date}
-                                                              </h4>
-                                                             <h5>
-                                                                *************************</br>
-                                                                DATE: ${curDate}</br>
-                                                                NAME: ${response.transporter.CertNo}</br>
-                                                                CODE: ${response.transporter.TransCode}</br>
-                                                                BANK: ${response.transporter.Bcode}</br>
-                                                                ${htmlTransPayslip}</br>
-                                                                *************************</br>
                                                             </h5>
+                                                            DATE: ${curDate}</br>
+                                                            NAME: ${response.transporter.CertNo}</br>
+                                                            CODE: ${response.transporter.TransCode}</br>
+                                                            BANK: ${response.transporter.Bcode}</br>
+                                                            *************************</br>
+                                                            ${htmlTransPayslip}</br>
                                                             <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
                                                                 **************************
                                                             <hr>
