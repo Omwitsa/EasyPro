@@ -202,9 +202,11 @@
                 response.supplier = response.supplier ? response.supplier : {};
                 response.transporter = response.transporter ? response.transporter : {};
                 let date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                let maxLength = 6;
                 let saccoLoans = response.loans.map(l => {
+                    let loanCode = l.LoanCode.length < maxLength ? l.LoanCode : l.LoanCode.substring(0, maxLength) + '...'
                     return `<tr>
-                                <td>${l.LoanCode}</td>
+                                <td>${loanCode}</td>
                                 <td>${l.Amount}</td>
                                 <td></td>
                                 <td></td>
@@ -214,8 +216,9 @@
                 });
                 var strSaccoLoans = saccoLoans.join('');
                 let saccoShares = response.shares.map(l => {
+                    let remarks = l.Remarks.length < maxLength ? l.Remarks : l.Remarks.substring(0, maxLength) + '...'
                     return `<tr>
-                                        <td>${l.Remarks}</td>
+                                        <td>${remarks}</td>
                                         <td>${l.Paid}</td>
                                         <td></td>
                                         <td></td>
@@ -296,7 +299,7 @@
                             ${advanceRaw}
                             ${strSaccoLoans}
                             <tr>
-                                <td>SOCIETY SHARES</td>
+                                <td>SOCIETY</td>
                                 <td>${s.Hshares}</td>
                                 <td></td>
                                 <td></td>
@@ -304,7 +307,6 @@
                                 <td>${paidOrders[0].Paid}</td>
                             </tr>
                             ${strSaccoShares}
-                            *************************</br>
                             <tr>
                                 <td>TOTAL DED</td>
                                 <td>${s.Tdeductions}</td>
@@ -336,20 +338,17 @@
                 let curDate = new Date().toLocaleDateString('en-GB');
                 var content = `<div class="row" id="printMe">
                                                 <div class="col-xs-12 text-center">
-                                                     <h4>
+                                                     <h5>
                                                         ${response.company.Name}</br>
                                                         Payment slip for ${date}
-                                                      </h4>
-                                                     <h5>
-                                                        *************************</br>
+                                                      </h5>
                                                         DATE: ${curDate}</br>
                                                         SNO: ${filter.code}</br>
                                                         Name: ${response.supplier.Names}</br>
                                                         VEHICLE: ${response.transporter.CertNo}</br>
                                                         Bank: ${response.supplier.Bcode}</br>
-                                                        ${htmlSupPayslip}</br>
                                                         *************************</br>
-                                                    </h5>
+                                                        ${htmlSupPayslip}</br>
                                                     <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
                                                         **************************
                                                     <hr>
@@ -364,6 +363,7 @@
                 var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
                 let curDate = new Date().toLocaleDateString('en-GB');
                 let content = "";
+                let maxLength = 6;
                 response.banksPayslip.forEach(s => {
                     s.Gpay = s.Gpay ? s.Gpay : 0;
                     s.Subsidy = s.Subsidy ? s.Subsidy : 0;
@@ -371,8 +371,9 @@
                     let totalPrice = s.Gpay - s.Subsidy;
 
                     let saccoLoans = s.memberLoans.map(l => {
+                        let loanCode = l.LoanCode.length < maxLength ? l.LoanCode : l.LoanCode.substring(0, maxLength) + '...'
                         return `<tr>
-                                    <td>${l.LoanCode}</td>
+                                    <td>${loanCode}</td>
                                     <td>${l.Amount}</td>
                                     <td></td>
                                     <td></td>
@@ -382,9 +383,10 @@
                     });
                     var strSaccoLoans = saccoLoans.join('');
                     let saccoShares = s.memberShares.map(l => {
+                        let remarks = l.Remarks.length < maxLength ? l.Remarks : l.Remarks.substring(0, maxLength) + '...'
                         l.Paid = l.Paid ? l.Paid : 0;
                         return `<tr>
-                                            <td>${l.Remarks}</td>
+                                            <td>${remarks}</td>
                                             <td>${l.Paid}</td>
                                             <td></td>
                                             <td></td>
@@ -424,17 +426,16 @@
                     paidOrders[0].Paid = paidOrders[0].Paid ? paidOrders[0].Paid : 0;
                     content = `${content}<div class="row" id="printMe">
                         <div class="col-xs-12 text-center">
-                            <h4>
+                            <h5>
                                 ${response.company.Name}</br>
                                 Payment slip for ${date}
-                            </h4>
-                            <h5>
-                            *************************</br>
+                            </h5>
                             DATE: ${curDate}</br>
                             SNO: ${s.Sno}</br>
                             Name: ${s.Names}</br>
                             VEHICLE: ${s.CertNo}</br>
                             Bank: ${filter.code}</br>
+                            *************************</br>
                             <table>
                                 <thead>
                                     <tr> </tr>
@@ -469,7 +470,7 @@
                                     ${advanceRaw}
                                     ${strSaccoLoans}
                                     <tr>
-                                        <td>SOCIETY SHARES</td>
+                                        <td>SOCIETY</td>
                                         <td>${s.Hshares}</td>
                                         <td></td>
                                         <td></td>
@@ -477,7 +478,6 @@
                                         <td>${paidOrders[0].Paid}</td>
                                     </tr>
                                     ${strSaccoShares}
-                                    *************************</br>
                                     <tr>
                                         <td>TOTAL DED</td>
                                         <td>${s.Tdeductions}</td>
@@ -496,8 +496,6 @@
                                     </tr>
                                 </tbody>
                                 </table></br>
-                                *************************</br>
-                            </h5>
                             <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
                                 **************************
                             <hr>

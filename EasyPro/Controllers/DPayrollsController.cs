@@ -142,7 +142,6 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
             var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
             var nextMonthStartDate = startDate.AddMonths(1);
-            var nextMonthLastDate = nextMonthStartDate.AddMonths(1).AddDays(-1);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             IQueryable<DPayroll> payrolls = _context.DPayrolls
@@ -181,6 +180,13 @@ namespace EasyPro.Controllers
                 IQueryable<ProductIntake> deletesubsidy = productIntakeslist.Where(i => i.ProductType == "SUBSIDY");
                 if (deletesubsidy.Any())
                     _context.ProductIntake.RemoveRange(deletesubsidy);
+            }
+
+            if(StrValues.Slopes == sacco)
+            {
+                var carryForwardList = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.Description == "Carry Forward" && (i.TransDate == monthsLastDate || i.TransDate == nextMonthStartDate));
+                if (carryForwardList.Any())
+                    _context.ProductIntake.RemoveRange(carryForwardList);
             }
 
             IQueryable<ProductIntake> deletestandingorder = productIntakeslist.Where(i => i.Remarks == "Standing Order");
@@ -1708,8 +1714,9 @@ namespace EasyPro.Controllers
                 await _context.SaccoLoans.AddRangeAsync(listSaccoLoans);
             if(!_context.SaccoShares.Any(s => s.Saccocode == sacco && s.TransDate == monthsLastDate) && listSaccoShares.Any())
                 await _context.SaccoShares.AddRangeAsync(listSaccoShares);
-            if (!_context.ProductIntake.Any(i => i.TransDate == nextMonthLastDate && i.Description == "Carry Forward"))
-            {
+
+            if (StrValues.Slopes == sacco)
+            {   
                 curriedForwardProducts.ForEach(f =>
                 {
                     // Credit last month
@@ -1741,7 +1748,7 @@ namespace EasyPro.Controllers
                     _context.ProductIntake.Add(new ProductIntake
                     {
                         Sno = f.Sno,
-                        TransDate = nextMonthLastDate,
+                        TransDate = nextMonthStartDate,
                         TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
                         ProductType = f.ProductType,
                         Qsupplied = 0,
@@ -1763,7 +1770,7 @@ namespace EasyPro.Controllers
                     });
                 });
             }
-            
+
             await _context.SaveChangesAsync();
             _notyf.Success("Payroll processed successfully");
             return RedirectToAction(nameof(Index));
@@ -2263,6 +2270,7 @@ namespace EasyPro.Controllers
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var startDate = new DateTime(period.Year, period.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
@@ -2276,11 +2284,25 @@ namespace EasyPro.Controllers
                 _notyf.Error("Please provide Date.");
                 return Json(new { success = false });
             }
-            IQueryable<DPayroll> dPayrolls = _context.DPayrolls;
-            IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
-            IQueryable<DTransportersPayRoll> dTransportersPayRolls = _context.DTransportersPayRolls;
-            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
-            IQueryable<DTransporter> dTransporters = _context.DTransporters;
+            IQueryable<DPayroll> dPayrolls = _context.DPayrolls.Where(p => p.SaccoCode == sacco && p.EndofPeriod == endDate && p.Npay < 0);
+            IQueryable<ProductIntake> productIntakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco);
+            IQueryable<DTransportersPayRoll> dTransportersPayRolls = _context.DTransportersPayRolls.Where(p => p.SaccoCode == sacco && p.EndPeriod == endDate && p.NetPay < 0);
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers.Where(s => s.Scode == sacco);
+            IQueryable<DTransporter> dTransporters = _context.DTransporters.Where(t => t.ParentT == sacco);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(auditId.ToUpper()));
+            if (user.AccessLevel == AccessLevel.Branch)
+            {
+                dPayrolls = dPayrolls.Where(p => p.Branch == saccoBranch);
+                productIntakes = productIntakes.Where(i => i.Branch == saccoBranch);
+                dTransportersPayRolls = dTransportersPayRolls.Where(p => p.Branch == saccoBranch);
+                dSuppliers = dSuppliers.Where(s => s.Branch == saccoBranch);
+                dTransporters = dTransporters.Where(t => t.Bbranch == saccoBranch);
+            }
+
+            if(productIntakes.Any(i => i.TransDate == endDate && i.Description == "Carry Forward" && i.CR > 0)){
+                _notyf.Error("Sorry, Carry Forward already processed");
+                return Json(new { success = false });
+            }
 
             ViewBag.isElburgon = StrValues.Elburgon == sacco;
             if (StrValues.Elburgon == sacco)
@@ -2290,128 +2312,108 @@ namespace EasyPro.Controllers
                 forlastmonthremarks = endDate.Month.ToString() + endDate.Year.ToString() + "Arrears CF";
             }
 
-            var suppliers = dPayrolls.Where(s => s.SaccoCode == sacco && s.EndofPeriod == endDate && s.Npay<0).ToList();
-            suppliers.ForEach(s =>
+            dPayrolls.ForEach(s =>
             {
-                var payrolls = dPayrolls.Where(p => p.SaccoCode == sacco
-                && p.EndofPeriod == endDate && p.Sno.ToUpper().Equals(s.Sno.ToUpper()) && p.Branch.ToUpper().Equals(s.Branch.ToUpper())).ToList();
-
-                var netPay = payrolls.Sum(p => p.Npay);
-                var debited = productIntakes.Any(i => i.SaccoCode == sacco && i.Sno.ToUpper().Equals(s.Sno.ToUpper())
-                && i.TransDate >= nextMonth && i.Branch.ToUpper().Equals(s.Branch.ToUpper()) && i.Description == "Carry Forward");
-                if (netPay < 0 && !debited)
+                //credit privious month
+                _context.ProductIntake.Add(new ProductIntake
                 {
-                    //credit privious month
-                    _context.ProductIntake.Add(new ProductIntake
-                    {
-                        Sno = s.Sno.ToString(),
-                        TransDate = endDate,
-                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                        ProductType = productty,
-                        Qsupplied = 0,
-                        Ppu = 0,
-                        CR = netPay * -1,
-                        DR = 0,
-                        Balance = 0,
-                        Description = "Carry Forward",
-                        TransactionType = TransactionType.Deduction,
-                        Paid = false,
-                        Remarks = forlastmonthremarks,
-                        AuditId = auditId,
-                        Auditdatetime = DateTime.Now,
-                        Branch = s.Branch,
-                        SaccoCode = sacco,
-                        DrAccNo = "",
-                        CrAccNo = "",
-                        Posted = false
-                    });
-                    //debit next month
-                    _context.ProductIntake.Add(new ProductIntake
-                    {
-                        Sno = s.Sno.ToString(),
-                        TransDate = nextMonth,
-                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                        ProductType = productty,
-                        Qsupplied = 0,
-                        Ppu = 0,
-                        CR = 0,
-                        DR = netPay*-1,
-                        Balance = 0,
-                        Description = "Carry Forward",
-                        TransactionType = TransactionType.Deduction,
-                        Paid = false,
-                        Remarks = thismonthdescription,
-                        AuditId = auditId,
-                        Auditdatetime = DateTime.Now,
-                        Branch = s.Branch,
-                        SaccoCode = sacco,
-                        DrAccNo = "",
-                        CrAccNo = "",
-                        Posted = false
-                    });
-                }
+                    Sno = s.Sno.ToString(),
+                    TransDate = endDate,
+                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    ProductType = productty,
+                    Qsupplied = 0,
+                    Ppu = 0,
+                    CR = -s.Npay,
+                    DR = 0,
+                    Balance = 0,
+                    Description = "Carry Forward",
+                    TransactionType = TransactionType.Deduction,
+                    Paid = false,
+                    Remarks = forlastmonthremarks,
+                    AuditId = auditId,
+                    Auditdatetime = DateTime.Now,
+                    Branch = s.Branch,
+                    SaccoCode = sacco,
+                    DrAccNo = "",
+                    CrAccNo = "",
+                    Posted = false
+                });
+                //debit next month
+                _context.ProductIntake.Add(new ProductIntake
+                {
+                    Sno = s.Sno.ToString(),
+                    TransDate = nextMonth,
+                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    ProductType = productty,
+                    Qsupplied = 0,
+                    Ppu = 0,
+                    CR = 0,
+                    DR = -s.Npay,
+                    Balance = 0,
+                    Description = "Carry Forward",
+                    TransactionType = TransactionType.Deduction,
+                    Paid = false,
+                    Remarks = thismonthdescription,
+                    AuditId = auditId,
+                    Auditdatetime = DateTime.Now,
+                    Branch = s.Branch,
+                    SaccoCode = sacco,
+                    DrAccNo = "",
+                    CrAccNo = "",
+                    Posted = false
+                });
             });
 
-            var Transporters = dTransporters.Where(s => s.ParentT == sacco).ToList();
-            Transporters.ForEach(s =>
+            dTransportersPayRolls.ForEach(s =>
             {
-                var payrolls = dTransportersPayRolls.Where(p => p.SaccoCode == sacco
-                && p.EndPeriod == endDate && p.Code.ToUpper().Equals(s.TransCode.ToUpper()) && p.Branch.ToUpper().Equals(s.Tbranch.ToUpper())).ToList();
-
-                var netPay = payrolls.Sum(p => p.NetPay);
-                var debited = productIntakes.Any(i => i.SaccoCode == sacco && i.Sno.ToUpper().Equals(s.TransCode.ToUpper())
-                && i.TransDate >= nextMonth && i.Description == "Carry Forward" && i.Branch.ToUpper().Equals(s.Tbranch.ToUpper()));
-                if (netPay < 0 && !debited)
+                //INSERT TO LAST MONTH
+                _context.ProductIntake.Add(new ProductIntake
                 {
-                    //INSERT TO LAST MONTH
-                    _context.ProductIntake.Add(new ProductIntake
-                    {
-                        Sno = s.TransCode.ToString(),
-                        TransDate = endDate,
-                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                        ProductType = productty,
-                        Qsupplied = 0,
-                        Ppu = 0,
-                        CR = netPay*-1,
-                        DR = 0,
-                        Balance = 0,
-                        Description = "Carry Forward",
-                        TransactionType = TransactionType.Deduction,
-                        Paid = false,
-                        Remarks = forlastmonthremarks,
-                        AuditId = auditId,
-                        Auditdatetime = DateTime.Now,
-                        Branch = s.Tbranch,
-                        SaccoCode = sacco,
-                        DrAccNo = "",
-                        CrAccNo = "",
-                        Posted = false
-                    });
-                    //INSERT TO NEXT MONTH
-                    _context.ProductIntake.Add(new ProductIntake
-                    {
-                        Sno = s.TransCode.ToString(),
-                        TransDate = nextMonth,
-                        TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                        ProductType = productty,
-                        Qsupplied = 0,
-                        Ppu = 0,
-                        CR = 0,
-                        DR = netPay * -1,
-                        Balance = 0,
-                        Description = "Carry Forward",
-                        TransactionType = TransactionType.Deduction,
-                        Paid = false,
-                        Remarks = thismonthdescription,
-                        AuditId = auditId,
-                        Auditdatetime = DateTime.Now,
-                        Branch = s.Tbranch,
-                        SaccoCode = sacco,
-                        DrAccNo = "",
-                        CrAccNo = "",
-                        Posted = false
-                    });
-                }
+                    Sno = s.Code,
+                    TransDate = endDate,
+                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    ProductType = productty,
+                    Qsupplied = 0,
+                    Ppu = 0,
+                    CR = -s.NetPay,
+                    DR = 0,
+                    Balance = 0,
+                    Description = "Carry Forward",
+                    TransactionType = TransactionType.Deduction,
+                    Paid = false,
+                    Remarks = forlastmonthremarks,
+                    AuditId = auditId,
+                    Auditdatetime = DateTime.Now,
+                    Branch = s.Branch,
+                    SaccoCode = sacco,
+                    DrAccNo = "",
+                    CrAccNo = "",
+                    Posted = false
+                });
+                //INSERT TO NEXT MONTH
+                _context.ProductIntake.Add(new ProductIntake
+                {
+                    Sno = s.Code,
+                    TransDate = nextMonth,
+                    TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                    ProductType = productty,
+                    Qsupplied = 0,
+                    Ppu = 0,
+                    CR = 0,
+                    DR = -s.NetPay,
+                    Balance = 0,
+                    Description = "Carry Forward",
+                    TransactionType = TransactionType.Deduction,
+                    Paid = false,
+                    Remarks = thismonthdescription,
+                    AuditId = auditId,
+                    Auditdatetime = DateTime.Now,
+                    Branch = s.Branch,
+                    SaccoCode = sacco,
+                    DrAccNo = "",
+                    CrAccNo = "",
+                    Posted = false
+                });
             });
 
             _context.SaveChanges();
