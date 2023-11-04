@@ -410,7 +410,6 @@ namespace EasyPro.Controllers
             if (user.AccessLevel == AccessLevel.Branch)
             {
                 locations = locations.Where(t => t.Branch == saccoBranch).ToList();
-                brances = brances.Where(l => l.Bname == saccoBranch).ToList();
             }
 
             ViewBag.brances = new SelectList(brances.Select(b => b.Bname));
@@ -476,8 +475,8 @@ namespace EasyPro.Controllers
                 _notyf.Error("Sorry, Supplier code cannot be empty");
                 return NotFound();
             }
-            var dSupplierExists = _context.DSuppliers.Any(i => i.Sno == dSupplier.Sno
-            && i.Scode == sacco && i.Branch == saccoBranch);
+            var dSupplierExists = _context.DSuppliers.Any(i => i.Sno.ToUpper().Equals(dSupplier.Sno.ToUpper())
+            && i.Scode == sacco);
             if (dSupplierExists)
             {
                 //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)
@@ -498,7 +497,7 @@ namespace EasyPro.Controllers
 
             if (ModelState.IsValid)
             {
-                dSupplier.Sno = dSupplier.Sno.Trim();
+                dSupplier.Sno = dSupplier.Sno.ToUpper().Trim();
                 dSupplier.Approval = false;
                 dSupplier.Branch = saccoBranch;
                 dSupplier.Scode = sacco;
@@ -541,7 +540,7 @@ namespace EasyPro.Controllers
                 shares = true;
 
             var checkrecords = _context.d_PreSets.FirstOrDefault(e => e.Sno.ToUpper().Equals(sno.ToUpper()) && e.saccocode == sacco
-            && e.BranchCode == saccobranch && e.Deduction.ToUpper().Equals("SHARES"));
+            && e.Deduction.ToUpper().Equals("SHARES"));
             if (checkrecords != null)
             {
                 checkrecords.Sno = checkrecords.Sno;
@@ -730,13 +729,7 @@ namespace EasyPro.Controllers
             var companyTanykina = HttpContext.Session.GetString(StrValues.Tanykina);
 
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval).ToList();
-            if (companyTanykina != "TANYKINA Dairy Plant Limited")
-            {
-                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-                if (user.AccessLevel == AccessLevel.Branch)
-                    suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
-            }
-
+            
             if (!string.IsNullOrEmpty(filter))
             {
                 if (!string.IsNullOrEmpty(condition))
@@ -764,7 +757,7 @@ namespace EasyPro.Controllers
                 }
             }
 
-            suppliers = suppliers.OrderByDescending(i => i.Sno).Take(15).ToList();
+            suppliers = suppliers.OrderBy(i => i.Sno).Take(15).ToList();
             return Json(suppliers);
         }
 
@@ -777,13 +770,7 @@ namespace EasyPro.Controllers
             var companyTanykina = HttpContext.Session.GetString(StrValues.Tanykina);
 
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && !i.Approval).ToList();
-            if (companyTanykina != "TANYKINA Dairy Plant Limited")
-            {
-                var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-                if (user.AccessLevel == AccessLevel.Branch)
-                    suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
-            }
-
+            
             if (!string.IsNullOrEmpty(filter))
             {
                 if (!string.IsNullOrEmpty(condition))
@@ -811,7 +798,7 @@ namespace EasyPro.Controllers
                 }
             }
 
-            suppliers = suppliers.OrderByDescending(i => i.Sno).Take(15).ToList();
+            suppliers = suppliers.OrderBy(i => i.Sno).Take(15).ToList();
             return Json(suppliers);
         }
         private bool DSupplierExists(long id)

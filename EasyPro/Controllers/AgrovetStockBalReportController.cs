@@ -127,14 +127,14 @@ namespace EasyPro.Controllers
                         decimal correctbal = (decimal)detailstore.receiptthatmonth + open + dispatch;
                         decimal saleskgs = (decimal)(detailstore.positive_agProductsales - detailstore.negative_agProductsales);
                         decimal bal = (correctbal - saleskgs);
-                        decimal BPrice = (decimal)productNow.Pprice;
-                        decimal SPrice = (decimal)productNow.Sprice;
+                        decimal? BPrice = productNow.Pprice ?? 0;
+                        decimal? SPrice = productNow.Sprice ?? 0;
 
-                        if ((decimal)productNow.Pprice < 0)
-                            BPrice = (decimal)productNow.Pprice * -1;
+                        if (productNow.Pprice < 0)
+                            BPrice = productNow.Pprice * -1;
 
-                        if ((decimal)productNow.Sprice < 0)
-                            SPrice = (decimal)productNow.Sprice * -1;
+                        if (productNow.Sprice < 0)
+                            SPrice = productNow.Sprice * -1;
 
                         products.Add(new AgProductVM
                         {
@@ -146,8 +146,8 @@ namespace EasyPro.Controllers
                             StoreBal = correctbal,
                             Sales = (decimal)saleskgs,
                             Bal = bal,
-                            BPrice = BPrice,
-                            SPrice = SPrice,
+                            BPrice = (decimal)BPrice,
+                            SPrice = (decimal)SPrice,
                             Branch = productNow.Branch,
                             Date = DateTime.Today
                         });
@@ -159,7 +159,6 @@ namespace EasyPro.Controllers
                     {
                         startingdate = date1;
                     }
-                    
                 });
             });
             return Json(products);

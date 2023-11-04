@@ -73,18 +73,10 @@ namespace EasyPro.Controllers
 
             IQueryable<AgProduct> agProducts = _context.AgProducts;
             IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
-            //var productintake = productIntakes.Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-            //&& i.TransDate >= startDate && i.TransDate <= enDate).ToList();
 
             var agproducts = agProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
             && i.Branch == saccobranch).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-            {
-                //agproducts = agproducts.Where(t => t.Branch == saccobranch).ToList();
-                //productintake = productintake.Where(i => i.Branch == saccobranch).ToList();
-            }
-            //ViewBag.productintake = productintake;
+           
             var productNames = agproducts.Select(b => b.PName);
             ViewBag.agproductsall = new SelectList(productNames, "");
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
@@ -265,8 +257,8 @@ namespace EasyPro.Controllers
                     var endDate = startDate.AddMonths(1).AddDays(-1);
                     var supplierlist = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
                    
-                    if (user.AccessLevel == AccessLevel.Branch)
-                        supplierlist = supplierlist.Where(s => s.Branch == saccobranch).ToList();
+                    //if (user.AccessLevel == AccessLevel.Branch)
+                    //    supplierlist = supplierlist.Where(s => s.Branch == saccobranch).ToList();
 
                     var supplier = supplierlist.FirstOrDefault(s => s.Sno == cash);
 
@@ -345,9 +337,9 @@ namespace EasyPro.Controllers
             IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
             var suppliers = dSuppliers.Where(s => s.Sno.ToUpper().Equals(productIntake.Sno.ToUpper())
             && s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
 
             var supplier = suppliers.FirstOrDefault();
             if (supplier == null)
@@ -459,8 +451,8 @@ namespace EasyPro.Controllers
             var suppliers = await _context.DSuppliers.Where(s => s.Sno.ToUpper().Equals(intake.Sno)
             && s.Scode == intake.SaccoCode).ToListAsync();
 
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == intake.Branch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == intake.Branch).ToList();
 
             var supplier = suppliers.FirstOrDefault();
             return new
@@ -491,9 +483,9 @@ namespace EasyPro.Controllers
             var sno = intakes.FirstOrDefault()?.Sno ?? "";
             var suppliers = await _context.DSuppliers.Where(s => s.Sno.ToUpper().Equals(sno.ToUpper()) 
             && s.Scode == sacco).ToListAsync();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
 
             var supplier = suppliers.FirstOrDefault();
             if (supplier == null)
@@ -843,8 +835,8 @@ namespace EasyPro.Controllers
             var allnames = _context.DSuppliers.Where(L => L.Sno.ToUpper().Equals(sno.ToUpper())
             && L.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                allnames = allnames.Where(L => L.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    allnames = allnames.Where(L => L.Branch == saccoBranch).ToList();
 
             var todaysIntake = allnames.Select(b => b.Names).ToList();
             //if (zone != "null")
@@ -882,8 +874,8 @@ namespace EasyPro.Controllers
             && s.TransCode.ToUpper().Equals(sno.ToUpper())).ToList();
            
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(L => L.Tbranch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(L => L.Tbranch == saccoBranch).ToList();
 
             var todaysIntake = transporters.Select(b => b.TransName).ToList();
             //if (zone != "null")
