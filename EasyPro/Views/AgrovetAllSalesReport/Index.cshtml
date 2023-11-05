@@ -558,7 +558,11 @@
                                                 <td>${type}</td>
                                             </tr>`)
                 });
-
+                itemTableRows.push(`<tr>
+                                            <td colspan="5"><h3>Total</h3></td>
+                                                <td>${totalquntity}</td>
+                                                <td>${Tselling}</td>
+                                            </tr>`);
                 $('#Tselling').val(Tselling);
                 $('#totalquntity').val(totalquntity);
                 $('#tbl_rep_details').html(itemTableRows);
@@ -590,7 +594,11 @@
                                                 <td>${i.amount}</td>
                                             </tr>`)
                 });
-
+                itemTableRows.push(`<tr>
+                                            <td colspan="3"><h3>Total</h3></td>
+                                                <td>${totalquntity}</td>
+                                                <td>${Tselling}</td>
+                                            </tr>`);
                 $('#Tsell').val(Tselling);
                 $('#totquntity').val(totalquntity);
                 $('#tbl_sum_details').html(itemTableRows);

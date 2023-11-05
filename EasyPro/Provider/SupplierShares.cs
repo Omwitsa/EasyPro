@@ -33,7 +33,7 @@ namespace EasyPro.Provider
             IQueryable<DShare> dShares = _context.DShares;
             IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
             var checkrecords = dPreSets.FirstOrDefault(e => e.Sno.ToUpper().Equals(filter.Code.ToUpper()) && e.saccocode == filter.Sacco
-                && e.BranchCode == filter.Branch && e.Deduction.ToUpper().Equals("SHARES"));
+                && e.Deduction.ToUpper().Equals("SHARES"));
             if (wherefrom)
             {
                if (filter.shares)
@@ -53,7 +53,7 @@ namespace EasyPro.Provider
                 {
                     var productIntake = new DPreSet
                     {
-                        Sno = filter.Code,
+                        Sno = filter.Code.ToUpper().Trim(),
                         Deduction = "SHARES",
                         Remark = "SHARES",
                         StartDate = DateTime.Today,
@@ -70,13 +70,12 @@ namespace EasyPro.Provider
             }
             else
             {
-                var getsupplier = dSuppliers.FirstOrDefault(m => m.Sno.ToUpper().Equals(filter.Code.ToUpper()) && m.Scode == filter.Sacco
-                && m.Branch == filter.Branch);
+                var getsupplier = dSuppliers.FirstOrDefault(m => m.Sno.ToUpper().Equals(filter.Code.ToUpper()) && m.Scode == filter.Sacco);
                 if(getsupplier != null)
                 {
                     if (checkrecords != null)
                     {
-                        var checkifexceedmaxshares = dShares.Where(m => m.SaccoCode == filter.Sacco && m.Branch == filter.Branch
+                        var checkifexceedmaxshares = dShares.Where(m => m.SaccoCode == filter.Sacco
                             && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(filter.Code.ToUpper())).ToList();
                         if (checkifexceedmaxshares.Sum(x => x.Amount) >= 20000)
                         {

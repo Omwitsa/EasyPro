@@ -225,6 +225,7 @@
 
             function populateIntake(intakes) {
                 let itemTableRows = new Array();
+                var netpay = 0;
                 intakes.forEach(i => {
                     var ddate = i.DateEntered;
                     var buying = i.Qin * i.Pprice;
@@ -241,16 +242,19 @@
                                 <td>${i.SupplierId}</td>
                             </tr>`)
 
-                    var netpay = 0;
+                    
 
                     intakes.forEach(i => {
                         var ddr = 0;
                         ddr = i.Qin * i.Pprice;
-                        netpay = netpay + ddr;
+                        netpay += ddr;
                     });
                     $('#amount').val(netpay);
                 });
-
+                itemTableRows.push(`<tr>
+                                      <td colspan="6"><h3>Total</h3></td>
+                                       <td>${netpay}</td>
+                                  </tr>`);
                 $('#intakes').html(itemTableRows);
             }
         });

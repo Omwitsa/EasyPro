@@ -48,8 +48,8 @@ namespace EasyPro.Controllers
             var enDate = startDate.AddMonths(1).AddDays(-1);
             ViewBag.isAinabkoi = sacco == StrValues.Ainabkoi;
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(i => i.Branch == saccobranch);
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(i => i.Branch == saccobranch);
 
             ViewBag.suppliers = suppliers.Select(s => new DSupplier
             {
@@ -73,9 +73,9 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var suplist = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suplist = suplist.Where(m => m.Branch == saccoBranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suplist = suplist.Where(m => m.Branch == saccoBranch).ToList();
             dsuppliers = suplist;
             ViewBag.suppliers = dsuppliers.Select(s => new DSupplier
             {
@@ -97,9 +97,9 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var todaysIntakelist = _context.DSuppliers.Where(L => L.Sno == sno && L.Scode == sacco ).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                todaysIntakelist = todaysIntakelist.Where(n=>n.Branch == saccoBranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    todaysIntakelist = todaysIntakelist.Where(n=>n.Branch == saccoBranch).ToList();
 
             var todaysIntake = todaysIntakelist;
             return Json(todaysIntake);
@@ -111,43 +111,7 @@ namespace EasyPro.Controllers
                utilities.SetUpPrivileges(this);
                var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
                var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            decimal Total = 0;
-
-            //    var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            //    var startDate = month.AddMonths(0);
-            //    var endDate = month.AddMonths(1).AddDays(-1);
-
-            //    var productIntakes = _context.ProductIntake.Where(M => M.TransDate >= startDate && M.Sno.ToUpper().Equals(sno.ToUpper()) && M.TransDate <= endDate && M.SaccoCode == sacco).ToList();
-            //    decimal milk = 0, assets = 0, land = 0, crops = 0, eductaion = 0, animals = 0, Total = 0;
-            //    var flmdanimalandeducation = _context.FLMD.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
-            //    var flmdcrops = _context.FLMDCrops.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
-            //    var flmdland = _context.FLMDLand.FirstOrDefault(k => k.Sno.ToUpper().Equals(sno.ToUpper()) && k.SaccoCode == sacco);
-
-            //    if (productIntakes.Count > 0)
-            //    {
-            //        milk = (productIntakes.Sum(d => d.CR) ?? 0) - (productIntakes.Sum(d => d.DR) ?? 0);
-            //    }
-
-            //    //animals = (decimal)(((double)flmdanimalandeducation.Sum(g => g.ExoticCattle)*40000)+((double)flmdanimalandeducation.Sum(g => g.IndigenousCattle)*20000)+((double)flmdanimalandeducation.Sum(g => g.Sheep)*6000)+((double)flmdanimalandeducation.Sum(g => g.Goats)*5000)+((double)flmdanimalandeducation.Sum(g => g.Donkeys)*4000)+((double)flmdanimalandeducation.Sum(g => g.Pigs)*8000));
-            //    if (flmdanimalandeducation != null)
-            //    {
-            //        animals = (decimal)(((double)(flmdanimalandeducation.ExoticCattle ?? 0) * 40000) + ((double)(flmdanimalandeducation.IndigenousCattle ?? 0) * 20000) + ((double)(flmdanimalandeducation.Sheep ?? 0) * 6000) + ((double)(flmdanimalandeducation.Goats ?? 0) * 5000) + ((double)(flmdanimalandeducation.Donkeys ?? 0) * 4000) + ((double)(flmdanimalandeducation.Pigs ?? 0) * 8000));
-            //        eductaion = (decimal)(((double)(flmdanimalandeducation.Graduates ?? 0) * 120000) + ((double)(flmdanimalandeducation.UnderGraduates ?? 0) * 80000) + ((double)(flmdanimalandeducation.Secondary ?? 0) * 53000) + ((double)(flmdanimalandeducation.Primary ?? 0) * 26000));
-            //    }
-
-            //    //eductaion = (decimal)(((double)flmdanimalandeducation.Sum(g => g.Graduates) * 120000) + ((double)flmdanimalandeducation.Sum(g => g.UnderGraduates) * 80000) + ((double)flmdanimalandeducation.Sum(g => g.Secondary) * 53000) + ((double)flmdanimalandeducation.Sum(g => g.Primary) * 26000));
-            //    if (flmdland != null)
-            //    {
-            //        crops = 120000;
-            //    }
-
-            //    //land = (decimal)((double)flmdland.Sum(g => g.TotalAcres) * 1200000);
-            //    if (flmdland != null)
-            //    {
-            //        land = (decimal)((double)flmdland.TotalAcres * 1200000);
-            //    }
-
-            //    assets = (animals - eductaion + crops + land) * (decimal)(0.01);
+               decimal Total = 0;
                Total = 0;
             return Json(Total);
         }
@@ -165,9 +129,9 @@ namespace EasyPro.Controllers
             DateTime enDate = startDate.AddMonths(1).AddDays(-1);
             IQueryable<DTransporter> dTransporters = _context.DTransporters;
             var transporters = await dTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
 
             var codes = transporters.Select(t => t.TransCode).ToList();
             if (StrValues.Slopes == sacco)
@@ -197,12 +161,6 @@ namespace EasyPro.Controllers
             var zones = _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToList();
             ViewBag.zones = new SelectList(zones);
 
-            
-
-            //if (zones.Count != 0)
-            //    ViewBag.checkiftoenable = 1;
-            //else
-            //    ViewBag.checkiftoenable = 0;
         }
 
         public async Task Getshares(string sno)
@@ -215,24 +173,24 @@ namespace EasyPro.Controllers
             && m.Type.Contains("shares") && m.Sno.ToUpper().Equals(sno.ToUpper()))
                 .ToListAsync();
 
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                shares = shares.Where(b=>b.Branch == saccobranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    shares = shares.Where(b=>b.Branch == saccobranch).ToList();
 
            var sharesAmount = shares.Sum(x=>x.Amount);
             ViewBag.shares = sharesAmount;
 
             var transportlist = _context.DTransports.Where(t => t.Sno.ToUpper().Equals(sno.ToUpper()) 
             && t.saccocode == sacco).ToList();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transportlist = transportlist.Where(m => m.Branch == saccobranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transportlist = transportlist.Where(m => m.Branch == saccobranch).ToList();
             var transport = transportlist.FirstOrDefault();
             var trancode = transport?.TransCode ?? "";
             var transporterlist = _context.DTransporters.Where(t => t.TransCode.ToUpper().Equals(trancode.ToUpper())
             && t.ParentT == sacco ).ToList();
             
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporterlist = transporterlist.Where(t => t.Tbranch == saccobranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporterlist = transporterlist.Where(t => t.Tbranch == saccobranch).ToList();
 
             var transporter = transporterlist.FirstOrDefault();
             if (transporter == null)
@@ -240,9 +198,6 @@ namespace EasyPro.Controllers
 
             ViewBag.Transportert = transporter.TransName;
         }
-        //public async Task<dynamic> GenerateStatement(StatementFilter filter)
-        //{
-        //}
 
         [HttpPost]
         public async Task<JsonResult> SuppliedProducts([FromBody] DSupplier supplier, DateTime date1, DateTime date2, string producttype, string sno)
@@ -261,8 +216,8 @@ namespace EasyPro.Controllers
 
             var getdetail = intakes.Where(i => i.TransactionType == TransactionType.Intake
             || i.TransactionType == TransactionType.Correction).ToList();
-            if (user.AccessLevel == AccessLevel.Branch)
-                getdetail = getdetail.Where(n => n.Branch == saccobranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    getdetail = getdetail.Where(n => n.Branch == saccobranch).ToList();
 
             var getsumkgs = getdetail.Sum(n => n.Qsupplied);
 

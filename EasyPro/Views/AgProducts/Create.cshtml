@@ -111,7 +111,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Draccno" class="control-label"></label>
-                                <input id="draccno" readonly asp-for="Draccno" class="form-control" />
+                                <input id="draccno" readonly required asp-for="Draccno" class="form-control" />
                                 @*<select id="draccno" asp-for="Draccno" class="form-control" asp-items="@ViewBag.glAccounts">
                                 </select>*@
                                 <span asp-validation-for="Draccno" class="text-danger"></span>
@@ -122,7 +122,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="Craccno" class="control-label"></label>
-                                <input id="craccno" readonly asp-for="Craccno" class="form-control" />
+                                <input id="craccno" readonly required asp-for="Craccno" class="form-control" />
                                 @*<select id="craccno" asp-for="Craccno" class="form-control" asp-items="@ViewBag.glAccounts">
                                 </select>*@
                                 <span asp-validation-for="Craccno" class="text-danger"></span>

@@ -171,7 +171,7 @@ namespace EasyPro.Controllers
                     SupplierId = agProduct.SupplierId,
                     Pprice = agProduct.Pprice,
                     Sprice = agProduct.Sprice,
-                    Branch = agProduct.Branch,
+                    Branch = saccobranch,
                     Draccno = agProduct.Draccno,
                     Craccno = agProduct.Craccno,
                     Approved = true,
