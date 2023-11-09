@@ -154,16 +154,16 @@ namespace EasyPro.Provider
             && m.Sno.ToUpper().Equals(filter.Code.ToUpper()) && m.Branch == filter.Branch)
                 .ToListAsync();
             var sharesAmount = shares.Sum(x => x.Amount);
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == filter.Code && s.Scode == filter.Sacco && s.Branch == filter.Branch);
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno == filter.Code && s.Scode == filter.Sacco);
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
 
-            var transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(filter.Code.ToUpper()) && t.saccocode== filter.Sacco && t.Branch == filter.Branch);
+            var transport = _context.DTransports.FirstOrDefault(t => t.Sno.ToUpper().Equals(filter.Code.ToUpper())  && t.saccocode== filter.Sacco);
             var transporterName = "";
             if (transport != null)
             {
                 transport.TransCode = transport?.TransCode ?? "";
-                var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transport.TransCode.ToUpper()) && t.ParentT == filter.Sacco && t.Tbranch == filter.Branch);
+                var transporter = _context.DTransporters.FirstOrDefault(t => t.TransCode.ToUpper().Equals(transport.TransCode.ToUpper()) && t.ParentT == filter.Sacco);
                 transporterName = transporter?.TransName ?? "";
             }
             return new
@@ -191,7 +191,7 @@ namespace EasyPro.Provider
             IQueryable<ProductIntake> productIntakeslist = _context.ProductIntake.Where(i => i.SaccoCode == filter.Sacco && i.Branch.ToUpper().Equals(filter.Branch.ToUpper())
             && i.TransDate >= startDate && i.TransDate <= endDate);
 
-            IQueryable<DTransporter> transporters = _context.DTransporters.Where(t => t.ParentT == filter.Sacco && t.Tbranch == filter.Branch);
+            IQueryable<DTransporter> transporters = _context.DTransporters.Where(t => t.ParentT == filter.Sacco);
             var transporter = await transporters.FirstOrDefaultAsync(t => t.TransCode == filter.Code);
             if (StrValues.Slopes == filter.Sacco)
                 transporter = await transporters.FirstOrDefaultAsync(t => t.CertNo == filter.Code);
@@ -204,7 +204,7 @@ namespace EasyPro.Provider
             && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction))
                 .OrderBy(i => i.TransDate).ToListAsync();
 
-            var suppliers = await _context.DSuppliers.Where(s => s.Scode == filter.Sacco && s.Branch == filter.Branch).ToListAsync();
+            var suppliers = await _context.DSuppliers.Where(s => s.Scode == filter.Sacco).ToListAsync();
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
             var supplierGroupedIntakes = intakes.GroupBy(i => i.Sno).ToList();
