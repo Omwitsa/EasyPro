@@ -229,6 +229,9 @@
                 intakes.forEach(i => {
                     var ddate = i.DateEntered;
                     var buying = i.Qin * i.Pprice;
+                    var ddr = 0;
+                    ddr = i.Qin * i.Pprice;
+                    netpay += ddr;
                     var dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
                                 <td>${dd1}</td>
@@ -243,12 +246,6 @@
                             </tr>`)
 
                     
-
-                    intakes.forEach(i => {
-                        var ddr = 0;
-                        ddr = i.Qin * i.Pprice;
-                        netpay += ddr;
-                    });
                     $('#amount').val(netpay);
                 });
                 itemTableRows.push(`<tr>

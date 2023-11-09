@@ -225,6 +225,7 @@ namespace EasyPro.Models
         public virtual DbSet<Receiptno> Receiptnos { get; set; }
         public virtual DbSet<Reportpath> Reportpaths { get; set; }
         public virtual DbSet<ProductIntake> ProductIntake { get; set; }
+        
         public virtual DbSet<Serialno> Serialnos { get; set; }
         public virtual DbSet<Session> Sessions { get; set; }
         public virtual DbSet<Setting> Settings { get; set; }
@@ -10645,5 +10646,6 @@ namespace EasyPro.Models
         public DbSet<EasyPro.Models.Coffee.Marketing> Marketing { get; set; }
 
         public DbSet<EasyPro.Models.Coffee.MarketingDeduct> MarketingDeduct { get; set; }
+        public virtual DbSet<MessageConfigs> MessageConfigs { get; set; }
     }
 }

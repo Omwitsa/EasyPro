@@ -250,32 +250,36 @@ namespace EasyPro.Controllers
 
                 if (!isStaff && cash != "")
                     _context.ProductIntake.AddRange(intakes);
-
-                if (sms)
+                var checkmessageConfigs = _context.MessageConfigs.FirstOrDefault(n => n.saccocode == sacco);
+                if (checkmessageConfigs != null && !checkmessageConfigs.Closed)
                 {
-                    var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-                    var endDate = startDate.AddMonths(1).AddDays(-1);
-                    var supplierlist = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
-                   
-                    //if (user.AccessLevel == AccessLevel.Branch)
-                    //    supplierlist = supplierlist.Where(s => s.Branch == saccobranch).ToList();
+                    if (sms)
+                    {
+                        var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                        var endDate = startDate.AddMonths(1).AddDays(-1);
+                        var supplierlist = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
 
-                    var supplier = supplierlist.FirstOrDefault(s => s.Sno == cash);
+                        //if (user.AccessLevel == AccessLevel.Branch)
+                        //    supplierlist = supplierlist.Where(s => s.Branch == saccobranch).ToList();
 
-                    if (supplier != null)
+                        var supplier = supplierlist.FirstOrDefault(s => s.Sno == cash);
 
-                        _context.Messages.Add(new Message
-                        {
-                            Telephone = supplier.PhoneNo,
-                            Content = $"Dear {supplier.Names}, You have bought goods worth {intakes.Sum(t => t.DR)} From our store",
-                            ProcessTime = DateTime.Now.ToString(),
-                            MsgType = "Outbox",
-                            Replied = false,
-                            DateReceived = DateTime.Now,
-                            Source = loggedInUser,
-                            Code = sacco
-                        });
+                        if (supplier != null)
+
+                            _context.Messages.Add(new Message
+                            {
+                                Telephone = supplier.PhoneNo,
+                                Content = $"Dear {supplier.Names}, You have bought goods worth {intakes.Sum(t => t.DR)} From our store",
+                                ProcessTime = DateTime.Now.ToString(),
+                                MsgType = "Outbox",
+                                Replied = false,
+                                DateReceived = DateTime.Now,
+                                Source = loggedInUser,
+                                Code = sacco
+                            });
+                    }
                 }
+               
 
                 _context.SaveChanges();
                 _notyf.Success("Saved successfully");

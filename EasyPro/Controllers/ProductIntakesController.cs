@@ -1339,49 +1339,19 @@ namespace EasyPro.Controllers
                 intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
 
             var commulated = intakes.Sum(s => s.Qsupplied);
-            if (productIntake.SMS)
+            IQueryable<MessageConfigs> messageConfigs = _context.MessageConfigs;
+            var checkmessageConfigs = messageConfigs.FirstOrDefault(n => n.saccocode == sacco);
+            if (checkmessageConfigs != null && !checkmessageConfigs.Closed)
             {
-                if (supplier.PhoneNo != "0")
+                if (StrValues.Elburgon == sacco)
                 {
-                    if (supplier.PhoneNo.Length > 8)
-                    {
-                        var note = "";
-                        if (productIntake.ProductType.ToLower().Equals("milk"))
-                        {
-                            note = "Kindly observe withdrawal period after cow treatment";
-                            note = "";
-                        }
-
-                        var phone_first = supplier.PhoneNo.Substring(0, 1);
-                        if (phone_first == "0")
-                            supplier.PhoneNo = supplier.PhoneNo.Substring(1);
-                        var phone_three = supplier.PhoneNo.Substring(0, 3);
-                        if (phone_three == "254")
-                            supplier.PhoneNo = supplier.PhoneNo.Substring(3);
-                        var phone_four = supplier.PhoneNo.Substring(0, 4);
-                        if (phone_four == "+254")
-                            supplier.PhoneNo = supplier.PhoneNo.Substring(4);
-
-                        supplier.PhoneNo = "254" + supplier.PhoneNo;
-
-                        var totalkgs = string.Format("{0:.0###}", commulated + productIntake.Qsupplied);
-                        String[] GetFirstName = supplier.Names.Split(' ');
-                        _context.Messages.Add(new Message
-                        {
-                            Telephone = supplier.PhoneNo,
-
-                            Content = $"{DateTime.Now} Dear {GetFirstName[0].Trim()}, You have supplied {productIntake.Qsupplied} kgs to {sacco}. Total for {DateTime.Today.ToString("MMMM/yyyy")} is {totalkgs} kgs.\n {note}",
-                            ProcessTime = DateTime.Now.ToString(),
-                            MsgType = "Outbox",
-                            Replied = false,
-                            DateReceived = DateTime.Now,
-                            Source = loggedInUser,
-                            Code = sacco
-                        });
-
-                    }
+                    if (transporter != null)
+                        sendmessage(productIntake, supplier, commulated, transporter);
                 }
+                else
+                    sendmessage(productIntake, supplier, commulated, transporter);
             }
+
             _context.SaveChanges();
             _notyf.Success("Intake saved successfully");
 
@@ -2415,7 +2385,60 @@ namespace EasyPro.Controllers
                 intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
 
             var commulated = intakes.Sum(s => s.Qsupplied);
-            if (productIntake.SMS)
+            var checkmessageConfigs = _context.MessageConfigs.FirstOrDefault(n => n.saccocode == sacco);
+            if (checkmessageConfigs != null && !checkmessageConfigs.Closed)
+            {
+                if (StrValues.Elburgon == sacco)
+                {
+                    if (transporter != null)
+                        sendmessage(productIntake, supplier, commulated, transporter);
+                }
+                else
+                    sendmessage(productIntake, supplier, commulated, transporter);
+            }
+            
+
+
+            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
+            string cummkgs = string.Format("{0:.###}", commulated + productIntake.Qsupplied);
+            var receiptDetails = new
+            {
+                companies.Name,
+                companies.Adress,
+                companies.Town,
+                companies.PhoneNo,
+                companies.Motto,
+                saccoBranch,
+                productIntake.Sno,
+                productIntake.SupName,
+                productIntake.Qsupplied,
+                cummkgs,
+                loggedInUser,
+                MornEvening = productIntake.MornEvening ?? "Mornnig",
+                date = productIntake.TransDate
+            };
+
+            _context.SaveChanges();
+            _notyf.Success("Correction saved successfully");
+           
+            return Json(new
+            {
+                receiptDetails,
+                success = true
+            });
+        }
+
+        private void sendmessage(ProductIntakeVm productIntake, DSupplier supplier, decimal commulated, DTransporter transporter)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+
+            bool sendsmsstatus = productIntake.SMS;
+            if (StrValues.Elburgon == sacco)
+                sendsmsstatus = true;
+
+            if (sendsmsstatus)
             {
                 if (supplier.PhoneNo != "0")
                 {
@@ -2452,34 +2475,6 @@ namespace EasyPro.Controllers
                     }
                 }
             }
-
-            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
-            string cummkgs = string.Format("{0:.###}", commulated + productIntake.Qsupplied);
-            var receiptDetails = new
-            {
-                companies.Name,
-                companies.Adress,
-                companies.Town,
-                companies.PhoneNo,
-                companies.Motto,
-                saccoBranch,
-                productIntake.Sno,
-                productIntake.SupName,
-                productIntake.Qsupplied,
-                cummkgs,
-                loggedInUser,
-                MornEvening = productIntake.MornEvening ?? "Mornnig",
-                date = productIntake.TransDate
-            };
-
-            _context.SaveChanges();
-            _notyf.Success("Correction saved successfully");
-           
-            return Json(new
-            {
-                receiptDetails,
-                success = true
-            });
         }
 
         public IActionResult Reprint(long? id)

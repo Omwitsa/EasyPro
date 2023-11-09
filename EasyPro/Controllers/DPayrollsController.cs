@@ -293,8 +293,8 @@ namespace EasyPro.Controllers
                ).Select(c => c.Description.ToLower()).ToListAsync();
 
             var suppliers = await _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(t => t.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(t => t.Branch == saccoBranch).ToList();
 
             var shareCode = "S03";
             var savingsCode = "S02";
@@ -317,7 +317,7 @@ namespace EasyPro.Controllers
             intakes.ForEach(async p =>
             {
                 var advance = p.Where(k => k.ProductType.ToLower().Contains("advance"));
-                var transport = p.Where(k => k.Description.ToLower().Contains("transport"));
+                var transport = p.Where(k => k.Description.Equals("Transport"));
                 var agrovet = p.Where(k => k.ProductType.ToLower().Contains("agrovet") || k.ProductType.ToLower().Contains("store"));
                 var bonus = p.Where(k => k.ProductType.ToLower().Contains("bonus"));
                 var shares = p.Where(k => k.ProductType.ToLower().Contains("shares") || k.ProductType.ToLower().Contains("society shares"));
@@ -1110,8 +1110,8 @@ namespace EasyPro.Controllers
             }
            
             IQueryable<DTransporter> transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(p => p.Tbranch == saccoBranch);
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(p => p.Tbranch == saccoBranch);
 
             var transpoterCodes = await transporters.Select(s => s.TransCode.Trim().ToUpper()).ToListAsync();
             var productIntakes = await productIntakeslist.Where(p => transpoterCodes.Contains(p.Sno.Trim().ToUpper())).ToListAsync();
