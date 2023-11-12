@@ -393,6 +393,7 @@
                     if (hasSend) {
                         return;
                     }
+                    
                     $("#save1").attr("disabled", "disabled");
                     event.preventDefault()
                     event.stopImmediatePropagation();
@@ -404,6 +405,7 @@
                         alert("Sorry, Kindly Provide the Receipt No.");
                         return;
                     }
+
                     $.ajax({
 
                         type: 'POST',
@@ -588,6 +590,18 @@
                 event.preventDefault()
                 hasSend = false;
                 var pname = $("#pname").val();
+                if (isCheckoff) {
+                    if ($('#names').val() == '') {
+                        alert("Sorry, Supplier Does Not Exist.");
+                        return;
+                    }
+                }
+                if (isTransport) {
+                    if ($('#tname').val() == '') {
+                        alert("Sorry, Transporter Does Not Exist.");
+                        return;
+                    }
+                }
                 getProductBal(pname);
             });
 
@@ -721,6 +735,11 @@
             function calculatePrice() {
                 var qty = parseFloat($("#qnty").val());
                 var price = parseFloat($("#sprice").val());
+                if (qty < 1) {
+                    alert("Sorry, Provide cannot be less than 1.");
+                    $("#qnty").val(1);
+                    return;
+                }
                 if (qty && price) {
                     $("#totalamnt").val(qty * price);
                 }

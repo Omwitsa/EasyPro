@@ -9,12 +9,12 @@ namespace EasyPro.Models
     public partial class MessageConfigs
     {
         [Key]
-        public long Id { get; set; }
-        public string? username { get; set; }
-        public string? apiKey { get; set; }
-        public string? saccocode { get; set; }
+        public int Id { get; set; }
+        public string username { get; set; }
+        public string apiKey { get; set; }
+        public string saccocode { get; set; }
         public bool Closed { get; set; }
-        public string? SenderId { get; set; }
+        public string SenderId { get; set; }
         
         
     }

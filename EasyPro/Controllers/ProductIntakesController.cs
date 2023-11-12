@@ -1339,9 +1339,8 @@ namespace EasyPro.Controllers
                 intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
 
             var commulated = intakes.Sum(s => s.Qsupplied);
-            IQueryable<MessageConfigs> messageConfigs = _context.MessageConfigs;
-            var checkmessageConfigs = messageConfigs.FirstOrDefault(n => n.saccocode == sacco);
-            if (checkmessageConfigs != null && !checkmessageConfigs.Closed)
+            var checkmessageConfigs = _context.MessageConfigs.FirstOrDefault(n => n.saccocode == sacco && !n.Closed);
+            if (checkmessageConfigs != null)
             {
                 if (StrValues.Elburgon == sacco)
                 {
@@ -2385,8 +2384,8 @@ namespace EasyPro.Controllers
                 intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
 
             var commulated = intakes.Sum(s => s.Qsupplied);
-            var checkmessageConfigs = _context.MessageConfigs.FirstOrDefault(n => n.saccocode == sacco);
-            if (checkmessageConfigs != null && !checkmessageConfigs.Closed)
+            var checkmessageConfigs = _context.MessageConfigs.FirstOrDefault(n => n.saccocode == sacco && !n.Closed);
+            if (checkmessageConfigs != null)
             {
                 if (StrValues.Elburgon == sacco)
                 {

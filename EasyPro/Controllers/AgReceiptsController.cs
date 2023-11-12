@@ -250,8 +250,8 @@ namespace EasyPro.Controllers
 
                 if (!isStaff && cash != "")
                     _context.ProductIntake.AddRange(intakes);
-                var checkmessageConfigs = _context.MessageConfigs.FirstOrDefault(n => n.saccocode == sacco);
-                if (checkmessageConfigs != null && !checkmessageConfigs.Closed)
+                var checkmessageConfigs = _context.MessageConfigs.FirstOrDefault(n => n.saccocode == sacco && !n.Closed);
+                if (checkmessageConfigs != null)
                 {
                     if (sms)
                     {
@@ -288,7 +288,7 @@ namespace EasyPro.Controllers
                 //PrintP(intakes, RNo);
                 var receiptDetails1 = receiptDetails;
                 var receipts = _context.AgReceipts
-                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).OrderByDescending(u => u.RNo).ToList(); 
+                .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch).OrderByDescending(u => u.RId).ToList(); 
 
                 if (StrValues.Slopes == sacco)
                     receipts = receipts.OrderByDescending(m => m.RId).ToList();
@@ -297,7 +297,7 @@ namespace EasyPro.Controllers
                 double rno = Convert.ToInt32(receipt1.RNo);
                 return Json(new
                 {
-                    rno = (rno),
+                    rno = (rno + 1),
                     receiptDetails,
                     receiptDetails1
                 });
@@ -666,7 +666,7 @@ namespace EasyPro.Controllers
                 DateTime Now = DateTime.Today;
                 DateTime startD = new DateTime(Now.Year, Now.Month, 1);
                 DateTime enDate = startD.AddMonths(1).AddDays(-1);
-
+                GetInitialValuesAsync();
                 if (!intakes.Any())
                 {
                     _notyf.Error("Sorry, Kindly provide records");
@@ -674,6 +674,13 @@ namespace EasyPro.Controllers
                 }
                 var cash = intakes.FirstOrDefault()?.Sno ?? "";
                 DateTime tdate = intakes.FirstOrDefault().TransDate;
+                var checkifthereceiptexist = _context.AgReceipts.Where(n=>n.TDate == tdate && n.RNo == RNo).ToList();
+                if (!checkifthereceiptexist.Any())
+                {
+                    _notyf.Error("Sorry, No Invoice No." + RNo + "On"+ tdate + ", Kindly Try Again.");
+                    return Json("");
+                }
+
                 if (!isCash && cash == "")
                 {
                     _notyf.Error("Sorry, Kindly Farmers Number");
@@ -829,6 +836,7 @@ namespace EasyPro.Controllers
         [HttpGet]
         public JsonResult SelectedDateIntake(string sno, DateTime date)
         {
+            sno = sno ?? "";
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -864,6 +872,7 @@ namespace EasyPro.Controllers
         [HttpGet]
         public JsonResult selectedDateTransporterIntake(string sno, DateTime date)
         {
+            sno = sno ?? "";
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
@@ -971,7 +980,7 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var receipts = await agReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())
-            && i.Branch == saccobranch).OrderByDescending(u => u.RNo).ToListAsync();
+            && i.Branch == saccobranch).OrderByDescending(u => u.RId).ToListAsync();
 
             if (StrValues.Slopes == sacco)
                 receipts = receipts.OrderByDescending(m => m.RId).ToList();
@@ -1111,7 +1120,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var count = await _context.AgReceipts
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccobranch)
-                .OrderByDescending(u => u.RNo)
+                .OrderByDescending(u => u.RId)
                 .Select(b => b.RNo).ToListAsync();
 
             var selectedno = count.FirstOrDefault();

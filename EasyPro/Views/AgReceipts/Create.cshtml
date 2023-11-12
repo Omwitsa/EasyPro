@@ -226,7 +226,7 @@
                                         <div class="form-group ic-cmp-int float-lb floating-lb">
                                             <div class="nk-int-st">
                                                 <label class="control-label">Staff Name</label>
-                                                <select id="sname" asp-validation-for="AgReceipt.SNo" class="form-control" asp-items="@ViewBag.staffs">
+                                                <select id="sname" asp-validation-for="AgReceipt.SNo" class="chzn-select form-control" asp-items="@ViewBag.staffs">
                                                 </select>
                                             </div>
                                         </div>
@@ -411,7 +411,7 @@
             $('#staffDetails').hide();
             $('#next').hide();
             $('#bprice1').hide();
-
+            gettransaction();
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
                 $('#zone1').hide();
@@ -554,6 +554,7 @@
             function gettransaction(){
                 let TDate = $('#TDate').val();
                 let InvoiceNo = $('#RNo').val();
+                InvoiceNo = InvoiceNo - 1;
                 $.ajax({
                     type: 'POST',
                     url: "getsalesforthis?InvoiceNo=" + InvoiceNo + "&TDate=" + TDate,
@@ -662,6 +663,7 @@
                 var selectVal = $("#sno").val().toUpperCase();
                 getSelectedDateIntakes();
             });
+
             function getSelectedDateTransporterIntakes() {
                 var sno = $('#tsno').val().toUpperCase();
                 var date = $('#TDate').val();
@@ -731,7 +733,18 @@
             $('#next').on('click', function () {
                 event.preventDefault()
                 hasSend = false;
-                
+                if (isCheckoff) {
+                    if ($('#names').val() == '') {
+                        alert("Sorry, Supplier Does Not Exist.");
+                        return;
+                    }
+                }
+                if (isTransport) {
+                    if ($('#tname').val() == '') {
+                        alert("Sorry, Transporter Does Not Exist.");
+                        return;
+                    }
+                }
                 getProductBal();
             });
 
@@ -919,6 +932,11 @@
             function calculatePrice() {
                 var qty = parseFloat($("#qnty").val());
                 var price = parseFloat($("#sprice").val());
+                if (qty<1) {
+                    alert("Sorry, Provide cannot be less than 1.");
+                    $("#qnty").val(1);
+                    return;
+                }
                 if (qty && price) {
                     $("#totalamnt").val(qty * price);
                 }
