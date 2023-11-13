@@ -310,6 +310,9 @@
             let saleItems = new Array();
             let isStaff = false;
             let isCash = false;
+            let isCheckoff = false;
+            let isTransport = false;
+            let hasSend = true;
             $("#pname").val("");
             $("#sname").val("");
             $('#cash').prop('unchecked');
@@ -331,6 +334,8 @@
                 if ($(this).prop("checked") && $(this).attr('id') == 'cash') {
                     isStaff = false;
                     isCash = true;
+                    isCheckoff = false;
+                    isTransport = false;
                     $('#cash_details').show();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
@@ -343,6 +348,8 @@
                 if ($(this).prop("checked") && $(this).attr('id') == 'checkOff') {
                     isStaff = false;
                     isCash = false;
+                    isCheckoff = true;
+                    isTransport = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').show();
                     $('#transpoterDetails').hide();
@@ -355,6 +362,8 @@
                 if ($(this).prop("checked") && $(this).attr('id') == 'transporter') {
                     isStaff = false;
                     isCash = false;
+                    isCheckoff = false;
+                    isTransport = true;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
                     $('#staffDetails').hide();
@@ -367,6 +376,8 @@
                 if ($(this).prop("checked") && $(this).attr('id') == 'staff') {
                     isStaff = true;
                     isCash = false;
+                    isCheckoff = false;
+                    isTransport = false;
                     $('#cash_details').hide();
                     $('#checkOffDetails').hide();
                     $('#transpoterDetails').hide();
@@ -456,7 +467,7 @@
                 var selectProducts = products.filter(p => p.PName.trim() === selectVal);
                 if (selectProducts[0]) {
                     $("#pcode").val(selectProducts[0].PCode);
-                    $("#qnty").val("1");
+                    $("#qnty").val("-1");
                     $("#Amnttopay").val("0");
                     $("#ttolpaid").val("0");
                     $("#balance").val("0");
@@ -590,6 +601,7 @@
                 event.preventDefault()
                 hasSend = false;
                 var pname = $("#pname").val();
+                debugger
                 if (isCheckoff) {
                     if ($('#names').val() == '') {
                         alert("Sorry, Supplier Does Not Exist.");
@@ -602,9 +614,21 @@
                         return;
                     }
                 }
+
+                if (!checkkgs()) {
+                    return;
+                }
                 getProductBal(pname);
             });
-
+            function checkkgs() {
+                var qty = parseFloat($("#qnty").val());
+                if (qty >= 0) {
+                    alert("Sorry, Quantity should be less than 0");
+                    $("#qnty").val(-1);
+                    return false;
+                }
+                return true;
+            }
             function checkbal() {
                 // var qnty = parseFloat($("#qnty").val());
                 // var qntybal = parseFloat($("#sbal").val());
@@ -625,6 +649,9 @@
                 }
             });
             $('#qnty').on('keyup', function () {
+                if (!checkkgs()) {
+                    return;
+                }
                 calculatePrice();
             });
 
@@ -735,11 +762,7 @@
             function calculatePrice() {
                 var qty = parseFloat($("#qnty").val());
                 var price = parseFloat($("#sprice").val());
-                if (qty >= 0) {
-                    alert("Sorry, Quantity should be less than 0");
-                    $("#qnty").val(1);
-                    return;
-                }
+                
                 if (qty && price) {
                     $("#totalamnt").val(qty * price);
                 }

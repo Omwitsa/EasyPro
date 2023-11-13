@@ -745,8 +745,20 @@
                         return;
                     }
                 }
+                if (!checkkgs()) {
+                    return;
+                }
                 getProductBal();
             });
+            function checkkgs() {
+                var qty = parseFloat($("#qnty").val());
+                if (qty < 1) {
+                    alert("Sorry, Quantity Should not be less than 1.");
+                    $("#qnty").val(1);
+                    return false;
+                }
+                return true;
+            }
 
             function checkbal() {
                 var qnty = parseFloat($("#qnty").val());
@@ -770,6 +782,9 @@
             });
 
             $('#qnty').on('keyup', function () {
+                if (!checkkgs()) {
+                    return;
+                }
                 calculatePrice();
             });
 
@@ -932,11 +947,7 @@
             function calculatePrice() {
                 var qty = parseFloat($("#qnty").val());
                 var price = parseFloat($("#sprice").val());
-                if (qty<1) {
-                    alert("Sorry, Quantity Should not be less than 1.");
-                    $("#qnty").val(1);
-                    return;
-                }
+                
                 if (qty && price) {
                     $("#totalamnt").val(qty * price);
                 }
