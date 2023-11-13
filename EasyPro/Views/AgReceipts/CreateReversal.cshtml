@@ -735,8 +735,8 @@
             function calculatePrice() {
                 var qty = parseFloat($("#qnty").val());
                 var price = parseFloat($("#sprice").val());
-                if (qty < 1) {
-                    alert("Sorry, Provide cannot be less than 1.");
+                if (qty >= 0) {
+                    alert("Sorry, Quantity should be less than 0");
                     $("#qnty").val(1);
                     return;
                 }
