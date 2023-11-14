@@ -2436,7 +2436,7 @@ namespace EasyPro.Controllers
             bool sendsmsstatus = productIntake.SMS;
             if (StrValues.Elburgon == sacco)
                 sendsmsstatus = true;
-
+            supplier.PhoneNo = supplier.PhoneNo ?? "0";
             if (sendsmsstatus)
             {
                 if (supplier.PhoneNo != "0")

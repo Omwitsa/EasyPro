@@ -259,24 +259,35 @@ namespace EasyPro.Controllers
                         var endDate = startDate.AddMonths(1).AddDays(-1);
                         var supplierlist = _context.DSuppliers.Where(s => s.Scode == sacco).ToList();
 
-                        //if (user.AccessLevel == AccessLevel.Branch)
-                        //    supplierlist = supplierlist.Where(s => s.Branch == saccobranch).ToList();
-
                         var supplier = supplierlist.FirstOrDefault(s => s.Sno == cash);
-
-                        if (supplier != null)
-
-                            _context.Messages.Add(new Message
+                        supplier.PhoneNo = supplier.PhoneNo ?? "0";
+                        if (supplier != null && supplier.PhoneNo != "0")
+                            if (supplier.PhoneNo.Length > 8)
                             {
-                                Telephone = supplier.PhoneNo,
-                                Content = $"Dear {supplier.Names}, You have bought goods worth {intakes.Sum(t => t.DR)} From our store",
-                                ProcessTime = DateTime.Now.ToString(),
-                                MsgType = "Outbox",
-                                Replied = false,
-                                DateReceived = DateTime.Now,
-                                Source = loggedInUser,
-                                Code = sacco
-                            });
+                                var phone_first = supplier.PhoneNo.Substring(0, 1);
+                                if (phone_first == "0")
+                                    supplier.PhoneNo = supplier.PhoneNo.Substring(1);
+                                var phone_three = supplier.PhoneNo.Substring(0, 3);
+                                if (phone_three == "254")
+                                    supplier.PhoneNo = supplier.PhoneNo.Substring(3);
+                                var phone_four = supplier.PhoneNo.Substring(0, 4);
+                                if (phone_four == "+254")
+                                    supplier.PhoneNo = supplier.PhoneNo.Substring(4);
+
+                                supplier.PhoneNo = "254" + supplier.PhoneNo;
+
+                                _context.Messages.Add(new Message
+                                {
+                                    Telephone = supplier.PhoneNo,
+                                    Content = $"Dear {supplier.Names}, You have bought goods worth {intakes.Sum(t => t.DR)} From our store",
+                                    ProcessTime = DateTime.Now.ToString(),
+                                    MsgType = "Outbox",
+                                    Replied = false,
+                                    DateReceived = DateTime.Now,
+                                    Source = loggedInUser,
+                                    Code = sacco
+                                });
+                            }
                     }
                 }
                
