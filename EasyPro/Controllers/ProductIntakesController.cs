@@ -2463,7 +2463,7 @@ namespace EasyPro.Controllers
                         _context.Messages.Add(new Message
                         {
                             Telephone = supplier.PhoneNo,
-                            Content = $"{DateTime.Now} Dear {GetFirstName[0].Trim()}, Your have supplied {productIntake.Qsupplied} kgs to {sacco}. Total for {DateTime.Today.ToString("MMMM/yyyy")} is {totalkgs} kgs.",
+                            Content = $"{productIntake.TransDate} Dear {GetFirstName[0].Trim()}, Your have supplied {productIntake.Qsupplied} kgs to {sacco}. Total for {DateTime.Today.ToString("MMMM/yyyy")} is {totalkgs} kgs.",
                             ProcessTime = DateTime.Now.ToString(),
                             MsgType = "Outbox",
                             Replied = false,
