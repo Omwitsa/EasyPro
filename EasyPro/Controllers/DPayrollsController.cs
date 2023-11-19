@@ -354,8 +354,9 @@ namespace EasyPro.Controllers
                         credited = framersTotal * price.Price;
                         var daysInMonth = DateTime.DaysInMonth(period.EndDate.Year, period.EndDate.Month);
                         var averageSupplied = framersTotal / daysInMonth;
-                        if (price != null && averageSupplied >= price.SubsidyQty)
-                            subsidy += framersTotal * price.SubsidyPrice;
+                        
+                            if (price != null && averageSupplied >= price.SubsidyQty)
+                                subsidy += framersTotal * price.SubsidyPrice;
                     }
 
                     var grossPay = credited + subsidy;
@@ -1152,19 +1153,40 @@ namespace EasyPro.Controllers
 
                     var totalSupplied = p.Sum(s => s.Qsupplied);
                     decimal subsidy = 0;
+                    decimal selfkgspertransporter = 0;
                     if (StrValues.Slopes == sacco)
                     {
                         amount = totalSupplied * (decimal)transporter.Rate;
                         var daysInMonth = DateTime.DaysInMonth(period.EndDate.Year, period.EndDate.Month);
-                        var averageSupplied = totalSupplied / daysInMonth;
-                        transporter.TraderRate = transporter?.TraderRate ?? 0;
-                        // Assigning trader rate means the transporter is a trader
-                        if (transporter.TraderRate > 0)
+                        //var averageSupplied = totalSupplied / daysInMonth;
+                        //CONFIRM IF HAS THE TARGETED KGS TO BE GIVEN TRADER FEE IF TRANSPORTER
+                        if(transporter.SlopesIDNo != null)
                         {
-                            amount = totalSupplied * (decimal)transporter.TraderRate;
-                                if (price != null && averageSupplied >= price.SubsidyQty)
-                                    subsidy += totalSupplied * (decimal)transporter.Rate;
+                            var checkifgettraderfee = _context.DSuppliers.FirstOrDefault(m => m.Scode == sacco
+                            && m.IdNo.Trim() == transporter.SlopesIDNo.Trim() && m.IdNo != null);
+                            if (checkifgettraderfee != null)
+                            {
+                                var framersTotal = payrolls.FirstOrDefault(b => b.Sno.Trim().ToUpper().Equals(checkifgettraderfee.Sno.Trim().ToUpper()));
+                                selfkgspertransporter = (decimal)framersTotal.KgsSupplied;
+                            }
                         }
+                        
+                        transporter.TraderRate = transporter?.TraderRate ?? 0;
+                        if (selfkgspertransporter > 0)
+                        {
+                            amount = (totalSupplied - selfkgspertransporter) * (decimal)price.SubsidyPrice;
+                            subsidy += selfkgspertransporter * (decimal)transporter.Rate;
+                        }
+                       
+                        // Assigning trader rate means the transporter is a trader
+                        //if (transporter.TraderRate > 0)
+                        //{
+                            //amount = totalSupplied * (decimal)transporter.TraderRate;
+                            //amount = (totalSupplied - selfkgspertransporter) * (decimal)transporter.Rate;
+                            //if (price != null && averageSupplied >= price.SubsidyQty)
+                            //    subsidy += selfkgspertransporter * (decimal)transporter.TraderRate;
+                            //subsidy += (totalSupplied - selfkgspertransporter) * (decimal)transporter.Rate;
+                        //}
                     }
 
                     var intakeskGS = productIntakeslist.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && i.Branch == transporter.Tbranch).ToList()

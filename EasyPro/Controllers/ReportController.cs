@@ -614,7 +614,11 @@ namespace EasyPro.Controllers
                 var traderPayroll = dTransportersPayRolls.Where(t => tradersNos.Contains(t.Code.ToUpper()));
                 var totalTradersTrans = traderPayroll.Sum(t => t.GrossPay) - traderPayroll.Sum(t => t.Subsidy);
                 currentRow++;
-                worksheet.Cell(currentRow, 1).Value = "TRADERS TRANS";
+                worksheet.Cell(currentRow, 1).Value = "TRADERS TRANSP";
+                worksheet.Cell(currentRow, 2).Value = totalTradersTrans;
+
+                currentRow++;
+                worksheet.Cell(currentRow, 1).Value = "OTHER TRANSPORT";
                 worksheet.Cell(currentRow, 2).Value = totalTradersTrans;
 
                 var transporter = transporters.FirstOrDefault(t => t.CertNo == "KIAMARIGA");

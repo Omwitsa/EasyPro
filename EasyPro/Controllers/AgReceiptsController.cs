@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Math;
 using EasyPro.Constants;
 using EasyPro.IProvider;
 using EasyPro.Models;
@@ -319,7 +320,7 @@ namespace EasyPro.Controllers
             }
         }
         [HttpPost]
-        public async Task<JsonResult> Savepartial([FromBody] ProductIntakeVm productIntake)
+        public async Task<JsonResult> Savepartial([FromBody] ProductIntakeVm productIntake,string drac, string crac)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
@@ -352,9 +353,6 @@ namespace EasyPro.Controllers
             IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
             var suppliers = dSuppliers.Where(s => s.Sno.ToUpper().Equals(productIntake.Sno.ToUpper())
             && s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
-            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            //if (user.AccessLevel == AccessLevel.Branch)
-            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
 
             var supplier = suppliers.FirstOrDefault();
             if (supplier == null)
@@ -383,13 +381,15 @@ namespace EasyPro.Controllers
             productIntake.SaccoCode = sacco;
             productIntake.Zone = supplier?.Zone ?? "";
             productIntake.TransactionType = TransactionType.Deduction;
+            productIntake.DrAccNo = drac;
+            productIntake.CrAccNo = crac;
 
             var collection = new ProductIntake
             {
                 Sno = productIntake.Sno.Trim().ToUpper(),
                 TransDate = productIntake?.TransDate ?? DateTime.Today,
                 TransTime = productIntake.TransTime,
-                ProductType = "Store",
+                ProductType = "AGROVET",
                 Qsupplied = 0,
                 Ppu = 0,
                 CR = productIntake.CR,
@@ -402,15 +402,58 @@ namespace EasyPro.Controllers
                 Auditdatetime = productIntake.Auditdatetime,
                 Branch = saccoBranch,
                 SaccoCode = productIntake.SaccoCode,
-                DrAccNo = productIntake.DrAccNo,
-                CrAccNo = productIntake.CrAccNo,
+                DrAccNo = productIntake.CrAccNo,
+                CrAccNo = productIntake.DrAccNo,
                 Zone = productIntake.Zone,
                 MornEvening = productIntake.MornEvening
             };
             _context.ProductIntake.Add(collection);
-
+            
+            _context.AgReceipts.Add(new AgReceipt
+            {
+                RNo = "0",
+                PCode = "0",
+                TDate = productIntake.TransDate,
+                Amount = -1*productIntake.CR,
+                SNo = productIntake.Sno,
+                Qua = 0,
+                SBal = 0,
+                UserId = loggedInUser,
+                AuditDate = DateTime.Now,
+                Cash = true,
+                Sno1 = productIntake.Sno,
+                Transby = "",
+                Idno = "",
+                Mobile = "",
+                Remarks = "Store Cash Partial Payment",
+                Branch = saccoBranch,
+                Sprice = 0,
+                Bprice = 0,
+                Ai = 0,
+                Run = 0,
+                Paid = 0,
+                Completed = 0,
+                Salesrep = "",
+                saccocode = sacco,
+                Zone = "0",
+            });
+            _context.Gltransactions.Add(new Gltransaction
+            {
+                AuditId = loggedInUser,
+                TransDate = (DateTime)productIntake.TransDate,
+                Amount = (decimal)productIntake.CR,
+                AuditTime = DateTime.Now,
+                DocumentNo = DateTime.Now.ToString().Replace("/", "").Replace("-", ""),
+                Source = productIntake.Sno,
+                TransDescript = "Store Cash Partial Payment",
+                Transactionno = $"{loggedInUser}{DateTime.Now}",
+                SaccoCode = sacco,
+                DrAccNo = productIntake.CrAccNo,
+                CrAccNo = productIntake.DrAccNo,
+                Branch = saccoBranch
+            });
             _context.SaveChanges();
-            _notyf.Success("Intake saved successfully");
+            _notyf.Success("Partial Payment Made successfully");
 
             var intake = new ProductIntake
             {
@@ -937,15 +980,15 @@ namespace EasyPro.Controllers
 
             IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
             IQueryable<AgReceipt> agReceipts = _context.AgReceipts;
-            var getthename = dSuppliers.Where(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco ).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                getthename = getthename.Where(l => l.Branch == saccoBranch).ToList();
-
-            var todaysIntake = getthename;
-            var storeamount = agReceipts.Where(n => n.saccocode == sacco && n.Branch == saccoBranch && n.SNo.ToUpper().Equals(sno.ToUpper())
-            && n.TDate >= startDate && n.TDate <= endDate).Sum(s => s.Amount);
-            return Json(new { todaysIntake, storeamount });
+            var getthename = dSuppliers.FirstOrDefault(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco );
+            var getsales = agReceipts.Where(n => n.saccocode == sacco && n.Branch == saccoBranch && n.SNo.ToUpper().Equals(sno.ToUpper())
+            && n.TDate >= startDate && n.TDate <= endDate);
+            
+            var getgl = getsales.FirstOrDefault();
+            var getgls = _context.Gltransactions.FirstOrDefault(b => b.SaccoCode == sacco && b.TransDate >= startDate && b.TransDate <= endDate
+            && b.TransDescript == getgl.Remarks);
+            var storeamount = getsales.Sum(s => s.Amount);
+            return Json(new { getthename, storeamount, getgls });
         }
 
         public async Task<IActionResult> CreatePartialPay()
@@ -979,6 +1022,7 @@ namespace EasyPro.Controllers
 
             return View();
         }
+
         // GET: AgReceipts/Create
         public async Task<IActionResult> Create()
         {
@@ -998,7 +1042,7 @@ namespace EasyPro.Controllers
 
             var receiptNo = receipts.FirstOrDefault()?.RNo ?? "0";
 
-            double num = Convert.ToInt32(receiptNo) ;
+            double num = GetRNo(receiptNo); 
             var receipt = new AgReceipt
             {
                 RNo = "" + (num + 1),
@@ -1041,6 +1085,20 @@ namespace EasyPro.Controllers
                 Employees = staff
             };
             return View(agrovetsales);
+        }
+
+        private double GetRNo(string receiptNo)
+        {
+            int receiptNo1 =0;
+            try
+            {
+               receiptNo1 = Convert.ToInt32(receiptNo);
+            }
+            catch
+            {
+                receiptNo1 = 0;
+            }
+           return receiptNo1;
         }
 
         [HttpPost]
@@ -1135,7 +1193,7 @@ namespace EasyPro.Controllers
                 .Select(b => b.RNo).ToListAsync();
 
             var selectedno = count.FirstOrDefault();
-            double num = Convert.ToInt32(selectedno);
+            double num = GetRNo(selectedno);
 
             var receipt = new AgReceipt
             {

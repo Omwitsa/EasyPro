@@ -467,7 +467,7 @@
                 var selectProducts = products.filter(p => p.PName.trim() === selectVal);
                 if (selectProducts[0]) {
                     $("#pcode").val(selectProducts[0].PCode);
-                    $("#qnty").val("-1");
+                    $("#qnty").val("1");
                     $("#Amnttopay").val("0");
                     $("#ttolpaid").val("0");
                     $("#balance").val("0");
@@ -622,9 +622,9 @@
             });
             function checkkgs() {
                 var qty = parseFloat($("#qnty").val());
-                if (qty >= 0) {
-                    alert("Sorry, Quantity should be less than 0");
-                    $("#qnty").val(-1);
+                if (qty <= 0) {
+                    alert("Sorry, Quantity should not be less than 0");
+                    $("#qnty").val(1);
                     return false;
                 }
                 return true;

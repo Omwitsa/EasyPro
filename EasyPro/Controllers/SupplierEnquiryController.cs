@@ -227,8 +227,8 @@ namespace EasyPro.Controllers
                 intakes.Where(K => K.TransactionType == TransactionType.Deduction).Sum(s => s.CR));
 
            
-            if (user.AccessLevel == AccessLevel.Branch)
-                intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    intakes = intakes.Where(i => i.Branch == saccobranch).ToList();
             if (!string.IsNullOrEmpty(producttype))
                 intakes = intakes.Where(i => i.ProductType.ToUpper().Equals(producttype.ToUpper())).ToList();
             decimal? bal = 0;
@@ -308,9 +308,9 @@ namespace EasyPro.Controllers
             var intakeslist = productIntakes.Where(i => i.Sno.ToUpper().Equals(sno.ToUpper()) && i.SaccoCode.ToUpper()
            .Equals(sacco.ToUpper()) && (i.TransDate >= date1 && i.TransDate <= date2)).ToList();
             
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                intakeslist = intakeslist.Where(i => i.Branch == saccobranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    intakeslist = intakeslist.Where(i => i.Branch == saccobranch).ToList();
 
             var intakes = intakeslist.OrderByDescending(n => n.TransDate).ToList();
             var grosspay = (intakes.Where(K => (K.Description == "Transport" || K.Description == "SUBSIDY")).Sum(s => s.CR) - intakes.Where(K => (K.Description == "Transport" || K.Description == "SUBSIDY")).Sum(s => s.DR));
@@ -399,11 +399,11 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
             var shares = _context.DShares.Where(s => s.Sno.ToUpper().Equals(sno.ToUpper()) && s.SaccoCode == sacco).ToList();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                shares = shares.Where(s => s.Branch == saccobranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    shares = shares.Where(s => s.Branch == saccobranch).ToList();
 
-                shares = shares.OrderByDescending(s => s.TransDate).ToList();
+            shares = shares.OrderByDescending(s => s.TransDate).ToList();
 
             return Json(shares);
         }

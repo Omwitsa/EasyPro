@@ -42,6 +42,6 @@ namespace EasyPro.Models
         public string Freezed { get; set; }
         public string PaymenMode { get; set; }
         public string Route { get; set; }
-        
+        public string SlopesIDNo { get; set; }
     }
 }

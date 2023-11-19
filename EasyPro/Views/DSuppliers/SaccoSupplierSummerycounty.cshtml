@@ -12,7 +12,7 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label asp-for="County" class="control-label"></label>
-                            <select id="showtable" asp-for="County" class="form-control" asp-items="@ViewBag.counties">
+                            <select id="showtable" asp-for="County" class="chzn-select form-control" asp-items="@ViewBag.counties">
                                 <option value="" disabled selected hidden>Please Choose...</option>
                             </select>
                             <span asp-validation-for="County" class="text-danger"></span>
@@ -84,6 +84,7 @@
     }
     <script type="text/javascript">
         $(function () {
+            $(".chzn-select").chosen();
             $("#showtable").on('change', function () {
                 getSelectedDateIntakes1();
             });

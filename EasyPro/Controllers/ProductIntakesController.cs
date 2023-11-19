@@ -611,8 +611,8 @@ namespace EasyPro.Controllers
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
 
             var codes = transporters.Select(t => t.CertNo).ToList();
             ViewBag.codes = new SelectList(codes);
@@ -1891,6 +1891,7 @@ namespace EasyPro.Controllers
                 productIntake.TransactionType = TransactionType.Deduction;
                 productIntake.TransDate = productIntake.TransDate;
                 productIntake.SaccoCode = sacco;
+                productIntake.Auditdatetime = DateTime.Now;
                 productIntake.Qsupplied = 0;
                 if (productIntake.DR > 0)
                 {
@@ -2034,6 +2035,7 @@ namespace EasyPro.Controllers
                 productIntake.SaccoCode = sacco;
                 productIntake.Balance = utilities.GetBalance(productIntake);
                 productIntake.Branch = productIntake.Branch;
+                productIntake.Auditdatetime = DateTime.Now;
                 _context.Add(productIntake);
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();

@@ -84,11 +84,13 @@ namespace EasyPro.Controllers
                 if (string.IsNullOrEmpty(loggedInUser))
                     return Redirect("~/");
             var branches = _context.DBranch.Where(v=>v.Bcode == sacco).ToList().Select(n=>n.Bname).ToList();
+            var shares = _context.DShares.Where(v=>v.SaccoCode == sacco).ToList().Select(n=>n.Type).Distinct().ToList();
             ViewBag.branches = new SelectList(branches, ""); 
+            ViewBag.shares = new SelectList(shares, ""); 
             return View();
         }
         [HttpPost]
-        public JsonResult getsharesreport(DateTime date1, string branch)
+        public JsonResult getsharesreport(DateTime date1, string branch, string sharetype)
         {
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -99,7 +101,7 @@ namespace EasyPro.Controllers
             IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
             IQueryable<DShare> dShares1 = _context.DShares;
             var dsupplier = dSuppliers.Where(n => n.Scode == sacco).ToList();
-            var dShares = dShares1.Where(i => i.SaccoCode==sacco && i.TransDate <= date1).ToList();
+            var dShares = dShares1.Where(i => i.SaccoCode==sacco && i.TransDate <= date1 && i.Type == sharetype).ToList();
             if(branch != "ALL Branches")
                 dShares = dShares.Where(h=>h.Branch ==  branch).ToList();
 

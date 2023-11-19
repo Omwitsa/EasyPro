@@ -55,6 +55,10 @@
                     <input asp-for="CR" class="form-control" required />
                     <span asp-validation-for="CR" class="text-danger"></span>
                 </div>
+                <div class="form-group">
+                    <input id="dr" asp-for="DrAccNo" class="form-control" hidden />
+                    <input id="crr" asp-for="CrAccNo" class="form-control" hidden />
+                </div>
             </div>
 
         </div>
@@ -92,11 +96,16 @@
                         url: "SelectedName2?sno=" + sno + "&date=" + date ,
                         contentType: 'application/json',
                         success: function (response) {
-                            var selectsuppliers = response.todaysIntake;
+                            var selectsuppliers = response.getthename;
+                            var getgl = response.getgls;
                             if (selectsuppliers) {
                                 $("#name").val(selectsuppliers.Names);
                                 $("#idno").val(selectsuppliers.IdNo);
                                 $("#phno").val(selectsuppliers.PhoneNo);
+                            }
+                            if (getgl) {
+                                $("#dr").val(getgl.DrAccNo);
+                                $("#crr").val(getgl.CrAccNo);
                             }
                             var val = response.storeamount;
                             $("#amt").val(val);
@@ -121,6 +130,8 @@
             });
             $('#save').on('click', function () {
                 var print = $('#print').is(':checked');
+                var drac = $("#dr").val();
+                var crac= $("#crr").val();
                 var intake = {
                     sno: $("#sno").val(),
                     transDate: $("#transDate").val(),
@@ -130,7 +141,7 @@
                 };
                 $.ajax({
                     type: 'POST',
-                    url: "Savepartial",
+                    url: "Savepartial?drac=" + drac + "&crac=" + crac,
                     contentType: 'application/json',
                     data: JSON.stringify(intake),
                     success: function (response) {

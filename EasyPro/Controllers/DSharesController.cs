@@ -95,10 +95,12 @@ namespace EasyPro.Controllers
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var auditId = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             dShare.Period = DateTime.Today.Month.ToString();
             dShare.AuditDateTime = DateTime.Now;
             dShare.SaccoCode = sacco;
+            dShare.Branch = saccobranch;
             dShare.AuditId = auditId;
             GetInitialValues();
             IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
@@ -168,21 +170,22 @@ namespace EasyPro.Controllers
                     Branch = dShare.Branch,
                 });
 
-                _context.SaveChanges();
+                //_context.SaveChanges();
 
-                //var gltransaction = new Gltransaction
-                //{
-                //    AuditId = auditId,
-                //    TransDate = DateTime.Today,
-                //    Amount = dShare.Amount,
-                //    AuditTime = DateTime.Now,
-                //    Source = "Shares",
-                //    TransDescript = "Shares",
-                //    Transactionno = $"{auditId}{DateTime.Now}",
-                //    SaccoCode = sacco,
-                //    DrAccNo = dDcode.Dedaccno,
-                //    CrAccNo = dDcode.Contraacc,
-                //};
+                _context.Gltransactions.Add(new Gltransaction
+                {
+                    AuditId = auditId,
+                    TransDate = DateTime.Today,
+                    Amount = dShare.Amount,
+                    AuditTime = DateTime.Now,
+                    Source = "Shares",
+                    TransDescript = "Shares",
+                    Transactionno = $"{auditId}{DateTime.Now}",
+                    SaccoCode = sacco,
+                    Branch = saccobranch,
+                    DrAccNo = dDcode.Dedaccno,
+                    CrAccNo = dDcode.Contraacc,
+                });
 
                 //if (dShare.Amount < 0)
                 //{
@@ -192,7 +195,7 @@ namespace EasyPro.Controllers
                 //}
                 //_context.Gltransactions.Add(gltransaction);
 
-                //_context.SaveChanges();
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             return View(dShare);

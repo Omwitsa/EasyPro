@@ -42,8 +42,15 @@
         <div class="form-element-list mg-t-30">
             <form asp-action="SharesIndex">
                 <div class="row">
-                    <div class="col-sm-9 col-xs-12" id="zone1">
+                    <div class="col-sm-6 col-xs-12" id="zone1">
                         <h1 style="text-align-last:center">Shares Report</h1>
+                    </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Share Type</label>
+                            <select id="shares" class="chzn-select form-control" asp-items="@ViewBag.shares">
+                            </select>
+                        </div>
                     </div>
                     <div class="col-sm-3 col-xs-12">
                         <div class="form-group">
@@ -57,7 +64,7 @@
                 <div class="row">
                     <div class="col-sm-2 col-xs-12">
                         <div class="form-group">
-                            <label class="control-label">DateFrom</label>
+                            <label class="control-label">Date To</label>
                             <input id="firstdate" type="date" class="form-control" />
                         </div>
                     </div>
@@ -141,12 +148,13 @@
             function getsharesreport() {
                 $('#intakes').html("");
                 $("#amount").val(0);
+                var shares = $("#shares").val();
                 var branch = $("#branch").val();
                 var date1 = $("#firstdate").val();
                 $.ajax(
                     {
                         type: 'POST',
-                        url: "getsharesreport?date1=" + date1 + "&branch=" + branch,
+                        url: "getsharesreport?date1=" + date1 + "&branch=" + branch + "&sharetype=" + shares,
                         contentType: 'application/json',
                         success: function (response) {
                             populateIntake(response)
