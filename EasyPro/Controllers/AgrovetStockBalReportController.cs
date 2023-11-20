@@ -63,6 +63,7 @@ namespace EasyPro.Controllers
         [HttpPost]
         public JsonResult SuppliedProducts(DateTime date1, DateTime date2, string product)
         {
+            product = "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
