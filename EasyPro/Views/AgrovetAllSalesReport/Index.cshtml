@@ -551,7 +551,7 @@
                                                 <td>${i.Remarks}</td>
                                                 <td>'${i.SNo}</td>
                                                 <td>${quntity}</td>
-                                                <td>${i.Amount}</td>
+                                                <td>${i.Amount.toLocaleString()}</td>
                                                 <td>${i.Transby}</td>
                                                 <td>${i.UserId}</td>
                                                 <td>${i.Branch}</td>
@@ -560,11 +560,11 @@
                 });
                 itemTableRows.push(`<tr>
                                             <td colspan="5"><h3>Total</h3></td>
-                                                <td>${totalquntity}</td>
-                                                <td>${Tselling}</td>
+                                            <td>${totalquntity.toLocaleString()}</td>
+                                            <td>${Tselling.toLocaleString()}</td>
                                             </tr>`);
-                $('#Tselling').val(Tselling);
-                $('#totalquntity').val(totalquntity);
+                $('#Tselling').val(Tselling.toLocaleString());
+                $('#totalquntity').val(totalquntity.toLocaleString());
                 $('#tbl_rep_details').html(itemTableRows);
             }
 
@@ -591,16 +591,16 @@
                                                 <td>${i.product}</td>
                                                 <td>${i.productName}</td>
                                                 <td>${quntity}</td>
-                                                <td>${i.amount}</td>
+                                                <td>${i.amount.toLocaleString()}</td>
                                             </tr>`)
                 });
                 itemTableRows.push(`<tr>
                                             <td colspan="3"><h3>Total</h3></td>
-                                                <td>${totalquntity}</td>
-                                                <td>${Tselling}</td>
+                                            <td>${totalquntity.toLocaleString()}</td>
+                                            <td>${Tselling.toLocaleString()}</td>
                                             </tr>`);
-                $('#Tsell').val(Tselling);
-                $('#totquntity').val(totalquntity);
+                $('#Tsell').val(Tselling.toLocaleString());
+                $('#totquntity').val(totalquntity.toLocaleString());
                 $('#tbl_sum_details').html(itemTableRows);
             }
 
@@ -615,16 +615,16 @@
                     let dd1 = new Date(i.date).toLocaleDateString();
                     itemTableRows.push(`<tr>
                                                 <td>${dd1}</td>
-                                                <td>${i.Checkoff}</td>
-                                                <td>${i.cash}</td>
-                                                <td>${i.Total}</td>
+                                                <td>${i.Checkoff.toLocaleString()}</td>
+                                                <td>${i.cash.toLocaleString()}</td>
+                                                <td>${i.Total.toLocaleString()}</td>
                                             </tr>`)
                 });
                 itemTableRows.push(`< tr >
                                               <td colspan="3"><h5>Total Sales:</h5></td>
-                                               <td>${Tselling}</td>
+                                              <td>${Tselling.toLocaleString()}</td>
                                           </tr >`);
-                $('#Tselldetailed').val(Tselling);
+                $('#Tselldetailed').val(Tselling.toLocaleString());
                 $('#tbl_summarydetailed').html(itemTableRows);
             }
         });

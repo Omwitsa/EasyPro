@@ -407,7 +407,7 @@
                                     <td>${i.Remarks}</td>
                                     <td>'${i.SNo}</td>
                                     <td>${quntity}</td>
-                                    <td>${i.Amount}</td>
+                                    <td>${i.Amount.toLocaleString()}</td>
                                     <td>${i.Transby}</td>
                                     <td>${i.UserId}</td>
                                     <td>${i.Branch}</td>
@@ -417,11 +417,11 @@
                 });
                 itemTableRows.push(`<tr>
                                     <td colspan="5"><h3>Total</h3></td>
-                                        <td>${totalquntity}</td>
-                                        <td>${Tselling}</td>
+                                    <td>${totalquntity.toLocaleString()}</td>
+                                    <td>${Tselling.toLocaleString()}</td>
                                     </tr>`);
-                $('#Tselling').val(Tselling);
-                $('#totalquntity').val(totalquntity);
+                $('#Tselling').val(Tselling.toLocaleString());
+                $('#totalquntity').val(totalquntity.toLocaleString());
                 $('#tbl_rep_details').html(itemTableRows);
             }
 
@@ -449,16 +449,16 @@
                         <td>${i.productName}</td>
                         <td>'${i.sno}</td>
                         <td>${quntity}</td>
-                        <td>${i.amount}</td>
+                        <td>${i.amount.toLocaleString()}</td>
                     </tr>`)
                 });
                 itemTableRows.push(`<tr>
                                     <td colspan="4"><h3>Total</h3></td>
-                                        <td>${totalquntity}</td>
-                                        <td>${Tselling}</td>
+                                    <td>${totalquntity.toLocaleString()}</td>
+                                    <td>${Tselling.toLocaleString()}</td>
                                     </tr>`);
-                $('#Tselling').val(Tselling);
-                $('#Tsell').val(Tselling);
+                $('#Tselling').val(Tselling.toLocaleString());
+                $('#Tsell').val(Tselling.toLocaleString());
                 $('#totquntity').val(totalquntity);
                 $('#tbl_sum_details').html(itemTableRows);
             }

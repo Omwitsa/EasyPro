@@ -13,6 +13,7 @@ using System;
 using ClosedXML.Excel;
 using System.IO;
 using NPOI.SS.Formula.Functions;
+using static ClosedXML.Excel.XLPredefinedFormat;
 
 namespace EasyPro.Controllers
 {
@@ -45,7 +46,8 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
                 transporters = transporters.Where(t => t.Tbranch == saccoBranch);
-            return View(await transporters.ToListAsync());
+
+            return View(transporters.ToList());
         }
 
         // GET: DTransporters/Details/5
@@ -79,6 +81,21 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             GetInitialValues();
             return View();
+        }
+        [HttpPost]
+        public JsonResult selectedname(string sno)
+        {
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var supplier = "";
+            var suppliern = _context.DSuppliers.FirstOrDefault(n=>n.Sno.ToUpper() == sno.ToUpper() && n.Scode == sacco);
+            if(suppliern != null)
+            {
+              supplier = suppliern.Names;
+            }
+            return Json(supplier);
         }
         private void GetInitialValues()
         {
@@ -136,7 +153,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode,TraderRate")] DTransporter dTransporter)
+        public async Task<IActionResult> Create([Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode,TraderRate,SlopesIDNo")] DTransporter dTransporter)
         {
             try
             {
@@ -175,6 +192,8 @@ namespace EasyPro.Controllers
                 {
                     dTransporter.ParentT = sacco;
                     dTransporter.Tbranch = saccoBranch;
+                    dTransporter.Auditid = loggedInUser;
+                    //dTransporter.SlopesIDNo = saccoBranch;
                     _context.Add(dTransporter);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Transporter saved successfully");
@@ -295,7 +314,7 @@ namespace EasyPro.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode,TraderRate")] DTransporter dTransporter)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,TransCode,TransName,CertNo,Locations,TregDate,Email,Phoneno,Town,Address,Subsidy,Accno,Bcode,Bbranch,Active,Tbranch,Auditid,Auditdatetime,Isfrate,Rate,Canno,Tt,ParentT,Ttrate,Br,Freezed,PaymenMode,TraderRate,SlopesIDNo")] DTransporter dTransporter)
         {
             dTransporter.Rate = dTransporter?.Rate ?? 0;
             dTransporter.TraderRate = dTransporter?.TraderRate ?? 0;
@@ -321,6 +340,8 @@ namespace EasyPro.Controllers
                     dTransporter.Freezed = "0";
                     dTransporter.ParentT = sacco;
                     dTransporter.Tbranch = saccobranch;
+                    dTransporter.Auditid = loggedInUser;
+                    dTransporter.Auditdatetime = "0";
                     _context.Update(dTransporter);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Transporter Edited successfully");

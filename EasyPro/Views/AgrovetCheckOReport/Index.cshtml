@@ -85,6 +85,7 @@
                             <ul class="nav nav-tabs">
                                 <li class="active"><a data-toggle="tab" href="#checkoffReport">Report</a></li>
                                 <li><a data-toggle="tab" href="#checkoffSummary">Summary</a></li>
+                                <li><a data-toggle="tab" href="#checkoffSummarydeduction">Summary Payements</a></li>
                             </ul>
                             <div class="tab-content tab-custom-st">
                                 <div id="checkoffReport" class="tab-pane fade in active">
@@ -208,6 +209,60 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div id="checkoffSummarydeduction" class="tab-pane fade">
+                                    <div class="tab-ctn">
+                                        <div class="normal-table-list mg-t-30">
+                                            <div class="row">
+                                                <div class="col-sm-4 col-xs-12">
+                                                    <a id="showSummery_deduction" class="btn btn-warning">Show</a>
+                                                </div>
+                                                <div class="col-sm-4 col-xs-12">
+                                                    <a id="excel_summery_deduction" class="btn btn-success">Export Excel</a>
+                                                </div>
+                                                <div class="col-sm-4 col-xs-12">
+                                                    <label class="control-label">--</label>
+                                                    <a id="print_report_deduction" class="btn btn-success w3-circle">Print Report</a>
+                                                </div>
+                                            </div>
+
+                                            <div class="bsc-tbl-hvr table-border-style">
+                                                <div class="table-responsive">
+                                                    <div class="divScroll">
+                                                        <table class="table table-hover" id="tb_check_off_summary_deduction">
+                                                            <tr id="com5"><th></th><th colspan="4" id="company5"></th></tr>
+                                                            <tr id="htitl5"><th></th> <th colspan="4"> <strong>STORE CHECKOFF SALES DETAILED REPORT</strong></th></tr>
+                                                            <tr id="hstartd5"><th></th><th colspan="4" id="sema5"></th>  </tr>
+                                                            <tr id="huser5"><th></th><th colspan="4" hidden id="user5"></th>  </tr>
+                                                            <tr id="companyname5"><th></th><th colspan="4">Amtech Technologies ltd</th>  </tr>
+                                                            <tr id="her5"><th colspan="7"><hr /></th></tr>
+                                                            <tr>
+                                                                <th>SNo</th>
+                                                                <th>Name</th>
+                                                                <th>Sales</th>
+                                                                <th>Partial Payment</th>
+                                                                <th>Balance</th>
+                                                            </tr>
+                                                            <tbody id="check_off_sum_details_deduction">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-4 col-xs-12">
+                                                        <label class="control-label">Total Sales</label>
+                                                        <input value="0" id="Tsales" class="form-control" readonly />
+                                                    </div>
+                                                    <div class="col-sm-4 col-xs-12">
+                                                        <label class="control-label">Partial Payment</label>
+                                                        <input value="0" id="partialpayment" class="form-control" readonly />
+                                                    </div>
+                                                    <div class="col-sm-4 col-xs-12">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -240,8 +295,15 @@
             $("#company1").hide();
             $("#company").hide();
             $("#her1").hide();
+            $("#com5").hide();
+            $("#htitl5").hide();
+            $("#hstartd5").hide();
+            $("#huser5").hide();
+            $("#company5").hide();
+            $("#her5").hide();
             
             $("#companyname1").hide();
+            $("#companyname5").hide();
 
             $("#showtable").click(function () {
                 var startDate = $("#firstdate").val();
@@ -315,6 +377,26 @@
                 itemTableRows2.push(`${usa}`);
                 $('#user1').html(itemTableRows2);
             }
+             function heading5() {
+                var company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = $("#firstdate").val();
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#enddate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = "FROM  :" + date10 + "  TO  :" + date20;
+                var usa = "Printed By  :" + user;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array();
+                let itemTableRows2 = new Array();
+                itemTableRow.push(`${company}`);
+                $('#company5').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema5').html(itemTableRows1);
+                itemTableRows2.push(`${usa}`);
+                $('#user5').html(itemTableRows2);
+            }
 
             $('#print_report').on('click', function () {
                 $("#com").show();
@@ -356,11 +438,38 @@
                 $("#her1").hide();
                 $("#companyname1").hide();
             });
+            $('#print_report_deduction').on('click', function () {
+                $("#com5").show();
+                $("#htitl5").show();
+                $("#hstartd5").show();
+                $("#huser5").show();
+                $("#her5").show();
+                $("#companyname5").show();
+                heading5();
+                var divToPrint = document.getElementById("tb_check_off_summary_deduction");
+                newWin = window.open("");
+                newWin.document.write(divToPrint.outerHTML);
+                newWin.print();
+                newWin.close();
+                $("#com5").hide();
+                $("#htitl5").hide();
+                $("#hstartd5").hide();
+                $("#huser5").hide();
+                $("#her5").hide();
+                $("#companyname5").hide();
+            });
+            
             $('#excel_summery').on('click', function () {
 
                 let date = new Date().toLocaleDateString('en-GB'); //
                 let fileName = `Checkoff Summery ${date}`;
                 $('#tb_check_off_summary').table2excel({ filename: fileName, fileext: ".xls" });
+            });
+            $('#excel_summery_deduction').on('click', function () {
+
+                let date = new Date().toLocaleDateString('en-GB'); //
+                let fileName = `Checkoff Detailed Summery ${date}`;
+                $('#tb_check_off_summary_deduction').table2excel({ filename: fileName, fileext: ".xls" });
             });
 
             $("#showSummery").click(function () {
@@ -378,6 +487,28 @@
                         success: function (response) {
                             response = response ? response : []
                             populateSummary(response)
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+                        // ...
+                    });
+            });
+            $("#showSummery_deduction").click(function () {
+                var startDate = $("#firstdate").val();
+                var endDate = $("#enddate").val();
+                var salestype = $("#salestype").val();
+                var product = $("#product").val() ? $("#product").val() : "";
+                var sno = $("#Sno").val() ? $("#Sno").val() : "";
+                debugger
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: `checkOffSummarydDeductions?startDate=${startDate}&endDate=${endDate}&product=${product}&sno=${sno}&salestype=${salestype}`,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            response = response ? response : []
+                            populateSummaryDeduction(response)
                         },
                         failure: function (response) {
                         }
@@ -410,7 +541,7 @@
                             <td>${i.Remarks}</td>
                             <td>'${i.SNo}</td>
                             <td>${quntity}</td>
-                            <td>${i.Amount}</td>
+                            <td>${i.Amount.toLocaleString()}</td>
                             <td>${i.Transby}</td>
                             <td>${i.UserId}</td>
                             <td>${i.Branch}</td>
@@ -420,11 +551,11 @@
                 });
                 itemTableRows.push(`<tr>
                                     <td colspan="5"><h3>Total</h3></td>
-                                        <td>${totalquntity}</td>
-                                        <td>${Tselling}</td>
+                                    <td>${totalquntity.toLocaleString()}</td>
+                                    <td>${Tselling.toLocaleString()}</td>
                                     </tr>`);
-                $('#Tselling').val(Tselling);
-                $('#totalquntity').val(totalquntity);
+                $('#Tselling').val(Tselling.toLocaleString());
+                $('#totalquntity').val(totalquntity.toLocaleString());
                 $('#check_off_rep_details').html(itemTableRows);
             }
 
@@ -452,17 +583,45 @@
                         <td>${i.productName}</td>
                         <td>'${i.sno}</td>
                         <td>${quntity}</td>
-                        <td>${i.amount}</td>
+                        <td>${i.amount.toLocaleString()}</td>
                     </tr>`)
                 });
                 itemTableRows.push(`<tr>
                                             <td colspan="5"><h3>Total</h3></td>
-                                                <td>${totalquntity}</td>
-                                                <td>${Tselling}</td>
+                                            <td>${totalquntity.toLocaleString()}</td>
+                                            <td>${Tselling.toLocaleString()}</td>
                                             </tr>`);
-                $('#Tsell').val(Tselling);
-                $('#totquntity').val(totalquntity);
+                $('#Tsell').val(Tselling.toLocaleString());
+                $('#totquntity').val(totalquntity.toLocaleString());
                 $('#check_off_sum_details').html(itemTableRows);
+            }
+
+            function populateSummaryDeduction(summary) {
+                let itemTableRows = new Array();
+                $('#Tsales').val('0');
+                $('#partialpayment').val('0');
+                let partialpayment = 0;
+                let Tsales = 0;
+                summary.forEach(i => {
+                    Tsales += i.sales;
+                    partialpayment += i.partialpayment;
+                    itemTableRows.push(`<tr>
+                                <td>${i.sno}</td>
+                                <td>${i.name}</td>
+                                <td>${i.sales.toLocaleString()}</td>
+                                <td>${i.partialpayment.toLocaleString()}</td>
+                                <td>${i.balance.toLocaleString()}</td>
+                            </tr>`)
+                });
+                itemTableRows.push(`<tr>
+                                        <td colspan="2"><h3>Total</h3></td>
+                                        <td>${Tsales.toLocaleString()}</td>
+                                        <td>${partialpayment.toLocaleString()}</td>
+                                        <td>${(Tsales - partialpayment).toLocaleString()}</td>
+                                    </tr>`);
+                $('#Tsales').val(Tsales.toLocaleString());
+                $('#partialpayment').val(partialpayment.toLocaleString());
+                $('#check_off_sum_details_deduction').html(itemTableRows);
             }
         });
 </script>

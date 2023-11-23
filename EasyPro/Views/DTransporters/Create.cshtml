@@ -128,7 +128,7 @@
                 @if (ViewBag.isSlopes)
                 {
                     <div class="row">
-                        <div class="col-sm-3 col-xs-12">
+                        <div class="col-sm-2 col-xs-12">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="form-group">
                                     <label class="control-label">
@@ -138,12 +138,29 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-3 col-xs-12" id="trader_rate">
+                        <div class="col-sm-2 col-xs-12" id="trader_rate">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
                                     <label class="control-label">Trader Rate</label>
                                     <input asp-for="TraderRate" value="0" autocomplete="off" class="form-control" />
                                     <span asp-validation-for="TraderRate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 col-xs-12" id="trader_mno">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Member No.</label>
+                                    <input id="mno" asp-for="SlopesIDNo" value="0" autocomplete="off" class="form-control" />
+                                    <span asp-validation-for="SlopesIDNo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 col-xs-12" id="trader_name">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Name.</label>
+                                    <input id="name1" class="form-control"/>
                                 </div>
                             </div>
                         </div>
@@ -199,6 +216,8 @@
     $(function () {
         $('#trans_rate').hide();
         $('#trader_rate').hide();
+        $('#trader_mno').hide();
+        $('#trader_name').hide();
         $('#societyPay').click(function () {
             if ($(this).is(':checked')) {
                 $('#trans_rate').show();
@@ -209,11 +228,39 @@
         $('#trader').click(function () {
             if ($(this).is(':checked')) {
                 $('#trader_rate').show();
+                $('#trader_mno').show();
+                $('#trader_name').show();
             } else {
                 $('#trader_rate').hide();
+                $('#trader_mno').hide();
+                $('#trader_name').hide();
             }
         });
         $('#route').val('');
+            $('#mno').on('keyup', function () {
+                getSelectedDateIntakes();
+            });
+            function getSelectedDateIntakes() {
+                
+                var sno = $('#mno').val();
+                sno = sno ? sno : "";
+
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: "selectedname?sno=" + sno,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#name1").val(response);
+                        },
+                        failure: function (response) {
+                            alert("Sorry, Supplier does not exist.");
+                            $('#mno').val("");
+                        }
+                    }).then(function () {
+
+                    });
+            }
         var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
         if (checkiftoenable === 0) {
             $('#zone1').hide();

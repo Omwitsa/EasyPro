@@ -7073,10 +7073,10 @@ namespace EasyPro.Models
                     .IsUnicode(false);
 
                 entity.Property(e => e.Auditdatetime)
-                    .HasMaxLength(50)
+                    .IsRequired()
+                    .HasMaxLength(255)
                     .IsUnicode(false)
-                    .HasColumnName("auditdatetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasColumnName("auditdatetime");
 
                 entity.Property(e => e.Auditid)
                     .HasMaxLength(50)

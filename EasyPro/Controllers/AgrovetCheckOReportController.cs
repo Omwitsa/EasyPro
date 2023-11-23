@@ -1,11 +1,14 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Wordprocessing;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
+using EasyPro.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.EJ2.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,6 +107,57 @@ namespace EasyPro.Controllers
                 });
             });
           
+            return Json(summary);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> checkOffSummarydDeductions(DateTime startDate, DateTime endDate, string product, string sno, int salestype)
+        {
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
+            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            var supplier = await _context.DSuppliers.Where(n => n.Scode == sacco).ToListAsync();
+
+            var Salescheckoff = await GetAgReceipts(startDate, endDate, product, sno, salestype);
+            Salescheckoff = Salescheckoff.Where(i => i.SNo.ToUpper() != "CASH" && i.SNo.ToUpper() != "STAFF").OrderByDescending(i => i.TDate).ToList();
+            var groupedReports = Salescheckoff.GroupBy(i => i.SNo).ToList();
+
+            IQueryable<DTransporter> dTransporters = _context.DTransporters;
+            var summary = new List<dynamic>();
+            groupedReports.ForEach(i =>
+            {
+                var getfirst = i.FirstOrDefault().SNo;
+                SuppliersVM suppliernames = new SuppliersVM();
+                var suppliername = supplier.FirstOrDefault(c=>  c.Sno.ToUpper().Trim() == getfirst.ToUpper().Trim());
+                if(suppliername != null)
+                {
+                    suppliernames.Name = suppliername.Names;
+                    suppliernames.SNo = suppliername.Sno;
+                }
+                var transportersname = dTransporters.FirstOrDefault(v => v.ParentT == sacco &&  v.TransCode.ToUpper().Trim() == getfirst.ToUpper().Trim());
+                if(transportersname != null)
+                {
+                    suppliernames.SNo = transportersname.TransCode;
+                    suppliernames.Name = transportersname.TransName;
+                }
+
+                if(suppliernames.SNo == null)
+                {
+
+                }
+                var salesamount = i.Where(b => b.PCode != "0").Sum(r => r.Amount);
+                var partialpaymentincase = i.Where(b => b.PCode == "0").Sum(r => r.Amount);
+                summary.Add(new
+                {
+                    sno = suppliernames.SNo,
+                    name = suppliernames.Name,
+                    sales = salesamount,
+                    partialpayment =  partialpaymentincase,
+                    balance =  salesamount - partialpaymentincase,
+                });
+            });
+
             return Json(summary);
         }
 

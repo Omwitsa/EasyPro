@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.EJ2.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -120,6 +121,9 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly provide records");
                     return Json("");
                 }
+
+                
+
                 var cash = intakes.FirstOrDefault()?.Sno ?? "";
                 if (!isCash && cash == "")
                 {
@@ -1394,6 +1398,31 @@ namespace EasyPro.Controllers
             return Json(product);
         }
 
+        [HttpGet]
+        public JsonResult Checkifexistofsamereceipt(string pname, DateTime TransDate)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            bool results = true;
+            DateTime startDet = new DateTime(TransDate.Year, TransDate.Month, 1);
+            DateTime endtDet = startDet.AddMonths(1).AddDays(-1);
+
+            var checkifreceiptused = _context.AgReceipts.Where(b => b.RNo.ToUpper() == pname.ToUpper() && b.TDate >= startDet
+                 && b.TDate <= endtDet && b.saccocode == sacco );
+            if (StrValues.Slopes == sacco)
+            {
+                checkifreceiptused = checkifreceiptused.Where(n => n.Branch == saccobranch);
+            }
+            var checkifreceiptuse = checkifreceiptused.FirstOrDefault();
+            if (checkifreceiptuse == null)
+            {
+                results = false;
+            }
+            return Json(results);
+        }
         [HttpPost]
         public JsonResult getsalesforthis(string InvoiceNo, DateTime TDate)
         {

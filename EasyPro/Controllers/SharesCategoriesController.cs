@@ -103,7 +103,7 @@ namespace EasyPro.Controllers
             var dsupplier = dSuppliers.Where(n => n.Scode == sacco).ToList();
             var dShares = dShares1.Where(i => i.SaccoCode==sacco && i.TransDate <= date1 && i.Type == sharetype).ToList();
             if(branch != "ALL Branches")
-                dShares = dShares.Where(h=>h.Branch ==  branch).ToList();
+                dShares = dShares.Where(h=>h.Branch.ToUpper().Equals(branch.ToUpper())).ToList();
 
             var groupedBranchShares = dShares.GroupBy(s => s.Branch).ToList();
             var shares = new List<SharesReportVM>();

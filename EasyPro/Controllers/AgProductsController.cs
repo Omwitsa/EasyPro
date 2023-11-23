@@ -194,7 +194,6 @@ namespace EasyPro.Controllers
                     DrAccNo = getGLS.AccDr,
                     CrAccNo = getGLS.AccCr,
                 });
-                
 
                 await _context.SaveChangesAsync();
                 _notyf.Success("Stock Reversed Successfully");

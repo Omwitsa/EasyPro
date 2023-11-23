@@ -151,6 +151,42 @@
                 </div>
             </div>
         </div>
+        
+    </div>
+    <div class="row">
+        <div class="col-sm-6 col-xs-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">MILK DELIVERIES SUMMARY REPORT</h3>
+                </div>
+
+                <div class="card-body register-card-body">
+                    <div class="form-row">
+                        <form asp-controller="Report" asp-antiforgery="true" asp-action="PayExpenseCombinedSummaryExcel" method="post">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">End Date</label>
+                                        <input id="combined_deliveries_date" asp-for="DateTo" class="form-control" type="date" />
+                                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success">Export to Excel</button>
+                                </div>
+
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label"> </label>
+                                        <input class="form-control" disabled />
+                                    </div>
+                                    @* <a id="combined_summary_pdf" class="btn btn-info">Export to PDF</a> *@
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

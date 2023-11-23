@@ -238,22 +238,22 @@
                             <td>${i.PCode}</td>
                             <td>${i.Remarks}</td>
                             <td>'${i.SNo}</td>
-                            <td>${i.Qua}</td>
-                            <td>${buying}</td>
-                            <td>${selling}</td>
-                            <td>${PL}</td>
+                            <td>${i.Qua.toLocaleString()}</td>
+                            <td>${buying.toLocaleString()}</td>
+                            <td>${selling.toLocaleString()}</td>
+                            <td>${PL.toLocaleString()}</td>
                         </tr>`);
                 });
                 itemTableRows.push(`<tr>
                                     <td colspan="6"><h3>Total</h3></td>
-                                    <td>${Tbuying}</td>
-                                    <td>${Tselling}</td>
-                                    <td>${TPL}</td>
+                                    <td>${Tbuying.toLocaleString()}</td>
+                                    <td>${Tselling.toLocaleString()}</td>
+                                    <td>${TPL.toLocaleString()}</td>
                                   </tr>`);
 
-                $('#Tbuying').val(Tbuying);
-                $('#Tselling').val(Tselling);
-                $('#TPL').val(TPL);
+                $('#Tbuying').val(Tbuying.toLocaleString());
+                $('#Tselling').val(Tselling.toLocaleString());
+                $('#TPL').val(TPL.toLocaleString());
                 $('#intakes').html(itemTableRows);
             }
         });

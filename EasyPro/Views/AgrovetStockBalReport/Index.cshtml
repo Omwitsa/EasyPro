@@ -257,17 +257,17 @@
 
                                 <td>${i.Code}</td>
                                 <td>${i.Name}</td>
-                                <td>${i.Openning}</td>
-                                <td>${i.AddedStock}</td>
-                                <td>${i.Dispatch}</td>
-                                <td>${i.StoreBal}</td>
-                                <td>${i.Sales }</td>
-                                <td>${i.Bal}</td>
-                                <td>${BPrice}</td>
-                                <td>${i.SPrice}</td>
-                                <td>${stockvalue}</td>
-                                <td>${costofsales}</td>
-                                <td>${profit}</td>
+                                <td>${i.Openning.toLocaleString()}</td>
+                                <td>${i.AddedStock.toLocaleString()}</td>
+                                <td>${i.Dispatch.toLocaleString()}</td>
+                                <td>${i.StoreBal.toLocaleString()}</td>
+                                <td>${i.Sales.toLocaleString()}</td>
+                                <td>${i.Bal.toLocaleString()}</td>
+                                <td>${BPrice.toLocaleString()}</td>
+                                <td>${i.SPrice.toLocaleString()}</td>
+                                <td>${stockvalue.toLocaleString()}</td>
+                                <td>${costofsales.toLocaleString()}</td>
+                                <td>${profit.toLocaleString()}</td>
                                 <td>${i.Branch}</td>
                             </tr>`)
 
@@ -276,15 +276,15 @@
                 });
                 itemTableRows.push(`<tr>
                               <td colspan="4"><h3>Total Stock Bal Amount</h3></td>
-                               <td>${netpay}</td>
+                              <td>${netpay.toLocaleString()}</td>
                           </tr>`);
                     itemTableRows.push(`<tr>
                                <td colspan="4"><h3>Total Stock Sales Amount</h3></td>
-                               <td>${salesamount}</td>
+                               <td>${salesamount.toLocaleString()}</td>
                                </tr>`);
                 itemTableRows.push(`<tr>
                                <td colspan="4"><h3>Total Profit</h3></td>
-                               <td>${Totalprofit}</td>
+                               <td>${Totalprofit.toLocaleString()}</td>
                                </tr>`);
 
                 $('#intakes').html(itemTableRows);

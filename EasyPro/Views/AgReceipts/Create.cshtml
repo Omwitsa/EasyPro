@@ -402,6 +402,7 @@
             let isCheckoff = false;
             let isTransport = false;
             let hasSend = true;
+            let hasSale = true;
             let saleItems = new Array();
             $("#pname").val("");
             $("#sname").val("");
@@ -492,11 +493,11 @@
                 });
 
                 $('#save1').on('click', function (event) {
+                    hasSale = true;
                     if (hasSend){
                         return;
                     }
-                    $("#save1").attr("disabled", "disabled");
-                    event.preventDefault()
+                    event.preventDefault();
                     event.stopImmediatePropagation();
                     let print = $('#print').prop('checked');
                     let sms = $('#sms').prop('checked');
@@ -506,6 +507,11 @@
                         alert("Sorry, Kindly Provide the Receipt No.");
                         return;
                     }
+                    // if (!checkrnoifexist()) {
+                    //     return;
+                    // }
+                    $("#save1").attr("disabled", "disabled");
+                    
                     $.ajax({
                         type: 'POST',
                         url: "save?RNo=" + $("#RNo").val() + "&isStaff=" + isStaff + "&isCash=" + isCash + "&sms=" + sms + "&print=" + print + "&net=" + net,
@@ -523,6 +529,7 @@
                                     });
                             }
                             clearafthersave();
+                            $("#save1").attr("enabled", "enabled");
                             saleItems = new Array();
                             populateTable();
                             populateDetailsTable();
@@ -733,6 +740,7 @@
             $('#next').on('click', function () {
                 event.preventDefault()
                 hasSend = false;
+                hasSale = true;
                 if (isCheckoff) {
                     if ($('#names').val() == '') {
                         alert("Sorry, Supplier Does Not Exist.");
@@ -748,6 +756,10 @@
                 if (!checkkgs()) {
                     return;
                 }
+                // if (!checkrnoifexist()) {
+                //     debugger
+                //     return;
+                // }
                 getProductBal();
             });
             function checkkgs() {
@@ -919,29 +931,51 @@
                 populateTable();
             }
 
-            function getProductBal() {
-                var pname = $("#pname").val();
-                debugger
+            function checkrnoifexist() {
+                var pname = $("#RNo").val();
+                var TransDate = $("#TDate").val();
                 $.ajax(
                 {
                     type: 'GET',
-                    url: "getProductBal?pname=" + pname,
+                        url: "Checkifexistofsamereceipt?pname=" + pname + "&TransDate=" + TransDate,
                     contentType: 'application/json',
                     success: function (response) {
-                        debugger
-                        if(response.OBal > 0){
-                            getSoldItems();
+                        if(!response){
+                            return true;
                         }
                         else{
-                            alert("Sorry, Kindly check on your stock balance");
+                                alert("Sorry, Invoice No Already Used, Try another");
+                                return false;
                         }
-                        $("#sbal").val(response.OBal);
                     },
                     failure: function (response) {
                     }
                 }).then(function () {
 
                 });
+            }
+            function getProductBal() {
+                var pname = $("#pname").val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "getProductBal?pname=" + pname,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            debugger
+                            if (response.OBal > 0) {
+                                getSoldItems();
+                            }
+                            else {
+                                alert("Sorry, Kindly check on your stock balance");
+                            }
+                            $("#sbal").val(response.OBal);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
             }
 
             function calculatePrice() {

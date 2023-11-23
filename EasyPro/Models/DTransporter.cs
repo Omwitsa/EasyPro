@@ -30,7 +30,7 @@ namespace EasyPro.Models
         public bool Active { get; set; }
         public string Tbranch { get; set; }
         public string Auditid { get; set; }
-        public string Auditdatetime { get; set; }
+        public string? Auditdatetime { get; set; }
         public string Isfrate { get; set; }
         public double? Rate { get; set; }
         public double? TraderRate { get; set; }

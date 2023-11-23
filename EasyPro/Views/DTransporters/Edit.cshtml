@@ -149,6 +149,23 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-sm-2 col-xs-12" id="trader_mno">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Member No.</label>
+                                    <input id="mno" asp-for="SlopesIDNo" value="0" autocomplete="off" class="form-control" />
+                                    <span asp-validation-for="SlopesIDNo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 col-xs-12" id="trader_name">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+@*                                     <label class="control-label">Name.</label>
+                                    <input id="name1" class="form-control" /> *@
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 }
                 <b class="text-info">Bank Activities</b>
@@ -219,8 +236,12 @@
         $('#trader').click(function () {
             if ($(this).is(':checked')) {
                 $('#trader_rate').show();
+                $('#trader_mno').show();
+                $('#trader_name').show();
             } else {
                 $('#trader_rate').hide();
+                $('#trader_mno').hide();
+                $('#trader_name').hide();
             }
         });
         $('#route').val('');
@@ -231,6 +252,29 @@
         else {
             $('#zone1').hide();
         }
+            $('#mno').on('keyup', function () {
+                getSelectedDateIntakes();
+            });
+            function getSelectedDateIntakes() {
+                var sno = $('#mno').val();
+                sno = sno ? sno : "";
+                debugger
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: "selectedname?sno=" + sno,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            // $("#name1").val(response);
+                        },
+                        failure: function (response) {
+                            alert("Sorry, Supplier does not exist.");
+                            $('#mno').val("");
+                        }
+                    }).then(function () {
+
+                    });
+            }
     });
     </script>
 }

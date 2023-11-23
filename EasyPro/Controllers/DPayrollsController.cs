@@ -139,6 +139,7 @@ namespace EasyPro.Controllers
             if (string.IsNullOrEmpty(loggedInUser))
                 return Redirect("~/");
             utilities.SetUpPrivileges(this);
+            var loanlastdate = DateTime.Today;
             var startDate = new DateTime(period.EndDate.Year, period.EndDate.Month, 1);
             var monthsLastDate = startDate.AddMonths(1).AddDays(-1);
             var nextMonthStartDate = startDate.AddMonths(1);
@@ -299,7 +300,7 @@ namespace EasyPro.Controllers
             var shareCode = "S03";
             var savingsCode = "S02";
             decimal? maxShares = 5500;
-            var loans = await _bosaDbContext.LOANBAL.Where(l => l.Balance > 0 && l.LastDate <= monthsLastDate && l.Companycode == StrValues.SlopesCode).ToListAsync();
+            var loans = await _bosaDbContext.LOANBAL.Where(l => l.Balance > 0 && l.LastDate <= loanlastdate && l.Companycode == StrValues.SlopesCode).ToListAsync();
             var saccoStandingOrders = _bosaDbContext.CONTRIB_standingOrder.Where(o => o.CompanyCode == StrValues.SlopesCode);
             var contribs = await _bosaDbContext.CONTRIB.Where(c => c.CompanyCode == StrValues.SlopesCode).ToListAsync();
             var listSaccoLoans = await _context.SaccoLoans.Where(l => l.Saccocode == sacco && l.TransDate == monthsLastDate).ToListAsync();
@@ -311,6 +312,7 @@ namespace EasyPro.Controllers
             var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == sacco);
             var supplierNos = suppliers.Select(s => s.Sno);
             var supplierIntakes = await productIntakeslist.Where(p => supplierNos.Contains(p.Sno)).ToListAsync();
+            //var supplierIntakes = await productIntakeslist.Where(p => p.Sno=="3737").ToListAsync();
             var intakes = supplierIntakes.GroupBy(p => p.Sno.ToUpper()).ToList();
             var dPayrolls = new List<DPayroll>();
             var curriedForwardProducts = new List<ProductIntake>();
@@ -1163,10 +1165,11 @@ namespace EasyPro.Controllers
                         if (transporter.SlopesIDNo != null)
                         {
                             var checkifgettraderfee = _context.DSuppliers.FirstOrDefault(m => m.Scode == sacco
-                            && m.IdNo.Trim() == transporter.SlopesIDNo.Trim() && m.IdNo != null);
+                            && m.Sno.Trim() == transporter.SlopesIDNo.Trim() );
                             if (checkifgettraderfee != null)
                             {
-                                var framersTotal = payrolls.FirstOrDefault(b => b.Sno.Trim().ToUpper().Equals(checkifgettraderfee.Sno.Trim().ToUpper()));
+                                var framersTotal = payrolls.FirstOrDefault(b => b.Sno.Trim().ToUpper()
+                                .Equals(checkifgettraderfee.Sno.Trim().ToUpper()));
                                 selfkgspertransporter = (decimal)framersTotal.KgsSupplied;
 
                                 transporter.TraderRate = transporter?.TraderRate ?? 0;
@@ -1177,13 +1180,20 @@ namespace EasyPro.Controllers
                                     .Equals(checkifgettraderfee.Sno.Trim().ToUpper()) && n.Description == "Transport")
                                     .ToList().Select(b=>b.Remarks)
                                     .Distinct();
-                                    var othermemberskgs = productIntakeslist.Where(k => k.Sno.Trim().ToUpper()
-                                    .Equals(transporter.TransCode.Trim().ToUpper())  && (!getsnoreceipt.Contains(k.Remarks)
-                                    || !checkifgettraderfee.Sno.Trim().ToUpper().Contains(k.Remarks)) 
-                                    && k.Description == "Transport").ToList();
+                                   // var othermemberskg = productIntakeslist.Where(k => k.Sno.Trim().ToUpper()
+                                   //.Equals(transporter.TransCode.Trim().ToUpper()) && (getsnoreceipt.Contains(k.Remarks)
+                                   //|| checkifgettraderfee.Sno.Trim().ToUpper().Contains(k.Remarks))
+                                   //&& k.Description == "Transport").ToList();
+                                   // //|| !checkifgettraderfee.Sno.Trim().ToUpper().Contains(k.Remarks)
 
-                                    amount = (othermemberskgs.Sum(c=>c.Qsupplied)) * (decimal)price.SubsidyPrice;
-                                    subsidy += selfkgspertransporter * (decimal)transporter.Rate;
+                                   // var va = othermemberskg.Sum(c => c.Qsupplied);
+                                    var othermemberskgs = productIntakeslist.Where(k => k.Sno.Trim().ToUpper()
+                                    .Equals(transporter.TransCode.Trim().ToUpper()) && !getsnoreceipt.Contains(k.Remarks)
+                                    && !k.Remarks.Contains(checkifgettraderfee.Sno.Trim().ToUpper()) 
+                                    && k.Description == "Transport")
+                                    .ToList();
+                                    amount = selfkgspertransporter * (decimal)transporter.Rate;
+                                    subsidy += (othermemberskgs.Sum(c => c.Qsupplied)) * (decimal)price.SubsidyPrice;
                                 }
                             }
                         }

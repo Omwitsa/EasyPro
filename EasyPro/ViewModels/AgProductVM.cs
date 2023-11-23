@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 
 namespace EasyPro.ViewModels
 {
+    public class SuppliersVM
+    {
+        public string SNo { get; set; }
+        public string Name { get; set; }
+    }
     public class AgReceiptVM
     {
         public DateTime? TDate { get; set; }
