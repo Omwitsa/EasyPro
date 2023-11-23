@@ -827,8 +827,7 @@ namespace EasyPro.Controllers
                 worksheet.Cell(currentRow, 4).Value = line;
 
                 // Payment Section
-                //var bankGroupedPayroll = payrolls.Where(p => p.Npay > 0).GroupBy(p => p.Bank).ToList();
-                var bankGroupedPayroll = payrolls.GroupBy(p => p.Bank).ToList();
+                var bankGroupedPayroll = payrolls.Where(p => p.Npay > 0).GroupBy(p => p.Bank).ToList();
                 var combinedSummaries = new List<CombinedSummary>();
                 bankGroupedPayroll.ForEach(p =>
                 {
@@ -839,8 +838,7 @@ namespace EasyPro.Controllers
                     });
                 });
               
-                //var bankGroupedTransporterPayroll = dTransportersPayRolls.Where(p => p.NetPay > 0).GroupBy(p => p.BankName).ToList();
-                var bankGroupedTransporterPayroll = dTransportersPayRolls.GroupBy(p => p.BankName).ToList();
+                var bankGroupedTransporterPayroll = dTransportersPayRolls.Where(p => p.NetPay > 0).GroupBy(p => p.BankName).ToList();
                 bankGroupedTransporterPayroll.ForEach(p =>
                 {
                     combinedSummaries.Add(new CombinedSummary
