@@ -147,7 +147,7 @@ namespace EasyPro.Controllers
 
                 }
                 var salesamount = i.Where(b => b.PCode != "0").Sum(r => r.Amount);
-                var partialpaymentincase = i.Where(b => b.PCode == "0").Sum(r => r.Amount);
+                var partialpaymentincase = (i.Where(b => b.PCode == "0").Sum(r => r.Amount))*-1;
                 summary.Add(new
                 {
                     sno = suppliernames.SNo,
