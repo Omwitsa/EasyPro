@@ -51,5 +51,9 @@ namespace EasyPro.Models
         public decimal? ECLOF { get; set; }
         public decimal? saccoDed { get; set; }
         public string PhoneNo { get; set; }
+        public decimal? KIIGA { get; set; }
+        public decimal? KIROHA { get; set; }
+        public decimal? NOV_OVPMNT { get; set; }
+
     }
 }

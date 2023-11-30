@@ -42,5 +42,6 @@ namespace EasyPro.Models
         public decimal? TodayBranchkgs { get; set; }
         public string Zone { get; set; }
         public string MornEvening { get; set; }
+        public string Details { get; set; }
     }
 }

@@ -54,9 +54,9 @@
                     </div>
                     <div class="col-sm-3 col-xs-12">
                         <label class="control-label">Product</label>
-                        @* <select id="product" class="chzn-select form-control" asp-items="@ViewBag.products">
-                            <option value=""></option>
-                        </select> *@
+                        <select id="product" class="chzn-select form-control" asp-items="@ViewBag.products">
+                            <option></option>
+                        </select> 
                     </div>
                 </div>
                 <div class="row">
@@ -116,6 +116,7 @@
                                     <th>Openning this Month</th>
                                     <th>Added Stock</th>
                                     <th>Dispatch Stock</th>
+                                    <th>Converted</th>
                                     <th>Stock Bal</th>
                                     <th>Sales</th>
                                     <th>Bal</th>
@@ -153,6 +154,7 @@
             var today = new Date().toISOString().split('T')[0];
             $("#firstdate").val(today);
             $("#enddate").val(today);
+            
             $('#amount').val(0);
             $("#com").hide();
             $("#htitl").hide();
@@ -215,8 +217,8 @@
                 var date2 = $("#enddate").val();
                 var zone = $("#zone").val();
                 var product = $("#product").val();
-                debugger
                 zone = zone ? zone : "";
+                debugger
                 $.ajax(
                     {
                         type: 'POST',
@@ -260,6 +262,7 @@
                                 <td>${i.Openning.toLocaleString()}</td>
                                 <td>${i.AddedStock.toLocaleString()}</td>
                                 <td>${i.Dispatch.toLocaleString()}</td>
+                                <td>${i.Converted.toLocaleString()}</td>
                                 <td>${i.StoreBal.toLocaleString()}</td>
                                 <td>${i.Sales.toLocaleString()}</td>
                                 <td>${i.Bal.toLocaleString()}</td>
@@ -274,6 +277,7 @@
 
 
                 });
+                $("#amount").val(netpay.toLocaleString());
                 itemTableRows.push(`<tr>
                               <td colspan="4"><h3>Total Stock Bal Amount</h3></td>
                               <td>${netpay.toLocaleString()}</td>

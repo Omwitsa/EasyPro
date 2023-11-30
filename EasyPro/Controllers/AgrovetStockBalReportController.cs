@@ -63,7 +63,7 @@ namespace EasyPro.Controllers
         [HttpPost]
         public JsonResult SuppliedProducts(DateTime date1, DateTime date2, string product)
         {
-            product = "";
+            product = product ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
@@ -80,6 +80,7 @@ namespace EasyPro.Controllers
             var agReceipts = _context.AgReceipts.Where(n => n.saccocode == sacco).ToList();
             var agProducts4s = _context.AgProducts4s.Where(n => n.saccocode == sacco).ToList();
             var drawnstocks = _context.Drawnstocks.Where(n => n.saccocode == sacco).ToList();
+            var converted = _context.ag_ProductConverted.Where(n => n.saccocode == sacco).ToList();
 
             //var agProductsReceive = _context.AgReceipts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.TDate >= date1 && i.TDate <= date2).ToList();
             var agProductsReceive = _context.AgProducts.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToList();
@@ -102,30 +103,28 @@ namespace EasyPro.Controllers
                var getIndividualagReceipts = agReceipts.Where(b=>b.Branch == b.Branch).ToList();
                var getIndividualagProducts4s = agProducts4s.Where(b => b.Branch == b.Branch).ToList();
                var getIndividualdrawnstocks = drawnstocks.ToList();
+               var getIndividualconverted = converted.ToList();
 
                 var listPerBranch = agProductsReceive.Where(z => z.Branch == b.Key).ToList();
                 if (!string.IsNullOrEmpty(product))
                 {
                     listPerBranch = listPerBranch.Where(k => k.PCode.ToUpper().Equals(product.ToUpper())).ToList();
-                    startingdate = date1;
                 }
                 var listofproducts = listPerBranch.GroupBy(m => m.PCode).ToList();
                 listofproducts.ForEach(e =>
                 {
                     var productNow = e.FirstOrDefault();
 
-                    while (startingdate <= date2)
-                    {
-                        if(productNow.PCode== "274")
+                        if(productNow.PCode== "260")
                         {
-
                         }
-                        var detailstore = GetReceipts(productNow.PCode, sacco, b.Key, date1, startingdate, endDate, getIndividualagReceipts, getIndividualagProducts4s, getIndividualdrawnstocks);
+                        var detailstore = GetReceipts(productNow.PCode, sacco, b.Key, date1, startingdate, endDate, getIndividualagReceipts, getIndividualagProducts4s, getIndividualdrawnstocks, getIndividualconverted);
 
                         decimal open = (decimal)((detailstore.pro_buyy) - (detailstore.positive_pro_sell - detailstore.negatives_pro_sell));
-                        open = open + (decimal)((detailstore.dispatchlasttoBranch - detailstore.dispatchlastfromBranch));
+                        decimal convertedlastmonth = detailstore.convertedlastmon;
+                        open = open + (decimal)((detailstore.dispatchlasttoBranch - detailstore.dispatchlastfromBranch)) + convertedlastmonth;
                         decimal dispatch = (decimal)(detailstore.dispatchthismonthtoBranch - detailstore.dispatchthismonthfromBranch);
-                        decimal correctbal = (decimal)detailstore.receiptthatmonth + open + dispatch;
+                        decimal correctbal = (decimal)detailstore.receiptthatmonth + open + dispatch + detailstore.convertedthismonth;
                         decimal saleskgs = (decimal)(detailstore.positive_agProductsales - detailstore.negative_agProductsales);
                         decimal bal = (correctbal - saleskgs);
                         decimal? BPrice = productNow.Pprice ?? 0;
@@ -144,6 +143,7 @@ namespace EasyPro.Controllers
                             Openning = open,
                             AddedStock = (decimal)detailstore.receiptthatmonth,
                             Dispatch = dispatch,
+                            Converted = detailstore.convertedthismonth,
                             StoreBal = correctbal,
                             Sales = (decimal)saleskgs,
                             Bal = bal,
@@ -153,20 +153,14 @@ namespace EasyPro.Controllers
                             Date = DateTime.Today
                         });
 
-                        startingdate = startingdate.AddDays(1);
-                    }
-                    startingdate = date2;
-                    if (!string.IsNullOrEmpty(product))
-                    {
-                        startingdate = date1;
-                    }
+                        
                 });
             });
             return Json(products);
         }
 
 
-        private dynamic GetReceipts(string pCode, string sacco, string key, DateTime date1, DateTime date2, DateTime endDate, List<AgReceipt> getIndividualagReceipts, List<AgProducts4> getIndividualagProducts4s, List<Drawnstock> getIndividualdrawnstocks)
+        private dynamic GetReceipts(string pCode, string sacco, string key, DateTime date1, DateTime date2, DateTime endDate, List<AgReceipt> getIndividualagReceipts, List<AgProducts4> getIndividualagProducts4s, List<Drawnstock> getIndividualdrawnstocks, List<ag_ProductConverted> getIndividualconverted)
         {
             
             var saccobranch = key;
@@ -205,6 +199,23 @@ namespace EasyPro.Controllers
              && i.Date >= date1 && i.Date <= date2 && i.Productid.ToUpper().Equals(pCode.ToUpper()))
                 .Sum(d => d.Quantity);
 
+            var convertedlasttoRemoved = getIndividualconverted.Where(i => i.TDate <= endDate && i.Branch == key
+            && i.p_code.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity);
+
+            var convertedthismonthtoRemove = getIndividualconverted.Where(i => i.Branch == key
+             && i.TDate >= date1 && i.TDate <= date2 && i.p_code.ToUpper().Equals(pCode.ToUpper()))
+                .Sum(d => d.Quantity);
+
+            var convertedthismonthtoNewopen = getIndividualconverted.Where(i => i.TDate <= endDate && i.Branch == key
+          && i.p_code_converted.ToUpper().Equals(pCode.ToUpper())).Sum(d => d.Quantity_converted);
+
+            var convertedthismonthtoNew = getIndividualconverted.Where(i => i.Branch == key
+             && i.TDate >= date1 && i.TDate <= date2 && i.p_code_converted.ToUpper().Equals(pCode.ToUpper()))
+                .Sum(d => d.Quantity_converted);
+
+            var convertedthismonth = convertedthismonthtoNew - convertedthismonthtoRemove ;
+            var convertedlastmon = convertedthismonthtoNewopen - convertedlasttoRemoved;
+
             return new
             {
                 pro_buyy,
@@ -216,7 +227,9 @@ namespace EasyPro.Controllers
                 dispatchlastfromBranch,
                 dispatchlasttoBranch,
                 dispatchthismonthfromBranch,
-                dispatchthismonthtoBranch
+                dispatchthismonthtoBranch,
+                convertedlastmon,
+                convertedthismonth
             };
         }
     }

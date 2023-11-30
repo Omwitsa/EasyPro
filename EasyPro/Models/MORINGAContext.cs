@@ -48,6 +48,7 @@ namespace EasyPro.Models
         public virtual DbSet<AgStockbalance> AgStockbalances { get; set; }
         public virtual DbSet<AgStockbalance1> AgStockbalance1s { get; set; }
         public virtual DbSet<AgSupplier> AgSuppliers { get; set; }
+        public virtual DbSet<ag_ProductConverted> ag_ProductConverted { get; set; }
         public virtual DbSet<AgSupplier1> AgSupplier1s { get; set; }
         public virtual DbSet<Ap> Aps { get; set; }
         public virtual DbSet<Asset> Assets { get; set; }

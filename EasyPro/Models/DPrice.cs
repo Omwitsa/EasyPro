@@ -15,6 +15,7 @@ namespace EasyPro.Models
         [Display(Name = "Start Date")]
         public DateTime? Edate { get; set; }
         public decimal? Price { get; set; }
+        public decimal? Interest { get; set; }
         public string SaccoCode { get; set; }
         [Display(Name = "Subsidy Quantity")]
         public decimal? SubsidyQty { get; set; }

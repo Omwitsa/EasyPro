@@ -27,6 +27,7 @@ namespace EasyPro.ViewModels
         public decimal Openning { get; set; }
         public decimal AddedStock { get; set; }
         public decimal Dispatch { get; set; }
+        public decimal Converted { get; set; }
         public decimal StoreBal { get; set; }
         public decimal Sales { get; set; }
         public decimal Bal { get; set; }

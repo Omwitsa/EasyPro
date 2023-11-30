@@ -46,18 +46,25 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label asp-for="SubsidyPrice" class="control-label">SubsidyPrice</label>
                             <input asp-for="SubsidyPrice" type="text" autocomplete="off" class="form-control" />
                             <span asp-validation-for="SubsidyPrice" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label asp-for="SubsidyQty" class="control-label"></label>
                             <input asp-for="SubsidyQty" type="text" autocomplete="off" class="form-control" />
                             <span asp-validation-for="SubsidyQty" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label asp-for="Interest" class="control-label">Interest (%)</label>
+                            <input asp-for="Interest" type="text" autocomplete="off" class="form-control" />
+                            <span asp-validation-for="Interest" class="text-danger"></span>
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
@@ -57,126 +59,89 @@ namespace EasyPro.Controllers
             ViewBag.slopes = StrValues.Slopes == sacco;
             ViewBag.isElburgon = StrValues.Elburgon == sacco;
             //if(StrValues.Elburgon != sacco)
-           // {
-                IQueryable<DSupplier> suppliers = _context.DSuppliers;
-                var supplierList = await suppliers.Where(m => m.Scode == sacco && m.Type.ToLower().Contains("male")).ToListAsync();
-                double totalSuppliers = supplierList.Count();
-                double totalMale = supplierList.Where(k => k.Type.ToLower().Equals("male")).Count();
-                ViewBag.malePercentage = Math.Round(((totalMale / totalSuppliers) * 100), 0);
-                double totalFemale = supplierList.Where(k => k.Type.ToLower().Equals("female")).Count();
-                ViewBag.femalePercentage = Math.Round(((totalFemale / totalSuppliers) * 100), 0);
+            // {
+            IQueryable<DSupplier> suppliers = _context.DSuppliers;
+            var supplierList = await suppliers.Where(m => m.Scode == sacco && m.Type.ToLower().Contains("male")).ToListAsync();
+            double totalSuppliers = supplierList.Count();
+            double totalMale = supplierList.Where(k => k.Type.ToLower().Equals("male")).Count();
+            ViewBag.malePercentage = Math.Round(((totalMale / totalSuppliers) * 100), 0);
+            double totalFemale = supplierList.Where(k => k.Type.ToLower().Equals("female")).Count();
+            ViewBag.femalePercentage = Math.Round(((totalFemale / totalSuppliers) * 100), 0);
 
-                List<Farmersdata> genderData = new List<Farmersdata>
+            List<Farmersdata> genderData = new List<Farmersdata>
                 {
 
                     new Farmersdata { xValue = "Male", yValue = ViewBag.malePercentage, text = "Male:" + ViewBag.malePercentage + "%" },
                     new Farmersdata { xValue = "Female", yValue = ViewBag.femalePercentage, text = "Female:" + ViewBag.femalePercentage + "%" }
                 };
 
-                ViewBag.dataSource = genderData;
-                var startDate1 = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-                var endDate1 = startDate1.AddMonths(1).AddDays(-1);
+            ViewBag.dataSource = genderData;
+            var startDate1 = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate1 = startDate1.AddMonths(1).AddDays(-1);
 
-                IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
-                var activesuppliers = await productIntakes.Where(m => m.SaccoCode == sacco && m.TransactionType != TransactionType.Deduction && m.TransDate >= startDate1
-                && m.TransDate <= endDate1).ToListAsync();
-                double totalActivesuppliers = activesuppliers.Select(b => b.Sno).Distinct().Count();
-                double inActiveSuppliers = totalSuppliers - totalActivesuppliers;
-                ViewBag.suppliers = totalSuppliers;
-                ViewBag.activeSuppliers = totalActivesuppliers;
-                ViewBag.failedSuppliers = inActiveSuppliers;
-                double activePercentage = Math.Round(((totalActivesuppliers / totalSuppliers) * 100), 0);
-                double inActivePercentage = Math.Round(((inActiveSuppliers / totalSuppliers) * 100), 0);
-                ViewBag.activePercentage = activePercentage;
-                ViewBag.inActivePercentage = inActivePercentage;
+            IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
+            var activesuppliers = await productIntakes.Where(m => m.SaccoCode == sacco && m.TransactionType != TransactionType.Deduction && m.TransDate >= startDate1
+            && m.TransDate <= endDate1).ToListAsync();
+            double totalActivesuppliers = activesuppliers.Select(b => b.Sno).Distinct().Count();
+            double inActiveSuppliers = totalSuppliers - totalActivesuppliers;
+            ViewBag.suppliers = totalSuppliers;
+            ViewBag.activeSuppliers = totalActivesuppliers;
+            ViewBag.failedSuppliers = inActiveSuppliers;
+            double activePercentage = Math.Round(((totalActivesuppliers / totalSuppliers) * 100), 0);
+            double inActivePercentage = Math.Round(((inActiveSuppliers / totalSuppliers) * 100), 0);
+            ViewBag.activePercentage = activePercentage;
+            ViewBag.inActivePercentage = inActivePercentage;
 
-                List<Farmersdata> activeStatus = new List<Farmersdata>
+            List<Farmersdata> activeStatus = new List<Farmersdata>
                 {
                     new Farmersdata { xValue = "Active", yValue = ViewBag.activePercentage, text = "Active:" + ViewBag.activePercentage + "%" },
                     new Farmersdata { xValue = "InActive", yValue = ViewBag.inActivePercentage, text = "InActive:" + ViewBag.inActivePercentage + "%" }
                 };
 
-                ViewBag.dataSource1 = activeStatus;
-                IQueryable<DShare> shares = _context.DShares;
-                List<object> data = new List<object>();
-                List<ColumnChartData> chartDatas4 = new List<ColumnChartData>();
-                var sharespersacco = await shares.Where(m => m.SaccoCode == sacco).ToListAsync();
-                decimal totalshares = sharespersacco.Sum(a => a.Amount);
-                var sharesdedu = sharespersacco.Select(n => n.Type.ToUpper()).Distinct().ToList();
+            ViewBag.dataSource1 = activeStatus;
+            IQueryable<ProductIntake> productIntakes1 = _context.ProductIntake;
+            var intakes = productIntakes1.Where(s => (s.Description == "Intake" || s.Description == "Correction") && s.SaccoCode == sacco).ToList();
+            List<object> data = new List<object>();
+            List<ColumnChartData> chartDatas4 = new List<ColumnChartData>();
+            DateTime TDate = DateTime.Today;
+            DateTime stDate = new DateTime(TDate.Year, TDate.Month, 1);
+            for (int b = 1; b < 32; b++)
+            {
+                var totalkgs = intakes.Where(v => v.TransDate == stDate).ToList().Sum(m => m.Qsupplied);
+                chartDatas4.Add(new ColumnChartData { x = b.ToString(), yValue = (double)totalkgs });
+                stDate = stDate.AddDays(b);
+            };
+            
 
-                sharesdedu.ForEach(c =>
-                {
-                    decimal sharesamount = sharespersacco.Where(x => x.Type.ToUpper().Equals(c.ToUpper())).Sum(a => a.Amount);
-                    decimal percentage4 = Math.Round(((sharesamount / totalshares) * 100), 0);
+            ViewBag.dataSources3 = chartDatas4;
 
-                    chartDatas4.Add(new ColumnChartData
-                    {
-                        x = c.ToUpper(),
-                        yValue = (double)percentage4,
-                    });
-                });
+            var intakeStatistics = new List<PoductStatistics>();
 
-                ViewBag.dataSources3 = chartDatas4;
+            ViewBag.intakeStatistics = intakeStatistics;
+            ViewBag.todaysales = 0;
 
-                //var intakes = _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= startDate && i.TransDate <= DateTime.Today);
-                //var products = _context.DPrices.Where(p => p.SaccoCode == sacco).Select(p => p.Products.ToUpper()).Distinct().ToList();
-                var intakeStatistics = new List<PoductStatistics>();
-                //products.ForEach(p =>
-                //{
-                //    var productIntakes = intakes.Where(i => i.ProductType.ToUpper().Equals(p));
-                //    var rate = 0;
-                //    if (intakes.Any())
-                //        rate = (productIntakes.Count() * 100) / intakes.Count();
+            var newFarmers = suppliers.Where(s => s.Scode == sacco && s.Regdate >= startDate1 && s.Regdate <= endDate1);
+            ViewBag.newFarmers = newFarmers.Count();
+            //ViewBag.newFarmers = 0;
 
-                //    intakeStatistics.Add(new PoductStatistics
-                //    {
-                //        Name = p,
-                //        Rate = rate
-                //    });
-                //});
+            var lastMonthStartDate = startDate.AddMonths(-1);
+            var lastMonthStartDateEndDate = lastMonthStartDate.AddMonths(1).AddDays(-1);
 
-                ViewBag.intakeStatistics = intakeStatistics;
-                //var suppliers = _context.DSuppliers.Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
-                //ViewBag.suppliers = suppliers.Count();
+            //var lastMonthActiveSupNos = _context.ProductIntake.Where(p => p.TransDate >= lastMonthStartDate && p.TransDate <= lastMonthStartDateEndDate 
+            //&& p.SaccoCode == sacco).Select(p => p.Sno).ToList();
+            //var newSupNos = newFarmers.Select(s => s.Sno.ToString()).ToList();
+            //var lastMonthDomant = activeSuppliers.Where(s => !lastMonthActiveSupNos.Contains(s.Sno.ToString()) && newSupNos.Contains(s.Sno.ToString()));
+            //ViewBag.lastMonthDomant = lastMonthDomant.Count();
+            ViewBag.lastMonthDomant = 0;
 
-                //var activeSupNos = _context.ProductIntake.Where(p => p.TransDate >= startDate && p.TransDate <= endDate && p.SaccoCode == sacco)
-                //    .Select(p => p.Sno).ToList();
-                //var activeSuppliers = suppliers.Where(s => activeSupNos.Contains(s.Sno.ToString())).ToList();
-                //ViewBag.activeSuppliers = activeSuppliers.Count;
+            var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
+            ViewBag.transporters = transporters.Count();
 
+            var totalsales = _context.DShares.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
+            ViewBag.totalsales = 0;
 
-                //var todatysIntake = _context.ProductIntake.Where(p => p.TransDate == DateTime.Today && p.SaccoCode == sacco);
-                //var todaySupNos = todatysIntake.Select(p => p.Sno);
-                //var failedSuppliers = suppliers.Where(s => !todaySupNos.Contains(s.Sno.ToString()));
-                //ViewBag.failedSuppliers = failedSuppliers.Count();
-
-
-                //var sales = _context.Dispatch.Where(d => d.Transdate == DateTime.Today && d.Dcode == sacco).Sum(d => d.Dispatchkgs);
-                //ViewBag.todaysales = sales;
-                ViewBag.todaysales = 0;
-
-                var newFarmers = suppliers.Where(s => s.Scode == sacco && s.Regdate >= startDate1 && s.Regdate <= endDate1);
-                ViewBag.newFarmers = newFarmers.Count();
-                //ViewBag.newFarmers = 0;
-
-                var lastMonthStartDate = startDate.AddMonths(-1);
-                var lastMonthStartDateEndDate = lastMonthStartDate.AddMonths(1).AddDays(-1);
-
-                //var lastMonthActiveSupNos = _context.ProductIntake.Where(p => p.TransDate >= lastMonthStartDate && p.TransDate <= lastMonthStartDateEndDate 
-                //&& p.SaccoCode == sacco).Select(p => p.Sno).ToList();
-                //var newSupNos = newFarmers.Select(s => s.Sno.ToString()).ToList();
-                //var lastMonthDomant = activeSuppliers.Where(s => !lastMonthActiveSupNos.Contains(s.Sno.ToString()) && newSupNos.Contains(s.Sno.ToString()));
-                //ViewBag.lastMonthDomant = lastMonthDomant.Count();
-                ViewBag.lastMonthDomant = 0;
-
-                var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper()));
-                ViewBag.transporters = transporters.Count();
-
-                var totalsales = _context.DShares.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()));
-                ViewBag.totalsales = 0;
-
-                var totalproduce = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.TransactionType != TransactionType.Deduction && s.TransDate>= startDate1 && s.TransDate<= endDate1).Sum(n => n.Qsupplied);
-                ViewBag.totalproduce = totalproduce;
+            var totalproduce = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && s.TransactionType != TransactionType.Deduction && s.TransDate >= startDate1 && s.TransDate <= endDate1).Sum(n => n.Qsupplied);
+            ViewBag.totalproduce = totalproduce;
             //ViewBag.transporters = 0;
 
             //ViewBag.grossItake = intakes.Sum(i => i.CR);
@@ -187,11 +152,11 @@ namespace EasyPro.Controllers
             //ViewBag.shares = intakes.Where(i => i.ProductType.ToLower().Contains("shares")).Sum(i => i.DR);
 
             ViewBag.grossItake = 0;
-                ViewBag.advance = 0;
-                ViewBag.transport = 0;
-                ViewBag.agrovet = 0;
-                ViewBag.bonus = 0;
-                ViewBag.shares = 0;
+            ViewBag.advance = 0;
+            ViewBag.transport = 0;
+            ViewBag.agrovet = 0;
+            ViewBag.bonus = 0;
+            ViewBag.shares = 0;
             ViewBag.slopes = StrValues.Slopes == sacco;
             //}
 
@@ -288,7 +253,7 @@ namespace EasyPro.Controllers
                     _notyf.Error("Sorry, Kindly provide username");
                     return View();
                 }
-                
+
                 var user = await _context.UserAccounts
                     .FirstOrDefaultAsync(u => u.UserLoginIds.ToUpper().Equals(login.Username.ToUpper()));
                 if (user == null)
@@ -305,7 +270,7 @@ namespace EasyPro.Controllers
             _notyf.Error("Sorry, Invalid user credentials");
             return View(login);
         }
-        
+
         //[HttpGet]
         //public ActionResult GetSalesDatas()
         //{

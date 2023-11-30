@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DocumentFormat.OpenXml.Bibliography;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
@@ -68,7 +69,7 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
             var Salescheckoff = await GetAgReceipts(startDate, endDate, product, sno, salestype);
-            Salescheckoff = Salescheckoff.Where(i => i.SNo.ToUpper().Equals("CASH"))
+            Salescheckoff = Salescheckoff.Where(i => i.SNo.ToUpper().Equals("CASH") && i.RNo == sno)
                 .OrderByDescending(i => i.TDate).ToList();
             return Json(Salescheckoff);
         }
@@ -82,26 +83,31 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
 
             var Salescheckoff = await GetAgReceipts(startDate, endDate, product, sno, salestype);
-            Salescheckoff = Salescheckoff.Where(i => i.SNo.ToUpper().Equals("CASH"))
+            Salescheckoff = Salescheckoff.Where(i => i.SNo.ToUpper().Equals("CASH") && i.RNo == sno)
                 .OrderByDescending(i => i.TDate).ToList();
             var groupedReports = Salescheckoff.GroupBy(i => i.TDate).ToList();
-            var productName = "";
+
+            var products = _context.AgProducts.Where(p => p.saccocode == sacco).ToList();
             if (!string.IsNullOrEmpty(product))
             {
-                var products = await _context.AgProducts.Where(p => p.saccocode == sacco && p.PCode == product).ToListAsync();
-                if (user.AccessLevel == AccessLevel.Branch)
-                    products = products.Where(i => i.Branch == saccobranch).ToList();
-                productName = products.FirstOrDefault()?.PName ?? "";
+               var productz = products.Where(p => p.PCode == product && p.Branch == saccobranch).ToList();
+                products = productz;
             }
 
             var summary = new List<dynamic>();
             groupedReports.ForEach(i =>
             {
-                var correctquantity = i.Where(b => b.Amount > 0).Sum(r => r.Qua) - i.Where(b => b.Amount < 0).Sum(r => r.Qua);
+                var productName = i.FirstOrDefault().Remarks;
+                if (!string.IsNullOrEmpty(product))
+                {
+                    productName = products.FirstOrDefault().PName;
+                }
+
+                 var correctquantity = i.Where(b => b.Amount > 0).Sum(r => r.Qua) - i.Where(b => b.Amount < 0).Sum(r => r.Qua);
                 summary.Add(new
                 {
                     date = i.Key,
-                    product,
+                    product = i.FirstOrDefault().PCode,
                     productName,
                     sno,
                     quantity = correctquantity,
@@ -129,7 +135,7 @@ namespace EasyPro.Controllers
             if (!string.IsNullOrEmpty(product))
                 receipts = receipts.Where(r => r.PCode == product).ToList();
             if (!string.IsNullOrEmpty(sno))
-                receipts = receipts.Where(r => r.SNo == sno).ToList();
+                receipts = receipts.Where(r => r.RNo == sno).ToList();
             if (salestype == 1)
                 receipts = receipts.Where(m => m.Amount > 0).ToList();
             if (salestype == 2)

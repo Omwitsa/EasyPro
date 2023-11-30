@@ -32,4 +32,27 @@
                 <button type="submit" class="btn btn-success">Export to Excel</button>
             </form>
         </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <form asp-controller="Report" asp-antiforgery="true" asp-action="SalescombineReport" method="post">
+            <div class="row">
+                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                    <div class="form-group">
+                        <label asp-for="DateFrom" class="control-label"></label>
+                        <input required asp-for="DateFrom" class="form-control" type="date" />
+                        <span asp-validation-for="DateFrom" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                    <div class="form-group">
+                        <label asp-for="DateTo" class="control-label"></label>
+                        <input required asp-for="DateTo" class="form-control" type="date" />
+                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">Export to Excel</button>
+        </form>
+    </div>
+</div>
     </div>

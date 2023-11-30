@@ -1,18 +1,4 @@
-﻿<!-- Start Email Statistic area-->
-<!--<div class="notika-status-area">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <canvas id="myChart" style="max-width:400px;max-height:430px;"></canvas>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <canvas id="myChart" style="max-width:400px;max-height:430px;"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-
+﻿
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -130,19 +116,19 @@
                     <div style="border-right:2px solid ;color:#009100;">
                         @*@if (!ViewBag.isElburgon)
                         {*@
-                            <ejs-chart pointRender="pointRender" id="lineContainer" title="Members Shares Contribution">
+                            <ejs-chart pointRender="pointRender" id="lineContainer" title="Monthly Produce Collection">
                                 <e-chart-tooltipsettings enable="true">
                                 </e-chart-tooltipsettings>
                                 <e-chart-chartarea>
                                     <e-chartarea-border width="0"></e-chartarea-border>
                                 </e-chart-chartarea>
-                                <e-chart-primaryxaxis title="Farm Practices" minimum="0" maximum="100" edgeLabelPlacement="@Syncfusion.EJ2.Charts.EdgeLabelPlacement.Shift">
-                                    <e-majorgridlines width="0"></e-majorgridlines>
+                            <e-chart-primaryxaxis title="No Of Days" minimum="1" maximum="31" interval=1 edgeLabelPlacement="@Syncfusion.EJ2.Charts.EdgeLabelPlacement.Shift">
+                                    <e-majorgridlines width="1"></e-majorgridlines>
                                 </e-chart-primaryxaxis>
-                                <e-chart-primaryyaxis minimum="0" maximum="100" title="Amount Contributed in percentage(%)" interval=10>
+                                <e-chart-primaryyaxis minimum="0" maximum="25000" title="Produce Collection" interval=1000>
                                     <e-linestyle width="0"></e-linestyle>
                                 </e-chart-primaryyaxis>
-                                <e-chart-primaryxaxis valueType="Category" title="Members Shares Contribution"></e-chart-primaryxaxis>
+                                <e-chart-primaryxaxis valueType="Category" title="No Of Days"></e-chart-primaryxaxis>
                                 <e-series-collection>
                                     <e-series dataSource="ViewBag.dataSources3" xName="x" width="2" opacity="1" yName="yValue" type="@Syncfusion.EJ2.Charts.ChartSeriesType.Column">
                                     </e-series>
@@ -231,19 +217,19 @@
         }
     }
     var pointRender = function (args) {
-        if ((args.point.x).indexOf('REGISTRATION') > -1) {
+        if ((args.point.x).indexOf('1') > -1) {
             args.fill = '#f4bc42';
         }
-        else if ((args.point.x).indexOf('SHARES') > -1) {
+        else if ((args.point.x).indexOf('2') > -1) {
             args.fill = '#498fff';
         }
-        else if ((args.point.x).indexOf('SHARE CAPITAL') > -1) {
+        else if ((args.point.x).indexOf('3') > -1) {
             args.fill = '#ff68b6';
         }
-        else if ((args.point.x).indexOf('REGISTRATIONS') > -1) {
+        else if ((args.point.x).indexOf('4') > -1) {
             args.fill = '#81e2a1';
         }
-        else if ((args.point.x).indexOf('SHARE') > -1) {
+        else {
             args.fill = '#09e1e8';
         }
     }

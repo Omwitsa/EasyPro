@@ -455,7 +455,8 @@ namespace EasyPro.Controllers
                 l.Balance = loanBal?.Balance ?? 0;
             });
 
-            var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(filter.Code.ToUpper()) && s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
+            var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(filter.Code.ToUpper()) 
+            && s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
             var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code 
             && l.TransDate == filter.Date).ToListAsync();
             shares.ForEach(s =>
@@ -1288,7 +1289,9 @@ namespace EasyPro.Controllers
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
                     Zone = productIntake.Zone,
-                    MornEvening = productIntake.MornEvening
+                    MornEvening = productIntake.MornEvening,
+                    Details = transport.TransCode.Trim().ToUpper()
+                    
                 };
                 _context.ProductIntake.Add(collection);
 
@@ -1327,7 +1330,8 @@ namespace EasyPro.Controllers
                     DrAccNo = price.TransportDrAccNo,
                     CrAccNo = price.TransportCrAccNo,
                     Zone = productIntake.Zone,
-                    MornEvening = productIntake.MornEvening
+                    MornEvening = productIntake.MornEvening,
+                    Details = productIntake.Sno.Trim().ToUpper()
                 });
             }
 
@@ -2329,7 +2333,8 @@ namespace EasyPro.Controllers
                     DrAccNo = productIntake.DrAccNo,
                     CrAccNo = productIntake.CrAccNo,
                     Zone = productIntake.Zone,
-                    MornEvening = productIntake.MornEvening
+                    MornEvening = productIntake.MornEvening,
+                    Details = transport.TransCode.Trim().ToUpper()
                 };
                 _context.ProductIntake.Add(collection);
 
@@ -2372,7 +2377,8 @@ namespace EasyPro.Controllers
                     DrAccNo = price.TransportDrAccNo,
                     CrAccNo = price.TransportCrAccNo,
                     Zone = productIntake.Zone,
-                    MornEvening = productIntake.MornEvening
+                    MornEvening = productIntake.MornEvening,
+                    Details = productIntake.Sno.Trim().ToUpper()
                 });
             }
            

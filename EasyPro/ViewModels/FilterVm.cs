@@ -22,6 +22,7 @@ namespace EasyPro.ViewModels
         public string BankName { get; set; }
         public string County { get; set; }
         public string Zone { get; set; }
+        public string Deduction { get; set; }
 
 
     }

@@ -193,6 +193,8 @@ namespace EasyPro.Controllers
                     dTransporter.ParentT = sacco;
                     dTransporter.Tbranch = saccoBranch;
                     dTransporter.Auditid = loggedInUser;
+                    dTransporter.Auditdatetime = "01/11/2023";
+
                     //dTransporter.SlopesIDNo = saccoBranch;
                     _context.Add(dTransporter);
                     await _context.SaveChangesAsync();
@@ -341,7 +343,7 @@ namespace EasyPro.Controllers
                     dTransporter.ParentT = sacco;
                     dTransporter.Tbranch = saccobranch;
                     dTransporter.Auditid = loggedInUser;
-                    dTransporter.Auditdatetime = "0";
+                    dTransporter.Auditdatetime = "01/11/2023";
                     _context.Update(dTransporter);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Transporter Edited successfully");
