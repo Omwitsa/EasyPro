@@ -98,7 +98,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="County" class="control-label">County</label>
-                                    <select asp-for="County" id="county" class="form-control" asp-items="@ViewBag.counties" required>
+                                    <select asp-for="County" id="county" class="chzn-select form-control" asp-items="@ViewBag.counties" required>
                                     </select>
                                     <span asp-validation-for="County" class="text-danger"></span>
                                 </div>
@@ -107,9 +107,9 @@
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="form-group">
                                 <label asp-for="District" class="control-label">Sub County</label>
-                                <select asp-for="District" id="sub-county" class="form-control" asp-items="@ViewBag.subCounties" required disabled>
+                                <select asp-for="District" id="sub-county" class="chzn-select form-control" asp-items="@ViewBag.subCounties" required disabled>
                                 </select>
                                 <span asp-validation-for="District" class="text-danger"></span>
                             </div>
@@ -123,7 +123,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Division" class="control-label">Ward</label>
-                                    <select asp-for="Division" id="ward" class="form-control" asp-items="@ViewBag.wards" disabled required>
+                                    <select asp-for="Division" id="ward" class="chzn-select form-control" asp-items="@ViewBag.wards" disabled required>
                                     </select>
                                     <span asp-validation-for="Division" class="text-danger"></span>
                                 </div>
@@ -135,7 +135,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Location" class="control-label"></label>
-                                    <select asp-for="Location" id="location" class="form-control" asp-items="@ViewBag.locations">
+                                    <select asp-for="Location" id="location" class="chzn-select form-control" asp-items="@ViewBag.locations">
                                     </select>
                                     <span asp-validation-for="Location" class="text-danger"></span>
                                 </div>
@@ -155,31 +155,47 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="col-sm-3 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="nform-group">
                                 <label asp-for="TransCode" class="control-label">Payment Mode</label>
-                                <select asp-for="TransCode" class="form-control" required asp-items="@ViewBag.payment">
+                                <select asp-for="TransCode" class="chzn-select form-control" required asp-items="@ViewBag.payment">
                                 </select>
                                 <span asp-validation-for="TransCode" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="col-sm-2 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label class="control-label">Gender</label>
                                 <div class="form-group">
-                                    <select asp-for="Type" class="form-control" required asp-items="@ViewBag.gender">
+                                    <select asp-for="Type" class="chzn-select form-control" required asp-items="@ViewBag.gender">
                                     </select>
                                     <span asp-validation-for="Type" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    @if (ViewBag.slopes)
+                    {
+                        <div class="col-sm-2 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
+                                    <label class="control-label">Transporter</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <select id="transporter" asp-for="VehicleNo" class="chzn-select form-control" asp-items="@ViewBag.vehicles">
+                                </select>
+                            </div>
+                        </div>
+                    }
+                    <div class="col-sm-3 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="form-group">
                                 <label asp-for="Email" class="control-label"></label>
                                 <input asp-for="Email" autocomplete="off" class="form-control" />
                                 <span asp-validation-for="Email" class="text-danger"></span>
@@ -193,7 +209,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="Branch" class="control-label"></label>
-                                    <select asp-for="Branch" class="form-control" asp-items="@ViewBag.brances" required>
+                                    <select asp-for="Branch" class="chzn-select form-control" asp-items="@ViewBag.brances" required>
                                     </select>
                                     <span asp-validation-for="Branch" class="text-danger"></span>
                                 </div>
@@ -202,13 +218,11 @@
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <div class="form-group">
-                                    <label asp-for="Approval" class="control-label">
-                                        <input asp-for="Approval" type="checkbox" />@Html.DisplayNameFor(model => model.Approval)
-                                        <span asp-validation-for="Approval" class="text-danger"></span>
-                                    </label>
-                                </div>
+                            <div class="form-group">
+                                <label asp-for="Approval" class="control-label">
+                                    <input asp-for="Approval" type="checkbox" />@Html.DisplayNameFor(model => model.Approval)
+                                    <span asp-validation-for="Approval" class="text-danger"></span>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -216,9 +230,9 @@
                 <div class="row">
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12" id="zone1">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="form-group">
                                 <label class="control-label">Zone</label>
-                                <select id="zone" asp-for="Zone" class="form-control" asp-items="@ViewBag.zones">
+                                <select id="zone" asp-for="Zone" class="chzn-select form-control" asp-items="@ViewBag.zones">
                                 </select>
                                 <span asp-validation-for="Zone" class="text-danger"></span>
                             </div>
@@ -226,9 +240,9 @@
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="form-group">
                                 <label class="control-label">Value Chain</label>
-                                <select id="valuechain" asp-for="ValueChain" class="form-control" asp-items="@ViewBag.valuechain">
+                                <select id="valuechain" asp-for="ValueChain" class="chzn-select form-control" asp-items="@ViewBag.valuechain">
                                 </select>
                                 <span asp-validation-for="ValueChain" class="text-danger"></span>
                             </div>
@@ -236,9 +250,9 @@
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="form-group">
                                 <label class="control-label">CIG Name</label>
-                                <select id="cigname" asp-for="CigName" class="form-control" asp-items="@ViewBag.cigname">
+                                <select id="cigname" asp-for="CigName" class="chzn-select form-control" asp-items="@ViewBag.cigname">
                                 </select>
                                 <span asp-validation-for="CigName" class="text-danger"></span>
                             </div>
@@ -247,7 +261,7 @@
                     @if (ViewBag.isElburgon) { 
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
-                                <div class="nk-int-st">
+                                <div class="form-group">
                                     <div class="form-group">
                                         <label asp-for="Shares" class="control-label">
                                             <input asp-for="Shares" type="checkbox" />@Html.DisplayNameFor(model => model.Shares)
@@ -264,10 +278,10 @@
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="form-group">
                                 <div class="form-group">
                                     <label class="control-label">Bank</label>
-                                    <select asp-for="Bcode" Value="Select Bank" class="form-control" asp-items="@ViewBag.banksname"></select>
+                                    <select asp-for="Bcode" Value="Select Bank" class="chzn-select form-control" asp-items="@ViewBag.banksname"></select>
                                     <span asp-validation-for="Bcode" class="text-danger"></span>
                                 </div>
                             </div>
@@ -275,7 +289,7 @@
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="form-group">
                                 <div class="form-group">
                                     <label asp-for="AccNo" class="control-label"></label>
                                     <input asp-for="AccNo" autocomplete="off" class="form-control" />
@@ -287,9 +301,9 @@
 
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
+                            <div class="form-group">
                                 <label asp-for="Bbranch" class="control-label">Bank Branch</label>
-                                <select asp-for="Bbranch" class="form-control" asp-items="@ViewBag.bankbrances"></select>
+                                <select asp-for="Bbranch" class="chzn-select form-control" asp-items="@ViewBag.bankbrances"></select>
                                 <span asp-validation-for="Bbranch" class="text-danger"></span>
                             </div>
                         </div>
@@ -319,7 +333,7 @@
                 let subcounties = @Html.Raw(Json.Serialize(ViewBag.SubCountyName));
                 let wards = @Html.Raw(Json.Serialize(ViewBag.WardSubCounty));
                 let locations = @Html.Raw(Json.Serialize(ViewBag.locations));
-
+            $(".chzn-select").chosen();
                 var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
                 if (checkiftoenable === 0) {
                     $('#zone1').hide();
@@ -339,10 +353,13 @@
                     $.each(sub_counties, function() {
                         $('#sub-county').append($("<option />").val(this.Name).text(this.Name));
                     });
+                $('#sub-county').chosen();
+                $("#sub-county").trigger("chosen:updated");
                 });
 
                 $('#sub-county').on('change', function () {
                     $('#ward').empty();
+                    $('#ward').append($('<option>').val('').text(''))
                     $('#ward').prop('disabled', false);
                     let subCounty = $("#sub-county").val();
                     let curr_wards = wards.filter(p => p.SubCounty.trim() === subCounty.trim());
@@ -350,6 +367,8 @@
                     $.each(curr_wards, function() {
                         $('#ward').append($("<option />").val(this.Name).text(this.Name));
                     });
+                $('#ward').chosen();
+                $("#ward").trigger("chosen:updated");
                 });
             });
 </script>

@@ -17,7 +17,7 @@
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
                                 <label asp-for="DName" class="control-label">Name</label>
-                                <select asp-for="DName" Value="Select Bank" class="form-control" asp-items="@ViewBag.debtorsnames"></select>
+                                <select asp-for="DName" Value="Select Bank" class="chzn-select form-control" asp-items="@ViewBag.debtorsnames"></select>
                                 <span asp-validation-for="DName" class="text-danger"></span>
                             </div>
                         </div>
@@ -93,6 +93,7 @@
             $("#date").val(today);
             var total = 0;
             getSelectedDateIntakes();
+            $(".chzn-select").chosen();
             $('#date').change(function () {
                 $("#intake").val(total);
                 getSelectedDateIntakes();

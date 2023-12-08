@@ -105,6 +105,7 @@
                                         <th>Quantity</th>
                                         <th>Buying Price</th>
                                         <th>Selling Price</th>
+                                        <th>Total Amount</th>
                                         <th>Description</th>
                                         <th>User</th>
                                         <th>From</th>
@@ -221,23 +222,31 @@
 
             function populateIntake(intakes) {
                 let itemTableRows = new Array();
+                let total = 0;
+                let totals = 0;
                 intakes.forEach(i => {
                     //debugger;
+                    total = i.Buying * i.Quantity;
+                    totals += total;
                     var ddate = i.Date;
                     var dd1 = new Date(ddate).toLocaleDateString();
                     itemTableRows.push(`<tr>
                                 <td>${dd1}</td>
                                 <td>${i.Productname}</td>
-                                <td>${i.Quantity}</td>
-                                <td>${i.Buying}</td>
-                                <td>${i.Selling}</td>
+                                <td>${i.Quantity.toLocaleString()}</td>
+                                <td>${i.Buying.toLocaleString()}</td>
+                                <td>${i.Selling.toLocaleString()}</td>
+                                <td>${total.toLocaleString()}</td>
                                 <td>${i.Description}</td>
                                 <td>${i.Username}</td>
                                 <td>${i.BranchF}</td>
                                 <td>${i.Branch}</td>
                             </tr>`)
                 });
-
+                itemTableRows.push(`<tr>
+                                        <td colspan="5"><h1>Total</td>
+                                        <td>${totals.toLocaleString()}</td>
+                                    </tr>`)
                 $('#intakes').html(itemTableRows);
             }
         });

@@ -35,6 +35,7 @@ using DocumentFormat.OpenXml.Office2010.Excel;
 using EasyPro.Models.BosaModels;
 using DocumentFormat.OpenXml.Drawing;
 using static System.Net.WebRequestMethods;
+using Stripe.FinancialConnections;
 
 namespace EasyPro.Controllers
 {
@@ -92,14 +93,15 @@ namespace EasyPro.Controllers
                 .Where(i => i.TransactionType == TransactionType.Correction && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && i.TransDate == date).OrderByDescending(l => l.Auditdatetime).ToList();
 
-            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) 
+            var TodaysBranchkg = productIntakeslist.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())
             && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == date && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
 
             if (user.AccessLevel == AccessLevel.Branch)
                 intakes = intakes.Where(i => i.Branch == saccoBranch).ToList();
             //intakes=intakes.OrderByDescending(l => l.Auditdatetime).ToList();
             ViewBag.intakes = TodaysBranchkg;
-            return Json(new {
+            return Json(new
+            {
                 intakes,
                 TodaysBranchkg
             });
@@ -217,7 +219,7 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            
+
             var intakes = await _context.ProductIntake
                 .Where(c => c.TransactionType == TransactionType.Correction && c.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && c.TransDate == DateTime.Today).ToListAsync();
@@ -338,10 +340,10 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
             {
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
-                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
+                //suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+                //transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
             }
-         
+
             ViewBag.suppliers = suppliers.Select(s => new DSupplier
             {
                 Sno = s.Sno,
@@ -349,7 +351,7 @@ namespace EasyPro.Controllers
             }).ToList();
 
             var transCodes = new SelectList(transporters.Select(t => t.TransCode).ToList());
-            if(StrValues.Slopes == sacco)
+            if (StrValues.Slopes == sacco)
                 transCodes = new SelectList(transporters.Select(t => t.CertNo).ToList());
 
             ViewBag.transCodes = transCodes;
@@ -391,8 +393,8 @@ namespace EasyPro.Controllers
             var suppliers = await _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
 
             ViewBag.suppliers = suppliers.Select(s => new DSupplier
             {
@@ -430,9 +432,21 @@ namespace EasyPro.Controllers
             && p.EndofPeriod == endDate && p.SaccoCode == filter.Sacco).ToListAsync();
             var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco);
 
-            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(filter.Code.ToUpper()) && s.Scode == filter.Sacco && s.Branch == filter.Branch);
-            var transCode = _context.DTransports.FirstOrDefault(s => s.Sno.ToUpper().Equals(filter.Code.ToUpper()) && s.saccocode == filter.Sacco && s.Branch == filter.Branch)?.TransCode ?? "";
-            var transporter = _context.DTransporters.FirstOrDefault(s => s.TransCode.ToUpper().Equals(transCode.ToUpper()) && s.ParentT == filter.Sacco && s.Tbranch == filter.Branch);
+            var productintakeraw = _context.ProductIntake.Where(m => m.TransDate >= startDate && m.TransDate <= endDate
+            && m.SaccoCode == filter.Sacco && m.Sno.ToUpper().Equals(filter.Code.ToUpper())
+            && m.TransactionType == TransactionType.Deduction).ToList();
+
+            var productIntakes = productintakeraw.Where(m => m.TransDate == filter.Date && m.SaccoCode == filter.Sacco
+            && m.Sno.ToUpper().Equals(filter.Code.ToUpper()) && m.TransactionType == TransactionType.Deduction).ToList();
+            
+            var supplier = _context.DSuppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(filter.Code.ToUpper()) && s.Scode == filter.Sacco);
+            var transCode = _context.DTransports.FirstOrDefault(s => s.Sno.ToUpper().Equals(filter.Code.ToUpper()) && s.saccocode == filter.Sacco)?.TransCode ?? "";
+            var transporterlist =  _context.DTransporters.Where(m=>m.ParentT == filter.Sacco && m.Active).ToList();
+            var transporter = transporterlist.FirstOrDefault(s => s.TransCode.ToUpper().Equals(transCode.ToUpper()));
+            supplier.VehicleNo = supplier.VehicleNo ?? "";
+            if (StrValues.Slopes == filter.Sacco)
+                transporter = transporterlist.FirstOrDefault(x => x.CertNo.Trim().ToUpper().Equals(supplier.VehicleNo.Trim().ToUpper()));
+
             if (transporter == null)
                 transporter = new DTransporter
                 {
@@ -443,30 +457,29 @@ namespace EasyPro.Controllers
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
 
+            var ExpectedAmountdeducted = productintakeraw.Where(b => b.SaccoCode == filter.Sacco && b.Sno.ToUpper().Trim().Equals(filter.Code.ToUpper())
+            && b.TransactionType == TransactionType.Deduction).ToList();
+            List<dynamic> deductionsbal = new List<dynamic>();
+            var ExpectedAmountdeductedGrouped = ExpectedAmountdeducted.Where(p => p.ProductType.ToLower() != "milk"
+            && p.ProductType.ToLower() != "loan" && p.ProductType.ToLower() != "advance").ToList()
+                .Select(c => c.ProductType.ToUpper()).Distinct();
+
             var loanTypes = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
             var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode && t.MemberNo.ToUpper().Equals(filter.Code.ToUpper())).ToListAsync();
-            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code 
-            && l.TransDate == filter.Date).ToListAsync();
-            loans.ForEach(l =>
-            {
-                var loanType = loanTypes.FirstOrDefault(t => t.LoanCode == l.LoanCode);
-                var loanBal = loanBals.FirstOrDefault(s => s.LoanNo == l.LoanNo);
-                l.LoanCode = loanType?.LoanType ?? "";
-                l.Balance = loanBal?.Balance ?? 0;
-            });
+            var loansdeducted = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code
+            && l.TransDate == endDate).ToListAsync();
+            List<dynamic> loans = new List<dynamic>();
+            var loangrouped = loansdeducted.GroupBy(z => z.LoanCode).ToList();
 
-            var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(filter.Code.ToUpper()) 
-            && s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
-            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code 
-            && l.TransDate == filter.Date).ToListAsync();
-            shares.ForEach(s =>
-            {
-                s.Paid = 0;
-                if (s.Sharescode == "S03" && s.Amount < 5500)
-                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
-                if (s.Sharescode != "S03" && s.Amount >= 5500)
-                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
-            });
+            var CONTRIB_standingOrder = await _bosaDbContext.CONTRIB_standingOrder.Where(n => n.CompanyCode == StrValues.SlopesCode
+           && n.MemberNo.ToUpper().Equals(filter.Code.ToUpper())).ToListAsync();
+            var shareslist = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(filter.Code.ToUpper())
+            && s.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.Sno == filter.Code && l.TransDate == endDate).ToListAsync();
+            List<dynamic> shares = new List<dynamic>();
+
+            GetDeductions(ExpectedAmountdeductedGrouped, deductionsbal, ExpectedAmountdeducted, CONTRIB_standingOrder,
+                shares, shareslist, deductedShares, loanTypes, loanBals, loansdeducted, loans, loangrouped);
             return Json(new
             {
                 payrolls,
@@ -475,7 +488,8 @@ namespace EasyPro.Controllers
                 supplier,
                 transporter,
                 loans,
-                shares
+                shares,
+                deductionsbal
             });
         }
 
@@ -488,105 +502,84 @@ namespace EasyPro.Controllers
             filter.Sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             filter.Branch = filter?.Branch ?? HttpContext.Session.GetString(StrValues.Branch) ?? "";
             filter.LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
             ViewBag.slopes = StrValues.Slopes == filter.Sacco;
 
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var payrolls = await _context.DPayrolls.Where(p => p.Bank.ToUpper().Equals(filter.Code.ToUpper())
-           && p.EndofPeriod == endDate && p.SaccoCode == filter.Sacco).ToListAsync();
+                && p.EndofPeriod == endDate && p.SaccoCode == filter.Sacco).ToListAsync();
+
+            var productintakeraw = _context.ProductIntake.Where(m => m.TransDate >= startDate && m.TransDate <= endDate
+                && m.SaccoCode == filter.Sacco && m.Sno.ToUpper().Equals(filter.Code.ToUpper())
+                && m.TransactionType == TransactionType.Deduction).ToList();
+
             var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == filter.Sacco);
 
             var suppliers = await _context.DSuppliers.Where(s => s.Scode == filter.Sacco).ToListAsync();
             var transports = await _context.DTransports.Where(s => s.saccocode == filter.Sacco).ToListAsync();
-            var transporters = await _context.DTransporters.Where(s => s.ParentT == filter.Sacco).ToListAsync();
-            
+            var transporters = await _context.DTransporters.Where(s => s.ParentT == filter.Sacco && s.Active).ToListAsync();
+
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(filter.LoggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-            {
-                suppliers = suppliers.Where(s => s.Branch == filter.Branch).ToList();
-                transports = transports.Where(s => s.Branch == filter.Branch).ToList();
-                transporters = transporters.Where(s => s.Tbranch == filter.Branch).ToList();
-            }
 
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
 
             var loanTypes = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
-            var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode).ToListAsync();
-            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.TransDate == filter.Date).ToListAsync();
+            var memberLoanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode).ToListAsync();
+            var memberloans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco && l.TransDate == endDate).ToListAsync();
 
-            var shares = await _bosaDbContext.CONTRIB.Where(s => s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
-            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.TransDate == filter.Date).ToListAsync();
-            shares.ForEach(s =>
-            {
-                s.Paid = 0;
-                if (s.Sharescode == "S03" && s.Amount < 5500)
-                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
-                if (s.Sharescode != "S03" && s.Amount >= 5500)
-                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
-            });
+            var getstanding = await _bosaDbContext.CONTRIB_standingOrder.Where(n => n.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var memberShares = await _bosaDbContext.CONTRIB.Where(s => s.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var memberDeductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco && l.TransDate == endDate).ToListAsync();
+
 
             var banksPayslip = new List<dynamic>();
-            foreach(var payroll in payrolls)
+            foreach (var payroll in payrolls)
             {
                 payroll.Sno = payroll?.Sno ?? "";
+
+                var productIntakes = productintakeraw.Where(m => m.TransDate == filter.Date && m.SaccoCode == filter.Sacco
+                && m.Sno.ToUpper().Equals(payroll.Sno.ToUpper()) && m.TransactionType == TransactionType.Deduction).ToList();
+
+                var ExpectedAmountdeducted = productintakeraw.Where(b => b.SaccoCode == filter.Sacco && b.Sno.ToUpper().Trim().Equals(payroll.Sno.ToUpper())
+                && b.TransactionType == TransactionType.Deduction).ToList();
+                List<dynamic> deductionsbal = new List<dynamic>();
+                var ExpectedAmountdeductedGrouped = ExpectedAmountdeducted.Where(p => p.ProductType.ToLower() != "milk"
+                && p.ProductType.ToLower() != "loan" && p.ProductType.ToLower() != "advance").ToList()
+                    .Select(c => c.ProductType.ToUpper()).Distinct();
+
                 var supplier = suppliers.FirstOrDefault(s => s.Sno.ToUpper().Equals(payroll.Sno.ToUpper()));
                 var transCode = transports.FirstOrDefault(s => s.Sno.ToUpper().Equals(payroll.Sno.ToUpper()))?.TransCode ?? "";
                 var transporter = transporters.FirstOrDefault(s => s.TransCode.ToUpper().Trim().Equals(transCode.ToUpper().Trim()));
-                var memberLoanBals = loanBals.Where(t => t.MemberNo.ToUpper().Equals(payroll.Sno.ToUpper())).ToList();
-                var memberLoans = loans.Where(l => l.Sno == payroll.Sno).ToList();
-                memberLoans.ForEach(l =>
-                {
-                    var loanType = loanTypes.FirstOrDefault(t => t.LoanCode == l.LoanCode);
-                    var loanBal = memberLoanBals.FirstOrDefault(s => s.LoanNo == l.LoanNo);
-                    l.LoanCode = loanType?.LoanType ?? "";
-                    l.Balance = loanBal?.Balance ?? 0;
-                });
+                supplier.VehicleNo = supplier.VehicleNo ?? "";
+                if (StrValues.Slopes == filter.Sacco)
+                    transporter = transporters.FirstOrDefault(x => x.CertNo.Trim().ToUpper().Equals(supplier.VehicleNo.Trim().ToUpper()));
 
-                var memberShares = shares.Where(s => s.MemberNo.ToUpper().Equals(payroll.Sno.ToUpper())).ToList();
-                var memberDeductedShares = deductedShares.Where(l => l.Sno == payroll.Sno).ToList();
-                memberShares.ForEach(s =>
-                {
-                    s.Paid = 0;
-                    if (s.Sharescode == "S03" && s.Amount < 5500)
-                        s.Paid = memberDeductedShares.FirstOrDefault()?.Amount ?? 0;
-                    if (s.Sharescode != "S03" && s.Amount >= 5500)
-                        s.Paid = memberDeductedShares.FirstOrDefault()?.Amount ?? 0;
-                });
+                var loanBals = memberLoanBals.Where(t => t.MemberNo.ToUpper().Equals(payroll.Sno.ToUpper())).ToList();
+                var loansdeducted = memberloans.Where(l => l.Sno.ToUpper().Equals(payroll.Sno.ToUpper())).ToList();
+
+                var CONTRIB_standingOrder = getstanding.Where(n => n.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToList();
+                var shareslist = memberShares.Where(s => s.MemberNo.ToUpper().Equals(payroll.Sno.ToUpper())).ToList();
+                var deductedShares = memberDeductedShares.Where(l => l.Sno.ToUpper().Equals(payroll.Sno.ToUpper())).ToList();
+                List<dynamic> shares = new List<dynamic>();//shareslist
+
+                List<dynamic> loans = new List<dynamic>();
+                var loangrouped = loansdeducted.GroupBy(z => z.LoanCode).ToList();
+
+                GetDeductions(ExpectedAmountdeductedGrouped, deductionsbal, ExpectedAmountdeducted, CONTRIB_standingOrder,
+                shares, shareslist, deductedShares, loanTypes, loanBals, loansdeducted, loans, loangrouped);
 
                 banksPayslip.Add(new
                 {
-                    payroll.Transport,
-                    payroll.Agrovet,
-                    payroll.Bonus,
-                    payroll.extension,
-                    payroll.SMS,
-                    payroll.Tmshares,
-                    payroll.Fsa,
-                    payroll.Hshares,
-                    payroll.Advance,
-                    payroll.Others,
-                    payroll.Tdeductions,
-                    payroll.KgsSupplied,
-                    payroll.Registration,
-                    payroll.Gpay,
-                    payroll.Subsidy,
-                    payroll.Npay,
-                    payroll.AccountNumber,
-                    payroll.CLINICAL,
-                    payroll.AI,
-                    payroll.Tractor,
-                    payroll.CurryForward,
-                    payroll.MIDPAY,
-                    payroll.NOV_OVPMNT,
-                    payroll.SACCO_SAVINGS,
-                    payroll.SACCO_SHARES,
-                    payroll.INST_ADVANCE,
-                    payroll.MILK_RECOVERY,
-                    payroll.KIIGA,
-                    payroll.KIROHA,
-                    memberLoans,
-                    memberShares,
+                    payroll,
+                    price,
+                    company,
+                    supplier,
+                    transporter,
+                    loans,
+                    shares,
+                    deductionsbal,
                     supplier.Names,
                     supplier.Sno,
                     transName = transporter?.TransName ?? "",
@@ -610,10 +603,8 @@ namespace EasyPro.Controllers
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
-            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Active).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            //if (user.AccessLevel == AccessLevel.Branch)
-            //    transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
 
             var codes = transporters.Select(t => t.CertNo).ToList();
             ViewBag.codes = new SelectList(codes);
@@ -647,7 +638,7 @@ namespace EasyPro.Controllers
             var startDate = new DateTime(filter.Date.Year, filter.Date.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            var transporter = _context.DTransporters.FirstOrDefault(s => s.CertNo.ToUpper().Equals(filter.Code.ToUpper()) && s.ParentT == filter.Sacco && s.Tbranch == filter.Branch);
+            var transporter = _context.DTransporters.FirstOrDefault(s => s.CertNo.ToUpper().Equals(filter.Code.ToUpper()) && s.ParentT == filter.Sacco);
             if (transporter == null)
                 transporter = new DTransporter
                 {
@@ -661,29 +652,37 @@ namespace EasyPro.Controllers
             var company = _context.DCompanies.FirstOrDefault(c => c.Name == filter.Sacco);
             company.SupStatementNote = company?.SupStatementNote ?? "";
 
+            var productintakeraw = _context.ProductIntake.Where(m => m.TransDate >= startDate && m.TransDate <= endDate
+            && m.SaccoCode == filter.Sacco && m.Sno.ToUpper().Equals(filter.Code.ToUpper())
+            && m.TransactionType == TransactionType.Deduction).ToList();
+
+            var productIntakes = productintakeraw.Where(m => m.TransDate == filter.Date && m.SaccoCode == filter.Sacco
+            && m.Sno.ToUpper().Equals(filter.Code.ToUpper()) && m.TransactionType == TransactionType.Deduction).ToList();
+
+            var ExpectedAmountdeducted = productintakeraw.Where(b => b.SaccoCode == filter.Sacco && b.Sno.ToUpper().Trim().Equals(filter.Code.ToUpper())
+            && b.TransactionType == TransactionType.Deduction).ToList();
+            List<dynamic> deductionsbal = new List<dynamic>();
+            var ExpectedAmountdeductedGrouped = ExpectedAmountdeducted.Where(p => p.ProductType.ToLower() != "milk"
+            && p.ProductType.ToLower() != "loan" && p.ProductType.ToLower() != "advance").ToList()
+                .Select(c => c.ProductType.ToUpper()).Distinct();
+
             var loanTypes = await _bosaDbContext.LOANTYPE.Where(t => t.CompanyCode == StrValues.SlopesCode).ToListAsync();
             var loanBals = await _bosaDbContext.LOANBAL.Where(t => t.Companycode == StrValues.SlopesCode && t.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToListAsync();
-            var loans = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco 
-            && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && l.TransDate == filter.Date).ToListAsync();
-            loans.ForEach(l =>
-            {
-                var loanType = loanTypes.FirstOrDefault(t => t.LoanCode == l.LoanCode);
-                var loanBal = loanBals.FirstOrDefault(s => s.LoanNo == l.LoanNo);
-                l.LoanCode = loanType?.LoanType ?? "";
-                l.Balance = loanBal?.Balance ?? 0;
-            });
+            var loansdeducted = await _context.SaccoLoans.Where(l => l.Saccocode == filter.Sacco
+            && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && l.TransDate == endDate).ToListAsync();
+            List<dynamic> loans = new List<dynamic>();
+            var loangrouped = loansdeducted.GroupBy(z => z.LoanCode).ToList();
 
-            var shares = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()) && s.CompanyCode == StrValues.SlopesCode && s.ReceiptNo != "1").ToListAsync();
-            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco 
-            && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && l.TransDate == filter.Date).ToListAsync();
-            shares.ForEach(s =>
-            {
-                s.Paid = 0;
-                if (s.Sharescode == "S03" && s.Amount < 5500)
-                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
-                if (s.Sharescode != "S03" && s.Amount >= 5500)
-                    s.Paid = deductedShares.FirstOrDefault()?.Amount ?? 0;
-            });
+            var CONTRIB_standingOrder = await _bosaDbContext.CONTRIB_standingOrder.Where(n => n.CompanyCode == StrValues.SlopesCode
+            && n.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())).ToListAsync();
+            var shareslist = await _bosaDbContext.CONTRIB.Where(s => s.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper())
+            && s.CompanyCode == StrValues.SlopesCode).ToListAsync();
+            var deductedShares = await _context.SaccoShares.Where(l => l.Saccocode == filter.Sacco
+            && l.Sno.ToUpper().Equals(transporter.TransCode.ToUpper()) && l.TransDate == endDate).ToListAsync();
+            List<dynamic> shares = new List<dynamic>();//shareslist
+
+            GetDeductions(ExpectedAmountdeductedGrouped, deductionsbal, ExpectedAmountdeducted, CONTRIB_standingOrder,
+                 shares, shareslist, deductedShares, loanTypes, loanBals, loansdeducted, loans, loangrouped);
             return Json(new
             {
                 payrolls,
@@ -691,10 +690,69 @@ namespace EasyPro.Controllers
                 company,
                 transporter,
                 loans,
-                shares
+                shares,
+                deductionsbal
             });
         }
 
+        private void GetDeductions(IEnumerable<string> ExpectedAmountdeductedGrouped, List<dynamic> deductionsbal, List<ProductIntake> ExpectedAmountdeducted, List<ContribStandingOrder> cONTRIB_standingOrder, List<dynamic> shares, List<SContrib> shareslist, List<SaccoShares> deductedShares, List<LoanTypes> loanTypes, List<LoanBal> loanBals, List<SaccoLoans> loansdeducted, List<dynamic> loans, List<IGrouping<string, SaccoLoans>> loangrouped)
+        {
+            var sacconame= HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var getinterestrate = _context.DPrices.FirstOrDefault(b => b.SaccoCode == sacconame).Interest ?? 0;
+
+            ExpectedAmountdeductedGrouped.ForEach(m =>
+            {
+                var geteachProduct = m.FirstOrDefault();
+
+                var getcrediteddeduct = ExpectedAmountdeducted.Where(b => b.ProductType.ToUpper().Equals(m.ToUpper())
+                && b.Description != "Carry Forward" && b.ProductType != "Society Shares").ToList();
+
+                var getcrediteddeductCarryfw = ExpectedAmountdeducted.Where(b => b.ProductType.ToUpper().Equals(m.ToUpper())
+               && b.Description == "Carry Forward" && b.ProductType != "Society Shares").ToList();
+
+                var deductedamount = getcrediteddeduct.Sum(v => v.DR) - getcrediteddeduct.Sum(v => v.CR);
+                deductedamount = deductedamount + getcrediteddeductCarryfw.Sum(v => v.DR);
+                var deductedamountCarryFw = getcrediteddeductCarryfw.Sum(v => v.CR);
+                var interest = deductedamountCarryFw * (getinterestrate/100);
+                deductionsbal.Add(new
+                {
+                    Deduction = m.ToUpper().Trim(),
+                    AmountExpected = deductedamount,
+                    Paid = deductedamount - deductedamountCarryFw,
+                    Bal = deductedamountCarryFw + interest,
+                });
+            });
+            loangrouped.ForEach(l =>
+            {
+                var loanType = loanTypes.FirstOrDefault(t => t.LoanCode == l.Key);
+                decimal loanBal = loanBals.Where(m => m.LoanCode == l.Key).Sum(a => a.Balance);
+                decimal loanDed = (decimal)loansdeducted.Where(m => m.LoanCode == l.Key).Sum(v => v.Amount);
+                loans.Add(new
+                {
+                    LoanCode = loanType?.LoanType ?? "",
+                    Amount = loanDed,
+                    Balance = loanBal,
+                });
+            });
+
+            var saccosharesgrouped = shareslist.GroupBy(s => s.Sharescode).ToList();
+            saccosharesgrouped.ForEach(m =>
+            {
+                decimal totalshare = (decimal)shareslist.Where(b => b.Sharescode == m.Key).Sum(v => v.Amount);
+                var remarks = "";
+                if (m.Key == "S03")
+                    remarks = "SAC SHARES";
+                if (m.Key == "S02")
+                    remarks = "SAVINGS";
+                shares.Add(new
+                {
+                    Amount = totalshare,
+                    Paid = deductedShares.FirstOrDefault(n => n.SharesCode == m.Key)?.Amount ?? 0,
+                    Remarks = remarks,
+                });
+            });
+
+        }
 
         [HttpPost]
         public async Task<JsonResult> GetTransporterFarmersStat([FromBody] StatementFilter filter)
@@ -705,7 +763,7 @@ namespace EasyPro.Controllers
             filter.Branch = filter?.Branch ?? HttpContext.Session.GetString(StrValues.Branch) ?? "";
             filter.LoggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             ViewBag.slopes = StrValues.Slopes == filter.Sacco;
-            
+
             var statement = new SupplierStatement(_context, _bosaDbContext);
             var statementResp = await statement.GetTransporterFarmersStat(filter);
             return Json(statementResp);
@@ -725,8 +783,8 @@ namespace EasyPro.Controllers
             ViewBag.branches = new SelectList(branches);
             var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
 
             var codes = transporters.Select(t => t.TransCode).ToList();
             if (StrValues.Slopes == sacco)
@@ -782,20 +840,20 @@ namespace EasyPro.Controllers
                 intakes = intakes.Where(i => i.Branch == branch).ToList();
 
             var suppliers = await _context.DSuppliers.Where(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch.ToUpper().Equals(branch.ToUpper())).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch.ToUpper().Equals(branch.ToUpper())).ToList();
             if (suppliers.Any())
                 supplier = suppliers.FirstOrDefault();
             if (StrValues.Slopes != sacco)
             {
                 var transports = await _context.DTransports.Where(t => t.Sno.ToUpper().Equals(sno.ToUpper()) && t.saccocode == sacco).ToListAsync();
-                if (user.AccessLevel == AccessLevel.Branch)
-                    transports = transports.Where(s => s.Branch.ToUpper().Equals(branch.ToUpper())).ToList();
+                //if (user.AccessLevel == AccessLevel.Branch)
+                //    transports = transports.Where(s => s.Branch.ToUpper().Equals(branch.ToUpper())).ToList();
                 var trancode = transports.FirstOrDefault()?.TransCode ?? "";
 
                 var transporters = await _context.DTransporters.Where(t => t.TransCode.ToUpper().Equals(trancode.ToUpper()) && t.ParentT == sacco).ToListAsync();
-                if (user.AccessLevel == AccessLevel.Branch)
-                    transporters = transporters.Where(s => s.Tbranch.ToUpper().Equals(branch.ToUpper())).ToList();
+                //if (user.AccessLevel == AccessLevel.Branch)
+                //    transporters = transporters.Where(s => s.Tbranch.ToUpper().Equals(branch.ToUpper())).ToList();
                 if (transporters.Any())
                     transporter = transporters.FirstOrDefault();
             }
@@ -818,8 +876,8 @@ namespace EasyPro.Controllers
             var branch = HttpContext.Session.GetString(StrValues.Branch);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var transporters = await _context.DTransporters.Where(t => t.CertNo.ToUpper().Equals(vehicleNo.ToUpper()) && t.ParentT == sacco).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(s => s.Tbranch.ToUpper().Equals(branch.ToUpper())).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(s => s.Tbranch.ToUpper().Equals(branch.ToUpper())).ToList();
             var transporter = transporters.FirstOrDefault();
             if (transporter == null)
                 transporter = new DTransporter { TransName = "", TransCode = "" };
@@ -832,14 +890,15 @@ namespace EasyPro.Controllers
         [HttpGet]
         public JsonResult checkifalreadyexist(string sno, DateTime date, string type)
         {
+            sno = sno ?? "";
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             var checkifdelievedtoday = _context.ProductIntake.Any(L => L.SaccoCode == sacco
-            && L.Branch == saccoBranch && L.TransDate == date && L.ProductType.ToUpper().Equals(type.ToUpper()) && L.Description == "Transport" && L.Sno.ToUpper().Equals(sno.ToUpper()));
+            && L.TransDate == date && L.ProductType.ToUpper().Equals(type.ToUpper()) && L.Description != "Transport" && L.Sno.ToUpper().Equals(sno.ToUpper()));
             return Json(checkifdelievedtoday);
         }
-        
+
         [HttpGet]
         public JsonResult SelectedName(string sno)
         {
@@ -895,8 +954,8 @@ namespace EasyPro.Controllers
             var suppliers = await _context.DSuppliers
                 .Where(s => s.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
             ViewBag.suppliers = suppliers;
             var products = await _context.DPrices.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             ViewBag.products = new SelectList(products, "Products", "Products");
@@ -905,12 +964,11 @@ namespace EasyPro.Controllers
             var Branch = await _context.DBranch.Where(a => a.Bcode.ToUpper().Equals(sacco.ToUpper())).Select(b => b.Bname).ToListAsync();
             ViewBag.Branch = new SelectList(Branch);
 
-            var zones  = await _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToListAsync();
+            var zones = await _context.Zones.Where(a => a.Code == sacco).Select(b => b.Name).ToListAsync();
             ViewBag.zones = new SelectList(zones);
 
-            var transporters = await _context.DTransporters.Where(t => t.ParentT == sacco).OrderBy(t => t.CertNo).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
+            var gettransporters = await _context.DTransporters.Where(t => t.ParentT == sacco && t.Active).ToListAsync();
+             var transporters = gettransporters.OrderBy(t => t.CertNo).ToList();
 
             var vehicles = transporters.Select(t => t.CertNo).ToList();
             ViewBag.vehicles = new SelectList(vehicles);
@@ -926,9 +984,10 @@ namespace EasyPro.Controllers
                 new SelectListItem { Text = "Evening" },
             };
             ViewBag.morningEve = morningEve;
+            ViewBag.agproductsall = gettransporters;
+            ViewBag.Transporterslist = new SelectList(transporters.Select(t => t.TransName).ToList());
 
         }
-
         public IActionResult CreateDeduction()
         {
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -940,8 +999,8 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco);
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch);
             Farmersobj = new FarmersVM()
             {
                 DSuppliers = suppliers,
@@ -964,7 +1023,7 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             Farmersobj = new FarmersVM()
             {
-                DTransporters = _context.DTransporters.Where(t => t.ParentT == sacco && t.Tbranch == saccoBranch),
+                DTransporters = _context.DTransporters.Where(t => t.ParentT == sacco),
                 //ProductIntake = new ProductIntake
                 //{
                 //    TransDate = DateTime.Today
@@ -1061,7 +1120,7 @@ namespace EasyPro.Controllers
             var productIntakes = await _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper())
             && (s.TransactionType == TransactionType.Intake || s.TransactionType == TransactionType.Correction)).ToListAsync();
             var intakes = productIntakes.Where(s => s.TransDate == DateTime.Today);
-            
+
             var remarks = "Remarks";
             var remarksValue = "";
             if (StrValues.Slopes == sacco)
@@ -1143,8 +1202,6 @@ namespace EasyPro.Controllers
             }
             var suppliers = await _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
 
             var supplier = suppliers.FirstOrDefault();
             if (supplier == null)
@@ -1163,10 +1220,10 @@ namespace EasyPro.Controllers
                     success = false
                 });
             }
-            
+
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
-             
+
             productIntake.SaccoCode = sacco;
             productIntake.Zone = supplier?.Zone ?? "";
             productIntake.TransactionType = TransactionType.Intake;
@@ -1175,14 +1232,14 @@ namespace EasyPro.Controllers
             var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                 && p.Products.ToUpper().Equals(productIntake.ProductType.ToUpper()));
             var checkifdifferentprice = _context.d_Price2.FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-            && p.Branch == saccoBranch && p.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()) && p.Active== true);
+            && p.Branch == saccoBranch && p.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()) && p.Active == true);
 
             if (checkifdifferentprice != null)
                 prices = (int)checkifdifferentprice.Price;
             else
                 prices = (int)price.Price;
 
-            totalamount=(decimal)productIntake.Qsupplied* prices;
+            totalamount = (decimal)productIntake.Qsupplied * prices;
 
             var collection = new ProductIntake
             {
@@ -1213,16 +1270,16 @@ namespace EasyPro.Controllers
             {
                 await calcDefaultdeductions(collection);
             }
-                
+
 
             var activeAssignments = await _context.DTransports.Where(t => t.Active && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) && t.saccocode == sacco).ToListAsync();
             var transports = activeAssignments.Where(t => t.Sno == productIntake.Sno).ToList();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transports = transports.Where(s => s.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transports = transports.Where(s => s.Branch == saccoBranch).ToList();
 
             var transporters = await _context.DTransporters.Where(h => h.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
 
             var transport = transports.FirstOrDefault();
             if (!string.IsNullOrEmpty(productIntake.MornEvening))
@@ -1231,7 +1288,7 @@ namespace EasyPro.Controllers
             if (StrValues.Elburgon == sacco)
             {
                 SharesFilter filter = new SharesFilter()
-                { 
+                {
                     Code = productIntake.Sno,
                     Sacco = sacco,
                     Branch = saccoBranch,
@@ -1242,7 +1299,7 @@ namespace EasyPro.Controllers
                 var statement = new SupplierShares(_context, _bosaDbContext);
                 await statement.deductshares(filter, wherefrom);
             }
-                
+
 
             var transNo = transporters.FirstOrDefault(t => t.CertNo.Trim().ToUpper().Equals(vehicleNo.Trim().ToUpper()))?.TransCode ?? "";
             if (StrValues.Slopes == sacco)
@@ -1263,7 +1320,7 @@ namespace EasyPro.Controllers
                 productIntake.Balance = productIntake.Balance - productIntake.DR;
 
                 decimal kgsToEnter = (decimal)productIntake.Qsupplied;
-                if (StrValues.Elburgon == sacco )
+                if (StrValues.Elburgon == sacco)
                 {
                     kgsToEnter = 0;
                 }
@@ -1291,13 +1348,13 @@ namespace EasyPro.Controllers
                     Zone = productIntake.Zone,
                     MornEvening = productIntake.MornEvening,
                     Details = transport.TransCode.Trim().ToUpper()
-                    
+
                 };
                 _context.ProductIntake.Add(collection);
 
                 // Credit transpoter transport amount
                 ///CHECK IF TRANSPORTER IS PAID BY SOCIETY
-                
+
                 if (transport.Rate == 0 && transporter.Rate > 0)
                     productIntake.CR = productIntake.Qsupplied * (decimal)transporter.Rate;
                 else
@@ -1339,8 +1396,8 @@ namespace EasyPro.Controllers
                             && s.TransDate >= startDate && s.TransDate <= endDate
                             && (s.TransactionType == TransactionType.Intake || s.TransactionType == TransactionType.Correction)).ToListAsync();
 
-            if (user.AccessLevel == AccessLevel.Branch)
-                intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
 
             var commulated = intakes.Sum(s => s.Qsupplied);
             var checkmessageConfigs = _context.MessageConfigs.FirstOrDefault(n => n.saccocode == sacco && !n.Closed);
@@ -1368,17 +1425,6 @@ namespace EasyPro.Controllers
             };
             var receiptDetails = await GetReceiptDetails(intake, loggedInUser);
 
-            
-
-            //    var intakes = _context.ProductIntake
-            //.FirstOrDefault(i => i.TransactionType == TransactionType.Intake && i.SaccoCode.ToUpper().Equals(sacco.ToUpper())
-            //&& i.Sno == collection.Sno && i.TransDate == collection.TransDate && i.TransTime == collection.TransTime);
-
-            //    return RedirectToAction("createprinttest", new { id = intakes.Id });//"Details", "Event", new { id = thisEvent }
-
-            //var Todayskg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today).Sum(p => p.Qsupplied);
-            //var TodaysBranchkg = _context.ProductIntake.Where(s => s.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && (s.Description == "Intake" || s.Description == "Correction") && s.TransDate == DateTime.Today && s.Branch == saccoBranch).Sum(p => p.Qsupplied);
-            
             return Json(new
             {
                 receiptDetails,
@@ -1408,10 +1454,6 @@ namespace EasyPro.Controllers
             }
             IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
             var suppliers = await dSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
-
             var supplier = suppliers.FirstOrDefault();
             if (supplier == null)
             {
@@ -1434,7 +1476,7 @@ namespace EasyPro.Controllers
 
             IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
             var kgs = productIntakes.Where(n => n.Sno.ToUpper().Equals(productIntake.Sno.ToUpper()) && n.SaccoCode == sacco && n.Branch == saccoBranch
-            && n.TransDate == productIntake.TransDate && (n.TransactionType == TransactionType.Intake || n.TransactionType == TransactionType.Correction)).Sum(c=>c.Qsupplied);
+            && n.TransDate == productIntake.TransDate && (n.TransactionType == TransactionType.Intake || n.TransactionType == TransactionType.Correction)).Sum(c => c.Qsupplied);
             productIntake.SaccoCode = sacco;
             var intake = new ProductIntake
             {
@@ -1455,6 +1497,51 @@ namespace EasyPro.Controllers
                 success = true
             });
         }
+
+        [HttpPost]
+        public async Task<JsonResult> transportessummary(string transCode, DateTime date)
+        {
+            transCode = transCode ?? "";
+            utilities.SetUpPrivileges(this);
+            await SetIntakeInitialValues();
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            IQueryable<DSupplier> dSuppliers = _context.DSuppliers;
+            IQueryable<ProductIntake> productIntakes = _context.ProductIntake;
+            IQueryable<DTransporter> getransporter = _context.DTransporters;
+
+            var transporterdetails = getransporter.FirstOrDefault(n => n.ParentT == sacco && transCode.ToUpper().Trim().Equals(transCode.ToUpper().Trim()));
+
+            var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
+            List<dynamic> receiptdetails = new List<dynamic>();
+            var listallintakes = productIntakes.Where(n => n.Sno.ToUpper().Equals(transCode.ToUpper()) && n.SaccoCode == sacco 
+            && n.Branch == saccoBranch && n.TransDate == date 
+            && (n.TransactionType == TransactionType.Deduction )).ToList();
+            var groupdbysno = listallintakes.GroupBy(n => n.Details).ToList();
+            groupdbysno.ForEach(l =>
+            {
+                var getnames = dSuppliers.FirstOrDefault(e => e.Sno.ToUpper().Trim().Equals(l.Key.ToUpper().Trim()));
+                var firstintake = listallintakes.Where(b=>b.Details.ToUpper().Trim().Equals(l.Key.ToUpper().Trim()))
+                .Sum(n => n.Qsupplied);
+                receiptdetails.Add(new
+                {
+                    Sno = l.Key,
+                    Kgs = firstintake,
+                    name = getnames.Names
+                });
+            });
+            return Json(new
+            {
+                companies,
+                receiptdetails,
+                success = true
+            });
+        }
+
 
         [HttpGet]
         public async Task<JsonResult> ReprintReceipt(long intakeId)
@@ -1477,18 +1564,18 @@ namespace EasyPro.Controllers
             var endDate = startDate.AddMonths(1).AddDays(-1);
             // cummulative kgs calc
             var intakes = await _context.ProductIntake.Where(o => o.SaccoCode.ToUpper().Equals(intake.SaccoCode.ToUpper()) &&
-            o.Sno == intake.Sno && o.Branch.ToUpper().Equals(intake.Branch.ToUpper()) &&
+            o.Sno == intake.Sno &&
             o.TransDate >= startDate && o.TransDate <= endDate
             && (o.Description == "Intake" || o.Description == "Correction")).ToListAsync();
 
             var cumkg = intakes.Sum(d => d.Qsupplied);
             string cummkgs = string.Format("{0:.###}", cumkg);
-            var suppliers = await _context.DSuppliers.Where(s => s.Sno.ToUpper().Equals(intake.Sno) 
+            var suppliers = await _context.DSuppliers.Where(s => s.Sno.ToUpper().Equals(intake.Sno)
             && s.Scode == intake.SaccoCode).ToListAsync();
 
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == intake.Branch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == intake.Branch).ToList();
 
             var supplier = suppliers.FirstOrDefault();
             return new
@@ -1592,8 +1679,8 @@ namespace EasyPro.Controllers
 
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToList();
 
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(i => i.Branch == saccobranch).ToList();
 
             var suplliersdeductions = _context.ProductIntake.Where(d => d.SaccoCode.ToUpper().Equals(sacco.ToUpper())
             && d.TransDate >= startDate && d.TransDate <= enDate && suppliers.Select(s => s.Sno.ToUpper()).Contains(d.Sno.ToUpper())
@@ -1667,8 +1754,8 @@ namespace EasyPro.Controllers
 
             var transporters = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
 
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(i => i.Tbranch == saccobranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(i => i.Tbranch == saccobranch).ToList();
 
             var transdeductions = _context.ProductIntake.Where(d => d.SaccoCode.ToUpper().Equals(sacco.ToUpper())
             && d.TransDate >= startDate && d.TransDate <= enDate && transporters.Select(s => s.TransCode.ToUpper()).Contains(d.Sno.ToUpper())
@@ -1739,16 +1826,16 @@ namespace EasyPro.Controllers
             var preSet = await _context.d_PreSets.Where(l => l.Sno.ToUpper().Equals(collection.Sno.ToUpper()) && !l.Stopped
             && l.saccocode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                preSet = preSet.Where(t => t.BranchCode == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    preSet = preSet.Where(t => t.BranchCode == saccoBranch).ToList();
 
             var Checkanydefaultdeduction = preSet.FirstOrDefault();
             if (Checkanydefaultdeduction != null)
             {
                 var intakes = await _context.ProductIntake.Where(f => f.Sno.ToUpper().Equals(collection.Sno.ToUpper())
                 && f.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && f.TransDate >= sDate && f.TransDate <= enDate).ToListAsync();
-                if (user.AccessLevel == AccessLevel.Branch)
-                    intakes = intakes.Where(t => t.Branch == saccoBranch).ToList();
+                //if (user.AccessLevel == AccessLevel.Branch)
+                //    intakes = intakes.Where(t => t.Branch == saccoBranch).ToList();
 
                 var totalkgs = intakes.Where(f => f.TransactionType == TransactionType.Intake).Sum(n => n.Qsupplied);
                 var bonus = Checkanydefaultdeduction.Rate;
@@ -1817,7 +1904,7 @@ namespace EasyPro.Controllers
 
             }
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateDeduction([Bind("Id,Sno,TransDate,ProductType,Qsupplied,Ppu,CR,DR,Balance,Description,Remarks,AuditId,Auditdatetime,Branch,Zone")] ProductIntake productIntake)
@@ -1832,15 +1919,15 @@ namespace EasyPro.Controllers
             DateTime enddate = startdate.AddMonths(1).AddDays(-1);
             productIntake.Description = productIntake?.Description ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
-            
+
             var intakes = _context.ProductIntake.Where(i => i.Sno == productIntake.Sno && i.SaccoCode == sacco
             && i.Qsupplied != 0 && i.TransDate >= startdate && i.TransDate <= enddate);
             var supplierList = _context.DSuppliers.Where(s => s.Scode == sacco);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
             {
-                supplierList = supplierList.Where(s => s.Branch == saccoBranch);
-                intakes = intakes.Where(i => i.Branch == saccoBranch);
+                //supplierList = supplierList.Where(s => s.Branch == saccoBranch);
+                //intakes = intakes.Where(i => i.Branch == saccoBranch);
             }
 
             var message = "Sorry, Supplier does not exist";
@@ -1905,7 +1992,7 @@ namespace EasyPro.Controllers
                 }
                 else
                 {
-                    productIntake.CR = (productIntake.DR*-1);
+                    productIntake.CR = (productIntake.DR * -1);
                     productIntake.DR = 0;
                     amounttoshares = (decimal)productIntake.CR;
                 }
@@ -1913,7 +2000,7 @@ namespace EasyPro.Controllers
                 if (string.IsNullOrEmpty(productIntake.Remarks))
                     re = productIntake.ProductType;
                 productIntake.Description = re;
-                productIntake.Remarks = re+ "Deducted";
+                productIntake.Remarks = re + "Deducted";
                 productIntake.Balance = utilities.GetBalance(productIntake);
                 productIntake.Zone = productIntake.Zone;
                 _context.Add(productIntake);
@@ -1927,7 +2014,7 @@ namespace EasyPro.Controllers
                         Sno = productIntake.Sno,
                         Bal = amounttoshares,
                         IdNo = dSupplier.IdNo,
-                        Code ="",
+                        Code = "",
                         Name = dSupplier.Names,
                         Sex = dSupplier.Type,
                         Loc = dSupplier.Location,
@@ -1936,7 +2023,7 @@ namespace EasyPro.Controllers
                         Pmode = "Checkoff",
                         Cash = false,
                         Period = productIntake.TransDate.ToString("M"),
-                        Amnt =  0,
+                        Amnt = 0,
                         AuditId = loggedInUser,
                         AuditDateTime = DateTime.Now,
                         Shares = 0,
@@ -1950,7 +2037,7 @@ namespace EasyPro.Controllers
                         zone = "",
                     });
                 }
-                
+
 
                 _notyf.Success("Deducted successfully");
                 await _context.SaveChangesAsync();
@@ -1977,8 +2064,8 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             //long.TryParse(, out long sno);
             productIntake.Remarks = productIntake?.Remarks ?? "";
-            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco && t.Tbranch == saccoBranch);
-            if (!_context.DTransporters.Any(i => i.TransCode == productIntake.Sno && i.Active == true && i.ParentT == sacco && i.Tbranch == saccoBranch))
+            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco);
+            if (!_context.DTransporters.Any(i => i.TransCode == productIntake.Sno && i.Active == true && i.ParentT == sacco))
             {
                 _notyf.Error("Sorry, Transporter code does not exist");
                 Farmersobj = new FarmersVM()
@@ -2064,7 +2151,7 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
             //long.TryParse(, out long sno);
             employeesDed.Remarks = employeesDed?.Remarks ?? "";
-            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco && t.Tbranch == saccoBranch);
+            var transporters = _context.DTransporters.Where(t => t.ParentT == sacco);
             if (!_context.Employees.Any(i => i.EmpNo == employeesDed.Empno && i.SaccoCode == sacco))
             {
                 _notyf.Error("Sorry, Staff code does not exist");
@@ -2129,7 +2216,7 @@ namespace EasyPro.Controllers
         public async Task<JsonResult> SaveCorrection([FromBody] ProductIntakeVm productIntake, string vehicleNo)
         {
             vehicleNo = vehicleNo ?? "";
-            await SetIntakeInitialValues(); 
+            await SetIntakeInitialValues();
             utilities.SetUpPrivileges(this);
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
@@ -2169,11 +2256,11 @@ namespace EasyPro.Controllers
                     success = false
                 });
             }
-            
+
             var suppliers = await _context.DSuppliers.Where(s => s.Sno == productIntake.Sno && s.Scode == sacco).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
 
             var supplier = suppliers.FirstOrDefault();
             if (supplier == null)
@@ -2192,7 +2279,7 @@ namespace EasyPro.Controllers
                     success = false
                 });
             }
-           
+
             var prices = 0;
             decimal totalamount = 0;
             productIntake.Zone = supplier?.Zone ?? "";
@@ -2274,12 +2361,12 @@ namespace EasyPro.Controllers
 
             var activeAssignments = await _context.DTransports.Where(t => t.Active && t.producttype.ToUpper().Equals(productIntake.ProductType.ToUpper()) && t.saccocode == sacco).ToListAsync();
             var transports = activeAssignments.Where(t => t.Sno == productIntake.Sno).ToList();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transports = transports.Where(s => s.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transports = transports.Where(s => s.Branch == saccoBranch).ToList();
 
             var transporters = await _context.DTransporters.Where(h => h.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
 
             var transport = transports.FirstOrDefault();
             if (!string.IsNullOrEmpty(productIntake.MornEvening))
@@ -2308,7 +2395,7 @@ namespace EasyPro.Controllers
                 decimal kgsToEnter = (decimal)productIntake.Qsupplied;
                 if (sacco == "ELBURGON PROGRESSIVE DAIRY FCS")
                 {
-                    kgsToEnter=0;
+                    kgsToEnter = 0;
                 }
 
                 productIntake.Balance = productIntake.Balance + productIntake.CR;
@@ -2354,7 +2441,7 @@ namespace EasyPro.Controllers
                     productIntake.CR = 0;
                 }
 
-                if(StrValues.Slopes != sacco)
+                if (StrValues.Slopes != sacco)
                     productIntake.Remarks = "Intake for " + productIntake.Sno;
                 _context.ProductIntake.Add(new ProductIntake
                 {
@@ -2381,15 +2468,15 @@ namespace EasyPro.Controllers
                     Details = productIntake.Sno.Trim().ToUpper()
                 });
             }
-           
+
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var intakes = await _context.ProductIntake.Where(s => s.Sno == productIntake.Sno && s.SaccoCode == sacco
-                            && s.TransDate >= startDate && s.TransDate <= endDate 
+                            && s.TransDate >= startDate && s.TransDate <= endDate
                             && (s.TransactionType == TransactionType.Intake || s.TransactionType == TransactionType.Correction)).ToListAsync();
 
-            if (user.AccessLevel == AccessLevel.Branch)
-                intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    intakes = intakes.Where(s => s.Branch == saccoBranch).ToList();
 
             var commulated = intakes.Sum(s => s.Qsupplied);
             var checkmessageConfigs = _context.MessageConfigs.FirstOrDefault(n => n.saccocode == sacco && !n.Closed);
@@ -2403,7 +2490,7 @@ namespace EasyPro.Controllers
                 else
                     sendmessage(productIntake, supplier, commulated, transporter);
             }
-            
+
 
 
             var companies = _context.DCompanies.FirstOrDefault(i => i.Name.ToUpper().Equals(sacco.ToUpper()));
@@ -2427,7 +2514,7 @@ namespace EasyPro.Controllers
 
             _context.SaveChanges();
             _notyf.Success("Correction saved successfully");
-           
+
             return Json(new
             {
                 receiptDetails,
@@ -2435,6 +2522,36 @@ namespace EasyPro.Controllers
             });
         }
 
+        [HttpPost]
+        public JsonResult getsales(DateTime TDate)
+        {
+            utilities.SetUpPrivileges(this);
+            var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var saccobranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
+            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
+
+            var supplirers = _context.DSuppliers.Where(b => b.Scode == sacco).ToList();
+            var salesstatement = _context.ProductIntake.Where(p => p.TransDate == TDate
+            && p.SaccoCode == sacco && p.Branch == saccobranch
+            && p.TransactionType != TransactionType.Deduction).OrderByDescending(b => b.Id).Take(10).ToList();
+
+            List<dynamic> recentintakes = new List<dynamic>();
+            salesstatement.ForEach(f =>
+            {
+                var getsupplier = supplirers.FirstOrDefault(n => n.Sno.ToUpper().Trim().Equals(f.Sno.ToUpper().Trim()));
+                recentintakes.Add(new
+                {
+                    Sno = f.Sno,
+                    Names = getsupplier.Names,
+                    Quantity = f.Qsupplied,
+                    Time = f.TransTime,
+                    Remarks = f.Remarks,
+                    User = f.AuditId
+                });
+            });
+
+            return Json(recentintakes);
+        }
         private void sendmessage(ProductIntakeVm productIntake, DSupplier supplier, decimal commulated, DTransporter transporter)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
@@ -2602,15 +2719,15 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var transporters = _context.DTransporters.Where(t => t.ParentT == sacco).OrderBy(t => t.CertNo).ToList();
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(s => s.Tbranch == saccoBranch).ToList();
 
             var vehicles = transporters.Select(t => t.CertNo).ToList();
             ViewBag.vehicles = new SelectList(vehicles);
 
             return View();
         }
-       
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeTransporter([Bind("Code,ReceiptNoFrom,ReceiptNoTo")] TransporterChangeVm changeVm)
@@ -2624,29 +2741,29 @@ namespace EasyPro.Controllers
             var branch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             ViewBag.slopes = StrValues.Slopes == sacco;
 
-            IQueryable<ProductIntake> intakes = _context.ProductIntake.Where(p => p.Id >= changeVm.ReceiptNoFrom && p.Id <= changeVm.ReceiptNoTo 
+            IQueryable<ProductIntake> intakes = _context.ProductIntake.Where(p => p.Id >= changeVm.ReceiptNoFrom && p.Id <= changeVm.ReceiptNoTo
             && p.SaccoCode == sacco && p.AuditId.ToUpper().Equals(loggedInUser.ToUpper()));
             var transporters = await _context.DTransporters.Where(s => s.ParentT == sacco && s.CertNo == changeVm.Code).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             if (user.AccessLevel == AccessLevel.Branch)
             {
-                intakes = intakes.Where(s => s.Branch == branch);
-                transporters = transporters.Where(s => s.Tbranch == branch).ToList();
+                //intakes = intakes.Where(s => s.Branch == branch);
+                //transporters = transporters.Where(s => s.Tbranch == branch).ToList();
             }
 
             var transporter = transporters.FirstOrDefault();
             var farmerIntakes = await intakes.Where(i => i.Description != "Transport").ToListAsync();
             var transporterIntakes = await intakes.Where(i => i.Sno.ToUpper().Contains("T")).ToListAsync();
             var productIntakes = new List<ProductIntake>();
-            foreach(var intake in farmerIntakes)
+            foreach (var intake in farmerIntakes)
             {
                 var transporterIntake = transporterIntakes.FirstOrDefault(i => i.Auditdatetime == intake.Auditdatetime);
-                if(transporterIntake != null)
+                if (transporterIntake != null)
                 {
                     transporterIntake.Sno = transporter?.TransCode ?? "";
                     transporterIntake.AuditId = loggedInUser;
                 }
-                if(transporterIntake == null && transporter != null)
+                if (transporterIntake == null && transporter != null)
                     productIntakes.Add(new ProductIntake
                     {
                         Sno = transporter?.TransCode ?? "",

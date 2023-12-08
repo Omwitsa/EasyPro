@@ -1,28 +1,70 @@
 ﻿@model EasyPro.ViewModels.ProductIntakeVm
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
 
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f6;
+        }
+
+        #customers tr:hover {
+            background-color: #c3d8eb;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1080px;
+        height: 130px;
+        overflow: auto;
+    }
+</style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-           
+
             <form asp-action="CreateCorrection">
                 <div class="row">
-                    <div class="col-sm-3 col-xs-12 cmp-tb-hd">
-                        <h2>Create</h2>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Morning/Evening</label>
+                        </div>
                     </div>
-                    <div class="col-sm-3 col-xs-12" id="MorningEvening">
+                    <div class="col-sm-2 col-xs-12" id="MorningEvening">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Morning/Evening</label>
-                                <select id="mevng" asp-for="MornEvening" class="form-control" asp-items="@ViewBag.morningEve"> </select>
+                                <select id="mevng" asp-for="MornEvening" class="chzn-select form-control" asp-items="@ViewBag.morningEve">
+                                    <option></option>
+                                </select>
                             </div>
                         </div>
                     </div>
                     @if (ViewBag.slopes)
                     {
-                        <div class="col-sm-3 col-xs-12">
+                        <div class="col-sm-1 col-xs-12">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
                                     <label class="control-label">Transporter</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 col-xs-12">
+                            <div class="form-group ic-cmp-int float-lb floating-lb">
+                                <div class="nk-int-st">
                                     <select id="transporter" class="chzn-select form-control" asp-items="@ViewBag.vehicles">
                                         <option value=""></option>
                                     </select>
@@ -30,13 +72,15 @@
                             </div>
                         </div>
                     }
-
                     <div class="col-sm-3 col-xs-12">
-                        Farmer Cumlative Kgs
+                        <div class="form-group">
+                            <label class="control-label">Farmer Cumlative Kgs</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 col-xs-12">
                         <input id="supCum" class="form-control" readonly />
                     </div>
                 </div>
-                <hr />
                 <div class="row">
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         Today's Intake:
@@ -54,12 +98,11 @@
                         </div>
                     </div>
                 </div>
-                <hr />
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label asp-for="Sno" class="control-label"></label>
+                            <label asp-for="Sno" class="control-label">Supplier Number</label>
                             <input asp-for="Sno" id="Sno" OnChange="document.getElementById('Qsupplied').focus();" class="form-control" required />
                             <span asp-validation-for="Sno" class="text-danger"></span>
                         </div>
@@ -75,7 +118,7 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="ProductType" class="control-label"></label>
-                            <select id="ProductType" asp-for="ProductType" class="form-control" asp-items="@ViewBag.products">
+                            <select id="ProductType" asp-for="ProductType" class="chzn-select form-control" asp-items="@ViewBag.products">
                                 <option value=""></option>
                             </select>
                             <span asp-validation-for="ProductType" class="text-danger"></span>
@@ -83,7 +126,7 @@
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label id="Ppu1" asp-for="Ppu" class="control-label"></label>
+                            <label id="Ppu1" asp-for="Ppu" class="control-label">Price</label>
                             <input id="Ppu" asp-for="Ppu" class="form-control" readonly />
                             <span asp-validation-for="Ppu" class="text-danger"></span>
                         </div>
@@ -106,7 +149,7 @@
                         </div>
                     </div>
                 </div>
-               
+
                 <div class="row" id="DrCr">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
@@ -132,29 +175,50 @@
                             <span asp-validation-for="Remarks" class="text-danger"></span>
                         </div>
                     </div>
-                   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label class="control-label">Transporter</label>
                             <input id="TransName" class="form-control" readonly />
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-sm-1 col-xs-12">
                         <div class="form-group">
                             <input asp-for="Print" id="print" type="checkbox" />
                             <label asp-for="Print" for="print" class="control-label"></label>
                             <span asp-validation-for="Print" class="text-danger"></span>
                         </div>
+                    </div>
+                    <div class="col-sm-1 col-xs-12">
                         <div class="form-group">
                             <input asp-for="SMS" id="SMS" type="checkbox" />
                             <label asp-for="SMS" for="SMS" class="control-label"></label>
                             <span asp-validation-for="SMS" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-
+                    <div class=" col-sm-2 col-xs-12">
+                        <label class="control-label">..........................</label>
+                        <a id="reprint" class="btn btn-success">Reprint Receipt</a>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Select Transporter</label>
+                            <select id="name" class="chzn-select form-control" asp-items="@ViewBag.Transporterslist">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">TCode</label>
+                            <input id="tcode" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class=" col-sm-2 col-xs-12">
+                        <label class="control-label">..........................</label>
+                        <a id="reprintTrans" class="btn btn-success">Print Transporter Slip</a>
                     </div>
                 </div>
                 <div class="row">
@@ -163,6 +227,39 @@
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a asp-action="CorrectionList" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+                <div class="bsc-tbl-hvr table-border-style">
+
+                    <div class="table-responsive">
+                        <div class="divScroll">
+                            <table class="table table-hover" id="customers">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            SNo
+                                        </th>
+                                        <th>
+                                            Name
+                                        </th>
+                                        <th>
+                                            Quantity
+                                        </th>
+                                        <th>
+                                            Time
+                                        </th>
+                                        <th>
+                                            Remarks
+                                        </th>
+                                        <th>
+                                            Intake By
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statement">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -175,24 +272,38 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-<script type="text/javascript">
-    $(function () {
-        $(".chzn-select").chosen();
-        $("#print").prop("checked", true);
-        var today = new Date().toISOString().split('T')[0];
-        $("#transDate").val(today);
-        let isSlopes = '@ViewBag.slopes' === 'True';
-        $("#Remarks").val(@ViewBag.remarksValue);
-        var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
-        products = products ? products : [];
-        document.getElementById('Sno').focus();
-        $("#Sno").val("");
-        $("#zone").val("");
-        $("#Qsupplied").val("");
-        $('#mevng').val('');
-        $('#DrCr').hide();
+    <script type="text/javascript">
+        $(function () {
+            $(".chzn-select").chosen();
+            $("#print").prop("checked", true);
+            var today = new Date().toISOString().split('T')[0];
+            $("#transDate").val(today);
+            let isSlopes = '@ViewBag.slopes' === 'True';
+            $("#Remarks").val(@ViewBag.remarksValue);
+            $('#name').on('change', function () {
+                var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
+                var selectVal = $("#name").val();
+                var selectSupplier = suppliers.filter(p => (p.TransName.trimRight() === selectVal.trimRight()) || (p.TransName.trimLeft() === selectVal.trimLeft()));
+                if (isSlopes) {
+                    selectSupplier = suppliers.filter(p => p.CertNo === selectVal);
+                }
 
-        var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
+                if (selectSupplier[0]) {
+                    $("#tcode").val(selectSupplier[0].TransCode);
+                }
+            });
+
+            var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
+            products = products ? products : [];
+            document.getElementById('Sno').focus();
+            $("#Sno").val("");
+            $("#zone").val("");
+            $("#Qsupplied").val("");
+            $('#mevng').val('');
+            $('#DrCr').hide();
+            gettransaction();
+
+            var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
                 $('#zone1').hide();
                 $('#MorningEvening').show();
@@ -201,57 +312,193 @@
                 $('#zone1').hide();
                 $('#MorningEvening').show();
             }
-        $('#transDate').change(function () {
-            getkgsfortheday();
-        });
-
-        if (products.length === 1) {
-            $("#ProductType").val(products[0].Products);
-            populateFields(products[0].Products);
-        }
-        $('#ProductType').on('change', function () {
-            var selectVal = $("#ProductType").val();
-            populateFields(selectVal);
-        });
-
-        $('#zone').change(function () {
-            var selectVal =  $("#Sno").val();
-            getSelectedDateIntakes();
-        });
-            $('#Sno').on('blur', function () {
-            var selectVal =  $("#Sno").val();
-            getSelectedDateIntakes();
-        });
-
-        $('#transporter').on('change', function () {
-            var vehicleNo = $("#transporter").val();
-            debugger
-            $.ajax(
-            {
-                type: 'GET',
-                url: "getTransporterDetails?vehicleNo=" + vehicleNo,
-                contentType: 'application/json',
-                success: function (response) {
-                    $("#TransName").val(response.transporter.TransName);
-                },
-                failure: function (response) {
-                }
-            }).then(function () {
-
+            $('#transDate').change(function () {
+                getkgsfortheday();
             });
-        });
-        
-        $('#Qsupplied').keydown(function (event) {
-            if (event.which == 13) {
-                checkifalreadyexist();
-            }
-        });
 
-        function getSelectedforsave() {
-              var print = $('#print').is(':checked');
-                var sms = $('#SMS').is(':checked');
+            if (products.length === 1) {
+                $("#ProductType").val(products[0].Products);
+                populateFields(products[0].Products);
+            }
+            $('#ProductType').on('change', function () {
+                var selectVal = $("#ProductType").val();
+                populateFields(selectVal);
+            });
+
+            $('#zone').change(function () {
+                var selectVal = $("#Sno").val();
+                getSelectedDateIntakes();
+            });
+            $('#Sno').on('blur', function () {
+                var selectVal = $("#Sno").val();
+                getSelectedDateIntakes();
+            });
+
+            $('#transporter').on('change', function () {
                 var vehicleNo = $("#transporter").val();
                 debugger
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "getTransporterDetails?vehicleNo=" + vehicleNo,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#TransName").val(response.transporter.TransName);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            });
+
+            $('#Qsupplied').keydown(function (event) {
+                if (event.which == 13) {
+                    checkifalreadyexist();
+                }
+            });
+            $('#reprint').on('click', function () {
+                var snos = $("#Sno").val();
+                if (snos === "") {
+                    alert("Provide Supplier No To Reprint.")
+                    document.getElementById('Sno').focus();
+                    return
+                }
+
+                reprintreceipt();
+            });
+            $('#reprintTrans').on('click', function () {
+                var snos = $("#tcode").val();
+                if (snos === "") {
+                    alert("Select Transporter To Print Slip.")
+                    return
+                }
+                var date = $("#transDate").val();
+                var name = $("#name").val();
+                var filter = {
+                    date: date,
+                    code: snos,
+                    name: name
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: "transportessummary?transCode=" + snos + "&date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        var content = '';
+                        $("#tcode").val('');
+                        $("#name").val('');
+                        content = generateBanksHTML(response, filter);
+                        printJS({
+                            printable: content,
+                            type: 'raw-html',
+                            style: '.blueText {color:blue;}; #printMe { font-size: 11px; }'
+                        });
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+            function generateBanksHTML(response, filter) {
+                response.company = response.companies ? response.companies : {};
+                var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                let curDate = new Date().toLocaleDateString('en-GB');
+                let content = "";
+                let maxLength = 15;
+
+                let totalPrice = 0;
+                let saccoLoans = response.receiptdetails.map(l => {
+                    let loanCode = l.name.length < maxLength ? l.name : l.name.substring(0, maxLength) + '...'
+                    var kgs = Number(parseFloat(l.Kgs).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    totalPrice += kgs;
+                    return `<tr>
+                                                   <td>${l.Sno}</td>
+                                                    <td>${loanCode}</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>${kgs}</td>
+                                                </tr>`;
+                });
+                var strSaccoLoans = saccoLoans.join('');
+
+                totalPrice = Number(parseFloat(totalPrice).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+
+                content = `${content}<div class="row" id="printMe">
+                                                <div class="col-xs-12 text-center">
+                                                    <h5>
+                                                    ${response.companies.Name}</br>
+                                                    ${response.companies.Adress}</br>
+                                                    ${response.companies.Town}</br>
+                                                      For: ${filter.date}</br>
+                                                      Code: ${filter.code}</br>
+                                                      Name: ${filter.name}</br>
+                                                      TRANSPORTER DELIVERY SUMMARY.
+                                                            </h5>
+                                                    *************************</br>
+                                                    <table>
+                                                        <thead>
+                                                          <tr>
+                                                            <th>Sno</th>
+                                                            <th>Name</th>
+                                                            <th></th>
+                                                            <th></th>
+                                                            <th>Kgs</th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                           ${strSaccoLoans}
+                                                            <tr>
+                                                                <td>TOTAL KGS</td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td>${totalPrice}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                        </table></br>
+                                                    <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                                        **************************
+                                                    <hr>
+                                                </div>
+                                            </div> `;
+
+                return content;
+            }
+            function reprintreceipt() {
+                var intake = {
+                    sno: $("#Sno").val(),
+                    transDate: $("#transDate").val(),
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: "reprintreceipt",
+                    contentType: 'application/json',
+                    data: JSON.stringify(intake),
+                    success: function (response) {
+                        $("#Sno").val('');
+                        $("#Qsupplied").val('');
+                        document.getElementById('Sno').focus();
+                        response = response ? response : {};
+                        if (response.success) {
+                            printReceipt(response);
+                        }
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            }
+            function getSelectedforsave() {
+                var print = $('#print').is(':checked');
+                var sms = $('#SMS').is(':checked');
+                var vehicleNo = $("#transporter").val();
                 vehicleNo = vehicleNo ? vehicleNo : "";
                 var intake = {
                     sno: $("#Sno").val(),
@@ -268,6 +515,7 @@
                     print: print,
                     sms: sms,
                 };
+                $("#Qsupplied").val("");
                 debugger
                 $.ajax({
                     type: 'POST',
@@ -280,15 +528,16 @@
                         document.getElementById('Sno').focus();
                         response = response ? response : {};
                         if (response.success) {
-                            if (isSlopes){
+                            if (isSlopes) {
                                 var remarks = $("#Remarks").val();
                                 remarks = remarks ? remarks : "";
                                 let invoiceNo = parseInt(remarks);
                                 ++invoiceNo;
                                 $("#Remarks").val(invoiceNo);
                             }
-                            
+
                             getkgsfortheday();
+                            gettransaction();
                             if (print) {
                                 var content = generateHTML(response);
                                 printJS({
@@ -303,104 +552,147 @@
                     }
                 }).then(function () {
                     // ...
-                });  
-        };
-        function checkifalreadyexist() {
-            //goselect();
-            var sno = $('#Sno').val();
-            var date = $('#transDate').val();
-            var type = $("#ProductType").val();
-            $.ajax(
-                {
-                    type: 'GET',
-                    url: "checkifalreadyexist?sno=" + sno + "&date=" + date + "&type=" + type,
+                });
+            };
+            function gettransaction() {
+                let TDate = $('#transDate').val();
+                $.ajax({
+                    type: 'POST',
+                    url: "getsales?TDate=" + TDate,
                     contentType: 'application/json',
                     success: function (response) {
-                        if (response) {
-                            checkifdelivered();
-                        } else {
-                            getSelectedforsave();
-                        }
+                        getsalesforthisresponse(response);
+                        //location.reload();
                     },
                     failure: function (response) {
                     }
                 }).then(function () {
 
                 });
-        }
-        function checkifdelivered() {
-            const response = confirm("Already Delivered today, Do you want to continue?");
-            if (response) {
-                getSelectedforsave();
-                return true;
-            } else {
-                $('#Qsupplied').val("");
-                return false;
             }
-        }
-        function getkgsfortheday() {
-             var date = $('#transDate').val();
-            $.ajax(
-                {
-                    type: 'GET',
-                    url: "sumDateIntake?date=" + date,
-                    contentType: 'application/json',
-                    success: function (response) {
-                        var Todayskg = response.Todayskg;
-                        var TodaysBranchkg = response.TodaysBranchkg;
+            function getsalesforthisresponse(saleItems) {
+                let itemTableRows = new Array();
+                saleItems.forEach(i => {
+                    var time = (i.Time).split(":");
+                    h = +time[0];
+                    var p;
+                    if (h > 12) {
+                        h -= 12;
+                        p = "pm";
+                    } else {
+                        h = h || 12;
+                        p = "am";
+                    }
+                    var date = h + ":" + time[1] + p;
+                    itemTableRows.push(`<tr>
+                                                            <td>${i.Sno}</td>
+                                                            <td>${i.Names}</td>
+                                                            <td>${i.Quantity}</td>
+                                                            <td>${date}</td>
+                                                            <td>${i.Remarks}</td>
+                                                            <td>${i.User}</td>
+                                                        </tr>`
+                    );
+                });
+
+                $('#statement').html(itemTableRows);
+            }
+            function checkifalreadyexist() {
+                //goselect();
+                var sno = $('#Sno').val();
+                var date = $('#transDate').val();
+                var type = $("#ProductType").val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "checkifalreadyexist?sno=" + sno + "&date=" + date + "&type=" + type,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            if (response) {
+                                checkifdelivered();
+                            } else {
+                                getSelectedforsave();
+                            }
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
+
+                    });
+            }
+            function checkifdelivered() {
+                const response = confirm("Already Delivered today, Do you want to continue?");
+                if (response) {
+                    getSelectedforsave();
+                    return true;
+                } else {
+                    $('#Qsupplied').val("");
+                    return false;
+                }
+            }
+            function getkgsfortheday() {
+                var date = $('#transDate').val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "sumDateIntake?date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            var Todayskg = response.Todayskg;
+                            var TodaysBranchkg = response.TodaysBranchkg;
                             $("#Sn").val(Todayskg);
                             $("#n").val(TodaysBranchkg);
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
 
-                }); 
-        };
+                    });
+            };
 
-        $('#save').on('click', function () {
-            debugger
+            $('#save').on('click', function () {
+                debugger
                 checkifalreadyexist();
-        });
-
-        function getSelectedDateIntakes() {
-            var sno = $('#Sno').val();
-            var mevng = $('#mevng').val();
-            //var date = $('#transDate').val() ? $('#transDate').val() : new Date();
-            var date = $('#transDate').val();
-            $.ajax(
-                {
-                    type: 'GET',
-                    url: "selectedDateIntake?sno=" + sno + "&date=" + date,
-                    contentType: 'application/json',
-                    success: function (response) {
-                        $("#Names").val(response.supplier.Names);
-                        let transName = `${response.transporter.TransName}  ${response.transporter.TransCode}`;
-                        transName = isSlopes ? $("#TransName").val() : transName;
-                        $("#TransName").val(transName);
-                        $("#supCum").val(response.supCum);
-                    },
-                    failure: function (response) {
-                    }
-                }).then(function () {
-
             });
-        }
 
-        $('#Qsupplied').on('keyup', function () {
-            calculatePrice();
-        });
+            function getSelectedDateIntakes() {
+                var sno = $('#Sno').val();
+                var mevng = $('#mevng').val();
+                //var date = $('#transDate').val() ? $('#transDate').val() : new Date();
+                var date = $('#transDate').val();
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: "selectedDateIntake?sno=" + sno + "&date=" + date,
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $("#Names").val(response.supplier.Names);
+                            let transName = `${response.transporter.TransName}  ${response.transporter.TransCode}`;
+                            transName = isSlopes ? $("#TransName").val() : transName;
+                            $("#TransName").val(transName);
+                            $("#supCum").val(response.supCum);
+                        },
+                        failure: function (response) {
+                        }
+                    }).then(function () {
 
-         function populateFields(product) {
+                    });
+            }
+
+            $('#Qsupplied').on('keyup', function () {
+                calculatePrice();
+            });
+
+            function populateFields(product) {
                 var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
-             var selectProducts = products.filter(p => p.Products === product);
-             if (selectProducts[0].Price === 0) {
-                 $("#Ppu").hide();
-                 $("#Ppu1").hide();
-             } else {
-                 $("#Ppu").show();
-                 $("#Ppu1").show();
-             }
+                var selectProducts = products.filter(p => p.Products === product);
+                if (selectProducts[0].Price === 0) {
+                    $("#Ppu").hide();
+                    $("#Ppu1").hide();
+                } else {
+                    $("#Ppu").show();
+                    $("#Ppu1").show();
+                }
                 if (selectProducts[0]) {
                     $("#CR").val();
                     $("#Qsupplied").val();
@@ -409,40 +701,47 @@
                     $("#CrAccNo").val(selectProducts[0].CrAccNo);
                 }
             }
-         function calculatePrice() {
-            var qty = parseFloat($("#Qsupplied").val());
-            var price = parseFloat($("#Ppu").val());
-            if (qty && price) {
-                $("#CR").val(qty * price);
+            function calculatePrice() {
+                var qty = parseFloat($("#Qsupplied").val());
+                var price = parseFloat($("#Ppu").val());
+                if (qty && price) {
+                    $("#CR").val(qty * price);
+                }
             }
-        }
-         
-        function generateHTML(response) {
-            var mevng = $('#mevng').val();
-            var date = $("#transDate").val();
-            var content = `<div class="row" id="printMe">
-                                        <div class="col-xs-12 text-center">
-                                            ${response.receiptDetails.Name}</br>
-                                            Adress: ${response.receiptDetails.Adress}</br>
-                                            Tell: ${response.receiptDetails.PhoneNo}</br>
-                                            Town: ${response.receiptDetails.Town}</br>
-                                            Branch: ${response.receiptDetails.saccoBranch}</br>
-                                            *************************</br>
-                                            Product Receipt For: ${date}</br>
-                                            SNo: ${response.receiptDetails.Sno}</br>
-                                            Name: ${response.receiptDetails.supName}</br>
-                                            Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
-                                            Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
-                                            Session: ${response.receiptDetails.MornEvening}</br>
-                                            Received By: ${response.receiptDetails.loggedInUser}</br>
-                                            DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</br>
-                                            *************************
-                                            <hr>
-                                        </div>
-                                    </div>`;
+            function printReceipt(intake) {
+                var content = generateHTML(intake);
+                printJS({
+                    printable: content,
+                    type: 'raw-html',
+                    style: '#printMe { font-size: 12px; }'
+                });
+            }
+            function generateHTML(response) {
+                var mevng = $('#mevng').val();
+                var date = $("#transDate").val();
+                var content = `<div class="row" id="printMe">
+                                                <div class="col-xs-12 text-center">
+                                                    ${response.receiptDetails.Name}</br>
+                                                    Adress: ${response.receiptDetails.Adress}</br>
+                                                    Tell: ${response.receiptDetails.PhoneNo}</br>
+                                                    Town: ${response.receiptDetails.Town}</br>
+                                                    Branch: ${response.receiptDetails.saccoBranch}</br>
+                                                    *************************</br>
+                                                    Product Receipt For: ${date}</br>
+                                                    SNo: ${response.receiptDetails.Sno}</br>
+                                                    Name: ${response.receiptDetails.supName}</br>
+                                                    Delivered: ${response.receiptDetails.Qsupplied} kgs</br>
+                                                    Cummulative: ${response.receiptDetails.cummkgs} kgs</br>
+                                                    Session: ${response.receiptDetails.MornEvening}</br>
+                                                    Received By: ${response.receiptDetails.loggedInUser}</br>
+                                                    DEVELOP BY: AMTECH TECHNOLOGIES LIMITED</br>
+                                                    *************************
+                                                    <hr>
+                                                </div>
+                                            </div>`;
 
-            return content;
-        }
-    });
-</script>
+                return content;
+            }
+        });
+    </script>
 }

@@ -64,12 +64,14 @@ namespace EasyPro.Controllers
         [HttpPost]
         public async Task<JsonResult> Cashreport(DateTime startDate, DateTime endDate, string product, string sno, int salestype)
         {
+            product = product ?? "";
+            sno = sno ?? "";
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccobranch = HttpContext.Session.GetString(StrValues.Branch);
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
             var Salescheckoff = await GetAgReceipts(startDate, endDate, product, sno, salestype);
-            Salescheckoff = Salescheckoff.Where(i => i.SNo.ToUpper().Equals("CASH") && i.RNo == sno)
+            Salescheckoff = Salescheckoff.Where(i => i.SNo.ToUpper().Equals("CASH"))
                 .OrderByDescending(i => i.TDate).ToList();
             return Json(Salescheckoff);
         }
@@ -83,7 +85,7 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
 
             var Salescheckoff = await GetAgReceipts(startDate, endDate, product, sno, salestype);
-            Salescheckoff = Salescheckoff.Where(i => i.SNo.ToUpper().Equals("CASH") && i.RNo == sno)
+            Salescheckoff = Salescheckoff.Where(i => i.SNo.ToUpper().Equals("CASH"))
                 .OrderByDescending(i => i.TDate).ToList();
             var groupedReports = Salescheckoff.GroupBy(i => i.TDate).ToList();
 

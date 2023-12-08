@@ -43,9 +43,9 @@ namespace EasyPro.Controllers
             var transporters = _context.DTransporters
                 .Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()));
 
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(t => t.Tbranch == saccoBranch);
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(t => t.Tbranch == saccoBranch);
 
             return View(transporters.ToList());
         }
@@ -174,7 +174,7 @@ namespace EasyPro.Controllers
                 sacco = sacco ?? "";
                 var dTransporterExists = _context.DTransporters
                     .Any(i => i.TransCode == dTransporter.TransCode 
-                    && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
+                    && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
                 if (dTransporterExists)
                 {
                     _notyf.Error("Transporter Code entered already exist");
@@ -182,7 +182,7 @@ namespace EasyPro.Controllers
                 }
                 var dTransporterExistsIDNo = _context.DTransporters
                     .Any(i => i.CertNo == dTransporter.CertNo
-                    && i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch);
+                    && i.ParentT.ToUpper().Equals(sacco.ToUpper()));
                 if (dTransporterExistsIDNo)
                 {
                     _notyf.Error("Transporter IDNo entered already exist");

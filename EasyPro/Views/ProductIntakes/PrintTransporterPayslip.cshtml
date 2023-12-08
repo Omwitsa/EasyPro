@@ -128,25 +128,44 @@
                 let maxLength = 6;
                 let saccoLoans = response.loans.map(l => {
                     let loanCode = l.LoanCode.length < maxLength ? l.LoanCode : l.LoanCode.substring(0, maxLength) + '...'
+                    var amountt = Number(parseFloat(l.Amount).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Balancess = Number(parseFloat(l.Balance).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
                     return `<tr>
                                         <td>${loanCode}</td>
-                                        <td>${l.Amount}</td>
+                                        <td>${amountt}</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>${l.Balance}</td>
+                                        <td>${Balancess}</td>
                                     </tr>`;
                 });
                 var strSaccoLoans = saccoLoans.join('');
+                let saccoOtherDed = response.deductionsbal.map(l => {
+                    let loanCode = l.Deduction.length < maxLength ? l.Deduction : l.Deduction.substring(0, maxLength) + '...'
+                    var amountt = Number(parseFloat(l.Paid).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Balancess = Number(parseFloat(l.Bal).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+
+                    return `<tr>
+                                                <td>${loanCode}</td>
+                                                <td>${amountt}</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>${Balancess}</td>
+                                            </tr>`;
+                });
+                var strSaccoDeductionss = saccoOtherDed.join('');
                 let saccoShares = response.shares.map(l => {
                     let remarks = l.Remarks.length < maxLength ? l.Remarks : l.Remarks.substring(0, maxLength) + '...'
+                    var sharePaid = Number(parseFloat(l.Paid).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var sharesAmount = Number(parseFloat(l.Amount).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
                     return `<tr>
                                                 <td>${remarks}</td>
-                                                <td>${l.Paid}</td>
+                                                <td>${sharePaid}</td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
-                                                <td>${l.Amount}</td>
+                                                <td>${sharesAmount}</td>
                                             </tr>`;
                 });
                 var strSaccoShares = saccoShares.join('');
@@ -166,38 +185,24 @@
                                                 <td>${s.Subsidy}</td>
                                             </tr>`;
                     }
-                    let advanceRaw = "";
-                    if (s.Advance) {
-                        advanceRaw = `<tr>
-                                                <td>ADVANCE</td>
-                                                <td>${s.Advance}</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>`;
-                    }
-                    //let normalLoanRaw = "";
-                    //if (s.Fsa) {
-                    //    normalLoanRaw = ` <tr>
-                    //                    <td>NORMAL LOAN</td>
-                    //                    <td>${s.Fsa}</td>
-                    //                    <td></td>
-                    //                    <td></td>
-                    //                    <td></td>
-                    //                    <td></td>
-                    //                </tr>`;
-                    //}
+                    
                     let paidOrders = standingOrders.filter(p => p.Sno === s.Code && p.Description == "Society Shares");
                     paidOrders = paidOrders ? paidOrders : [];
                     paidOrders[0] = paidOrders[0] ? paidOrders[0] : {};
                     paidOrders[0].Paid = paidOrders[0].Paid ? paidOrders[0].Paid : 0;
-
+                    totalPrice = Number(parseFloat(totalPrice).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var kgs = Number(parseFloat(s.QntySup).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var unitPrice = Number(parseFloat(response.transporter.Rate).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 1 });
+                    var Gross = Number(parseFloat(s.GrossPay).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Hshares = Number(parseFloat(s.Hshares).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Paid = Number(parseFloat(paidOrders[0].Paid).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Tdeductions = Number(parseFloat(s.Totaldeductions).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Npay = Number(parseFloat(s.NetPay).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
                     return `<tr>
                                         <td>KGs</td>
-                                        <td>${s.QntySup}</td>
+                                        <td>${kgs}</td>
                                         <td></td>
-                                        <td>${response.transporter.Rate}</td>
+                                        <td>${unitPrice}</td>
                                         <td></td>
                                         <td>${totalPrice}</td>
                                     </tr>
@@ -208,30 +213,21 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>${s.GrossPay}</td>
+                                        <td>${Gross}</td>
                                     </tr>
-                                    <tr>
-                                        <td>STORES</td>
-                                        <td>${s.Agrovet}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                    ${advanceRaw}
                                     ${strSaccoLoans}
                                     <tr>
                                         <td>SOCIETY</td>
-                                        <td>${s.Hshares}</td>
+                                        <td>${Hshares}</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>${paidOrders[0].Paid}</td>
+                                        <td>${Paid}</td>
                                     </tr>
                                     ${strSaccoShares}
                                     <tr>
                                         <td>TOTAL DED</td>
-                                        <td>${s.Totaldeductions}</td>
+                                        <td>${Tdeductions}</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -243,7 +239,7 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>${s.NetPay}</td>
+                                        <td>${Npay}</td>
                                     </tr>
                                             `;
                 });

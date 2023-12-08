@@ -58,6 +58,8 @@ namespace EasyPro.Controllers
 
             ViewBag.slopes = StrValues.Slopes == sacco;
             ViewBag.isElburgon = StrValues.Elburgon == sacco;
+            ViewBag.Kuresoi = StrValues.Kuresoi == sacco;
+
             //if(StrValues.Elburgon != sacco)
             // {
             IQueryable<DSupplier> suppliers = _context.DSuppliers;

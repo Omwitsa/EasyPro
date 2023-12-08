@@ -199,6 +199,7 @@
 
             function generateHTML(response, filter) {
                 let mevng = $('#mevng').val();
+                debugger
                 response.supplier = response.supplier ? response.supplier : {};
                 response.transporter = response.transporter ? response.transporter : {};
                 let date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
@@ -217,7 +218,23 @@
                             </tr>`;
                 });
                 var strSaccoLoans = saccoLoans.join('');
+                let saccoOtherDed = response.deductionsbal.map(l => {
+                    let loanCode = l.Deduction.length < maxLength ? l.Deduction : l.Deduction.substring(0, maxLength) + '...'
+                    var amountt = Number(parseFloat(l.Paid).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Balancess = Number(parseFloat(l.Bal).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    
+                    return `<tr>
+                                        <td>${loanCode}</td>
+                                        <td>${amountt}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>${Balancess}</td>
+                                    </tr>`;
+                });
+                var strSaccoDeductionss = saccoOtherDed.join('');
                 let saccoShares = response.shares.map(l => {
+                    debugger
                     let remarks = l.Remarks.length < maxLength ? l.Remarks : l.Remarks.substring(0, maxLength) + '...'
                     var sharePaid = Number(parseFloat(l.Paid).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
                     var sharesAmount = Number(parseFloat(l.Amount).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
@@ -261,7 +278,29 @@
                                         <td></td>
                                         <td></td>
                                     </tr>`;
-                     }
+                    }//
+                    if (s.NOV_OVPMNT) {
+                        var NOV_OVPMNT = Number(parseFloat(s.NOV_OVPMNT).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                        advanceRaw = `<tr>
+                                        <td>NOV_OVPMNT</td>
+                                        <td>${NOV_OVPMNT} </td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>`;
+                    }
+                    if (s.KIIGA) {
+                        var KIIGA = Number(parseFloat(s.KIIGA).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                        advanceRaw = `<tr>
+                                        <td>KIIGA</td>
+                                        <td>${KIIGA} </td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>`;
+                    }
                     var unitPrices = Math.round(totalPrice / s.KgsSupplied);
                     var unitPrice = Number(parseFloat(unitPrices).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 1 });
                     let paidOrders = standingOrders.filter(p => p.Sno === s.Sno && p.Description == "Society Shares");
@@ -293,15 +332,8 @@
                                 <td></td>
                                 <td>${Gross}</td>
                             </tr>
-                            <tr>
-                                <td>STORES</td>
-                                <td>${Agrovet}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            ${advanceRaw}
+                            
+                            ${saccoOtherDed}
                             ${strSaccoLoans}
                             <tr>
                                 <td>SOCIETY</td>
@@ -330,7 +362,6 @@
                             </tr>
                                     `;
                 });
-
                 var strSupPayslip = supPayslip.join('');
                 var htmlSupPayslip = `<table>
                                     <thead>
@@ -369,70 +400,75 @@
                 let curDate = new Date().toLocaleDateString('en-GB');
                 let content = "";
                 let maxLength = 6;
+                
                 response.banksPayslip.forEach(s => {
-                    s.Gpay = s.Gpay ? s.Gpay : 0;
-                    s.Subsidy = s.Subsidy ? s.Subsidy : 0;
-                    s.KgsSupplied = s.KgsSupplied ? s.KgsSupplied : 0;
-                    let totalPrice = s.Gpay - s.Subsidy;
 
-                    let saccoLoans = s.memberLoans.map(l => {
+                    s.payroll.Gpay = s.payroll.Gpay ? s.payroll.Gpay : 0;
+                    s.payroll.Subsidy = s.payroll.Subsidy ? s.payroll.Subsidy : 0;
+                    s.payroll.KgsSupplied = s.payroll.KgsSupplied ? s.payroll.KgsSupplied : 0;
+                    let totalPrice = s.payroll.Gpay - s.payroll.Subsidy;
+                    
+
+                    let saccoLoans = s.loans.map(l => {
                         let loanCode = l.LoanCode.length < maxLength ? l.LoanCode : l.LoanCode.substring(0, maxLength) + '...'
-                        var lamount = Number(parseFloat(l.Amount).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
-                        var lBalance = Number(parseFloat(l.Balance).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                        var amountt = Number(parseFloat(l.Amount).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                        var Balancess = Number(parseFloat(l.Balance).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
                         return `<tr>
-                                    <td>${loanCode}</td>
-                                    <td>${lamount}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>${lBalance}</td>
-                                </tr>`;
+                                                <td>${loanCode}</td>
+                                                <td>${amountt}</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>${Balancess}</td>
+                                            </tr>`;
                     });
                     var strSaccoLoans = saccoLoans.join('');
-                    let saccoShares = s.memberShares.map(l => {
-                        let remarks = l.Remarks.length < maxLength ? l.Remarks : l.Remarks.substring(0, maxLength) + '...'
-                        l.Paid = l.Paid ? l.Paid : 0;
-                        var sBalance = Number(parseFloat(l.Amount).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
-                        var sPaid = Number(parseFloat(l.Paid).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+
+                    let saccoOtherDed = s.deductionsbal.map(l => {
+                        let loanCode = l.Deduction.length < maxLength ? l.Deduction : l.Deduction.substring(0, maxLength) + '...'
+                        var amountt = Number(parseFloat(l.Paid).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                        var Balancess = Number(parseFloat(l.Bal).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+
                         return `<tr>
-                                    <td>${remarks}</td>
-                                    <td>${sPaid}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>${sBalance}</td>
-                                </tr>`;
+                                                        <td>${loanCode}</td>
+                                                        <td>${amountt}</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>${Balancess}</td>
+                                                    </tr>`;
                     });
+                    var strSaccoDeductionss = saccoOtherDed.join('');
 
+                    let saccoShares = s.shares.map(l => {
+                        debugger
+                        let remarks = l.Remarks.length < maxLength ? l.Remarks : l.Remarks.substring(0, maxLength) + '...'
+                        var sharePaid = Number(parseFloat(l.Paid).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                        debugger
+                        var sharesAmount = Number(parseFloat(l.Amount).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                        return `<tr>
+                                                        <td>${remarks}</td>
+                                                        <td>${sharePaid}</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>${sharesAmount}</td>
+                                                    </tr>`;
+                    });
                     var strSaccoShares = saccoShares.join('');
-                    let subsidyRaw = "";
-                    if (s.Subsidy) {
-                        subsidyRaw = `<tr>
-                                        <td>SUBSIDY</td>
-                                        <td>${s.KgsSupplied.toLocaleString().fixed(2)}</td>
-                                        <td></td>
-                                        <td>${response.price.SubsidyPrice.toLocaleString().fixed(2)}</td>
-                                        <td></td>
-                                        <td>${s.Subsidy.toLocaleString().fixed(2)}</td>
-                                    </tr>`;
-                    }
-                    let advanceRaw = "";
-                    if (s.Advance) {
-                        advanceRaw = `<tr>
-                                        <td>ADVANCE</td>
-                                        <td>${s.Advance.toLocaleString().fixed(2)}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>`;
-                    }
-
-                    var unitPrice = Math.round(totalPrice / s.KgsSupplied);
+                    var unitPrices = Math.round(totalPrice / s.payroll.KgsSupplied);
+                    var kgs = Number(parseFloat(s.payroll.KgsSupplied).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var unitPrice = Number(parseFloat(unitPrices).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 1 });
+                    var Gross = Number(parseFloat(s.payroll.Gpay).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    totalPrice = Number(parseFloat(totalPrice).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
                     let paidOrders = standingOrders.filter(p => p.Sno === s.Sno && p.Description == "Society Shares");
                     paidOrders = paidOrders ? paidOrders : [];
                     paidOrders[0] = paidOrders[0] ? paidOrders[0] : {};
                     paidOrders[0].Paid = paidOrders[0].Paid ? paidOrders[0].Paid : 0;
+                    var Hshares = Number(parseFloat(s.payroll.Hshares).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Paid = Number(parseFloat(paidOrders[0].Paid).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Tdeductions = Number(parseFloat(s.payroll.Tdeductions).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    var Npay = Number(parseFloat(s.payroll.Npay).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
                     content = `${content}<div class="row" id="printMe">
                         <div class="col-xs-12 text-center">
                             <h5>
@@ -453,43 +489,34 @@
                                 <tbody>
                                     <tr>
                                         <td>KGs</td>
-                                        <td>${s.KgsSupplied}</td>
+                                        <td>${kgs}</td>
                                         <td></td>
                                         <td>${unitPrice}</td>
                                         <td></td>
                                         <td>${totalPrice}</td>
                                     </tr>
-                                    ${subsidyRaw}
                                     <tr>
                                         <td>TOTAL</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>${s.Gpay}</td>
+                                        <td>${Gross}</td>
                                     </tr>
-                                    <tr>
-                                        <td>STORES</td>
-                                        <td>${s.Agrovet}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                    ${advanceRaw}
+                                    ${strSaccoDeductionss}
                                     ${strSaccoLoans}
                                     <tr>
                                         <td>SOCIETY</td>
-                                        <td>${s.Hshares}</td>
+                                        <td>${Hshares}</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>${paidOrders[0].Paid}</td>
+                                        <td>${Paid}</td>
                                     </tr>
                                     ${strSaccoShares}
                                     <tr>
                                         <td>TOTAL DED</td>
-                                        <td>${s.Tdeductions}</td>
+                                        <td>${Tdeductions}</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -501,7 +528,7 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>${s.Npay}</td>
+                                        <td>${Npay}</td>
                                     </tr>
                                 </tbody>
                                 </table></br>

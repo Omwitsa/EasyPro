@@ -197,8 +197,8 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var transporters = _context.DTransporters.Where(s => s.ParentT.ToUpper().Equals(sacco.ToUpper())).ToList();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transporters = transporters.Where(t => t.Tbranch == saccobranch).ToList();
 
             ViewBag.agproductsall = transporters;
             var transporterNames = transporters.Select(t => t.TransName).ToList();
@@ -395,51 +395,56 @@ namespace EasyPro.Controllers
                         kgsdelivered = kgsdelivered + Convert.ToDecimal(n.ActualBal);
                     });
 
-                    Vvariance = Convert.ToDecimal(kgsdelivered) - Convert.ToDecimal(systemkgs);
-                    decimal? price = _context.DPrices.FirstOrDefault(h => h.SaccoCode == sacco).Price;
-                    if (Vvariance < 0)
+                    if (StrValues.Elburgon != sacco)
                     {
-                        var variance = Vvariance * price;
-                        _context.ProductIntake.Add(new ProductIntake
+                        Vvariance = Convert.ToDecimal(kgsdelivered) - Convert.ToDecimal(systemkgs);
+                        decimal? price = _context.DPrices.FirstOrDefault(h => h.SaccoCode == sacco).Price;
+                        if (Vvariance < 0)
                         {
-                            Sno = balancing.Transporter.ToUpper(),
-                            TransDate = enDate,
-                            TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
-                            ProductType = "variance",
-                            Qsupplied = 0,
-                            Ppu = 0,
-                            CR = 0,
-                            DR = variance * -1,
-                            Balance = 0,
-                            Description = "Variance Balancing",
-                            TransactionType = TransactionType.Deduction,
-                            Paid = false,
-                            Remarks = "Variance Balancing",
-                            AuditId = loggedInUser,
-                            Auditdatetime = DateTime.Now,
-                            Branch = saccoBranch,
-                            SaccoCode = sacco,
-                            DrAccNo = "",
-                            CrAccNo = "",
-                            Posted = false
-                        });
+                            var variance = Vvariance * price;
+                            _context.ProductIntake.Add(new ProductIntake
+                            {
+                                Sno = balancing.Transporter.ToUpper(),
+                                TransDate = enDate,
+                                TransTime = DateTime.UtcNow.AddHours(3).TimeOfDay,
+                                ProductType = "variance",
+                                Qsupplied = 0,
+                                Ppu = 0,
+                                CR = 0,
+                                DR = variance * -1,
+                                Balance = 0,
+                                Description = "Variance Balancing",
+                                TransactionType = TransactionType.Deduction,
+                                Paid = false,
+                                Remarks = "Variance Balancing",
+                                AuditId = loggedInUser,
+                                Auditdatetime = DateTime.Now,
+                                Branch = saccoBranch,
+                                SaccoCode = sacco,
+                                DrAccNo = "",
+                                CrAccNo = "",
+                                Posted = false
+                            });
+                        }
                     }
                 }
                 else
                 {
-                    _context.TransportersBalancings.Add(new TransportersBalancing
+                    if (StrValues.Elburgon != sacco)
                     {
-                        //
-                        Date = balancing.Date,
-                        Transporter ="Individual",
-                        Quantity = balancing.Quantity,
-                        ActualBal = balancing.ActualBal,
-                        Rejects = balancing.Rejects,
-                        Spillage = balancing.Spillage,
-                        Varriance = balancing.Varriance,
-                        Code = sacco,
-                        Branch = saccoBranch,
-                    });
+                        _context.TransportersBalancings.Add(new TransportersBalancing
+                        {
+                            Date = balancing.Date,
+                            Transporter = "Individual",
+                            Quantity = balancing.Quantity,
+                            ActualBal = balancing.ActualBal,
+                            Rejects = balancing.Rejects,
+                            Spillage = balancing.Spillage,
+                            Varriance = balancing.Varriance,
+                            Code = sacco,
+                            Branch = saccoBranch,
+                        });
+                    }
                 }
                 _context.SaveChanges();
                 if (print)

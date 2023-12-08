@@ -70,7 +70,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="ProductIntake.ProductType" class="control-label"></label>
-                                    <select asp-for="ProductIntake.ProductType" required class="form-control" asp-items="@ViewBag.Description">
+                                    <select asp-for="ProductIntake.ProductType" required class="chzn-select form-control" asp-items="@ViewBag.Description">
                                         <option value=""></option>
                                     </select>
                                     <span asp-validation-for="ProductIntake.ProductType" class="text-danger"></span>
@@ -107,7 +107,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="ProductIntake.Branch" class="control-label"></label>
-                                    <select asp-for="ProductIntake.Branch" class="form-control" asp-items="@ViewBag.brances" required>
+                                    <select asp-for="ProductIntake.Branch" class="chzn-select form-control" asp-items="@ViewBag.brances" required>
                                         <option value=""></option>
                                     </select>
                                     <span asp-validation-for="ProductIntake.Branch" class="text-danger"></span>
@@ -142,7 +142,7 @@
         $('#dr').val('');
         //var today = new Date().toISOString().split('T')[0];
        // $("#transDate").val(today);
-
+            $(".chzn-select").chosen();
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
                 $('#zone1').hide();

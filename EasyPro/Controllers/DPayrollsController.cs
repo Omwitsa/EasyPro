@@ -301,7 +301,7 @@ namespace EasyPro.Controllers
             var savingsCode = "S02";
             decimal? maxShares = 5500;
             var loans = await _bosaDbContext.LOANBAL.Where(l => l.Balance > 0 && l.LastDate <= loanlastdate && l.Companycode == StrValues.SlopesCode).ToListAsync();
-            var saccoStandingOrders = _bosaDbContext.CONTRIB_standingOrder.Where(o => o.CompanyCode == StrValues.SlopesCode);
+            var saccoStandingOrders = await _bosaDbContext.CONTRIB_standingOrder.Where(o => o.CompanyCode == StrValues.SlopesCode).ToListAsync();
             var contribs = await _bosaDbContext.CONTRIB.Where(c => c.CompanyCode == StrValues.SlopesCode).ToListAsync();
             var listSaccoLoans = await _context.SaccoLoans.Where(l => l.Saccocode == sacco && l.TransDate == monthsLastDate).ToListAsync();
             var listSaccoShares = await _context.SaccoShares.Where(s => s.Saccocode == sacco && s.TransDate == monthsLastDate).ToListAsync();
@@ -335,7 +335,7 @@ namespace EasyPro.Controllers
                 var instantAdvance = p.Where(k => k.ProductType.ToUpper().Contains("INST ADV"));
                 var kiiga = p.Where(k => k.ProductType.ToUpper().Contains("KIIGA"));
                 var kiroha = p.Where(k => k.ProductType.ToUpper().Contains("KIROHA DAIRY"));
-                var overpayment = p.Where(k => k.ProductType.ToUpper().Contains("NOV OVERPAYMENT"));
+                var overpayment = p.Where(k => k.ProductType.ToUpper().Contains("NOV OVERPAYMENT"));//NOV OVERPAYMENT
                 var milkRecovery = p.Where(k => k.ProductType.ToUpper().Contains("MILK RECOVERY"));
                 var ECLOF = p.Where(k => k.ProductType.ToLower().Contains("eclof"));
                 var saccoDed = p.Where(k => k.ProductType.ToUpper().Contains("MAENDELEO"));
@@ -423,11 +423,6 @@ namespace EasyPro.Controllers
                         decimal? netPay = grossPay;
                         decimal? carriedForwardValue = 0;
 
-                        if (supplier.Sno == "3604")
-                        {
-
-                        }
-
                         var carryfw = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
                         payroll.CurryForward = carryfw;
                         if (StrValues.Slopes == sacco)
@@ -457,8 +452,6 @@ namespace EasyPro.Controllers
                                 DR = carriedForwardValue,
                             });
 
-                        
-
                         var shar = (shares.Sum(s => s.DR) - shares.Sum(s => s.CR));
                         payroll.Hshares = shar;
                         carriedForwardValue = 0;
@@ -477,18 +470,7 @@ namespace EasyPro.Controllers
                                 shar = 0;
                             }
                         }
-
                         netPay -= shar;
-                        if (carriedForwardValue > 0)
-                            curriedForwardProducts.Add(new ProductIntake
-                            {
-                                Sno = supplier.Sno,
-                                ProductType = "Society Shares",
-                                DR = carriedForwardValue,
-                            });
-
-                        
-                       
 
                         var agro = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
                         payroll.Agrovet = agro;
@@ -541,7 +523,6 @@ namespace EasyPro.Controllers
                                 ProductType = "MILK RECOVERY",
                                 DR = carriedForwardValue,
                             });
-
 
                         var AIs = (ai.Sum(s => s.DR) - ai.Sum(s => s.CR));
                         payroll.AI = AIs;
@@ -601,7 +582,6 @@ namespace EasyPro.Controllers
                                 DR = carriedForwardValue,
                             });
 
-
                         var kiigaContrib = kiiga.Sum(s => s.DR) - kiiga.Sum(s => s.CR);
                         payroll.KIIGA = kiigaContrib;
                         carriedForwardValue = 0;
@@ -652,7 +632,6 @@ namespace EasyPro.Controllers
                                 DR = carriedForwardValue,
                             });
 
-
                         var novContrib = overpayment.Sum(s => s.DR) - overpayment.Sum(s => s.DR);
                         payroll.NOV_OVPMNT = novContrib;
                         carriedForwardValue = 0;
@@ -677,14 +656,13 @@ namespace EasyPro.Controllers
                                 DR = carriedForwardValue,
                             });
 
-
                         var adva = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
                         carriedForwardValue = 0;
                         if (StrValues.Slopes != sacco)
                         {
                             payroll.Advance = adva;
-                           
-                                netPay -= adva;
+
+                            netPay -= adva;
                             if (carriedForwardValue > 0)
                                 curriedForwardProducts.Add(new ProductIntake
                                 {
@@ -693,8 +671,6 @@ namespace EasyPro.Controllers
                                     DR = carriedForwardValue,
                                 });
                         }
-
-                        
 
                         var insAdv = instantAdvance.Sum(s => s.DR) - instantAdvance.Sum(s => s.CR);
                         carriedForwardValue = 0;
@@ -708,7 +684,7 @@ namespace EasyPro.Controllers
                                     ProductType = "INST ADV",
                                     DR = carriedForwardValue,
                                 });
-                        }                        
+                        }
 
                         var trans = transport.Sum(s => s.DR) - transport.Sum(s => s.CR);
                         carriedForwardValue = 0;
@@ -950,7 +926,7 @@ namespace EasyPro.Controllers
                                 DR = carriedForwardValue,
                             });
 
-                        
+
                         var other = (Others.Sum(s => s.DR) - Others.Sum(s => s.CR));
                         payroll.Others = other;
                         carriedForwardValue = 0;
@@ -981,7 +957,7 @@ namespace EasyPro.Controllers
 
                         var memberLoans = loan.Sum(s => s.DR) - loan.Sum(s => s.CR);
                         carriedForwardValue = 0;
-                        if (StrValues.Slopes != sacco) 
+                        if (StrValues.Slopes != sacco)
                         {
                             if (netPay > 0 && memberLoans > 0 && netPay < memberLoans)
                             {
@@ -1006,13 +982,13 @@ namespace EasyPro.Controllers
                                 });
                         }
 
-                        
+
                         if (StrValues.Slopes == sacco)
                         {
                             var saccoStandingOrder = saccoStandingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper()));
                             if (saccoStandingOrder != null && !saccoSharesProcessed)
                             {
-                                decimal? contributedShares = contribs.FirstOrDefault(s => s.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper()) && s.Sharescode == shareCode)?.Amount ?? 0;
+                                decimal? contributedShares = contribs.Where(s => s.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper()) && s.Sharescode == shareCode).Sum(b => b.Amount);
                                 if (contributedShares < maxShares)
                                 {
                                     var actualContributedShares = netPay > saccoStandingOrder.Installment ? saccoStandingOrder.Installment : netPay;
@@ -1048,18 +1024,23 @@ namespace EasyPro.Controllers
                                 }
                                 else
                                 {
-                                    var actualSavings = netPay > saccoStandingOrder.Installment ? saccoStandingOrder.Installment : netPay;
-                                    actualSavings = actualSavings > 0 ? actualSavings : 0;
-                                    listSaccoShares.Add(new SaccoShares
-                                    {
-                                        SharesCode = savingsCode,
-                                        Sno = saccoStandingOrder.MemberNo,
-                                        Amount = actualSavings,
-                                        TransDate = monthsLastDate,
-                                        AuditDate = DateTime.Now,
-                                        Saccocode = sacco,
-                                        AuditId = loggedInUser
-                                    });
+                                    var standingorderavailable = saccoStandingOrders.Where(n => n.MemberNo.ToUpper().Equals(supplier.Sno.ToUpper())
+                                    && n.Sharescode == savingsCode).ToList();
+                                    standingorderavailable.ForEach(k =>
+                                        {
+                                            var actualSavings = netPay > k.Installment ? k.Installment : netPay;
+                                            actualSavings = actualSavings > 0 ? actualSavings : 0;
+                                            listSaccoShares.Add(new SaccoShares
+                                            {
+                                                SharesCode = savingsCode,
+                                                Sno = saccoStandingOrder.MemberNo,
+                                                Amount = actualSavings,
+                                                TransDate = monthsLastDate,
+                                                AuditDate = DateTime.Now,
+                                                Saccocode = sacco,
+                                                AuditId = loggedInUser
+                                            });
+                                        });
                                 }
                             }
 
@@ -1106,7 +1087,10 @@ namespace EasyPro.Controllers
 
                                 netPay -= ShareAmountt;
                             });
+                            if (supplier.Sno == "3441")
+                            {
 
+                            }
                             var advanceCode = "L01";
                             var normalCode = "L02";
                             var insAdvCode = "L03";
@@ -1116,10 +1100,11 @@ namespace EasyPro.Controllers
                             {
                                 farmerLoans.ForEach(l =>
                                 {
-                                    if (l.Balance > 0 && netPay > 0 && l.Installments > 0)
+
+                                    if (l.Balance > 0 && netPay >= 0 && l.Installments > 0)
                                     {
                                         var installments = l.Balance < l.Installments ? l.Balance : l.Installments;
-                                        installments = netPay > installments ? installments : netPay;
+                                        //installments = netPay > installments ? installments : netPay;
                                         listSaccoLoans.Add(new SaccoLoans
                                         {
                                             LoanNo = l.LoanNo,
@@ -1135,7 +1120,8 @@ namespace EasyPro.Controllers
                                 });
                             }
 
-                            listSaccoLoans.Where(l => l.Sno.ToUpper().Equals(supplier.Sno.ToUpper())).OrderBy(v=>v.LoanCode).ForEach(l =>
+
+                            listSaccoLoans.Where(l => l.Sno.ToUpper().Equals(supplier.Sno.ToUpper())).OrderBy(v => v.LoanCode).ForEach(l =>
                             {
 
                                 var LoansAmountt = l.Amount;
@@ -1161,9 +1147,9 @@ namespace EasyPro.Controllers
 
                                 if (l.LoanCode == normalCode)
                                 {
-                                    var totalincaseofcarryfoeward = loan.Sum(s => s.DR) - loan.Sum(s => s.CR);
+                                    var totalincaseofcarryfoeward = 0; //loan.Sum(s => s.DR) - loan.Sum(s => s.CR);
                                     LoansAmountt = LoansAmountt + totalincaseofcarryfoeward;
-                                    
+
                                     carriedForwardValue = 0;
                                     if (netPay > 0 && LoansAmountt > 0 && netPay < LoansAmountt)
                                     {
@@ -1180,7 +1166,7 @@ namespace EasyPro.Controllers
 
                                 if (l.LoanCode == insAdvCode)
                                 {
-                                    var totalincaseofcarryfoeward = instantAdvance.Sum(s => s.DR) - instantAdvance.Sum(s => s.CR);
+                                    var totalincaseofcarryfoeward = 0;//instantAdvance.Sum(s => s.DR) - instantAdvance.Sum(s => s.CR);
                                     LoansAmountt = LoansAmountt + totalincaseofcarryfoeward;
                                     carriedForwardValue = 0;
                                     if (netPay > 0 && LoansAmountt > 0 && netPay < LoansAmountt)
@@ -1232,10 +1218,10 @@ namespace EasyPro.Controllers
                                 }
 
                             });
-                            
+
                         }
 
-                        
+
                         payroll.Tdeductions = grossPay - netPay;
                         if (StrValues.Slopes == sacco)
                             payroll.Tdeductions = payroll.Tdeductions > grossPay ? grossPay : payroll.Tdeductions;
@@ -1325,10 +1311,10 @@ namespace EasyPro.Controllers
                         var daysInMonth = DateTime.DaysInMonth(period.EndDate.Year, period.EndDate.Month);
                         //var averageSupplied = totalSupplied / daysInMonth;
                         //CONFIRM IF HAS THE TARGETED KGS TO BE GIVEN TRADER FEE IF TRANSPORTER
-                        if (transporter.SlopesIDNo != null)
+                        if (transporter.SlopesIDNo != "0")
                         {
                             var checkifgettraderfee = _context.DSuppliers.FirstOrDefault(m => m.Scode == sacco
-                            && m.Sno.Trim() == transporter.SlopesIDNo.Trim() );
+                            && m.Sno.Trim() == transporter.SlopesIDNo.Trim());
                             if (checkifgettraderfee != null)
                             {
                                 var framersTotal = payrolls.FirstOrDefault(b => b.Sno.Trim().ToUpper()
@@ -1341,22 +1327,16 @@ namespace EasyPro.Controllers
                                     //GET OTHER MEMBERS KGS productIntakeslist
                                     var getsnoreceipt = productIntakeslist.Where(n => n.Sno.Trim().ToUpper()
                                     .Equals(checkifgettraderfee.Sno.Trim().ToUpper()) && n.Description == "Transport")
-                                    .ToList().Select(b=>b.Remarks)
+                                    .ToList().Select(b => b.Remarks)
                                     .Distinct();
-                                   // var othermemberskg = productIntakeslist.Where(k => k.Sno.Trim().ToUpper()
-                                   //.Equals(transporter.TransCode.Trim().ToUpper()) && (getsnoreceipt.Contains(k.Remarks)
-                                   //|| checkifgettraderfee.Sno.Trim().ToUpper().Contains(k.Remarks))
-                                   //&& k.Description == "Transport").ToList();
-                                   // //|| !checkifgettraderfee.Sno.Trim().ToUpper().Contains(k.Remarks)
-
-                                   // var va = othermemberskg.Sum(c => c.Qsupplied);
+                                    // var va = othermemberskg.Sum(c => c.Qsupplied);
                                     var othermemberskgs = productIntakeslist.Where(k => k.Sno.Trim().ToUpper()
                                     .Equals(transporter.TransCode.Trim().ToUpper()) && !getsnoreceipt.Contains(k.Remarks)
-                                    && !k.Remarks.Contains(checkifgettraderfee.Sno.Trim().ToUpper()) 
+                                    && !k.Remarks.Contains(checkifgettraderfee.Sno.Trim().ToUpper())
                                     && k.Description == "Transport")
                                     .ToList();
-                                    amount = selfkgspertransporter * (decimal)transporter.Rate;
-                                    subsidy += (othermemberskgs.Sum(c => c.Qsupplied)) * (decimal)price.SubsidyPrice;
+                                    amount = selfkgspertransporter * (decimal)price.TradersPrice;
+                                    subsidy += (othermemberskgs.Sum(c => c.Qsupplied)) * (decimal)price.OtherTradersPrice;
                                 }
                             }
                         }
@@ -1431,16 +1411,16 @@ namespace EasyPro.Controllers
                             Branch = transporter.Tbranch,
                             ECLOF = 0,
                             saccoDed = 0,
-                            KIIGA=0,
-                            KIROHA=0,
-                            NOV_OVPMNT=0
+                            KIIGA = 0,
+                            KIROHA = 0,
+                            NOV_OVPMNT = 0
                         };
 
                         decimal? netPay = grossPay;
                         decimal? carriedForwardValue = 0;
                         var CurryForwarddeduction = (carryforward.Sum(s => s.DR) - carryforward.Sum(s => s.CR));
                         payRoll.CurryForward = CurryForwarddeduction;
-                        
+
                         if (StrValues.Slopes == sacco)
                         {
                             if (netPay > 0 && CurryForwarddeduction > 0 && netPay < CurryForwarddeduction)
@@ -1484,16 +1464,14 @@ namespace EasyPro.Controllers
                                 societyShares = 0;
                             }
                         }
-
                         netPay -= societyShares;
-                        if (carriedForwardValue > 0)
-                            curriedForwardProducts.Add(new ProductIntake
-                            {
-                                Sno = transporter.TransCode,
-                                ProductType = "Society Shares",
-                                DR = carriedForwardValue,
-                            });
-
+                        //if (carriedForwardValue > 0)
+                        //    curriedForwardProducts.Add(new ProductIntake
+                        //    {
+                        //        Sno = transporter.TransCode,
+                        //        ProductType = "Society Shares",
+                        //        DR = carriedForwardValue,
+                        //    });
                         var agrovetdeduction = (agrovet.Sum(s => s.DR) - agrovet.Sum(s => s.CR));
                         payRoll.Agrovet = agrovetdeduction;
                         carriedForwardValue = 0;
@@ -1710,7 +1688,7 @@ namespace EasyPro.Controllers
                             });
 
                         var advancededuction = (advance.Sum(s => s.DR) - advance.Sum(s => s.CR));
-                        
+
                         carriedForwardValue = 0;
                         if (StrValues.Slopes != sacco)
                         {
@@ -1732,7 +1710,7 @@ namespace EasyPro.Controllers
                             }
                             netPay -= advancededuction;
                         }
-                        
+
                         if (carriedForwardValue > 0)
                             curriedForwardProducts.Add(new ProductIntake
                             {
@@ -1953,7 +1931,7 @@ namespace EasyPro.Controllers
                             }
                             netPay -= memberLoans;
                         }
-                            
+
                         if (carriedForwardValue > 0)
                             curriedForwardProducts.Add(new ProductIntake
                             {
@@ -1992,12 +1970,13 @@ namespace EasyPro.Controllers
 
                         if (StrValues.Slopes == sacco)
                         {
-                            
+
 
                             var saccoStandingOrder = saccoStandingOrders.FirstOrDefault(o => o.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()));
                             if (saccoStandingOrder != null && !saccoSharesProcessed)
                             {
-                                decimal? contributedShares = contribs.FirstOrDefault(s => s.MemberNo.ToUpper().Equals(transporter.TransCode.ToUpper()) && s.Sharescode == shareCode)?.Amount ?? 0;
+                                decimal? contributedShares = contribs.Where(s => s.MemberNo.ToUpper().Trim().Equals(transporter.TransCode.ToUpper().Trim()) 
+                                && s.Sharescode == shareCode).Sum(b=>b.Amount);
                                 if (contributedShares < maxShares)
                                 {
                                     var actualContributedShares = netPay > saccoStandingOrder.Installment ? saccoStandingOrder.Installment : netPay;
@@ -2033,17 +2012,21 @@ namespace EasyPro.Controllers
                                 }
                                 else
                                 {
-                                    var actualSavings = netPay > saccoStandingOrder.Installment ? saccoStandingOrder.Installment : netPay;
-                                    actualSavings = actualSavings > 0 ? actualSavings : 0;
-                                    listSaccoShares.Add(new SaccoShares
-                                    {
-                                        SharesCode = savingsCode,
-                                        Sno = saccoStandingOrder.MemberNo,
-                                        Amount = actualSavings,
-                                        TransDate = monthsLastDate,
-                                        AuditDate = DateTime.Now,
-                                        Saccocode = sacco,
-                                        AuditId = loggedInUser
+                                    var standingorderavailable = saccoStandingOrders.Where(n => n.MemberNo.ToUpper().Trim().Equals(transporter.TransCode.ToUpper().Trim())
+                                    && n.Sharescode == savingsCode).ToList();
+                                    standingorderavailable.ForEach(k => {
+                                        var actualSavings = netPay > k.Installment ? k.Installment : netPay;
+                                        actualSavings = actualSavings > 0 ? actualSavings : 0;
+                                        listSaccoShares.Add(new SaccoShares
+                                        {
+                                            SharesCode = savingsCode,
+                                            Sno = k.MemberNo,
+                                            Amount = actualSavings,
+                                            TransDate = monthsLastDate,
+                                            AuditDate = DateTime.Now,
+                                            Saccocode = sacco,
+                                            AuditId = loggedInUser
+                                        });
                                     });
                                 }
                             }
@@ -2098,10 +2081,10 @@ namespace EasyPro.Controllers
                             {
                                 transportersLoans.ForEach(l =>
                                 {
-                                    if (l.Balance > 0 && netPay > 0 && l.Installments > 0)
+                                    if (l.Balance > 0 && netPay >= 0 && l.Installments > 0)
                                     {
                                         var installments = l.Balance < l.Installments ? l.Balance : l.Installments;
-                                        installments = netPay > installments ? installments : netPay;
+                                        //installments = netPay > installments ? installments : netPay;
                                         listSaccoLoans.Add(new SaccoLoans
                                         {
                                             LoanNo = l.LoanNo,
@@ -2121,7 +2104,6 @@ namespace EasyPro.Controllers
                             {
                                 var LoansAmountt = l.Amount;
                                 carriedForwardValue = 0;
-                                
 
                                 if (l.LoanCode == advanceCode)
                                 {
@@ -2213,7 +2195,7 @@ namespace EasyPro.Controllers
                                         });
                                 }
 
-                                
+
                             });
 
                         }
@@ -2268,7 +2250,7 @@ namespace EasyPro.Controllers
                     var getInterest = f.DR;
                     if (f.ProductType == "Loan" || f.ProductType == "Advance" || f.ProductType == "INST ADV" || f.ProductType == "Agrovet" || f.ProductType == "Ai")
                         getInterest = (decimal?)Calculateinterest(f.ProductType, f.DR, price.Interest);
-                    
+
                     // Debit next month
                     _context.ProductIntake.Add(new ProductIntake
                     {
@@ -2304,7 +2286,7 @@ namespace EasyPro.Controllers
         private object Calculateinterest(string productType, decimal? dR, decimal? interest)
         {
             decimal CarryForwardPlusInterest = dR ?? 0;
-            CarryForwardPlusInterest = (decimal)(dR + (dR  * (interest / 100)));
+            CarryForwardPlusInterest = (decimal)(dR + (dR * (interest / 100)));
             return (decimal)CarryForwardPlusInterest;
         }
 

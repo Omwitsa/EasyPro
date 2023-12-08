@@ -13,7 +13,6 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
@@ -33,7 +32,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label class="control-label">TCode</label>
-                                    <input id="transCode"autocomplete="off" asp-for="ProductIntake.Sno" required class="form-control" />
+                                    <input id="transCode" autocomplete="off" asp-for="ProductIntake.Sno" required class="form-control" />
                                     <span asp-validation-for="ProductIntake.Sno" class="text-danger"></span>
                                 </div>
                             </div>
@@ -56,7 +55,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="ProductIntake.ProductType" class="control-label"></label>
-                                    <select required asp-for="ProductIntake.ProductType" class="form-control" asp-items="@ViewBag.Description"></select>
+                                    <select required asp-for="ProductIntake.ProductType" class="chzn-select form-control" asp-items="@ViewBag.Description"></select>
                                     <span asp-validation-for="ProductIntake.ProductType" class="text-danger"></span>
                                 </div>
                             </div>
@@ -90,7 +89,7 @@
                             <div class="nk-int-st">
                                 <div class="form-group">
                                     <label asp-for="ProductIntake.Branch" class="control-label"></label>
-                                    <select asp-for="ProductIntake.Branch" class="form-control" asp-items="@ViewBag.brances" required>
+                                    <select asp-for="ProductIntake.Branch" class="chzn-select form-control" asp-items="@ViewBag.brances" required>
                                         <option value=""></option>
                                     </select>
                                     <span asp-validation-for="ProductIntake.Branch" class="text-danger"></span>
@@ -99,16 +98,16 @@
                         </div>
                     </div>
                 </div>
-                    <hr />
-                    <div class="row">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <button type="submit" class="btn btn-success">Save</button>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                            <a asp-action="TDeductionList" class="btn btn-primary">Back to List</a>
-                        </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <button type="submit" class="btn btn-success">Save</button>
                     </div>
-</Form>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <a asp-action="TDeductionList" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </Form>
         </div>
     </div>
 </div>
@@ -121,19 +120,17 @@
         $(function () {
             $('#transCode').val('');
             $('#code').val('');
-            //var today = new Date().toISOString().split('T')[0];
-           // $("#transDate").val(today);
+            $(".chzn-select").chosen();
+            $('#transCode').on('keyup', function () {
 
-                        $('#transCode').on('keyup', function () {
-
-                            var products = @Html.Raw(Json.Serialize(Model.DTransporters));
-                            var selectVal = $("#transCode").val().toUpperCase();
-                            var selectProducts = products.filter(p => p.TransCode === selectVal);
-                                if (selectProducts[0]) {
-                                    $("#name").val(selectProducts[0].TransName);
-                                }
-                        });
-                    });
+                var products = @Html.Raw(Json.Serialize(Model.DTransporters));
+                var selectVal = $("#transCode").val().toUpperCase();
+                var selectProducts = products.filter(p => p.TransCode === selectVal);
+                if (selectProducts[0]) {
+                    $("#name").val(selectProducts[0].TransName);
+                }
+            });
+        });
     </script>
 }
 

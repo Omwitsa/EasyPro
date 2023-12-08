@@ -1,10 +1,12 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using EasyPro.Constants;
 using EasyPro.Models;
 using EasyPro.Utils;
+using EasyPro.ViewModels;
 using EasyPro.ViewModels.TransportersVM;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -611,6 +613,10 @@ namespace EasyPro.Controllers
             try
             {
                 var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+                var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco
+                && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                    .ToListAsync();
+
                 var glsetups = await _context.Glsetups.Where(g => g.saccocode == sacco && g.GlAccType == "Income Statement"
                 && !g.GlAccName.ToUpper().Equals("AGROVET STORE") && !g.GlAccName.ToUpper().Equals("AGROVET SALES")
                 && !g.GlAccName.ToUpper().Equals("STORE")).ToListAsync();
@@ -634,38 +640,66 @@ namespace EasyPro.Controllers
                         });
                 });
 
-                var expense = journalListings.Where(a => a.Group == "EXPENSES").ToList().GroupBy(a => a.AccCategory).ToList();
                 var expenses = new List<StatementSummaryVm>();
-                expense.ForEach(e =>
-                {
-                    var voteheads = new List<Votehead>();
-                    var accounts = e.ToList().GroupBy(a => a.AccName);
-                    accounts.ForEach(a =>
+                var expenselistt = journalListings.Where(a => a.Group == "EXPENSES").ToList();
+                var groupbyacc = expenselistt.OrderBy(n => n.AccCategory).GroupBy(a => a.AccCategory).ToList();
+                groupbyacc.ForEach(m => {
+                    var expense = expenselistt.Where(v=>v.AccCategory == m.Key).OrderBy(n => n.AccName)
+                    .GroupBy(a => a.AccName).ToList();
+                    
+                    expense.ForEach(e =>
                     {
-                        var accNo = a.FirstOrDefault()?.GlAcc ?? "";
-                        voteheads.Add(new Votehead
+                        var voteheads = new List<Votehead>();//var accounts = e.ToList().GroupBy(a => a.AccName);
+                        var accNo = e.FirstOrDefault()?.GlAcc ?? "";
+                        var accounts = gltransactions.Where(c => (c.DrAccNo == accNo || c.DrAccNo == accNo)).OrderBy(m => m.Id).ToList();
+                        e.ForEach(a =>
                         {
-                            Name = a.Key,
-                            AccNo = accNo,
-                            Amount = a.Sum(o => o.Dr),
+                            voteheads.Add(new Votehead
+                            {
+                                Name = a.TransDescript,
+                                AccNo = accNo,
+                                Amount = a.Dr,
+                            });
                         });
-                    });
 
-                    expenses.Add(new StatementSummaryVm
-                    {
-                        Categoy = e.Key,
-                        voteheads = voteheads,
-                        Total = voteheads.Sum(c => c.Amount)
+                        expenses.Add(new StatementSummaryVm
+                        {
+                            Categoy = e.Key,
+                            voteheads = voteheads,
+                            Total = voteheads.Sum(c => c.Amount)
+                        });
+
                     });
                 });
+
+                var getstat = filter.ToDate.AddMonths(-1);
+                var startDate = new DateTime(getstat.Year, getstat.Month, 1);
+                var endDate = startDate.AddMonths(1).AddDays(-1);
+
+                var lasttotalKgs = await _context.ProductIntake.Where(i => ((i.Description == "Intake" || i.Description == "Correction"))
+                && i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco)
+                    .SumAsync(i => i.Qsupplied);
+
                 var totalKgs = await _context.ProductIntake.Where(i => ((i.Description == "Intake" || i.Description == "Correction"))
                 && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate && i.SaccoCode == sacco)
                     .SumAsync(i => i.Qsupplied);
+                var checkthediff = totalKgs - lasttotalKgs;
+                var Remarkks = "DECREASE";
+                if(totalKgs >= lasttotalKgs)
+                    Remarkks = "INCREASE";
+
+                var getMonthName = filter.ToDate.ToString("MMMM, yyy");
+                var getLastMonthName = endDate.ToString("MMMM, yyy")+" COLLECTION";
                 return Json(new
                 {
                     income,
                     expenses,
-                    totalKgs
+                    totalKgs,
+                    getMonthName,
+                    getLastMonthName,
+                    lasttotalKgs,
+                    Remarkks,
+                    checkthediff
                 });
             }
             catch (Exception ex)
@@ -678,9 +712,18 @@ namespace EasyPro.Controllers
         {
             var journalListings = new List<JournalVm>();
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco) ?? "";
+            var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == sacco);
+            var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate).ToListAsync();
+            var farmersIntake = intakes.Where(i => (i.Description == "Intake" || i.Description == "Correction"));
+            var activeFarmersNos = farmersIntake.Select(s => s.Sno.ToUpper()).Distinct();
+            var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco && activeFarmersNos.Contains(s.Sno.ToUpper())).ToListAsync();
+            var transporters = await _context.DTransporters.Where(t => t.ParentT == sacco).ToListAsync();
+            var debtors = _context.DDebtors.Where(n=>n.Dcode == sacco).ToList();
             var gltransactions = await _context.Gltransactions.Where(t => t.SaccoCode == sacco
             && t.TransDate >= filter.FromDate && t.TransDate <= filter.ToDate)
+                .OrderBy(i=>i.Id)
                 .ToListAsync();
+            decimal totalkgss = 0;
             glsetups.ForEach(g =>
             {
                 g.NormalBal = g?.NormalBal ?? "";
@@ -747,25 +790,29 @@ namespace EasyPro.Controllers
                 }
             });
 
-            var balancings = await _context.DispatchBalancing.Where(d => d.Saccocode == sacco && d.Date >= filter.FromDate && d.Date <= filter.ToDate).ToListAsync();
-
+            var totalkgssk = await _context.Dispatch.Where(d => d.Dcode == sacco && d.Transdate >= filter.FromDate 
+            && d.Transdate <= filter.ToDate).ToListAsync();
+            var totalKgs = farmersIntake.ToList().Sum(n => n.Qsupplied);
+            var dispatchkgs = await _context.DispatchBalancing.Where(d => d.Saccocode == sacco && d.Date >= filter.FromDate && d.Date <= filter.ToDate).ToListAsync();
+            string GlAccnt ="",AccName ="",AccCategory="",AccGroup ="";
             var standingOrders = await _context.SocietyStandingOrder.Where(o => o.SaccoCode == sacco).ToListAsync();
             standingOrders.ForEach(t =>
             {
                  
                 if (t.HasRate)
                 {
-                    var balancing = balancings.Where(b => b.Date == filter.FromDate).FirstOrDefault();
-                    var broughtForward = balancing?.BF ?? 0;
-                    var totalKgs = balancings.Sum(b => b.Intake) + broughtForward;
                     t.Amount = (decimal)(t.Amount * totalKgs);
                 }
                 var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == t.GlAcc);
                 if (debtorssAcc != null)
                 {
+                    GlAccnt = t.GlAcc;
+                    AccName = debtorssAcc.GlAccName;
+                    AccCategory = debtorssAcc.AccCategory;
+                    AccGroup = debtorssAcc.GlAccMainGroup;
                     journalListings.Add(new JournalVm
                     {
-                        GlAcc = t.GlAcc,
+                        GlAcc = t.GlAcc, //GlAccnt,AccName,AccCategory,AccGroup
                         TransDate = filter.ToDate,
                         AccName = debtorssAcc.GlAccName,
                         AccCategory = debtorssAcc.AccCategory,
@@ -780,6 +827,10 @@ namespace EasyPro.Controllers
                 var creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == t.ContraAcc);
                 if (creditorsAcc != null)
                 {
+                    GlAccnt = t.ContraAcc;
+                    AccName = creditorsAcc.GlAccName;
+                    AccCategory = creditorsAcc.AccCategory;
+                    AccGroup = creditorsAcc.GlAccMainGroup;
                     journalListings.Add(new JournalVm
                     {
                         GlAcc = t.ContraAcc,
@@ -795,39 +846,84 @@ namespace EasyPro.Controllers
                 }
             });
 
-            if(StrValues.Slopes == sacco)
+            
+
+            if (StrValues.Slopes == sacco)
             {
-                var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode == sacco);
-                var intakes = await _context.ProductIntake.Where(i => i.SaccoCode == sacco && i.TransDate >= filter.FromDate && i.TransDate <= filter.ToDate).ToListAsync();
-                var farmersIntake = intakes.Where(i => (i.Description == "Intake" || i.Description == "Correction"));
-                var activeFarmersNos = farmersIntake.Select(s => s.Sno.ToUpper()).Distinct();
-                var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco && activeFarmersNos.Contains(s.Sno.ToUpper())).ToListAsync();
-                var transporters = await _context.DTransporters.Where(t => t.ParentT == sacco).ToListAsync();
+                var getaccount = debtors.FirstOrDefault(n => n.Dname.Contains("MILK BALANCE"));
+                decimal totalk = totalKgs - totalkgssk.Sum(b=>b.Dispatchkgs);
+                var milkcarryforward = totalk * getaccount.Price;
+                var remarkss = "MILK BALANCE" + (totalKgs - totalkgss) + " LTRS @ " + getaccount.Price;
+                journalListings.Add(new JournalVm
+                {
+                    GlAcc = GlAccnt,
+                    TransDate = filter.ToDate,
+                    AccName = AccName,
+                    AccCategory = AccCategory,
+                    Dr = 0,
+                    DocumentNo = "",
+                    Cr = 0,
+                    TransDescript = remarkss,
+                    Group = AccGroup,
+                });
+
                 var days = (filter.ToDate - filter.FromDate).TotalDays + 1;
-                decimal transportationAmount = 0;
-                decimal subsidy = 0;
-                decimal tanker = 0;
+                decimal Transporters = 0;
+                decimal TradersTransporters = 0;
+                decimal OtherTransporters = 0;
+                decimal Tradersfee = 0;
+                decimal Suppliersfee = 0;
                 foreach (var transporter in transporters)
                 {
-                    var totalSupplied = intakes.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper())).Sum(s => s.Qsupplied);
-                    var averageSupplied = totalSupplied / (decimal)days;
-                    transporter.TraderRate = transporter?.TraderRate ?? 0;
-                    decimal amount = 0;
-                    if (transporter.CertNo.ToUpper().Equals("KDK 015D"))
-                        tanker = totalSupplied * (decimal)transporter.Rate;
+                    //self transporters
+                    var totalTransportSuppliedKgs = intakes.Where(i => i.Sno.ToUpper().Equals(transporter.TransCode.ToUpper())).Sum(s => s.Qsupplied);
+                    //transporters with suppliers no. get Traders Transport, Other Transport, Traders Fees
+                    if (transporter.SlopesIDNo != null || transporter.SlopesIDNo != "0")
+                    {
+                        var totalSupplierNouppliedKgs = farmersIntake.Where(i => i.Sno.ToUpper().Trim().Equals(transporter.SlopesIDNo.ToUpper().Trim()))
+                            .Sum(s => s.Qsupplied);
+                        var averageSupplied = totalSupplierNouppliedKgs / (decimal)days;
+                        //GET OTHER MEMBERS KGS productIntakeslist
+                        var getsnoreceipt = intakes.Where(n => n.Sno.Trim().ToUpper()
+                        .Equals(transporter.SlopesIDNo.Trim().ToUpper()) && n.Description == "Transport")
+                        .ToList().Select(b => b.Remarks)
+                        .Distinct();
+                        // var va = othermemberskg.Sum(c => c.Qsupplied);
+                        var othermemberskgs = intakes.Where(k => k.Sno.Trim().ToUpper()
+                        .Equals(transporter.TransCode.Trim().ToUpper()) && !getsnoreceipt.Contains(k.Remarks)
+                        && !k.Remarks.Contains(transporter.SlopesIDNo.Trim().ToUpper())
+                        && k.Description == "Transport")
+                        .ToList();
+
+                        if (price != null && averageSupplied >= price.SubsidyQty)
+                        {
+                            price.SubsidyPrice = price.SubsidyPrice ?? 0;
+                            Tradersfee += totalSupplierNouppliedKgs * (decimal)price.SubsidyPrice;
+                        }
+                        //use fee for transporting other sno kgs
+                        OtherTransporters += (othermemberskgs.Sum(c => c.Qsupplied)) * (decimal)price.OtherTradersPrice;
+                        TradersTransporters += (totalSupplierNouppliedKgs) * (decimal)price.TradersPrice;
+                    }
                     else
                     {
-                        amount = totalSupplied * (decimal)transporter.Rate;
-                        // Assigning trader rate means the transporter is a trader
-                        if (transporter.TraderRate > 0)
-                        {
-                            amount = totalSupplied * (decimal)transporter.TraderRate;
-                            if (price != null && averageSupplied >= price.SubsidyQty)
-                                subsidy += totalSupplied * (decimal)transporter.Rate;
-                        }
+                        Transporters += totalTransportSuppliedKgs * (decimal)transporter.Rate;
                     }
-                    transportationAmount += amount;
+                   
                 }
+                //famers getting bonus
+                var supplierswithtransport = transporters.Where(b => b.SlopesIDNo != null || b.SlopesIDNo != "0").Select(m => m.SlopesIDNo).ToList();
+                var supplierswithNotransport = farmersIntake.Where(x=> !supplierswithtransport.Contains(x.Sno)).ToList();
+
+                supplierswithNotransport.GroupBy(n=>n.Sno).ToList().ForEach(m =>
+                {
+                    var individualsupplier = m.FirstOrDefault();
+                    var suppliedkgs = farmersIntake.Where(i => i.Sno.ToUpper().Trim().Equals(m.Key.ToUpper().Trim()))
+                            .Sum(s => s.Qsupplied);
+                    var averageSupplied = suppliedkgs / (decimal)days;
+                    if (price != null && averageSupplied >= price.SubsidyQty)
+                        Suppliersfee += suppliedkgs * (decimal)price.SubsidyPrice;
+
+                });
 
                 var debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == price.TransportDrAccNo);
                 if (debtorssAcc != null)
@@ -838,10 +934,10 @@ namespace EasyPro.Controllers
                         TransDate = filter.ToDate,
                         AccName = debtorssAcc.GlAccName,
                         AccCategory = debtorssAcc.AccCategory,
-                        Dr = transportationAmount,
+                        Dr = Transporters,
                         DocumentNo = "",
                         Cr = 0,
-                        TransDescript = "Milk Transport",
+                        TransDescript = "TRANSPORTERS",
                         Group = debtorssAcc.GlAccMainGroup,
                     });
                     journalListings.Add(new JournalVm
@@ -850,23 +946,22 @@ namespace EasyPro.Controllers
                         TransDate = filter.ToDate,
                         AccName = debtorssAcc.GlAccName,
                         AccCategory = debtorssAcc.AccCategory,
-                        Dr = tanker,
+                        Dr = TradersTransporters,
                         DocumentNo = "",
                         Cr = 0,
-                        TransDescript = "Tanker",
+                        TransDescript = "TRADERS TRANSPORT",
                         Group = debtorssAcc.GlAccMainGroup,
                     });
-                    if (subsidy > 0)
-                        journalListings.Add(new JournalVm
+                    journalListings.Add(new JournalVm
                         {
                             GlAcc = debtorssAcc.AccNo,
                             TransDate = filter.ToDate,
                             AccName = debtorssAcc.GlAccName,
                             AccCategory = debtorssAcc.AccCategory,
-                            Dr = subsidy,
+                            Dr = OtherTransporters,
                             DocumentNo = "",
                             Cr = 0,
-                            TransDescript = "Special Milk Transport",
+                            TransDescript = "OTHER TRANSPORT",
                             Group = debtorssAcc.GlAccMainGroup,
                         });
                 }
@@ -880,10 +975,10 @@ namespace EasyPro.Controllers
                         TransDate = filter.ToDate,
                         AccName = creditorsAcc.GlAccName,
                         AccCategory = creditorsAcc.AccCategory,
-                        Cr = transportationAmount,
+                        Cr = Transporters,
                         DocumentNo = "",
                         Dr = 0,
-                        TransDescript = "Milk Transport",
+                        TransDescript = "TRANSPORTERS",
                         Group = creditorsAcc.GlAccMainGroup,
                     });
                     journalListings.Add(new JournalVm
@@ -892,20 +987,19 @@ namespace EasyPro.Controllers
                         TransDate = filter.ToDate,
                         AccName = creditorsAcc.GlAccName,
                         AccCategory = creditorsAcc.AccCategory,
-                        Cr = tanker,
+                        Cr = TradersTransporters,
                         DocumentNo = "",
                         Dr = 0,
-                        TransDescript = "Tanker",
+                        TransDescript = "TRADERS TRANSPORT",
                         Group = creditorsAcc.GlAccMainGroup,
                     });
-                    if (subsidy > 0)
-                        journalListings.Add(new JournalVm
+                    journalListings.Add(new JournalVm
                         {
                             GlAcc = creditorsAcc.AccNo,
                             TransDate = filter.ToDate,
                             AccName = creditorsAcc.GlAccName,
                             AccCategory = creditorsAcc.AccCategory,
-                            Cr = subsidy,
+                            Cr = OtherTransporters,
                             DocumentNo = "",
                             Dr = 0,
                             TransDescript = "Special Milk Transport",
@@ -913,53 +1007,64 @@ namespace EasyPro.Controllers
                         });
                 }
 
-                decimal farmersSpecialPrice = 0;
-                suppliers.ForEach(s =>
+                debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == price.DrAccNo);
+                if (debtorssAcc != null)
                 {
-                    var totalSupplied = farmersIntake.Where(i => i.Sno == s.Sno).Sum(i => i.Qsupplied);
-                    var averageSupplied = totalSupplied / (decimal)days;
-                    if (averageSupplied >= price.SubsidyQty)
+                    journalListings.Add(new JournalVm
                     {
-                        farmersSpecialPrice += (decimal)(totalSupplied * price.SubsidyPrice);
-                    }
-                });
-
-                if(farmersSpecialPrice > 0)
-                {
-                    debtorssAcc = glsetups.FirstOrDefault(a => a.AccNo == price.DrAccNo);
-                    if (debtorssAcc != null)
+                        GlAcc = GlAccnt,
+                        TransDate = filter.ToDate,
+                        AccName = AccName,
+                        AccCategory = AccCategory,
+                        Dr = Tradersfee,
+                        DocumentNo = "",
+                        Cr = 0,
+                        TransDescript = "TRADERS FEE",
+                        Group = AccGroup,
+                    });
+                    journalListings.Add(new JournalVm
                     {
-                        journalListings.Add(new JournalVm
-                        {
-                            GlAcc = debtorssAcc.AccNo,
-                            TransDate = filter.ToDate,
-                            AccName = debtorssAcc.GlAccName,
-                            AccCategory = debtorssAcc.AccCategory,
-                            Dr = farmersSpecialPrice,
-                            DocumentNo = "",
-                            Cr = 0,
-                            TransDescript = "Farmers Special Price",
-                            Group = debtorssAcc.GlAccMainGroup,
-                        });
-                    }
-
-                    creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == price.CrAccNo);
-                    if (creditorsAcc != null)
-                    {
-                        journalListings.Add(new JournalVm
-                        {
-                            GlAcc = creditorsAcc.AccNo,
-                            TransDate = filter.ToDate,
-                            AccName = creditorsAcc.GlAccName,
-                            AccCategory = creditorsAcc.AccCategory,
-                            Cr = farmersSpecialPrice,
-                            DocumentNo = "",
-                            Dr = 0,
-                            TransDescript = "Farmers Special Price",
-                            Group = creditorsAcc.GlAccMainGroup,
-                        });
-                    }
+                        GlAcc = GlAccnt,
+                        TransDate = filter.ToDate,
+                        AccName = AccName,
+                        AccCategory = AccCategory,
+                        Dr = Suppliersfee,
+                        DocumentNo = "",
+                        Cr = 0,
+                        TransDescript = "FARMERS FEE",
+                        Group = AccGroup,
+                    });
                 }
+
+                creditorsAcc = glsetups.FirstOrDefault(a => a.AccNo == price.CrAccNo);
+                if (creditorsAcc != null)
+                {
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = GlAccnt,
+                        TransDate = filter.ToDate,
+                        AccName = AccName,
+                        AccCategory = AccCategory,
+                        Cr = Tradersfee,
+                        DocumentNo = "",
+                        Dr = 0,
+                        TransDescript = "TRADERS FEE",
+                        Group = AccGroup,
+                    });
+                    journalListings.Add(new JournalVm
+                    {
+                        GlAcc = GlAccnt,
+                        TransDate = filter.ToDate,
+                        AccName = AccName,
+                        AccCategory = AccCategory,
+                        Cr = Suppliersfee,
+                        DocumentNo = "",
+                        Dr = 0,
+                        TransDescript = "FARMERS FEE",
+                        Group = AccGroup,
+                    });
+                }
+
             }
 
             return journalListings;

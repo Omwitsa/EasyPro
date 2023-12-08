@@ -422,9 +422,12 @@ namespace EasyPro.Controllers
         private decimal GetTodaysIntake(DateTime date, string branch)
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
-            var intakes = _context.ProductIntake.Where(i => i.TransDate == date && i.SaccoCode == sacco && i.Branch==branch && i.Description == "Intake");
+            var intakes = _context.ProductIntake.Where(i => i.TransDate == date && i.SaccoCode == sacco && i.Branch==branch 
+            && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction)).ToList();
             var todaysIntake = intakes.Sum(i => i.Qsupplied);
-            var dispatchKgs = _context.Dispatch.Where(d => d.Dcode == sacco && d.Branch == branch && d.Transdate == date).Sum(d => d.Dispatchkgs);
+            var dispatchKgs = _context.Dispatch.Where(d => d.Dcode == sacco && d.Branch == branch && d.Transdate == date)
+                .ToList()
+                .Sum(d => d.Dispatchkgs);
             todaysIntake -= dispatchKgs;
             return todaysIntake;
         }
@@ -434,16 +437,20 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            var intakes = await _context.ProductIntake.Where(i => i.TransDate == date && (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction) && i.SaccoCode == sacco).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                intakes = intakes.Where(i => i.Branch == saccoBranch).ToList();
+            var intakes = await _context.ProductIntake.Where(i => i.TransDate == date &&
+            (i.TransactionType == TransactionType.Intake || i.TransactionType == TransactionType.Correction) 
+            && i.SaccoCode == sacco).ToListAsync();
+
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    intakes = intakes.Where(i => i.Branch == saccoBranch).ToList();
             
             var dispatches = await _context.Dispatch.Where(d => d.Transdate == date && d.Dcode == sacco).ToListAsync();
-            if (user.AccessLevel == AccessLevel.Branch)
-                dispatches = dispatches.Where(i => i.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    dispatches = dispatches.Where(i => i.Branch == saccoBranch).ToList();
 
             var yesturday = date.AddDays(-1);
-            var yesturdayBalancing = await _context.DispatchBalancing.FirstOrDefaultAsync(d => d.Saccocode == sacco && d.Date == yesturday);
+            var yesturdayBalancing = await _context.DispatchBalancing.FirstOrDefaultAsync(d => d.Saccocode == sacco
+            && d.Date == yesturday);
             decimal broughtForward = yesturdayBalancing?.CF ?? 0;
             var todaysIntake = intakes.Sum(i => i.Qsupplied);
             var dispatchKgs = dispatches.Sum(d => d.Dispatchkgs);

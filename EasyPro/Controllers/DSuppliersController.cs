@@ -47,8 +47,8 @@ namespace EasyPro.Controllers
             var suppliers = _context.DSuppliers
                 .Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Approval);
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(u => u.Branch == saccoBranch);
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(u => u.Branch == saccoBranch);
             if (!string.IsNullOrEmpty(Search))
                 suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
             return View(await PaginatedList<DSupplier>.CreateAsync(suppliers.OrderByDescending(s => s.Id).AsNoTracking(), pageNumber ?? 1, pageSize ?? 20));
@@ -72,8 +72,8 @@ namespace EasyPro.Controllers
                 ViewData["Getsuppliers"] = Search;
 
                 var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-                if (user.AccessLevel == AccessLevel.Branch)
-                    suppliers = suppliers.Where(u => u.Branch == saccoBranch);
+                //if (user.AccessLevel == AccessLevel.Branch)
+                //    suppliers = suppliers.Where(u => u.Branch == saccoBranch);
                 if (!string.IsNullOrEmpty(Search))
                     suppliers = suppliers.Where(x => x.IdNo.Contains(Search) || x.Names.ToUpper().Contains(Search.ToUpper()) || x.PhoneNo.Contains(Search) || x.Sno.ToString().Contains(Search));
 
@@ -128,45 +128,7 @@ namespace EasyPro.Controllers
                     //});
 
                 });
-                //var countySuppliers = _context.DSuppliers.ToList().GroupBy(s => s.Scode).ToList();
-                //countySuppliers.ForEach(c =>
-                //{
-                //    var saccoSuppliers = new List<SaccoSupplierSummery>();
-                //    var totalCountySuppliers = 0;
-                //    var totalCountyMale = 0;
-                //    var totalCountyFemale = 0;
-
-                //    var groupedSuppliers = c.ToList().GroupBy(s => s.Scode).ToList();
-                //    groupedSuppliers.ForEach(s =>
-                //    {
-                //        var total = s.Count();
-                //        var male = s.Where(g => g.Type.ToLower().Equals("male")).Count();
-                //        var female = s.Where(g => g.Type.ToLower().Equals("female")).Count();
-                //        totalCountySuppliers += total;
-                //        totalCountyMale += male;
-                //        totalCountyFemale += female;
-                //        saccoSuppliers.Add(new SaccoSupplierSummery
-                //        {
-                //            Sacco = s.Key,
-                //            Suppliers = total,
-                //            Male = male,
-                //            Female = female
-                //        });
-                //    });
-
-                //    countySaccos.Add(new CountySupplierSummery
-                //    {
-                //        County = c.Key,
-                //        suppliers = saccoSuppliers,
-                //        TotalSupplies = totalCountySuppliers,
-                //        TotalMale = totalCountyMale,
-                //        TotalFemale = totalCountyFemale
-                //    });
-
-                //    totalSuppliers += totalCountySuppliers;
-                //    totalMale += totalCountyMale;
-                //    totalFemale += totalCountyFemale;
-                //});
+               
 
                 countySaccos.Add(new CountySupplierSummery
                 {
@@ -227,12 +189,12 @@ namespace EasyPro.Controllers
                 sacconame.ForEach(g =>
                 {
                     //var getcountySuppliers = _context.DSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList().GroupBy(s => s.Scode).ToList();
-                    var getcountySuppliers = gSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper())).ToList();
+                    var getcountySuppliers = gSuppliers.Where(j => j.Scode.ToUpper().Equals(g.Key.ToUpper()) && j.Type.Contains("male")).ToList();
                     if(getcountySuppliers !=null)
                     {
                         var total = getcountySuppliers.Count();
-                        var male = getcountySuppliers.Where(g => g.Type.ToLower().Equals("male")).Count();
-                        var female = getcountySuppliers.Where(g => g.Type.ToLower().Equals("female")).Count();
+                        var male = getcountySuppliers.Where(g => g.Type.ToLower().Trim().Equals("male") || g.Type.ToLower().Trim().Equals("male")).Count();
+                        var female = getcountySuppliers.Where(g => g.Type.ToLower().Trim().Contains("female")).Count();
                         totalCountySuppliers += total;
                         totalCountyMale += male;
                         totalCountyFemale += female;
@@ -259,7 +221,6 @@ namespace EasyPro.Controllers
                 totalSuppliers += totalCountySuppliers;
                 totalMale += totalCountyMale;
                 totalFemale += totalCountyFemale;
-
 
             var supplierSummery = new SupplierSummeryVm
             {
@@ -368,8 +329,8 @@ namespace EasyPro.Controllers
 
             var suppliers = await _context.DSuppliers.Where(s => s.Scode == sacco).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch).ToList();
 
             var supNo = "";
             if (StrValues.Slopes == sacco)
@@ -399,10 +360,16 @@ namespace EasyPro.Controllers
             ViewBag.counties = new SelectList(counties);
             var SubCountyName = _context.SubCounty.OrderBy(K => K.Name).ToList();
             ViewBag.SubCountyName = SubCountyName;
+
             ViewBag.subCounties = new SelectList(SubCountyName, "Name", "Name");
             var WardSubCounty = _context.Ward.OrderBy(K => K.Name).ToList();
             ViewBag.WardSubCounty = WardSubCounty;
             ViewBag.wards = new SelectList(WardSubCounty, "Name", "Name");
+
+            var transporters =  _context.DTransporters.Where(t => t.ParentT == sacco).OrderBy(t => t.CertNo).ToList();
+            var vehicles = transporters.Select(t => t.CertNo).ToList();
+            ViewBag.vehicles = new SelectList(vehicles);
+
             var brances = _context.DBranch.Where(a => a.Bcode == sacco).OrderBy(K => K.Bname).ToList();
 
             var locations = _context.DLocations.Where(l => l.Lcode == sacco).ToList();
@@ -485,7 +452,7 @@ namespace EasyPro.Controllers
                 return View();
             }
             var dSupplierExistsIDNo = _context.DSuppliers.Any(i => i.IdNo == dSupplier.IdNo
-            && i.Scode == sacco && i.Branch == saccoBranch);
+            && i.Scode == sacco);
             if (dSupplierExistsIDNo)
             {
                 //var sup = _context.DSuppliers.Where(i => i.Scode == sacco && i.Sno == dSupplier1.)
@@ -603,11 +570,6 @@ namespace EasyPro.Controllers
                 return NotFound();
             }
 
-           // if (dSupplier.Shares)
-           //   dSupplier.Shares = false;
-           // else
-           //     dSupplier.Shares = true;
-
             return View(dSupplier);
         }
 
@@ -637,6 +599,8 @@ namespace EasyPro.Controllers
                 {
                     dSupplier.Sno = dSupplier.Sno.Trim();
                     dSupplier.Regdate = dSupplier.Regdate;
+                    dSupplier.AuditId = loggedInUser;
+                    dSupplier.Auditdatetime = DateTime.Now;
                     dSupplier.Trader = false;
                     dSupplier.Branch = saccobranch;
                     dSupplier.Br = "A";

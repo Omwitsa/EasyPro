@@ -4,132 +4,269 @@
     ViewData["Title"] = "Create Product Return";
 }
 <div class="row">
+    
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
-            <div class="cmp-tb-hd">
-                <h2>Product Return</h2>
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#allSalesReport">Create Correction</a></li>
+                <li><a data-toggle="tab" href="#allSalesSummary">Stock Outwards</a></li>
+            </ul>
+            <div class="tab-content tab-custom-st">
+                <div id="allSalesReport" class="tab-pane fade in active">
+                    <div class="cmp-tb-hd">
+                        <h2>Product Receive Correction Form</h2>
+                    </div>
+                    <form asp-action="CreateProductReturn">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="DateEntered" class="control-label">Date</label>
+                                        <input type="date" id="date" asp-for="DateEntered" class="form-control" />
+                                        <span asp-validation-for="DateEntered" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="PName" class="control-label">Products</label>
+                                        <select asp-for="PName" id="pname" class="form-control" required></select>
+                                        <span asp-validation-for="PName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="PCode" class="control-label"></label>
+                                        <input id="pcode" readonly asp-for="PCode" class="form-control" />
+                                        <span asp-validation-for="PCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="SupplierId" class="control-label">Supplier</label>
+                                        <input asp-for="SupplierId" id="suppliername" class="form-control" readonly required />
+                                        <span asp-validation-for="SupplierId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Qin" class="control-label">Quantity</label>
+                                        <input id="qin" required asp-for="Qin" value="-1" class="form-control" />
+                                        <span asp-validation-for="Qin" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="OBal" class="control-label">Balance</label>
+                                        <input id="obal" readonly asp-for="OBal" class="form-control" />
+                                        <span asp-validation-for="OBal" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Pprice" class="control-label">Buying Price</label>
+                                        <input required id="bprice" asp-for="Pprice" class="form-control" />
+                                        <span asp-validation-for="Pprice" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Sprice" class="control-label">Selling Price</label>
+                                        <input required id="sprice" asp-for="Sprice" class="form-control" />
+                                        <span asp-validation-for="Sprice" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Draccno" class="control-label"></label>
+                                        <input id="draccno" readonly asp-for="Draccno" class="form-control" />
+                                        @*<select id="draccno" asp-for="Draccno" class="form-control" asp-items="@ViewBag.glAccounts">
+                                        </select>*@
+                                        <span asp-validation-for="Draccno" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Craccno" class="control-label"></label>
+                                        <input id="craccno" readonly asp-for="Craccno" class="form-control" />
+                                        @*<select id="craccno" asp-for="Craccno" class="form-control" asp-items="@ViewBag.glAccounts">
+                                        </select>*@
+                                        <span asp-validation-for="Craccno" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <button type="submit" class="btn btn-success">Save</button>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div id="allSalesSummary" class="tab-pane fade">
+                    <div class="cmp-tb-hd">
+                        <h2>Product Return To Supplier Form</h2>
+                    </div>
+                    <form asp-action="CreateProductReturn.">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="DateEntered" class="control-label">Date</label>
+                                        <input type="date" id="date" asp-for="DateEntered" class="form-control" />
+                                        <span asp-validation-for="DateEntered" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="PName" class="control-label">Products</label>
+                                        <select asp-for="PName" id="pname" class="form-control" required></select>
+                                        <span asp-validation-for="PName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="PCode" class="control-label"></label>
+                                        <input id="pcode" readonly asp-for="PCode" class="form-control" />
+                                        <span asp-validation-for="PCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="SupplierId" class="control-label">Supplier</label>
+                                        <input asp-for="SupplierId" id="suppliername" class="form-control" readonly required />
+                                        <span asp-validation-for="SupplierId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Qin" class="control-label">Quantity</label>
+                                        <input id="qin" required asp-for="Qin" value="-1" class="form-control" />
+                                        <span asp-validation-for="Qin" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="OBal" class="control-label">Balance</label>
+                                        <input id="obal" readonly asp-for="OBal" class="form-control" />
+                                        <span asp-validation-for="OBal" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Pprice" class="control-label">Buying Price</label>
+                                        <input required id="bprice" asp-for="Pprice" class="form-control" />
+                                        <span asp-validation-for="Pprice" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Sprice" class="control-label">Selling Price</label>
+                                        <input required id="sprice" asp-for="Sprice" class="form-control" />
+                                        <span asp-validation-for="Sprice" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Draccno" class="control-label"></label>
+                                        <input id="draccno" readonly asp-for="Draccno" class="form-control" />
+                                        @*<select id="draccno" asp-for="Draccno" class="form-control" asp-items="@ViewBag.glAccounts">
+                                        </select>*@
+                                        <span asp-validation-for="Draccno" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group ic-cmp-int float-lb floating-lb">
+                                    <div class="nk-int-st">
+                                        <label asp-for="Craccno" class="control-label"></label>
+                                        <input id="craccno" readonly asp-for="Craccno" class="form-control" />
+                                        @*<select id="craccno" asp-for="Craccno" class="form-control" asp-items="@ViewBag.glAccounts">
+                                        </select>*@
+                                        <span asp-validation-for="Craccno" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <button type="submit" class="btn btn-success">Save</button>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
+            
             <hr />
-            <form asp-action="CreateProductReturn">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="DateEntered" class="control-label">Date</label>
-                                <input type="date" id="date" asp-for="DateEntered" class="form-control" />
-                                <span asp-validation-for="DateEntered" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="PName" class="control-label">Products</label>
-                                <select asp-for="PName" id="pname" class="form-control" required ></select>
-                                <span asp-validation-for="PName" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="PCode" class="control-label"></label>
-                                <input id="pcode" readonly asp-for="PCode" class="form-control" />
-                                <span asp-validation-for="PCode" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="SupplierId" class="control-label">Supplier</label>
-                                <input asp-for="SupplierId" id="suppliername" class="form-control" readonly required/>
-                                <span asp-validation-for="SupplierId" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="Qin" class="control-label">Quantity</label>
-                                <input id="qin" required asp-for="Qin" value="-1" class="form-control" />
-                                <span asp-validation-for="Qin" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="OBal" class="control-label">Balance</label>
-                                <input id="obal" readonly asp-for="OBal" class="form-control" />
-                                <span asp-validation-for="OBal" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="Pprice" class="control-label">Buying Price</label>
-                                <input required id="bprice" asp-for="Pprice" class="form-control" />
-                                <span asp-validation-for="Pprice" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="Sprice" class="control-label">Selling Price</label>
-                                <input required id="sprice" asp-for="Sprice" class="form-control" />
-                                <span asp-validation-for="Sprice" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="Draccno" class="control-label"></label>
-                                <input id="draccno" readonly asp-for="Draccno" class="form-control" />
-                                @*<select id="draccno" asp-for="Draccno" class="form-control" asp-items="@ViewBag.glAccounts">
-                                </select>*@
-                                <span asp-validation-for="Draccno" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="form-group ic-cmp-int float-lb floating-lb">
-                            <div class="nk-int-st">
-                                <label asp-for="Craccno" class="control-label"></label>
-                                <input id="craccno" readonly asp-for="Craccno" class="form-control" />
-                                @*<select id="craccno" asp-for="Craccno" class="form-control" asp-items="@ViewBag.glAccounts">
-                                </select>*@
-                                <span asp-validation-for="Craccno" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <hr />
-                <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <button type="submit" class="btn btn-success">Save</button>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
-                    </div>
-                </div>
-            </form>
+           
+            
         </div>
     </div>
 </div>

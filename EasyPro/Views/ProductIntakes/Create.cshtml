@@ -1,38 +1,86 @@
 ﻿@model EasyPro.ViewModels.ProductIntakeVm
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
 
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f6;
+        }
+
+        #customers tr:hover {
+            background-color: #c3d8eb;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1080px;
+        height: 130px;
+        overflow: auto;
+    }
+</style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="form-element-list mg-t-30">
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
-                    <div class="col-sm-3 col-xs-12 cmp-tb-hd">
-                        <h2>Create</h2>
+                    
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Morning/Evening</label>
+                        </div>
                     </div>
-                    <div class="col-sm-3 col-xs-12" id="MorningEvening">
+                    <div class="col-sm-2 col-xs-12" id="MorningEvening">
                         <div class="form-group ic-cmp-int float-lb floating-lb">
                             <div class="nk-int-st">
-                                <label class="control-label">Morning/Evening</label>
-                                <select id="mevng" asp-for="MornEvening" class="form-control" asp-items="@ViewBag.morningEve"></select>
+                                <select id="mevng" asp-for="MornEvening" class="chzn-select form-control" asp-items="@ViewBag.morningEve">
+                                    <option></option>
+                                </select>
                             </div>
                         </div>
                     </div>
                     @if (ViewBag.slopes)
                     {
-                        <div class="col-sm-3 col-xs-12">
+
+                        <div class="col-sm-1 col-xs-12">
                             <div class="form-group ic-cmp-int float-lb floating-lb">
                                 <div class="nk-int-st">
                                     <label class="control-label">Transporter</label>
-                                    <select id="transporter" class="chzn-select form-control" asp-items="@ViewBag.vehicles">
-                                        <option value=""></option>
-                                    </select>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <select id="transporter" class="chzn-select form-control" asp-items="@ViewBag.vehicles">
+                                    <option value=""></option>
+                                </select>
+                        </div>
+                        </div>
                     }
                     <div class="col-sm-3 col-xs-12">
-                        Farmer Cumlative Kgs
-                        <input id="supCum" class="form-control" readonly />
+                        <div class="form-group">
+                            <label class="control-label">Farmer Cumlative Kgs</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 col-xs-12">
+                        <div class="form-group">
+                            <input id="supCum" class="form-control" readonly />
+                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -53,7 +101,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label asp-for="Sno" class="control-label"></label>
                             <input asp-for="Sno" id="Sno" OnChange="document.getElementById('Qsupplied').focus();" class="form-control" required />
@@ -66,7 +114,7 @@
                             <input id="Names" class="form-control" readonly />
                         </div>
                     </div>
-                </div> 
+                </div>
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
@@ -100,7 +148,8 @@
                             <span asp-validation-for="CR" class="text-danger"></span>
                         </div>
                     </div>
-                </div> 
+                </div>
+
                 <div class="row" id="DrCr">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group">
@@ -133,20 +182,41 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-sm-1 col-xs-12">
                         <div class="form-group">
                             <input  asp-for="Print" type="checkbox" id="print" />
                             <label asp-for="Print" for="print" class="control-label"></label>
                             <span asp-validation-for="Print" class="text-danger"></span>
                         </div>
+                    </div>
+                    <div class="col-sm-1 col-xs-12">
                         <div class="form-group">
                             <input asp-for="SMS" type="checkbox" id="SMS" />
                             <label asp-for="SMS" for="SMS" class="control-label"></label>
                             <span asp-validation-for="SMS" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-
+                    <div class=" col-sm-2 col-xs-12">
+                        <label class="control-label">..........................</label>
+                        <a id="reprint" class="btn btn-success">Reprint Receipt</a>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Select Transporter</label>
+                            <select id="name" class="chzn-select form-control" asp-items="@ViewBag.Transporterslist">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">TCode</label>
+                            <input id="tcode" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class=" col-sm-2 col-xs-12">
+                        <label class="control-label">..........................</label>
+                        <a id="reprintTrans" class="btn btn-success">Print Transporter Slip</a>
                     </div>
                 </div>
 
@@ -154,11 +224,42 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a id="save" class="btn btn-success">Save</a>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <a id="reprint" class="btn btn-success" hidden>Reprint Receipt</a>
-                    </div>
+                    
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+                <div class="bsc-tbl-hvr table-border-style">
+
+                    <div class="table-responsive">
+                        <div class="divScroll">
+                            <table class="table table-hover" id="customers">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            SNo
+                                        </th>
+                                        <th>
+                                            Name
+                                        </th>
+                                        <th>
+                                            Quantity
+                                        </th>
+                                        <th>
+                                            Time
+                                        </th>
+                                        <th>
+                                            Remarks
+                                        </th>
+                                        <th>
+                                            Intake By
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statement">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -177,8 +278,10 @@
             var today = new Date().toISOString().split('T')[0];
             $("#transDate").val(today);
             let isSlopes = '@ViewBag.slopes' === 'True';
+            let isKuresoi = '@ViewBag.Kuresoi' === 'True';
             $("#Remarks").val(@ViewBag.remarksValue);
             var products = @Html.Raw(Json.Serialize(ViewBag.productPrices));
+            var operation = "reprintreceipt";
             products = products ? products : [];
             document.getElementById('Sno').focus();
             $("#Sno").val("");
@@ -186,6 +289,20 @@
             $("#Qsupplied").val("");
             $('#mevng').val('');
             $('#DrCr').hide();
+            gettransaction();
+
+            $('#name').on('change', function () {
+                var suppliers = @Html.Raw(Json.Serialize(ViewBag.agproductsall));
+                var selectVal = $("#name").val();
+                var selectSupplier = suppliers.filter(p => (p.TransName.trimRight() === selectVal.trimRight()) || (p.TransName.trimLeft() === selectVal.trimLeft()));
+                if (isSlopes) {
+                    selectSupplier = suppliers.filter(p => p.CertNo === selectVal);
+                }
+
+                if (selectSupplier[0]) {
+                    $("#tcode").val(selectSupplier[0].TransCode);
+                }
+            });
 
             var checkiftoenable = @Html.Raw(Json.Serialize(ViewBag.checkiftoenable));
             if (checkiftoenable === 0) {
@@ -265,8 +382,119 @@
             });
         
             $('#reprint').on('click', function () {
+                var snos = $("#Sno").val();
+                if (snos === "") {
+                    alert("Provide Supplier No To Reprint.")
+                    document.getElementById('Sno').focus();
+                    return
+                }
+
                 reprintreceipt();
             });
+
+            $('#reprintTrans').on('click', function () {
+                var snos = $("#tcode").val();
+                if (snos === "") {
+                    alert("Select Transporter To Print Slip.")
+                    return
+                }
+                var date = $("#transDate").val();
+                var name = $("#name").val();
+                var filter = {
+                    date: date,
+                    code: snos,
+                    name: name
+                };
+                
+                $.ajax({
+                    type: 'POST',
+                    url: "transportessummary?transCode=" + snos + "&date=" + date,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        var content = '';
+                        $("#tcode").val('');
+                        $("#name").val('');
+                        content = generateBanksHTML(response, filter);
+                       printJS({
+                                printable: content,
+                                type: 'raw-html',
+                                style: '.blueText {color:blue;}; #printMe { font-size: 11px; }'
+                       });
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
+                    // ...
+                });
+            });
+            function generateBanksHTML(response, filter) {
+                response.company = response.companies ? response.companies : {};
+                var date = new Date(filter.date).toLocaleString('en-us', { month: 'short', year: 'numeric' });
+                let curDate = new Date().toLocaleDateString('en-GB');
+                let content = "";
+                let maxLength = 15;
+
+                    let totalPrice = 0;
+                    let saccoLoans = response.receiptdetails.map(l => {
+                        let loanCode = l.name.length < maxLength ? l.name : l.name.substring(0, maxLength) + '...'
+                        var kgs = Number(parseFloat(l.Kgs).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                        totalPrice += kgs;
+                        return `<tr>
+                                   <td>${l.Sno}</td>
+                                    <td>${loanCode}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>${kgs}</td>
+                                </tr>`;
+                    });
+                    var strSaccoLoans = saccoLoans.join('');
+
+                    totalPrice = Number(parseFloat(totalPrice).toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 });
+                    
+                    content = `${content}<div class="row" id="printMe">
+                                <div class="col-xs-12 text-center">
+                                    <h5>
+                                    ${response.companies.Name}</br>
+                                    ${response.companies.Adress}</br>
+                                    ${response.companies.Town}</br>
+                                      For: ${filter.date}</br>
+                                      Code: ${filter.code}</br>
+                                      Name: ${filter.name}</br>
+                                      TRANSPORTER DELIVERY SUMMARY.
+                                            </h5>
+                                    *************************</br>
+                                    <table>
+                                        <thead>
+                                          <tr>
+                                            <th>Sno</th>
+                                            <th>Name</th>
+                                            <th></th>
+                                            <th></th>
+                                            <th>Kgs</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                           ${strSaccoLoans}
+                                            <tr>
+                                                <td>TOTAL KGS</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>${totalPrice}</td>
+                                            </tr>
+                                        </tbody>
+                                        </table></br>
+                                    <h6>DEVELOP BY: AMTECH TECHNOLOGIES LIMITED </h6>
+                                        **************************
+                                    <hr>
+                                </div>
+                            </div> `;
+
+                return content;
+            }
         function reprintreceipt() {
             var intake = {
                 sno: $("#Sno").val(),
@@ -292,7 +520,8 @@
                 // ...
             });
         }
-            $('#save').on('click', function () {
+            
+        $('#save').on('click', function () {
                 checkifalreadyexist();
             });
 
@@ -316,6 +545,7 @@
                     print: print,
                     sms: sms,
                 };
+                $("#Qsupplied").val("");
                 $.ajax({
                     type: 'POST',
                     url: "save?vehicleNo=" + vehicleNo,
@@ -327,10 +557,7 @@
                         document.getElementById('Sno').focus();
                         response = response ? response : {};
                         if(response.success){
-                            if (
-                                
-                            
-                            lopes) {
+                            if (isSlopes) {
                                 var remarks = $("#Remarks").val();
                                 remarks = remarks ? remarks : "";
                                 let invoiceNo = parseInt(remarks);
@@ -338,6 +565,7 @@
                                 $("#Remarks").val(invoiceNo);
                             }
                             getkgsfortheday();
+                            gettransaction();
                             if (print) {
                                 printReceipt(response);
                             }
@@ -350,7 +578,50 @@
                     // ...
                 });
             }
+            function gettransaction() {
+                let TDate = $('#transDate').val();
+                $.ajax({
+                    type: 'POST',
+                    url: "getsales?TDate=" + TDate,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        getsalesforthisresponse(response);
+                        //location.reload();
+                    },
+                    failure: function (response) {
+                    }
+                }).then(function () {
 
+                });
+            }
+            function getsalesforthisresponse(saleItems) {
+
+                let itemTableRows = new Array();
+                saleItems.forEach(i => {
+                    var time = (i.Time).split(":");
+                    h = +time[0];
+                    var p;
+                    if (h > 12) {
+                        h -= 12;
+                        p = "pm";
+                    } else {
+                        h = h || 12;
+                        p = "am";
+                    }
+                    var date = h + ":" + time[1] + p;
+                    itemTableRows.push(`<tr>
+                                            <td>${i.Sno}</td>
+                                            <td>${i.Names}</td>
+                                            <td>${i.Quantity}</td>
+                                            <td>${date}</td>
+                                            <td>${i.Remarks}</td>
+                                            <td>${i.User}</td>
+                                        </tr>`
+                    );
+                });
+
+                $('#statement').html(itemTableRows);
+            }
             function printReceipt(intake) {
                 var content = generateHTML(intake);
                 printJS({
@@ -413,7 +684,11 @@
             }
 
             function checkifdelivered() {
-                
+                if (isKuresoi) {
+                    alert("Supplier Already delivered today.")
+                    $('#Qsupplied').val("");
+                    return false;
+                }
                 const response = confirm("Already Delivered today, Do you want to continue?");
                 if (response) {
                     getSelectedforsave();

@@ -49,11 +49,11 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
             var transdeduction = await _context.DTransports.Where(i => i.Active && i.saccocode.ToUpper().Equals(sacco.ToUpper())).OrderBy(s => s.Sno).ToListAsync();
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                transdeduction = transdeduction.Where(t => t.Branch == saccoBranch).ToList();
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    transdeduction = transdeduction.Where(t => t.Branch == saccoBranch).ToList();
             var intakes = new List<TransSuppliersVM>();
-            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch).ToListAsync();
-            var suppliers = await _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch).ToListAsync();
+            var transporters = await _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
+            var suppliers = await _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
             foreach (var intake in transdeduction)
             {
                 var trans = transporters.FirstOrDefault(i => i.TransCode == intake.TransCode.Trim().ToUpper());
@@ -133,11 +133,11 @@ namespace EasyPro.Controllers
             var transporters = _context.DTransporters.Where(t => t.ParentT == sacco);
             var suppliers = _context.DSuppliers.Where(s => s.Scode == sacco);
 
-            if(user.AccessLevel == AccessLevel.Branch)
-            {
-                transporters = transporters.Where(t => t.Tbranch == saccoBranch);
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-            }
+            //if(user.AccessLevel == AccessLevel.Branch)
+            //{
+            //    transporters = transporters.Where(t => t.Tbranch == saccoBranch);
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+            //}
 
             TransSuppliersobj = new TransSuppliers
             {
@@ -159,13 +159,6 @@ namespace EasyPro.Controllers
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch) ?? "";
             var suppliers = _context.DSuppliers.Where(L => L.Sno.ToUpper().Equals(sno.ToUpper()) && L.Scode == sacco);
 
-
-            var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser) ?? "";
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-
-            if (user.AccessLevel == AccessLevel.Branch)
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-
             var todaysIntake = suppliers.Select(b => b.Names).ToList();
             return Json(todaysIntake);
         }
@@ -185,11 +178,7 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var transporters = _context.DTransporters.Where(t => t.TransCode == dTransport.TransCode && t.Active && t.ParentT == sacco);
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
-            //if (user.AccessLevel == AccessLevel.Branch)
-            //{
-                transporters = transporters.Where(t => t.Tbranch == saccoBranch);
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-            //}
+            
                 
             if (!transporters.Any())
             {
@@ -205,15 +194,15 @@ namespace EasyPro.Controllers
             }
             var dTransporterExists = _context.DTransports
                 .Any(i => i.Sno == dTransport.Sno && i.Active == true && i.producttype == dTransport.producttype
-                && i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch && i.Morning== dTransport.Morning);
+                && i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Morning== dTransport.Morning);
             if (dTransporterExists)
             {
                 _notyf.Error("Supplier has an active Assignment");
                 TransSuppliersobj = new TransSuppliers
                 {
                     DTransport = new DTransport(),
-                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch == saccoBranch),
-                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch),
+                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper())),
+                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
                 };
                 GetInitialValues();
                 return View(TransSuppliersobj);
@@ -242,7 +231,7 @@ namespace EasyPro.Controllers
                 .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.Branch == saccoBranch && i.ProductType == dTransport.producttype
                 && i.TransDate >= dTransport.Startdate && i.Qsupplied != 0 && (i.MornEvening == null || i.MornEvening == dTransport.Morning)).ToList();
 
-            var transport = _context.DTransports.FirstOrDefault(t => t.saccocode == sacco && t.Branch == saccoBranch 
+            var transport = _context.DTransports.FirstOrDefault(t => t.saccocode == sacco 
             && t.Sno.ToUpper().Equals(dTransport.Sno.ToUpper()) && (t.Morning == null || t.Morning == dTransport.Morning));
             var price = _context.DPrices.FirstOrDefault(p => p.SaccoCode.ToUpper().Equals(sacco.ToUpper())
                        && p.Products.ToUpper().Equals(dTransport.producttype.ToUpper()));
@@ -355,7 +344,7 @@ namespace EasyPro.Controllers
         {
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var saccoBranch = HttpContext.Session.GetString(StrValues.Branch);
-            var latestIntake = _context.ProductIntake.Where(i => i.Sno == dTransport.Sno.ToString() && i.Branch == saccoBranch && i.SaccoCode == sacco)
+            var latestIntake = _context.ProductIntake.Where(i => i.Sno == dTransport.Sno.ToString()  && i.SaccoCode == sacco)
                     .OrderByDescending(i => i.Id).FirstOrDefault();
             if (latestIntake == null)
                 latestIntake = new ProductIntake();
@@ -372,13 +361,12 @@ namespace EasyPro.Controllers
             var sacco = HttpContext.Session.GetString(StrValues.UserSacco);
             var transExisting = _context.DTransports
                 .Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper()) && i.Active && i.producttype == dTransport.producttype
-                && i.Startdate <= dTransport.DateInactivate && i.Sno == dTransport.Sno && i.Branch == saccoBranch);
+                && i.Startdate <= dTransport.DateInactivate && i.Sno == dTransport.Sno);
             if (transExisting.Any())
             {
                 var selectassigntrans = _context.ProductIntake
                     .Where(i => i.SaccoCode.ToUpper().Equals(sacco.ToUpper()) && i.ProductType == dTransport.producttype
-                    && i.TransDate >= dTransport.DateInactivate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied != 0 
-                    && i.Branch == saccoBranch);
+                    && i.TransDate >= dTransport.DateInactivate && i.Sno == dTransport.Sno.ToString() && i.Qsupplied != 0);
                 if (selectassigntrans.Any())
                 {
                     _context.ProductIntake.RemoveRange(selectassigntrans);
@@ -417,11 +405,11 @@ namespace EasyPro.Controllers
             var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             var transporters = _context.DTransporters.Where(t => t.TransCode == dTransport.TransCode && t.Active && t.ParentT == sacco);
             var suppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-            {
-                transporters = transporters.Where(t => t.Tbranch == saccoBranch);
-                suppliers = suppliers.Where(s => s.Branch == saccoBranch);
-            }
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //{
+            //    transporters = transporters.Where(t => t.Tbranch == saccoBranch);
+            //    suppliers = suppliers.Where(s => s.Branch == saccoBranch);
+            //}
 
             ViewBag.transporters = transporters;
             ViewBag.suppliers = suppliers;
@@ -453,8 +441,8 @@ namespace EasyPro.Controllers
                 TransSuppliersobj = new TransSuppliers
                 {
                     DTransport = new DTransport(),
-                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()) && i.Tbranch== saccoBranch),
-                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper()) && i.Branch==sacco),
+                    DTransporter = _context.DTransporters.Where(i => i.ParentT.ToUpper().Equals(sacco.ToUpper()) ),
+                    DSuppliers = _context.DSuppliers.Where(i => i.Scode.ToUpper().Equals(sacco.ToUpper())),
                 };
                 return View(TransSuppliersobj);
             }
@@ -531,17 +519,17 @@ namespace EasyPro.Controllers
             var loggedInUser = HttpContext.Session.GetString(StrValues.LoggedInUser);
 
             var Transporterssuppliers = await _context.DTransports.Where(i => i.saccocode.ToUpper().Equals(sacco.ToUpper())).ToListAsync();
-            var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            if (user.AccessLevel == AccessLevel.Branch)
-                Transporterssuppliers = Transporterssuppliers.Where(i => i.Branch == saccobranch).ToList();
+            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
+            //if (user.AccessLevel == AccessLevel.Branch)
+            //    Transporterssuppliers = Transporterssuppliers.Where(i => i.Branch == saccobranch).ToList();
             if (condition == "SNo")
                 Transporterssuppliers = Transporterssuppliers.Where(i => i.Sno.ToUpper().Contains(filter.ToUpper())).ToList();
             if (condition == "TNo")
                 Transporterssuppliers = Transporterssuppliers.Where(i => i.TransCode.ToUpper().Contains(filter.ToUpper())).ToList();
 
             Transporterssuppliers = Transporterssuppliers.OrderByDescending(i => i.Startdate).Take(505).ToList();
-            var suppliers = await _context.DSuppliers.Where(i => i.Scode == sacco && i.Branch == saccobranch).ToListAsync();
-            var transporters = await _context.DTransporters.Where(i => i.ParentT == sacco && i.Tbranch == saccobranch).ToListAsync();
+            var suppliers = await _context.DSuppliers.Where(i => i.Scode == sacco).ToListAsync();
+            var transporters = await _context.DTransporters.Where(i => i.ParentT == sacco).ToListAsync();
             var assignlist = new List<TransSuppliersVM>();
             foreach (var intake in Transporterssuppliers)
             {

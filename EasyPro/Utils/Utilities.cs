@@ -131,13 +131,9 @@ namespace EasyPro.Utils
             }
             //end 
             controller.ViewBag.slopes = StrValues.Slopes == sacco;
+            controller.ViewBag.Kuresoi = StrValues.Kuresoi == sacco;
 
             controller.ViewBag.sacco = sacco;
-            //var branch =_context.DBranch.Where(n=>n.Bcode==sacco).ToList();
-            //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
-            //if (user.AccessLevel == AccessLevel.Branch)
-            //    branch = branch.Where(n => n.Bname.ToUpper().Equals(Loggedinbranch.ToUpper())).ToList(); 
-            //controller.ViewBag.Loggedinbranch = new SelectList(branch.Select(m=>m.Bname));
             controller.ViewBag.Loggedinbranch = Loggedinbranch;
             controller.ViewBag.filesRole = usergroup.Files;
             controller.ViewBag.accountsRole = usergroup.Accounts;

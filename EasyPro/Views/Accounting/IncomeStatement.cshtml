@@ -1,4 +1,38 @@
-﻿<div class="row">
+﻿<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #00ff21;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #dec3eb;
+            color: white;
+        }
+
+    .divScroll {
+        width: 1000px;
+        height: 500px;
+        overflow: auto;
+    }
+</style>
+<div class="row">
     <div class="tabs-info-area">
         <div class="container">
             <div class="row">
@@ -61,31 +95,44 @@
                                                                 <div class="col-sm-4 col-xs-12">
                                                                     <a id="excel_rep_gen_summary" class="btn btn-success">Export Excel</a>
                                                                 </div>
+                                                                <div class="col-sm-2 col-xs-12">
+                                                                        <a id="print_report" class="btn btn-success">Print Report</a>
+                                                                </div>
                                                             </div>
                                                             
                                                             <div class="bsc-tbl-hvr table-border-style">
                                                                 <div id="gen_summary_Collection"></div>
                                                                 <div class="table-responsive">
-                                                                    <table class="table table-hover" id="tbl_rep_gen_summary">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>
-                                                                                    Name
-                                                                                </th>
-                                                                                <th>
-                                                                                    Quantity
-                                                                                </th>
-                                                                                <th>
-                                                                                    Price
-                                                                                </th>
-                                                                                <th>
-                                                                                    Amount
-                                                                                </th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody id="gen_rep_summary">
-                                                                        </tbody>
-                                                                    </table>
+                                                                    <div class="divScroll">
+                                                                        <table class="table table-hover" border="1" id="tbl_rep_gen_summary">
+                                                                            <thead>
+                                                                                <tr id="com"><th colspan="4" id="company"></th></tr>
+                                                                                <tr id="htitl"> <th colspan="4"> <strong>MILK CALCULATION FOR THE MONTH</strong></th></tr>
+                                                                                <tr id="hstartd"><th colspan="4" id="sema"></th>  </tr>
+                                                                                <tr id="her"><th colspan="7"><hr /></th></tr>
+                                                                                <tr>
+                                                                                    <th>
+                                                                                        Name
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Quantity
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Price
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Amount
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Total
+                                                                                    </th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody id="gen_rep_summary">
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                    
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -171,6 +218,7 @@
                                                 <div class="table-responsive">
                                                     <div class="divScroll">
                                                         <table class="table table-hover" id="tbl_summary">
+
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Code</th>
@@ -178,6 +226,7 @@
                                                                 <th>SNo</th>
                                                                 <th>Quantity</th>
                                                                 <th>Amount</th>
+                                                                
                                                             </tr>
                                                             <tbody id="tbl_sum_details">
                                                             </tbody>
@@ -353,6 +402,13 @@
             let incomes = new Array();
             let expenses = new Array();
             let totalKgs = 0;
+            var getMonthName = 0;
+
+            $("#com").hide();
+            $("#htitl").hide();
+            $("#hstartd").hide();
+            $("#her").hide();
+
             $('#general_summary_loading').hide();
             $('#general_detailed_loading').hide();
             var today = new Date().toISOString().split('T')[0];
@@ -370,6 +426,7 @@
             $('#excel_rep_gen_summary').on('click', function () {
                 let date = new Date().toLocaleDateString('en-GB');
                 let fileName = `Statement Summary ${date}`;
+                heading();
                 $('#tbl_rep_gen_summary').table2excel({
                     filename: fileName, 
                     fileext: ".xls",
@@ -386,7 +443,42 @@
                     name: "Statement Detailed",
                 });
             });
-            
+            function heading() {
+                var company = @Html.Raw(Json.Serialize(ViewBag.Sacco));
+                var user = @Html.Raw(Json.Serialize(ViewBag.User));
+                var date1 = today;
+                var date10 = new Date(date1).toLocaleDateString();
+                var date2 = $("#toDate").val();
+                var date20 = new Date(date2).toLocaleDateString();
+                var sm = " OF :" + date2 + " AS AT " + date10;
+                //var com = ;
+                //$("#sema").val(sm);
+                let itemTableRows1 = new Array();
+                let itemTableRow = new Array();
+                let itemTableRows2 = new Array();
+                itemTableRow.push(`${company}`);
+                $('#company').html(itemTableRow);
+                itemTableRows1.push(`${sm}`);
+                $('#sema').html(itemTableRows1);
+            }
+            $('#print_report').on('click', function () {
+                $("#com").show();
+                $("#htitl").show();
+                $("#hstartd").show();
+                $("#her").show();
+                $("#companyname").show();
+                heading();
+                var divToPrint = document.getElementById("tbl_rep_gen_summary");
+                newWin = window.open("");
+                newWin.document.write(divToPrint.outerHTML);
+                newWin.print();
+                newWin.close();
+                $("#com").hide();
+                $("#htitl").hide();
+                $("#hstartd").hide();
+                $("#her").hide();
+                $("#companyname").hide();
+            });
             //$('#fromDate').on('change', function () {
             //    buildIncomeStatement();
             //});
@@ -414,6 +506,8 @@
                             incomes = response.income ? response.income : new Array();
                             expenses = response.expenses ? response.expenses : new Array();
                             totalKgs = response.totalKgs ? response.totalKgs : 0;
+                            getMonthName = response.getMonthName ? response.getMonthName : 0;
+                            debugger
                             populateGeneralDetailsTable();
                         },
                         failure: function (response) {
@@ -444,6 +538,11 @@
                             incomes = response.income ? response.income : new Array();
                             expenses = response.expenses ? response.expenses : new Array();
                             totalKgs = response.totalKgs ? response.totalKgs : 0;
+                            getLastMonthName = response.getLastMonthName ? response.getLastMonthName : "";
+                            lasttotalKgs = response.lasttotalKgs ? response.lasttotalKgs : 0;
+                            Remarkks = response.Remarkks ? response.Remarkks : "";
+                            checkthediff = response.checkthediff ? response.checkthediff : 0;
+                                
                             populateGenaralSummaryTable();
                         },
                         failure: function (response) {
@@ -533,7 +632,7 @@
 
                 var profit = income - expense;
                 itemTableRows.push(`<tr>
-                    <td colspan="5"><h3>Profit/Loss</h3></td>
+                    <td colspan="5"><h3>NET SALES</h3></td>
                     <td>${profit.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
@@ -555,12 +654,22 @@
             function populateGenaralSummaryTable() {
                 let itemTableRows = new Array();
                 var income = 0;
+                var saleskgs = 0;
                 var expense = 0;
+                
                 itemTableRows.push(`<tr>
-                    <td><h3>TOTAL LITRES</h3></td>
-                    <td>${totalKgs.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
-                    <td colspan="2"></td>
+                    <td colspan="3"><h3>${getLastMonthName}</h3></td>
+                    <td>${lasttotalKgs.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
                 </tr>`);
+                itemTableRows.push(`<tr>
+                            <td colspan="3"><h3>${Remarkks}</h3></td>
+                            <td>${checkthediff.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                        </tr>`);
+                itemTableRows.push(`<tr>
+                                    <td colspan="3"><h3>Total Collection</h3></td>
+                            <td>${totalKgs.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                            <td colspan="2"></td>
+                        </tr>`);
 
                 itemTableRows.push(`<tr>
                     <td colspan="4"><h3>Income</h3></td>
@@ -573,15 +682,18 @@
                         <td>${j.Amount.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                     </tr>`);
                     income += j.Amount;
+                    saleskgs += j.Quantity;
                 });
 
                 itemTableRows.push(`<tr>
-                    <td colspan="3"><h3></h3></td>
+                    <td colspan="1"><h2>TOTAL MILK SALES</h2></td>
+                    <td>${saleskgs.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                    <td colspan="2"><h1></h1></td>
                     <td>${income.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                 </tr>`);
 
-                itemTableRows.push(`<tr>
-                    <td colspan="4"><h3>Expense</h3></td>
+                itemTableRows.push(`<tr class="border border-1">
+                    <td colspan="4"><h2>Expense</h2></td>
                 </tr>`);
 
                 expenses.forEach(j => {
@@ -596,7 +708,7 @@
                         </tr>`);
                     });
                     itemTableRows.push(`<tr>
-                        <td colspan="3"><h3></h3></td>
+                        <td colspan="4"><h1></h1></td>
                         <td>${j.Total.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
                     </tr>`);
                     expense += j.Total;
@@ -605,12 +717,25 @@
                 itemTableRows.push(`<tr>
                     <td colspan="3"><h3>Total Expenses</h3></td>
                     <td>${expense.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                        </tr>`); 
+
+                itemTableRows.push(`<tr>
+                            <td colspan="3"><h3> </h3></td>
+                            <td>${getMonthName}</td>
+                        </tr>`);
+                itemTableRows.push(`<tr>
+                    <td colspan="3"><h3>TOTAL SALES</h3></td>
+                    <td>${income.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
                 </tr>`);
+                itemTableRows.push(`<tr>
+                            <td colspan="3"><h3>LESS TOTAL EXPENSES</h3></td>
+                            <td>${expense.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                        </tr>`);
 
                 var profit = income - expense;
                 itemTableRows.push(`<tr>
-                    <td colspan="3"><h3>Profit/Loss</h3></td>
-                    <td>${profit.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                    <td colspan="3"><h3>NET SALES</h3></td>
+                    <td>${profit.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
                 </tr>`);
 
                 itemTableRows.push(`<tr>

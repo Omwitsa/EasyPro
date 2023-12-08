@@ -73,5 +73,6 @@ namespace EasyPro.Models
         public string ValueChain { get; set; }
         public string CigName { get; set; }
         public bool Shares { get; set; }
+        public string VehicleNo { get; set; }
     }
 }

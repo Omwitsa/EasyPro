@@ -359,7 +359,7 @@ namespace EasyPro.Controllers
             //var user = _context.UserAccounts.FirstOrDefault(u => u.UserLoginIds.ToUpper().Equals(loggedInUser.ToUpper()));
             //if (user.AccessLevel == AccessLevel.Branch)
             //    suppliers = suppliers.Where(t => t.Branch == saccoBranch);
-            ViewBag.suppliers = suppliers.ToList();
+            ViewBag.suppliers = suppliers.OrderByDescending(i=>i.Id).ToList();
         }
 
         [HttpPost]
@@ -427,8 +427,8 @@ namespace EasyPro.Controllers
             var productIntakes = await _context.ProductIntake.Where(i => i.Remarks == "Society Standing Order" && i.TransDate >= startDate && i.TransDate <= endDate && i.SaccoCode == sacco).ToListAsync();
             if (user.AccessLevel == AccessLevel.Branch)
             {
-                activeorders = activeorders.Where(i => i.Branch == saccoBranch).ToList();
-                productIntakes = productIntakes.Where(i => i.Branch == saccoBranch).ToList();
+                //activeorders = activeorders.Where(i => i.Branch == saccoBranch).ToList();
+                //productIntakes = productIntakes.Where(i => i.Branch == saccoBranch).ToList();
             }
                 
             var intakes = new List<ProductIntake>();

@@ -31,8 +31,11 @@ namespace EasyPro.Models
         public string TransportCrAccNo { get; set; }
 
         // [NotMapped]
-        //public List<DBranchProduct> Productcollection { get; set; }
+        //public List<DBranchProduct> Productcollection { get; set; } 
         [NotMapped]
         public List<SelectListItem> Productt { get; set; }
+        public decimal? TransportersPrice { get; set; }
+        public decimal? TradersPrice { get; set; }
+        public decimal? OtherTradersPrice { get; set; }
     }
 }

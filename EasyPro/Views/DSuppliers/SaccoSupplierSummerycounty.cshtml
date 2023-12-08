@@ -27,27 +27,28 @@
             <div class="bsc-tbl-hvr table-border-style">
                 <div class="table-responsive">
                     <div>
-                        @* <strong>Total Suppliers:</strong>
-                        <span>@Model.TotalSupplies</span>
-                        &nbsp; &nbsp; &nbsp;
-                        <strong>Male:</strong>
-                        <span>@Model.TotalMale</span>
-                        &nbsp; &nbsp; &nbsp;
-                        <strong>Female</strong>
-                        <span>@Model.TotalFemale</span> *@
                     </div>
                     @* @foreach (var county in Model.countySuppliers)
                     { *@
                     <div class="row">
                         <hr />
-                        <strong>County:</strong>
-                        <span><input id="suplc" /></span>
-                        <strong>Suppliers:</strong>
-                        <span><input id="supl" /></span>
-                        <strong>Male:</strong>
-                        <span><input id="suplm" /></span>
-                        <strong>Female:</strong>
-                        <span><input id="suplf" /></span>
+                        <div class="col-sm-3 col-xs-12">
+
+                            <strong>County:</strong>
+                            <span><input id="suplc" /></span>
+                        </div>
+                        <div class="col-sm-3 col-xs-12">
+                            <strong>Suppliers:</strong>
+                            <span><input id="supl" /></span>
+                        </div>
+                        <div class="col-sm-3 col-xs-12">
+                            <strong>Male:</strong>
+                            <span><input id="suplm" /></span>
+                        </div>
+                        <div class="col-sm-3 col-xs-12">
+                            <strong>Female:</strong>
+                            <span><input id="suplf" /></span>
+                        </div>
                     </div> <hr />
 
                     <table class="table table-hover">
@@ -117,11 +118,11 @@
                 $("#suplf").val(femalesup);
                 intake.saccoSuppliers.forEach(i => {
                     itemTableRows.push(`<tr>
-                                                    <td>${i.Sacco}</td>
-                                                    <td>${i.Suppliers}</td>
-                                                    <td>${i.Male.toFixed(2)}</td>
-                                                    <td>${i.Female.toFixed(2)}</td>
-                                        </tr>`)
+                                                            <td>${i.Sacco}</td>
+                                                            <td>${i.Suppliers}</td>
+                                                            <td>${i.Male.toFixed(2)}</td>
+                                                            <td>${i.Female.toFixed(2)}</td>
+                                                </tr>`)
                 });
 
                 $('#geeks').html(itemTableRows);
